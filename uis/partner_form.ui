@@ -1,0 +1,1329 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Partner_Form</class>
+ <widget class="QWidget" name="Partner_Form">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1553</width>
+    <height>872</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>1413</width>
+    <height>867</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>Partner</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="../app/icons.qrc">
+    <normaloff>:/parnters</normaloff>:/parnters</iconset>
+  </property>
+  <property name="toolTip">
+   <string/>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">background:white;</string>
+  </property>
+  <widget class="QLabel" name="label_2">
+   <property name="geometry">
+    <rect>
+     <x>40</x>
+     <y>70</y>
+     <width>129</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">font-weight:bold;
+
+</string>
+   </property>
+   <property name="text">
+    <string>General Information</string>
+   </property>
+  </widget>
+  <widget class="Line" name="line">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>90</y>
+     <width>1471</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="orientation">
+    <enum>Qt::Horizontal</enum>
+   </property>
+  </widget>
+  <widget class="QWidget" name="layoutWidget_2">
+   <property name="geometry">
+    <rect>
+     <x>820</x>
+     <y>110</y>
+     <width>316</width>
+     <height>24</height>
+    </rect>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout_4">
+    <item>
+     <widget class="QLabel" name="label_5">
+      <property name="text">
+       <string>Trading Name:</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLineEdit" name="trading_name_line_edit">
+      <property name="minimumSize">
+       <size>
+        <width>221</width>
+        <height>22</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>221</width>
+        <height>22</height>
+       </size>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="placeholderText">
+       <string>Required</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QLabel" name="label_6">
+   <property name="geometry">
+    <rect>
+     <x>40</x>
+     <y>190</y>
+     <width>114</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">font-weight:bold;</string>
+   </property>
+   <property name="text">
+    <string>Addresses</string>
+   </property>
+  </widget>
+  <widget class="QToolButton" name="copy_address_button">
+   <property name="geometry">
+    <rect>
+     <x>490</x>
+     <y>290</y>
+     <width>91</width>
+     <height>61</height>
+    </rect>
+   </property>
+   <property name="autoFillBackground">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Copy Address</string>
+   </property>
+   <property name="icon">
+    <iconset resource="../app/icons.qrc">
+     <normaloff>:/right_arrow</normaloff>:/right_arrow</iconset>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>32</width>
+     <height>32</height>
+    </size>
+   </property>
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <property name="popupMode">
+    <enum>QToolButton::InstantPopup</enum>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonTextUnderIcon</enum>
+   </property>
+   <property name="autoRaise">
+    <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QGroupBox" name="groupBox">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>220</y>
+     <width>451</width>
+     <height>241</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true"/>
+   </property>
+   <property name="title">
+    <string>Billing</string>
+   </property>
+   <property name="flat">
+    <bool>false</bool>
+   </property>
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <widget class="QLineEdit" name="billing_address3_line_edit">
+    <property name="geometry">
+     <rect>
+      <x>110</x>
+      <y>90</y>
+      <width>261</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>241</width>
+      <height>22</height>
+     </size>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="maxLength">
+     <number>35</number>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+    <property name="placeholderText">
+     <string>Max 35 characters</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="billing_postcode_line_edit">
+    <property name="geometry">
+     <rect>
+      <x>110</x>
+      <y>140</y>
+      <width>111</width>
+      <height>22</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_10">
+    <property name="geometry">
+     <rect>
+      <x>50</x>
+      <y>170</y>
+      <width>35</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>State:</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_7">
+    <property name="geometry">
+     <rect>
+      <x>50</x>
+      <y>30</y>
+      <width>51</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Address:</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="billing_state_line_edit">
+    <property name="geometry">
+     <rect>
+      <x>110</x>
+      <y>170</y>
+      <width>191</width>
+      <height>22</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_11">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>200</y>
+      <width>55</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Country:</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_8">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>140</y>
+      <width>62</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Post Code:</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="billing_address1_line_edit">
+    <property name="geometry">
+     <rect>
+      <x>110</x>
+      <y>30</y>
+      <width>261</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>241</width>
+      <height>22</height>
+     </size>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="maxLength">
+     <number>35</number>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+    <property name="placeholderText">
+     <string>Max 35 characters</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="billing_address2_line_edit">
+    <property name="geometry">
+     <rect>
+      <x>110</x>
+      <y>60</y>
+      <width>261</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>241</width>
+      <height>22</height>
+     </size>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="maxLength">
+     <number>35</number>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+    <property name="placeholderText">
+     <string>Max 35 characters</string>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="billing_country_combobox">
+    <property name="geometry">
+     <rect>
+      <x>110</x>
+      <y>200</y>
+      <width>231</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="editable">
+     <bool>true</bool>
+    </property>
+    <property name="insertPolicy">
+     <enum>QComboBox::NoInsert</enum>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_9">
+    <property name="geometry">
+     <rect>
+      <x>241</x>
+      <y>140</y>
+      <width>26</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>City:</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="billing_city_line_edit">
+    <property name="geometry">
+     <rect>
+      <x>274</x>
+      <y>140</y>
+      <width>137</width>
+      <height>22</height>
+     </rect>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QGroupBox" name="groupBox_2">
+   <property name="geometry">
+    <rect>
+     <x>590</x>
+     <y>210</y>
+     <width>451</width>
+     <height>261</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true"/>
+   </property>
+   <property name="title">
+    <string>Shipment</string>
+   </property>
+   <property name="flat">
+    <bool>false</bool>
+   </property>
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <widget class="QLineEdit" name="shipment_address3_line_edit">
+    <property name="geometry">
+     <rect>
+      <x>110</x>
+      <y>90</y>
+      <width>261</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>241</width>
+      <height>22</height>
+     </size>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="maxLength">
+     <number>35</number>
+    </property>
+    <property name="cursorPosition">
+     <number>0</number>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+    <property name="placeholderText">
+     <string>Max 35 characters</string>
+    </property>
+    <property name="cursorMoveStyle">
+     <enum>Qt::LogicalMoveStyle</enum>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="shipment_postcode_line_edit">
+    <property name="geometry">
+     <rect>
+      <x>110</x>
+      <y>150</y>
+      <width>111</width>
+      <height>22</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_14">
+    <property name="geometry">
+     <rect>
+      <x>50</x>
+      <y>180</y>
+      <width>35</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>State:</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_15">
+    <property name="geometry">
+     <rect>
+      <x>50</x>
+      <y>30</y>
+      <width>51</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Address:</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="shipment_state_line_edit">
+    <property name="geometry">
+     <rect>
+      <x>110</x>
+      <y>180</y>
+      <width>191</width>
+      <height>22</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_16">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>210</y>
+      <width>51</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Country:</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_17">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>150</y>
+      <width>62</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Post Code:</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="shipment_address_line_edit">
+    <property name="geometry">
+     <rect>
+      <x>110</x>
+      <y>30</y>
+      <width>261</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>241</width>
+      <height>22</height>
+     </size>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="maxLength">
+     <number>35</number>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+    <property name="placeholderText">
+     <string>Max 35 characters</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="shipment_address2_line_edit">
+    <property name="geometry">
+     <rect>
+      <x>110</x>
+      <y>60</y>
+      <width>261</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>241</width>
+      <height>22</height>
+     </size>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="maxLength">
+     <number>35</number>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+    <property name="placeholderText">
+     <string>Max 35 characters</string>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="shipemnt_country_combobox">
+    <property name="geometry">
+     <rect>
+      <x>110</x>
+      <y>210</y>
+      <width>231</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="editable">
+     <bool>true</bool>
+    </property>
+    <property name="insertPolicy">
+     <enum>QComboBox::NoInsert</enum>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="shipment_city_line_edit">
+    <property name="geometry">
+     <rect>
+      <x>274</x>
+      <y>150</y>
+      <width>137</width>
+      <height>22</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_13">
+    <property name="geometry">
+     <rect>
+      <x>241</x>
+      <y>150</y>
+      <width>26</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>City:</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QLabel" name="label_19">
+   <property name="geometry">
+    <rect>
+     <x>40</x>
+     <y>490</y>
+     <width>162</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">font-weight:bold;</string>
+   </property>
+   <property name="text">
+    <string>Contact People And Note</string>
+   </property>
+  </widget>
+  <widget class="Line" name="line_2">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>510</y>
+     <width>1371</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="orientation">
+    <enum>Qt::Horizontal</enum>
+   </property>
+  </widget>
+  <widget class="QGroupBox" name="groupBox_3">
+   <property name="geometry">
+    <rect>
+     <x>1060</x>
+     <y>211</y>
+     <width>331</width>
+     <height>261</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>Payments And Credits</string>
+   </property>
+   <property name="flat">
+    <bool>false</bool>
+   </property>
+   <widget class="QLabel" name="label_22">
+    <property name="geometry">
+     <rect>
+      <x>70</x>
+      <y>40</y>
+      <width>43</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Credit:</string>
+    </property>
+   </widget>
+   <widget class="QSpinBox" name="credit_days_spinbox">
+    <property name="geometry">
+     <rect>
+      <x>120</x>
+      <y>40</y>
+      <width>92</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>51</width>
+      <height>0</height>
+     </size>
+    </property>
+    <property name="suffix">
+     <string>   - days</string>
+    </property>
+    <property name="maximum">
+     <number>365</number>
+    </property>
+    <property name="value">
+     <number>0</number>
+    </property>
+    <property name="displayIntegerBase">
+     <number>10</number>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_23">
+    <property name="geometry">
+     <rect>
+      <x>60</x>
+      <y>80</y>
+      <width>55</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Amount:</string>
+    </property>
+   </widget>
+   <widget class="QDoubleSpinBox" name="credit_amount_spinbox">
+    <property name="geometry">
+     <rect>
+      <x>120</x>
+      <y>80</y>
+      <width>91</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="wrapping">
+     <bool>false</bool>
+    </property>
+    <property name="buttonSymbols">
+     <enum>QAbstractSpinBox::PlusMinus</enum>
+    </property>
+    <property name="maximum">
+     <double>1000000.000000000000000</double>
+    </property>
+    <property name="singleStep">
+     <double>0.010000000000000</double>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="dolar_radiobutton">
+    <property name="geometry">
+     <rect>
+      <x>220</x>
+      <y>80</y>
+      <width>34</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>$</string>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="euro_radiobutton">
+    <property name="geometry">
+     <rect>
+      <x>270</x>
+      <y>80</y>
+      <width>31</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>€</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_24">
+    <property name="geometry">
+     <rect>
+      <x>50</x>
+      <y>180</y>
+      <width>59</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Shipment:</string>
+    </property>
+   </widget>
+   <widget class="QFrame" name="frame">
+    <property name="geometry">
+     <rect>
+      <x>110</x>
+      <y>140</y>
+      <width>190</width>
+      <height>81</height>
+     </rect>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+    <widget class="QRadioButton" name="we_pay_they_ship_radiobutton">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>40</y>
+       <width>141</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>We Pay - They Ship</string>
+     </property>
+    </widget>
+    <widget class="QRadioButton" name="they_pay_they_ship_radiobutton">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>0</y>
+       <width>161</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>They Pay - They Ship</string>
+     </property>
+    </widget>
+    <widget class="QRadioButton" name="they_pay_we_ship_radiobutton">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>20</y>
+       <width>141</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>They Pay - We Ship</string>
+     </property>
+    </widget>
+    <widget class="QRadioButton" name="we_pay_we_ship_radiobutton">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>60</y>
+       <width>141</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>We Pay - We Ship</string>
+     </property>
+    </widget>
+   </widget>
+  </widget>
+  <widget class="Line" name="line_3">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>750</y>
+     <width>1491</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="orientation">
+    <enum>Qt::Horizontal</enum>
+   </property>
+  </widget>
+  <widget class="QToolButton" name="cancel_button">
+   <property name="geometry">
+    <rect>
+     <x>1370</x>
+     <y>780</y>
+     <width>91</width>
+     <height>71</height>
+    </rect>
+   </property>
+   <property name="toolTip">
+    <string>Check Documentd assciated</string>
+   </property>
+   <property name="toolTipDuration">
+    <number>2</number>
+   </property>
+   <property name="text">
+    <string>Cancel</string>
+   </property>
+   <property name="icon">
+    <iconset resource="../app/icons.qrc">
+     <normaloff>:/cancel</normaloff>:/cancel</iconset>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>100</width>
+     <height>100</height>
+    </size>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonTextUnderIcon</enum>
+   </property>
+   <property name="autoRaise">
+    <bool>true</bool>
+   </property>
+   <property name="arrowType">
+    <enum>Qt::NoArrow</enum>
+   </property>
+  </widget>
+  <widget class="QToolButton" name="docs_button">
+   <property name="geometry">
+    <rect>
+     <x>1170</x>
+     <y>780</y>
+     <width>91</width>
+     <height>71</height>
+    </rect>
+   </property>
+   <property name="toolTip">
+    <string>Check Documentd assciated</string>
+   </property>
+   <property name="toolTipDuration">
+    <number>2</number>
+   </property>
+   <property name="text">
+    <string>Docs</string>
+   </property>
+   <property name="icon">
+    <iconset resource="../app/icons.qrc">
+     <normaloff>:/document</normaloff>:/document</iconset>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>100</width>
+     <height>100</height>
+    </size>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonTextUnderIcon</enum>
+   </property>
+   <property name="autoRaise">
+    <bool>true</bool>
+   </property>
+   <property name="arrowType">
+    <enum>Qt::NoArrow</enum>
+   </property>
+  </widget>
+  <widget class="QToolButton" name="delete_row_button">
+   <property name="geometry">
+    <rect>
+     <x>110</x>
+     <y>710</y>
+     <width>31</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="icon">
+    <iconset resource="../app/icons.qrc">
+     <normaloff>:/delete</normaloff>:/delete</iconset>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonTextUnderIcon</enum>
+   </property>
+   <property name="autoRaise">
+    <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QWidget" name="layoutWidget">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>20</y>
+     <width>217</width>
+     <height>24</height>
+    </rect>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout">
+    <item>
+     <widget class="QLabel" name="label">
+      <property name="text">
+       <string>Partner Code:</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLineEdit" name="partner_code_line_edit">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QWidget" name="layoutWidget">
+   <property name="geometry">
+    <rect>
+     <x>40</x>
+     <y>110</y>
+     <width>285</width>
+     <height>24</height>
+    </rect>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout_2">
+    <item>
+     <widget class="QLabel" name="label_3">
+      <property name="text">
+       <string>Fiscal Nº:</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLineEdit" name="fiscal_number_line_edit">
+      <property name="minimumSize">
+       <size>
+        <width>221</width>
+        <height>22</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>221</width>
+        <height>22</height>
+       </size>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="placeholderText">
+       <string> Required</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QWidget" name="layoutWidget">
+   <property name="geometry">
+    <rect>
+     <x>419</x>
+     <y>111</y>
+     <width>304</width>
+     <height>24</height>
+    </rect>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout_3">
+    <item>
+     <widget class="QLabel" name="label_4">
+      <property name="text">
+       <string>Fiscal Name:</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLineEdit" name="fical_name_line_edit">
+      <property name="minimumSize">
+       <size>
+        <width>221</width>
+        <height>22</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>221</width>
+        <height>22</height>
+       </size>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="placeholderText">
+       <string>Required</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QWidget" name="layoutWidget">
+   <property name="geometry">
+    <rect>
+     <x>40</x>
+     <y>150</y>
+     <width>333</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout_6">
+    <item>
+     <widget class="QLabel" name="label_12">
+      <property name="text">
+       <string>Associated Agent:</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QComboBox" name="associated_agent_combobox">
+      <property name="minimumSize">
+       <size>
+        <width>221</width>
+        <height>0</height>
+       </size>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QWidget" name="layoutWidget">
+   <property name="geometry">
+    <rect>
+     <x>420</x>
+     <y>150</y>
+     <width>159</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout_10">
+    <item>
+     <widget class="QLabel" name="label_21">
+      <property name="text">
+       <string>Warranty:</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QSpinBox" name="warranty_spinbox">
+      <property name="minimumSize">
+       <size>
+        <width>51</width>
+        <height>0</height>
+       </size>
+      </property>
+      <property name="suffix">
+       <string>   - days</string>
+      </property>
+      <property name="maximum">
+       <number>365</number>
+      </property>
+      <property name="value">
+       <number>0</number>
+      </property>
+      <property name="displayIntegerBase">
+       <number>10</number>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QLabel" name="label_25">
+   <property name="geometry">
+    <rect>
+     <x>1050</x>
+     <y>530</y>
+     <width>77</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Partner Note:</string>
+   </property>
+  </widget>
+  <widget class="QTextEdit" name="note_text_edit">
+   <property name="geometry">
+    <rect>
+     <x>1140</x>
+     <y>530</y>
+     <width>231</width>
+     <height>151</height>
+    </rect>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::Box</enum>
+   </property>
+   <property name="html">
+    <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:7.8pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+   </property>
+   <property name="cursorWidth">
+    <number>3</number>
+   </property>
+   <property name="placeholderText">
+    <string>Max 255 characters</string>
+   </property>
+  </widget>
+  <widget class="QToolButton" name="save_button">
+   <property name="geometry">
+    <rect>
+     <x>1270</x>
+     <y>780</y>
+     <width>91</width>
+     <height>71</height>
+    </rect>
+   </property>
+   <property name="toolTip">
+    <string>Check Documentd assciated</string>
+   </property>
+   <property name="toolTipDuration">
+    <number>2</number>
+   </property>
+   <property name="text">
+    <string>Save and Cose</string>
+   </property>
+   <property name="icon">
+    <iconset resource="../app/icons.qrc">
+     <normaloff>:/save</normaloff>:/save</iconset>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>100</width>
+     <height>100</height>
+    </size>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonTextUnderIcon</enum>
+   </property>
+   <property name="autoRaise">
+    <bool>true</bool>
+   </property>
+   <property name="arrowType">
+    <enum>Qt::NoArrow</enum>
+   </property>
+  </widget>
+  <widget class="QToolButton" name="add_row_button">
+   <property name="geometry">
+    <rect>
+     <x>50</x>
+     <y>710</y>
+     <width>31</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="icon">
+    <iconset resource="../app/icons.qrc">
+     <normaloff>:/new</normaloff>:/new</iconset>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonTextUnderIcon</enum>
+   </property>
+   <property name="autoRaise">
+    <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QTableView" name="contact_view">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>530</y>
+     <width>931</width>
+     <height>171</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="active_checkbox">
+   <property name="geometry">
+    <rect>
+     <x>380</x>
+     <y>20</y>
+     <width>81</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">font:bold; </string>
+   </property>
+   <property name="text">
+    <string>Active</string>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="isp_checkbox">
+   <property name="geometry">
+    <rect>
+     <x>280</x>
+     <y>480</y>
+     <width>51</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>ISP</string>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="re_checkbox">
+   <property name="geometry">
+    <rect>
+     <x>340</x>
+     <y>480</y>
+     <width>51</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>RE</string>
+   </property>
+  </widget>
+ </widget>
+ <tabstops>
+  <tabstop>active_checkbox</tabstop>
+  <tabstop>fiscal_number_line_edit</tabstop>
+  <tabstop>fical_name_line_edit</tabstop>
+  <tabstop>trading_name_line_edit</tabstop>
+  <tabstop>associated_agent_combobox</tabstop>
+  <tabstop>warranty_spinbox</tabstop>
+  <tabstop>billing_address1_line_edit</tabstop>
+  <tabstop>billing_address2_line_edit</tabstop>
+  <tabstop>billing_address3_line_edit</tabstop>
+  <tabstop>billing_postcode_line_edit</tabstop>
+  <tabstop>billing_city_line_edit</tabstop>
+  <tabstop>billing_state_line_edit</tabstop>
+  <tabstop>billing_country_combobox</tabstop>
+  <tabstop>copy_address_button</tabstop>
+  <tabstop>shipment_address_line_edit</tabstop>
+  <tabstop>shipment_address2_line_edit</tabstop>
+  <tabstop>shipment_address3_line_edit</tabstop>
+  <tabstop>shipment_postcode_line_edit</tabstop>
+  <tabstop>shipment_city_line_edit</tabstop>
+  <tabstop>shipment_state_line_edit</tabstop>
+  <tabstop>shipemnt_country_combobox</tabstop>
+  <tabstop>credit_days_spinbox</tabstop>
+  <tabstop>credit_amount_spinbox</tabstop>
+  <tabstop>dolar_radiobutton</tabstop>
+  <tabstop>euro_radiobutton</tabstop>
+  <tabstop>they_pay_they_ship_radiobutton</tabstop>
+  <tabstop>we_pay_they_ship_radiobutton</tabstop>
+  <tabstop>isp_checkbox</tabstop>
+  <tabstop>re_checkbox</tabstop>
+  <tabstop>contact_view</tabstop>
+  <tabstop>note_text_edit</tabstop>
+  <tabstop>docs_button</tabstop>
+  <tabstop>save_button</tabstop>
+  <tabstop>cancel_button</tabstop>
+  <tabstop>add_row_button</tabstop>
+  <tabstop>delete_row_button</tabstop>
+  <tabstop>partner_code_line_edit</tabstop>
+ </tabstops>
+ <resources>
+  <include location="../app/icons.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>cancel_button</sender>
+   <signal>clicked()</signal>
+   <receiver>Partner_Form</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1347</x>
+     <y>763</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1374</x>
+     <y>765</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

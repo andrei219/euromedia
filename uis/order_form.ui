@@ -1,0 +1,693 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>OrderForm</class>
+ <widget class="QDialog" name="OrderForm">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>737</width>
+    <height>883</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Reception</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="../app/icons.qrc">
+    <normaloff>:/warehouse</normaloff>:/warehouse</iconset>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">background-color: white;
+font: 10pt &quot;Verdana&quot;;</string>
+  </property>
+  <property name="modal">
+   <bool>false</bool>
+  </property>
+  <widget class="QToolButton" name="exit_tool_buttom">
+   <property name="geometry">
+    <rect>
+     <x>80</x>
+     <y>750</y>
+     <width>71</width>
+     <height>71</height>
+    </rect>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::NoFocus</enum>
+   </property>
+   <property name="layoutDirection">
+    <enum>Qt::LeftToRight</enum>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background: white;</string>
+   </property>
+   <property name="text">
+    <string>Exit</string>
+   </property>
+   <property name="icon">
+    <iconset resource="../app/icons.qrc">
+     <normaloff>:/exit</normaloff>:/exit</iconset>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>24</width>
+     <height>24</height>
+    </size>
+   </property>
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonTextUnderIcon</enum>
+   </property>
+   <property name="autoRaise">
+    <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QToolButton" name="delete_imei_tool_button">
+   <property name="geometry">
+    <rect>
+     <x>470</x>
+     <y>720</y>
+     <width>101</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="layoutDirection">
+    <enum>Qt::LeftToRight</enum>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background: white;</string>
+   </property>
+   <property name="text">
+    <string>Delete</string>
+   </property>
+   <property name="icon">
+    <iconset resource="../app/icons.qrc">
+     <normaloff>:/delete</normaloff>:/delete</iconset>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonTextBesideIcon</enum>
+   </property>
+   <property name="autoRaise">
+    <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QToolButton" name="next_line_tool_button">
+   <property name="geometry">
+    <rect>
+     <x>280</x>
+     <y>420</y>
+     <width>61</width>
+     <height>51</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background: white;</string>
+   </property>
+   <property name="text">
+    <string>Next</string>
+   </property>
+   <property name="icon">
+    <iconset resource="../app/icons.qrc">
+     <normaloff>:/right_arrow</normaloff>:/right_arrow</iconset>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonTextUnderIcon</enum>
+   </property>
+   <property name="autoRaise">
+    <bool>true</bool>
+   </property>
+   <property name="arrowType">
+    <enum>Qt::RightArrow</enum>
+   </property>
+  </widget>
+  <widget class="QToolButton" name="prev_line_button">
+   <property name="geometry">
+    <rect>
+     <x>200</x>
+     <y>420</y>
+     <width>71</width>
+     <height>51</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background: white;</string>
+   </property>
+   <property name="text">
+    <string>Prev</string>
+   </property>
+   <property name="icon">
+    <iconset resource="../app/icons.qrc">
+     <normaloff>:/cancel</normaloff>:/cancel</iconset>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonTextUnderIcon</enum>
+   </property>
+   <property name="autoRaise">
+    <bool>true</bool>
+   </property>
+   <property name="arrowType">
+    <enum>Qt::LeftArrow</enum>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="warehouse_line_edit">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="geometry">
+    <rect>
+     <x>190</x>
+     <y>160</y>
+     <width>191</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="readOnly">
+    <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QLabel" name="Label6">
+   <property name="geometry">
+    <rect>
+     <x>85</x>
+     <y>290</y>
+     <width>121</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true"/>
+   </property>
+   <property name="text">
+    <string>Description:</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="description_line_edit">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="geometry">
+    <rect>
+     <x>200</x>
+     <y>290</y>
+     <width>371</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="readOnly">
+    <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QLabel" name="Label5">
+   <property name="geometry">
+    <rect>
+     <x>80</x>
+     <y>160</y>
+     <width>101</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true"/>
+   </property>
+   <property name="text">
+    <string>Warehouse:</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="Label1">
+   <property name="geometry">
+    <rect>
+     <x>99</x>
+     <y>41</y>
+     <width>84</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true"/>
+   </property>
+   <property name="text">
+    <string>Order Nº:</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="order_number_line_edit">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="geometry">
+    <rect>
+     <x>190</x>
+     <y>41</y>
+     <width>151</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <property name="readOnly">
+    <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QLabel" name="Label2">
+   <property name="geometry">
+    <rect>
+     <x>370</x>
+     <y>40</y>
+     <width>51</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true"/>
+   </property>
+   <property name="text">
+    <string>Date:</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="order_date_line_edit">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="geometry">
+    <rect>
+     <x>430</x>
+     <y>40</y>
+     <width>141</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>121</width>
+     <height>0</height>
+    </size>
+   </property>
+   <property name="readOnly">
+    <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QLabel" name="Label3">
+   <property name="geometry">
+    <rect>
+     <x>113</x>
+     <y>87</y>
+     <width>70</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true"/>
+   </property>
+   <property name="text">
+    <string>Partner:</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="Label4">
+   <property name="geometry">
+    <rect>
+     <x>124</x>
+     <y>120</y>
+     <width>59</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true"/>
+   </property>
+   <property name="text">
+    <string>Agent:</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="partner_line_edit">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="geometry">
+    <rect>
+     <x>190</x>
+     <y>87</y>
+     <width>381</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>381</width>
+     <height>0</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>381</width>
+     <height>16777215</height>
+    </size>
+   </property>
+   <property name="readOnly">
+    <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="agent_line_edit">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="geometry">
+    <rect>
+     <x>190</x>
+     <y>120</y>
+     <width>381</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <property name="readOnly">
+    <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label">
+   <property name="geometry">
+    <rect>
+     <x>130</x>
+     <y>190</y>
+     <width>51</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Total:</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="order_total_line_edit">
+   <property name="geometry">
+    <rect>
+     <x>192</x>
+     <y>190</y>
+     <width>191</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="readOnly">
+    <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="imei_line_edit">
+   <property name="geometry">
+    <rect>
+     <x>200</x>
+     <y>497</y>
+     <width>371</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <property name="inputMask">
+    <string/>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignCenter</set>
+   </property>
+   <property name="placeholderText">
+    <string>Write an IMEI/SN...</string>
+   </property>
+  </widget>
+  <widget class="QListView" name="view">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="geometry">
+    <rect>
+     <x>200</x>
+     <y>530</y>
+     <width>371</width>
+     <height>181</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QWidget" name="layoutWidget">
+   <property name="geometry">
+    <rect>
+     <x>380</x>
+     <y>450</y>
+     <width>184</width>
+     <height>24</height>
+    </rect>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout">
+    <item>
+     <widget class="QLabel" name="Label10">
+      <property name="layoutDirection">
+       <enum>Qt::LeftToRight</enum>
+      </property>
+      <property name="text">
+       <string>processed:</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLineEdit" name="processed_line_edit">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>81</width>
+        <height>22</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>81</width>
+        <height>22</height>
+       </size>
+      </property>
+      <property name="layoutDirection">
+       <enum>Qt::LeftToRight</enum>
+      </property>
+      <property name="readOnly">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QWidget" name="layoutWidget">
+   <property name="geometry">
+    <rect>
+     <x>380</x>
+     <y>410</y>
+     <width>185</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout_2">
+    <item>
+     <widget class="QLabel" name="Label8">
+      <property name="minimumSize">
+       <size>
+        <width>95</width>
+        <height>20</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>95</width>
+        <height>20</height>
+       </size>
+      </property>
+      <property name="text">
+       <string>Line Total :</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLineEdit" name="line_total_line_edit">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>81</width>
+        <height>21</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>81</width>
+        <height>21</height>
+       </size>
+      </property>
+      <property name="readOnly">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QLabel" name="Label2_2">
+   <property name="geometry">
+    <rect>
+     <x>90</x>
+     <y>340</y>
+     <width>101</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true"/>
+   </property>
+   <property name="text">
+    <string>Condition:</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="condition_line_edit">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="geometry">
+    <rect>
+     <x>200</x>
+     <y>340</y>
+     <width>141</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>121</width>
+     <height>0</height>
+    </size>
+   </property>
+   <property name="readOnly">
+    <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QLabel" name="Label2_3">
+   <property name="geometry">
+    <rect>
+     <x>370</x>
+     <y>340</y>
+     <width>51</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true"/>
+   </property>
+   <property name="text">
+    <string>Spec:</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="spec_line_edit">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="geometry">
+    <rect>
+     <x>430</x>
+     <y>340</y>
+     <width>141</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>121</width>
+     <height>0</height>
+    </size>
+   </property>
+   <property name="readOnly">
+    <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="number_line_edit">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="geometry">
+    <rect>
+     <x>580</x>
+     <y>290</y>
+     <width>51</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="readOnly">
+    <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_2">
+   <property name="geometry">
+    <rect>
+     <x>640</x>
+     <y>290</y>
+     <width>55</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Nº</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="total_processed_line_edit">
+   <property name="geometry">
+    <rect>
+     <x>190</x>
+     <y>230</y>
+     <width>191</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="readOnly">
+    <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_3">
+   <property name="geometry">
+    <rect>
+     <x>40</x>
+     <y>230</y>
+     <width>141</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Total Processed:</string>
+   </property>
+  </widget>
+ </widget>
+ <tabstops>
+  <tabstop>order_number_line_edit</tabstop>
+  <tabstop>order_date_line_edit</tabstop>
+  <tabstop>partner_line_edit</tabstop>
+  <tabstop>agent_line_edit</tabstop>
+  <tabstop>warehouse_line_edit</tabstop>
+  <tabstop>description_line_edit</tabstop>
+  <tabstop>prev_line_button</tabstop>
+  <tabstop>next_line_tool_button</tabstop>
+  <tabstop>imei_line_edit</tabstop>
+  <tabstop>view</tabstop>
+  <tabstop>delete_imei_tool_button</tabstop>
+  <tabstop>processed_line_edit</tabstop>
+ </tabstops>
+ <resources>
+  <include location="../app/icons.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>exit_tool_buttom</sender>
+   <signal>clicked()</signal>
+   <receiver>OrderForm</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>557</x>
+     <y>796</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>174</x>
+     <y>732</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

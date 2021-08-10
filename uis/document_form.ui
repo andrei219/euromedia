@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>DocumentsForm</class>
+ <widget class="QDialog" name="DocumentsForm">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>661</width>
+    <height>323</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>661</width>
+    <height>323</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>661</width>
+    <height>323</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>Documents</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="../app/icons.qrc">
+    <normaloff>:/document</normaloff>:/document</iconset>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">background:white;</string>
+  </property>
+  <widget class="QToolButton" name="add_button">
+   <property name="geometry">
+    <rect>
+     <x>390</x>
+     <y>250</y>
+     <width>75</width>
+     <height>60</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Add</string>
+   </property>
+   <property name="icon">
+    <iconset resource="../app/icons.qrc">
+     <normaloff>:/add_document</normaloff>:/add_document</iconset>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>40</width>
+     <height>40</height>
+    </size>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonTextUnderIcon</enum>
+   </property>
+   <property name="autoRaise">
+    <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QToolButton" name="delete_button">
+   <property name="geometry">
+    <rect>
+     <x>480</x>
+     <y>250</y>
+     <width>75</width>
+     <height>60</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Delete</string>
+   </property>
+   <property name="icon">
+    <iconset resource="../app/icons.qrc">
+     <normaloff>:/delete</normaloff>:/delete</iconset>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>40</width>
+     <height>40</height>
+    </size>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonTextUnderIcon</enum>
+   </property>
+   <property name="autoRaise">
+    <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QToolButton" name="export_button">
+   <property name="geometry">
+    <rect>
+     <x>300</x>
+     <y>250</y>
+     <width>75</width>
+     <height>60</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Export</string>
+   </property>
+   <property name="icon">
+    <iconset resource="../app/icons.qrc">
+     <normaloff>:/export</normaloff>:/export</iconset>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>40</width>
+     <height>40</height>
+    </size>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonTextUnderIcon</enum>
+   </property>
+   <property name="autoRaise">
+    <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QListView" name="document_view">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>30</y>
+     <width>641</width>
+     <height>201</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QToolButton" name="exit_button">
+   <property name="geometry">
+    <rect>
+     <x>570</x>
+     <y>250</y>
+     <width>75</width>
+     <height>60</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Exit</string>
+   </property>
+   <property name="icon">
+    <iconset resource="../app/icons.qrc">
+     <normaloff>:/exit</normaloff>:/exit</iconset>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>40</width>
+     <height>40</height>
+    </size>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonTextUnderIcon</enum>
+   </property>
+   <property name="autoRaise">
+    <bool>true</bool>
+   </property>
+  </widget>
+ </widget>
+ <resources>
+  <include location="../app/icons.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>exit_button</sender>
+   <signal>clicked()</signal>
+   <receiver>DocumentsForm</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>599</x>
+     <y>294</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>554</x>
+     <y>251</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>
