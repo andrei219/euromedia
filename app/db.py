@@ -3,7 +3,7 @@ from sqlalchemy.sql import func
 from sqlalchemy.orm import sessionmaker, scoped_session
 
 
-engine = create_engine('mysql+mysqlconnector://root:hnq#4506@localhost:3306/appdb', pool_size=20, max_overflow=0)
+engine = create_engine('mysql+mysqlconnector://root:hnq#4506@localhost:3306/appdb') # pool_size=20, max_overflow=0)
 
 # engine = create_engine('sqlite:///euro.db', echo=True)
 
@@ -523,19 +523,14 @@ class SaleOrder(Base):
     __tablename__ = 'sale_orders'
 
     id = Column(Integer, primary_key=True)
-    warehouse_id = Column(Integer, ForeignKey('warehouses.id'), nullable=False)
     proforma_id = Column(Integer, ForeignKey('sale_proformas.id'), nullable=False)
-    cancelled = Column(Boolean, nullable=False, default=True)
     note = Column(String(50))
     created_on = Column(DateTime, default=datetime.now)
 
-    def __init__(self, proforma, warehouse, note, cancelled=False):
+    def __init__(self, proforma, note):
         self.proforma = proforma 
-        self.warehouse = warehouse
         self.note = note 
-        self.cancelled = cancelled 
 
-    warehouse = relationship('Warehouse', uselist=False)
     proforma = relationship('SaleProforma', back_populates='order')
 
 class SaleOrderLine(Base):
@@ -571,20 +566,15 @@ class PurchaseOrder(Base):
     __tablename__ = 'purchase_orders'
     
     id = Column(Integer, primary_key=True)
-    warehouse_id = Column(Integer, ForeignKey('warehouses.id'), nullable=False)
     proforma_id = Column(Integer, ForeignKey('purchase_proformas.id'), nullable=False)
-    cancelled = Column(Boolean, nullable=False, default=False)
     note = Column(String(50))
     created_on = Column(DateTime, default=datetime.now)
 
-    warehouse = relationship('Warehouse', uselist=False)
     proforma = relationship('PurchaseProforma', back_populates='order')
 
-    def __init__(self, proforma, warehouse, note, cancelled=False):
+    def __init__(self, proforma, note ):
         self.proforma = proforma 
-        self.warehouse = warehouse
         self.note = note 
-        self.cancelled = cancelled 
 
 class PurchaseOrderLine(Base):
     __tablename__ = 'purchase_order_lines'

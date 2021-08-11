@@ -63,7 +63,7 @@
 font: 8pt &quot;Verdana&quot;;</string>
     </property>
     <property name="currentIndex">
-     <number>3</number>
+     <number>4</number>
     </property>
     <property name="iconSize">
      <size>
@@ -525,7 +525,7 @@ font: 8pt &quot;Verdana&quot;;</string>
         <property name="checked">
          <bool>false</bool>
         </property>
-        <widget class="QLabel" name="proforma_purchase_series_label">
+        <widget class="QLabel" name="proforma_purchase_series">
          <property name="geometry">
           <rect>
            <x>0</x>
@@ -568,7 +568,7 @@ font: 8pt &quot;Verdana&quot;;</string>
           <bool>false</bool>
          </property>
         </widget>
-        <widget class="QCheckBox" name="proforma_purchase_serie1_checkbox">
+        <widget class="QCheckBox" name="proforma_purchase_serie1">
          <property name="geometry">
           <rect>
            <x>20</x>
@@ -581,7 +581,7 @@ font: 8pt &quot;Verdana&quot;;</string>
           <string>1</string>
          </property>
         </widget>
-        <widget class="QCheckBox" name="proforma_purchase_serie2_checkbox">
+        <widget class="QCheckBox" name="proforma_purchase_serie2">
          <property name="geometry">
           <rect>
            <x>80</x>
@@ -594,7 +594,7 @@ font: 8pt &quot;Verdana&quot;;</string>
           <string>2</string>
          </property>
         </widget>
-        <widget class="QCheckBox" name="proforma_purchase_serie4_checkbox">
+        <widget class="QCheckBox" name="proforma_purchase_serie4">
          <property name="geometry">
           <rect>
            <x>20</x>
@@ -607,7 +607,7 @@ font: 8pt &quot;Verdana&quot;;</string>
           <string>4</string>
          </property>
         </widget>
-        <widget class="QCheckBox" name="proforma_purchase_serie6_checkbox">
+        <widget class="QCheckBox" name="proforma_purchase_serie6">
          <property name="geometry">
           <rect>
            <x>140</x>
@@ -620,7 +620,7 @@ font: 8pt &quot;Verdana&quot;;</string>
           <string>6</string>
          </property>
         </widget>
-        <widget class="QCheckBox" name="proforma_purchase_serie5_checkbox">
+        <widget class="QCheckBox" name="proforma_purchase_serie5">
          <property name="geometry">
           <rect>
            <x>80</x>
@@ -633,7 +633,7 @@ font: 8pt &quot;Verdana&quot;;</string>
           <string>5</string>
          </property>
         </widget>
-        <widget class="QCheckBox" name="proforma_purchase_serie3_checkbox">
+        <widget class="QCheckBox" name="proforma_purchase_serie3">
          <property name="geometry">
           <rect>
            <x>140</x>
@@ -646,7 +646,7 @@ font: 8pt &quot;Verdana&quot;;</string>
           <string>3</string>
          </property>
         </widget>
-        <widget class="QLabel" name="proforma_purchase_financial_label">
+        <widget class="QLabel" name="proforma_purchase_financial">
          <property name="geometry">
           <rect>
            <x>0</x>
@@ -689,7 +689,7 @@ font: 8pt &quot;Verdana&quot;;</string>
           <bool>false</bool>
          </property>
         </widget>
-        <widget class="QCheckBox" name="proforma_purchase_notpaid_checkbox">
+        <widget class="QCheckBox" name="proforma_purchase_notpaid">
          <property name="geometry">
           <rect>
            <x>40</x>
@@ -702,20 +702,20 @@ font: 8pt &quot;Verdana&quot;;</string>
           <string>Not Paid</string>
          </property>
         </widget>
-        <widget class="QCheckBox" name="proforma_purchase_partialpaid_checkbox">
+        <widget class="QCheckBox" name="proforma_purchase_partialpaid">
          <property name="geometry">
           <rect>
            <x>40</x>
            <y>240</y>
-           <width>101</width>
+           <width>121</width>
            <height>20</height>
           </rect>
          </property>
          <property name="text">
-          <string>Partial Paid</string>
+          <string>Partially Paid</string>
          </property>
         </widget>
-        <widget class="QCheckBox" name="proforma_purchase_fullpaid_checkbox">
+        <widget class="QCheckBox" name="proforma_purchase_fullpaid">
          <property name="geometry">
           <rect>
            <x>40</x>
@@ -725,10 +725,10 @@ font: 8pt &quot;Verdana&quot;;</string>
           </rect>
          </property>
          <property name="text">
-          <string>Full Paid</string>
+          <string>Fully Paid</string>
          </property>
         </widget>
-        <widget class="QLabel" name="proforma_purchase_logistic_label">
+        <widget class="QLabel" name="proforma_purchase_logistic">
          <property name="geometry">
           <rect>
            <x>0</x>
@@ -771,7 +771,7 @@ font: 8pt &quot;Verdana&quot;;</string>
           <bool>false</bool>
          </property>
         </widget>
-        <widget class="QCheckBox" name="proforma_purchase_waitingstock_checkbox">
+        <widget class="QCheckBox" name="proforma_purchase_empty">
          <property name="geometry">
           <rect>
            <x>40</x>
@@ -781,10 +781,10 @@ font: 8pt &quot;Verdana&quot;;</string>
           </rect>
          </property>
          <property name="text">
-          <string>Waiting Stock</string>
+          <string>Empty</string>
          </property>
         </widget>
-        <widget class="QCheckBox" name="proforma_purchase_partiallyreceived_checkbox">
+        <widget class="QCheckBox" name="proforma_purchase_partially_received">
          <property name="geometry">
           <rect>
            <x>40</x>
@@ -794,10 +794,10 @@ font: 8pt &quot;Verdana&quot;;</string>
           </rect>
          </property>
          <property name="text">
-          <string>Partial Received</string>
+          <string>Partially Received</string>
          </property>
         </widget>
-        <widget class="QCheckBox" name="proforma_purchase_fullreceived_checkbox">
+        <widget class="QCheckBox" name="proforma_purchase_completed">
          <property name="geometry">
           <rect>
            <x>40</x>
@@ -807,10 +807,10 @@ font: 8pt &quot;Verdana&quot;;</string>
           </rect>
          </property>
          <property name="text">
-          <string>Full Received</string>
+          <string>Completed</string>
          </property>
         </widget>
-        <widget class="QLabel" name="proforma_purchase_shipment_label">
+        <widget class="QLabel" name="proforma_purchase_shipment">
          <property name="geometry">
           <rect>
            <x>0</x>
@@ -853,7 +853,7 @@ font: 8pt &quot;Verdana&quot;;</string>
           <bool>false</bool>
          </property>
         </widget>
-        <widget class="QCheckBox" name="proforma_purchase_sent_checkbox">
+        <widget class="QCheckBox" name="proforma_purchase_sent">
          <property name="geometry">
           <rect>
            <x>40</x>
@@ -866,7 +866,7 @@ font: 8pt &quot;Verdana&quot;;</string>
           <string>Sent</string>
          </property>
         </widget>
-        <widget class="QCheckBox" name="proforma_purchase_notsent_checkbox">
+        <widget class="QCheckBox" name="proforma_purchase_notsent">
          <property name="geometry">
           <rect>
            <x>40</x>
@@ -879,7 +879,7 @@ font: 8pt &quot;Verdana&quot;;</string>
           <string>Not Sent</string>
          </property>
         </widget>
-        <widget class="QCheckBox" name="proforma_purchase_cancelled_checkbox">
+        <widget class="QCheckBox" name="proforma_purchase_cancelled">
          <property name="geometry">
           <rect>
            <x>40</x>
@@ -892,7 +892,7 @@ font: 8pt &quot;Verdana&quot;;</string>
           <string>Cancelled</string>
          </property>
         </widget>
-        <widget class="QToolButton" name="proforma_purchase_apply_button">
+        <widget class="QToolButton" name="proforma_purchase_apply">
          <property name="geometry">
           <rect>
            <x>50</x>
@@ -1423,7 +1423,7 @@ font: 8pt &quot;Verdana&quot;;</string>
         <property name="checked">
          <bool>false</bool>
         </property>
-        <widget class="QLabel" name="proforma_sale_series_label">
+        <widget class="QLabel" name="proforma_sale_series">
          <property name="geometry">
           <rect>
            <x>0</x>
@@ -1466,7 +1466,7 @@ font: 8pt &quot;Verdana&quot;;</string>
           <bool>false</bool>
          </property>
         </widget>
-        <widget class="QCheckBox" name="proforma_sale_serie1_checkbox">
+        <widget class="QCheckBox" name="proforma_sale_serie1">
          <property name="geometry">
           <rect>
            <x>20</x>
@@ -1479,7 +1479,7 @@ font: 8pt &quot;Verdana&quot;;</string>
           <string>1</string>
          </property>
         </widget>
-        <widget class="QCheckBox" name="proforma_sale_serie2_checkbox">
+        <widget class="QCheckBox" name="proforma_sale_serie2">
          <property name="geometry">
           <rect>
            <x>80</x>
@@ -1492,7 +1492,7 @@ font: 8pt &quot;Verdana&quot;;</string>
           <string>2</string>
          </property>
         </widget>
-        <widget class="QCheckBox" name="proforma_sale_serie4_checkbox">
+        <widget class="QCheckBox" name="proforma_sale_serie4">
          <property name="geometry">
           <rect>
            <x>20</x>
@@ -1505,7 +1505,7 @@ font: 8pt &quot;Verdana&quot;;</string>
           <string>4</string>
          </property>
         </widget>
-        <widget class="QCheckBox" name="proforma_sale_serie6_checkbox">
+        <widget class="QCheckBox" name="proforma_sale_serie6">
          <property name="geometry">
           <rect>
            <x>140</x>
@@ -1518,7 +1518,7 @@ font: 8pt &quot;Verdana&quot;;</string>
           <string>6</string>
          </property>
         </widget>
-        <widget class="QCheckBox" name="proforma_sale_serie5_checkbox">
+        <widget class="QCheckBox" name="proforma_sale_serie5">
          <property name="geometry">
           <rect>
            <x>80</x>
@@ -1531,7 +1531,7 @@ font: 8pt &quot;Verdana&quot;;</string>
           <string>5</string>
          </property>
         </widget>
-        <widget class="QCheckBox" name="proforma_sale_serie3_checkbox">
+        <widget class="QCheckBox" name="proforma_sale_serie3">
          <property name="geometry">
           <rect>
            <x>140</x>
@@ -1544,7 +1544,7 @@ font: 8pt &quot;Verdana&quot;;</string>
           <string>3</string>
          </property>
         </widget>
-        <widget class="QLabel" name="proforma_sale_financial_label">
+        <widget class="QLabel" name="proforma_sale_financial">
          <property name="geometry">
           <rect>
            <x>0</x>
@@ -1587,12 +1587,12 @@ font: 8pt &quot;Verdana&quot;;</string>
           <bool>false</bool>
          </property>
         </widget>
-        <widget class="QCheckBox" name="proforma_sale_notpaid_checkbox">
+        <widget class="QCheckBox" name="proforma_sale_notpaid">
          <property name="geometry">
           <rect>
            <x>40</x>
            <y>210</y>
-           <width>73</width>
+           <width>101</width>
            <height>20</height>
           </rect>
          </property>
@@ -1600,33 +1600,33 @@ font: 8pt &quot;Verdana&quot;;</string>
           <string>Not Paid</string>
          </property>
         </widget>
-        <widget class="QCheckBox" name="proforma_sale_partialpaid_checkbox">
+        <widget class="QCheckBox" name="proforma_sale_partiallypaid">
          <property name="geometry">
           <rect>
            <x>40</x>
            <y>240</y>
-           <width>91</width>
+           <width>121</width>
            <height>20</height>
           </rect>
          </property>
          <property name="text">
-          <string>Partial Paid</string>
+          <string>Partially Paid</string>
          </property>
         </widget>
-        <widget class="QCheckBox" name="proforma_sale_fullpaid_checkbox">
+        <widget class="QCheckBox" name="proforma_sale_fullypaid">
          <property name="geometry">
           <rect>
            <x>40</x>
            <y>270</y>
-           <width>72</width>
+           <width>101</width>
            <height>20</height>
           </rect>
          </property>
          <property name="text">
-          <string>Full Paid</string>
+          <string>Fully Paid</string>
          </property>
         </widget>
-        <widget class="QLabel" name="proforma_sale_logistic_label">
+        <widget class="QLabel" name="proforma_sale_logistic">
          <property name="geometry">
           <rect>
            <x>0</x>
@@ -1669,37 +1669,24 @@ font: 8pt &quot;Verdana&quot;;</string>
           <bool>false</bool>
          </property>
         </widget>
-        <widget class="QCheckBox" name="proforma_sale_queued_checkbox">
+        <widget class="QCheckBox" name="proforma_sale_partially_prepared">
          <property name="geometry">
           <rect>
            <x>40</x>
            <y>410</y>
-           <width>73</width>
+           <width>141</width>
            <height>20</height>
           </rect>
          </property>
          <property name="text">
-          <string>Queued</string>
+          <string>Partially Prepared</string>
          </property>
         </widget>
-        <widget class="QCheckBox" name="proforma_sale_waitingstock_checkbox">
-         <property name="geometry">
-          <rect>
-           <x>40</x>
-           <y>440</y>
-           <width>105</width>
-           <height>20</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Waiting Stock</string>
-         </property>
-        </widget>
-        <widget class="QLabel" name="proforma_sale_shipment_label">
+        <widget class="QLabel" name="proforma_sale_shipment">
          <property name="geometry">
           <rect>
            <x>0</x>
-           <y>510</y>
+           <y>480</y>
            <width>201</width>
            <height>20</height>
           </rect>
@@ -1738,11 +1725,11 @@ font: 8pt &quot;Verdana&quot;;</string>
           <bool>false</bool>
          </property>
         </widget>
-        <widget class="QCheckBox" name="proforma_sale_sent_checkbox">
+        <widget class="QCheckBox" name="proforma_sale_sent">
          <property name="geometry">
           <rect>
            <x>40</x>
-           <y>550</y>
+           <y>520</y>
            <width>53</width>
            <height>20</height>
           </rect>
@@ -1751,12 +1738,12 @@ font: 8pt &quot;Verdana&quot;;</string>
           <string>Sent</string>
          </property>
         </widget>
-        <widget class="QCheckBox" name="proforma_sale_notsent_checkbox">
+        <widget class="QCheckBox" name="proforma_sale_notsent">
          <property name="geometry">
           <rect>
            <x>40</x>
-           <y>580</y>
-           <width>76</width>
+           <y>550</y>
+           <width>91</width>
            <height>20</height>
           </rect>
          </property>
@@ -1764,12 +1751,12 @@ font: 8pt &quot;Verdana&quot;;</string>
           <string>Not Sent</string>
          </property>
         </widget>
-        <widget class="QCheckBox" name="proforma_sale_completed_checkbox">
+        <widget class="QCheckBox" name="proforma_sale_completed">
          <property name="geometry">
           <rect>
            <x>40</x>
-           <y>470</y>
-           <width>86</width>
+           <y>440</y>
+           <width>101</width>
            <height>20</height>
           </rect>
          </property>
@@ -1790,7 +1777,7 @@ font: 8pt &quot;Verdana&quot;;</string>
           <string>Cancelled</string>
          </property>
         </widget>
-        <widget class="QToolButton" name="proforma_sale_apply_button">
+        <widget class="QToolButton" name="proforma_sale_apply">
          <property name="geometry">
           <rect>
            <x>50</x>
@@ -1812,7 +1799,7 @@ font: 8pt &quot;Verdana&quot;;</string>
           <bool>true</bool>
          </property>
         </widget>
-        <widget class="QCheckBox" name="proforma_sale_new_checkbox">
+        <widget class="QCheckBox" name="proforma_sale_empty">
          <property name="geometry">
           <rect>
            <x>40</x>
@@ -1822,7 +1809,7 @@ font: 8pt &quot;Verdana&quot;;</string>
           </rect>
          </property>
          <property name="text">
-          <string>New</string>
+          <string>Empty</string>
          </property>
         </widget>
        </widget>
@@ -2359,7 +2346,7 @@ font: 8pt &quot;Verdana&quot;;</string>
         <property name="checked">
          <bool>false</bool>
         </property>
-        <widget class="QLabel" name="invoice_purchase_series_label">
+        <widget class="QLabel" name="invoice_purchase_series">
          <property name="geometry">
           <rect>
            <x>0</x>
@@ -2402,7 +2389,7 @@ font: 8pt &quot;Verdana&quot;;</string>
           <bool>false</bool>
          </property>
         </widget>
-        <widget class="QCheckBox" name="invoice_purchase_serie1_checkbox">
+        <widget class="QCheckBox" name="invoice_purchase_serie1">
          <property name="geometry">
           <rect>
            <x>20</x>
@@ -2415,7 +2402,7 @@ font: 8pt &quot;Verdana&quot;;</string>
           <string>1</string>
          </property>
         </widget>
-        <widget class="QCheckBox" name="invoice_purchase_serie2_checkbox">
+        <widget class="QCheckBox" name="invoice_purchase_serie2">
          <property name="geometry">
           <rect>
            <x>80</x>
@@ -2428,7 +2415,7 @@ font: 8pt &quot;Verdana&quot;;</string>
           <string>2</string>
          </property>
         </widget>
-        <widget class="QCheckBox" name="invoice_purchase_serie4_checkbox">
+        <widget class="QCheckBox" name="invoice_purchase_serie4">
          <property name="geometry">
           <rect>
            <x>20</x>
@@ -2441,7 +2428,7 @@ font: 8pt &quot;Verdana&quot;;</string>
           <string>4</string>
          </property>
         </widget>
-        <widget class="QCheckBox" name="invoice_purchase_serie6_checkbox">
+        <widget class="QCheckBox" name="invoice_purchase_serie6">
          <property name="geometry">
           <rect>
            <x>140</x>
@@ -2454,7 +2441,7 @@ font: 8pt &quot;Verdana&quot;;</string>
           <string>6</string>
          </property>
         </widget>
-        <widget class="QCheckBox" name="invoice_purchase_serie5_checkbox">
+        <widget class="QCheckBox" name="invoice_purchase_serie5">
          <property name="geometry">
           <rect>
            <x>80</x>
@@ -2467,7 +2454,7 @@ font: 8pt &quot;Verdana&quot;;</string>
           <string>5</string>
          </property>
         </widget>
-        <widget class="QCheckBox" name="invoice_purchase_serie3_checkbox">
+        <widget class="QCheckBox" name="invoice_purchase_serie3">
          <property name="geometry">
           <rect>
            <x>140</x>
@@ -2480,7 +2467,7 @@ font: 8pt &quot;Verdana&quot;;</string>
           <string>3</string>
          </property>
         </widget>
-        <widget class="QLabel" name="invoice_purchase_financial_label">
+        <widget class="QLabel" name="invoice_purchase_financial">
          <property name="geometry">
           <rect>
            <x>0</x>
@@ -2523,12 +2510,12 @@ font: 8pt &quot;Verdana&quot;;</string>
           <bool>false</bool>
          </property>
         </widget>
-        <widget class="QCheckBox" name="invoice_purchase_notpaid_checkbox">
+        <widget class="QCheckBox" name="invoice_purchase_notpaid">
          <property name="geometry">
           <rect>
            <x>40</x>
            <y>210</y>
-           <width>73</width>
+           <width>91</width>
            <height>20</height>
           </rect>
          </property>
@@ -2536,37 +2523,37 @@ font: 8pt &quot;Verdana&quot;;</string>
           <string>Not Paid</string>
          </property>
         </widget>
-        <widget class="QCheckBox" name="invoice_purchase_partialpaid_checkbox">
+        <widget class="QCheckBox" name="invoice_purchase_partiallypaid">
          <property name="geometry">
           <rect>
            <x>40</x>
            <y>240</y>
+           <width>111</width>
+           <height>20</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Partially Paid</string>
+         </property>
+        </widget>
+        <widget class="QCheckBox" name="invoice_purchase_fullypaid">
+         <property name="geometry">
+          <rect>
+           <x>40</x>
+           <y>270</y>
            <width>101</width>
            <height>20</height>
           </rect>
          </property>
          <property name="text">
-          <string>Partial Paid</string>
+          <string>Fully Paid</string>
          </property>
         </widget>
-        <widget class="QCheckBox" name="invoice_purchase_fullpaid_checkbox">
-         <property name="geometry">
-          <rect>
-           <x>40</x>
-           <y>270</y>
-           <width>81</width>
-           <height>20</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Full Paid</string>
-         </property>
-        </widget>
-        <widget class="QLabel" name="invoice_purchase_logistic_label">
+        <widget class="QLabel" name="invoice_purchase_logistic">
          <property name="geometry">
           <rect>
            <x>0</x>
-           <y>310</y>
+           <y>340</y>
            <width>201</width>
            <height>20</height>
           </rect>
@@ -2605,25 +2592,25 @@ font: 8pt &quot;Verdana&quot;;</string>
           <bool>false</bool>
          </property>
         </widget>
-        <widget class="QCheckBox" name="invoice_purchase_waiting_checkbox">
+        <widget class="QCheckBox" name="invoice_purchase_empty">
          <property name="geometry">
           <rect>
            <x>40</x>
-           <y>350</y>
+           <y>380</y>
            <width>105</width>
            <height>20</height>
           </rect>
          </property>
          <property name="text">
-          <string>Waiting Stock</string>
+          <string>Empty</string>
          </property>
         </widget>
-        <widget class="QCheckBox" name="invoice_purchase_partialreceived_checkbox">
+        <widget class="QCheckBox" name="invoice_purchase_partiallyreceived">
          <property name="geometry">
           <rect>
            <x>40</x>
-           <y>380</y>
-           <width>125</width>
+           <y>410</y>
+           <width>141</width>
            <height>20</height>
           </rect>
          </property>
@@ -2631,24 +2618,24 @@ font: 8pt &quot;Verdana&quot;;</string>
           <string>Partial Received</string>
          </property>
         </widget>
-        <widget class="QCheckBox" name="invoice_purchase_fullreceived_checkbox">
+        <widget class="QCheckBox" name="invoice_purchase_completed">
          <property name="geometry">
           <rect>
            <x>40</x>
-           <y>410</y>
+           <y>440</y>
            <width>101</width>
            <height>20</height>
           </rect>
          </property>
          <property name="text">
-          <string>Full Received</string>
+          <string>Completed</string>
          </property>
         </widget>
-        <widget class="QLabel" name="invoice_purchase_shipment_label">
+        <widget class="QLabel" name="invoice_purchase_shipment">
          <property name="geometry">
           <rect>
            <x>0</x>
-           <y>450</y>
+           <y>490</y>
            <width>201</width>
            <height>20</height>
           </rect>
@@ -2687,11 +2674,11 @@ font: 8pt &quot;Verdana&quot;;</string>
           <bool>false</bool>
          </property>
         </widget>
-        <widget class="QCheckBox" name="invoice_purchase_sent_checkbox">
+        <widget class="QCheckBox" name="invoice_purchase_sent">
          <property name="geometry">
           <rect>
            <x>40</x>
-           <y>490</y>
+           <y>530</y>
            <width>111</width>
            <height>20</height>
           </rect>
@@ -2700,11 +2687,11 @@ font: 8pt &quot;Verdana&quot;;</string>
           <string>Sent</string>
          </property>
         </widget>
-        <widget class="QCheckBox" name="invoice_purchase_notsent_checkbox">
+        <widget class="QCheckBox" name="invoice_purchase_notsent">
          <property name="geometry">
           <rect>
            <x>40</x>
-           <y>520</y>
+           <y>560</y>
            <width>111</width>
            <height>20</height>
           </rect>
@@ -2713,7 +2700,7 @@ font: 8pt &quot;Verdana&quot;;</string>
           <string>Not Sent</string>
          </property>
         </widget>
-        <widget class="QToolButton" name="invoice_purchase_apply_button">
+        <widget class="QToolButton" name="invoice_purchase_apply">
          <property name="geometry">
           <rect>
            <x>50</x>
@@ -2733,6 +2720,19 @@ font: 8pt &quot;Verdana&quot;;</string>
          </property>
          <property name="autoRaise">
           <bool>true</bool>
+         </property>
+        </widget>
+        <widget class="QCheckBox" name="invoice_purchase_fullpaid_checkbox_2">
+         <property name="geometry">
+          <rect>
+           <x>40</x>
+           <y>300</y>
+           <width>111</width>
+           <height>20</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Cancelled</string>
          </property>
         </widget>
        </widget>
@@ -3110,7 +3110,7 @@ font: 8pt &quot;Verdana&quot;;</string>
         <property name="checked">
          <bool>false</bool>
         </property>
-        <widget class="QLabel" name="invoice_sale_series_label">
+        <widget class="QLabel" name="invoice_sale_series">
          <property name="geometry">
           <rect>
            <x>0</x>
@@ -3153,7 +3153,7 @@ font: 8pt &quot;Verdana&quot;;</string>
           <bool>false</bool>
          </property>
         </widget>
-        <widget class="QCheckBox" name="invoice_sale_serie1_checkbox">
+        <widget class="QCheckBox" name="invoice_sale_serie1">
          <property name="geometry">
           <rect>
            <x>20</x>
@@ -3166,7 +3166,7 @@ font: 8pt &quot;Verdana&quot;;</string>
           <string>1</string>
          </property>
         </widget>
-        <widget class="QCheckBox" name="invoice_sale_serie2_checkbox">
+        <widget class="QCheckBox" name="invoice_sale_serie2">
          <property name="geometry">
           <rect>
            <x>80</x>
@@ -3179,7 +3179,7 @@ font: 8pt &quot;Verdana&quot;;</string>
           <string>2</string>
          </property>
         </widget>
-        <widget class="QCheckBox" name="invoice_sale_serie4_checkbox">
+        <widget class="QCheckBox" name="invoice_sale_serie4">
          <property name="geometry">
           <rect>
            <x>20</x>
@@ -3192,7 +3192,7 @@ font: 8pt &quot;Verdana&quot;;</string>
           <string>4</string>
          </property>
         </widget>
-        <widget class="QCheckBox" name="invoice_sale_serie6_checkbox">
+        <widget class="QCheckBox" name="invoice_sale_serie6">
          <property name="geometry">
           <rect>
            <x>140</x>
@@ -3205,7 +3205,7 @@ font: 8pt &quot;Verdana&quot;;</string>
           <string>6</string>
          </property>
         </widget>
-        <widget class="QCheckBox" name="invoice_sale_serie5_checkbox">
+        <widget class="QCheckBox" name="invoice_sale_serie5">
          <property name="geometry">
           <rect>
            <x>80</x>
@@ -3218,7 +3218,7 @@ font: 8pt &quot;Verdana&quot;;</string>
           <string>5</string>
          </property>
         </widget>
-        <widget class="QCheckBox" name="invoice_sale_serie3_checkbox">
+        <widget class="QCheckBox" name="invoice_sale_serie3">
          <property name="geometry">
           <rect>
            <x>140</x>
@@ -3231,7 +3231,7 @@ font: 8pt &quot;Verdana&quot;;</string>
           <string>3</string>
          </property>
         </widget>
-        <widget class="QLabel" name="invoice_sale_financial_label">
+        <widget class="QLabel" name="invoice_sale_financial">
          <property name="geometry">
           <rect>
            <x>0</x>
@@ -3274,12 +3274,12 @@ font: 8pt &quot;Verdana&quot;;</string>
           <bool>false</bool>
          </property>
         </widget>
-        <widget class="QCheckBox" name="invoice_sale_notpaid_checkbox">
+        <widget class="QCheckBox" name="invoice_sale_notpaid">
          <property name="geometry">
           <rect>
            <x>40</x>
            <y>210</y>
-           <width>73</width>
+           <width>101</width>
            <height>20</height>
           </rect>
          </property>
@@ -3287,20 +3287,20 @@ font: 8pt &quot;Verdana&quot;;</string>
           <string>Not Paid</string>
          </property>
         </widget>
-        <widget class="QCheckBox" name="invoice_sale_partialpaid_checkbox">
+        <widget class="QCheckBox" name="invoice_sale_partiallypaid">
          <property name="geometry">
           <rect>
            <x>40</x>
            <y>240</y>
-           <width>91</width>
+           <width>111</width>
            <height>20</height>
           </rect>
          </property>
          <property name="text">
-          <string>Partial Paid</string>
+          <string>Partially Paid</string>
          </property>
         </widget>
-        <widget class="QCheckBox" name="invoice_sale_fullpaid_checkbox">
+        <widget class="QCheckBox" name="invoice_sale_fullypaid">
          <property name="geometry">
           <rect>
            <x>40</x>
@@ -3310,14 +3310,14 @@ font: 8pt &quot;Verdana&quot;;</string>
           </rect>
          </property>
          <property name="text">
-          <string>Full Paid</string>
+          <string>Fully Paid</string>
          </property>
         </widget>
-        <widget class="QLabel" name="invoice_sale_logistic_label">
+        <widget class="QLabel" name="invoice_sale_logistic">
          <property name="geometry">
           <rect>
            <x>0</x>
-           <y>310</y>
+           <y>340</y>
            <width>201</width>
            <height>20</height>
           </rect>
@@ -3356,33 +3356,33 @@ font: 8pt &quot;Verdana&quot;;</string>
           <bool>false</bool>
          </property>
         </widget>
-        <widget class="QCheckBox" name="invoice_sale_queued_checkbox">
+        <widget class="QCheckBox" name="invoice_sale_queued">
          <property name="geometry">
           <rect>
            <x>40</x>
-           <y>380</y>
-           <width>73</width>
+           <y>400</y>
+           <width>141</width>
            <height>20</height>
           </rect>
          </property>
          <property name="text">
-          <string>Queued</string>
+          <string>Partially Prepared</string>
          </property>
         </widget>
-        <widget class="QCheckBox" name="invoice_sale_waiting_checkbox">
+        <widget class="QCheckBox" name="invoice_sale_waiting">
          <property name="geometry">
           <rect>
            <x>40</x>
-           <y>410</y>
+           <y>430</y>
            <width>131</width>
            <height>20</height>
           </rect>
          </property>
          <property name="text">
-          <string>Waiting Stock</string>
+          <string>Completed</string>
          </property>
         </widget>
-        <widget class="QLabel" name="invoice_sale_shipment_label">
+        <widget class="QLabel" name="invoice_sale_shipment">
          <property name="geometry">
           <rect>
            <x>0</x>
@@ -3425,7 +3425,7 @@ font: 8pt &quot;Verdana&quot;;</string>
           <bool>false</bool>
          </property>
         </widget>
-        <widget class="QCheckBox" name="invoice_sale_sent_checkbox">
+        <widget class="QCheckBox" name="invoice_sale_sent">
          <property name="geometry">
           <rect>
            <x>40</x>
@@ -3438,7 +3438,7 @@ font: 8pt &quot;Verdana&quot;;</string>
           <string>Sent</string>
          </property>
         </widget>
-        <widget class="QCheckBox" name="invoice_sale_notsent_checkbox">
+        <widget class="QCheckBox" name="invoice_sale_notsent">
          <property name="geometry">
           <rect>
            <x>40</x>
@@ -3451,20 +3451,7 @@ font: 8pt &quot;Verdana&quot;;</string>
           <string>Not Sent</string>
          </property>
         </widget>
-        <widget class="QCheckBox" name="invoice_sale_completed_checkbox">
-         <property name="geometry">
-          <rect>
-           <x>40</x>
-           <y>440</y>
-           <width>86</width>
-           <height>20</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Completed</string>
-         </property>
-        </widget>
-        <widget class="QToolButton" name="invoice_sale_apply_button">
+        <widget class="QToolButton" name="invoice_sale_apply">
          <property name="geometry">
           <rect>
            <x>50</x>
@@ -3486,17 +3473,30 @@ font: 8pt &quot;Verdana&quot;;</string>
           <bool>true</bool>
          </property>
         </widget>
-        <widget class="QCheckBox" name="invoice_sale_new_checkbox">
+        <widget class="QCheckBox" name="invoice_sale_new">
          <property name="geometry">
           <rect>
            <x>40</x>
-           <y>350</y>
+           <y>370</y>
            <width>73</width>
            <height>20</height>
           </rect>
          </property>
          <property name="text">
-          <string>New</string>
+          <string>Empty</string>
+         </property>
+        </widget>
+        <widget class="QCheckBox" name="invoice_purchase_cancelled">
+         <property name="geometry">
+          <rect>
+           <x>40</x>
+           <y>300</y>
+           <width>101</width>
+           <height>20</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Cancelled</string>
          </property>
         </widget>
        </widget>
@@ -3683,7 +3683,7 @@ font: 8pt &quot;Verdana&quot;;</string>
           <rect>
            <x>350</x>
            <y>10</y>
-           <width>91</width>
+           <width>101</width>
            <height>61</height>
           </rect>
          </property>
@@ -3866,7 +3866,7 @@ font: 8pt &quot;Verdana&quot;;</string>
        <attribute name="title">
         <string>Expedition</string>
        </attribute>
-       <widget class="QLineEdit" name="warehouse_expedition_search_edit">
+       <widget class="QLineEdit" name="expedition_search">
         <property name="geometry">
          <rect>
           <x>1130</x>
@@ -3934,7 +3934,7 @@ font: 8pt &quot;Verdana&quot;;</string>
         <property name="checked">
          <bool>false</bool>
         </property>
-        <widget class="QLabel" name="expedition_status_label">
+        <widget class="QLabel" name="expedition_status">
          <property name="geometry">
           <rect>
            <x>0</x>
@@ -3977,7 +3977,7 @@ font: 8pt &quot;Verdana&quot;;</string>
           <bool>false</bool>
          </property>
         </widget>
-        <widget class="QToolButton" name="warehouse_expedition_apply_button">
+        <widget class="QToolButton" name="expedition_apply">
          <property name="geometry">
           <rect>
            <x>50</x>
@@ -3999,7 +3999,7 @@ font: 8pt &quot;Verdana&quot;;</string>
           <bool>true</bool>
          </property>
         </widget>
-        <widget class="QCheckBox" name="expedition_empty_chekbox">
+        <widget class="QCheckBox" name="expedition_empty">
          <property name="geometry">
           <rect>
            <x>30</x>
@@ -4012,7 +4012,7 @@ font: 8pt &quot;Verdana&quot;;</string>
           <string>Empty</string>
          </property>
         </widget>
-        <widget class="QCheckBox" name="expedition_partially_checkbox">
+        <widget class="QCheckBox" name="expedition_partially">
          <property name="geometry">
           <rect>
            <x>30</x>
@@ -4022,10 +4022,10 @@ font: 8pt &quot;Verdana&quot;;</string>
           </rect>
          </property>
          <property name="text">
-          <string>Partially processed</string>
+          <string>Partially Prepared</string>
          </property>
         </widget>
-        <widget class="QCheckBox" name="expedition_completed_checkbox">
+        <widget class="QCheckBox" name="expedition_completed">
          <property name="geometry">
           <rect>
            <x>30</x>
@@ -4038,7 +4038,7 @@ font: 8pt &quot;Verdana&quot;;</string>
           <string>Completed</string>
          </property>
         </widget>
-        <widget class="QCheckBox" name="expedition_cancelled_checkbox">
+        <widget class="QCheckBox" name="expedition_cancelled">
          <property name="geometry">
           <rect>
            <x>30</x>
@@ -4067,7 +4067,7 @@ font: 8pt &quot;Verdana&quot;;</string>
         <property name="frameShadow">
          <enum>QFrame::Sunken</enum>
         </property>
-        <widget class="QToolButton" name="warehouse_expedition_check_button">
+        <widget class="QToolButton" name="expedition_check">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -4096,7 +4096,7 @@ font: 8pt &quot;Verdana&quot;;</string>
           <bool>true</bool>
          </property>
         </widget>
-        <widget class="QToolButton" name="expedition_process_button">
+        <widget class="QToolButton" name="expedition_process">
          <property name="geometry">
           <rect>
            <x>90</x>
@@ -4125,7 +4125,7 @@ font: 8pt &quot;Verdana&quot;;</string>
           <bool>true</bool>
          </property>
         </widget>
-        <widget class="QToolButton" name="warehouse_expedition_print_button">
+        <widget class="QToolButton" name="expedition_print">
          <property name="geometry">
           <rect>
            <x>170</x>
@@ -4140,6 +4140,35 @@ font: 8pt &quot;Verdana&quot;;</string>
          <property name="icon">
           <iconset resource="../app/icons.qrc">
            <normaloff>:/print</normaloff>:/print</iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>40</width>
+           <height>40</height>
+          </size>
+         </property>
+         <property name="toolButtonStyle">
+          <enum>Qt::ToolButtonTextUnderIcon</enum>
+         </property>
+         <property name="autoRaise">
+          <bool>true</bool>
+         </property>
+        </widget>
+        <widget class="QToolButton" name="expedition_delete">
+         <property name="geometry">
+          <rect>
+           <x>240</x>
+           <y>20</y>
+           <width>51</width>
+           <height>51</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Delete</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../app/icons.qrc">
+           <normaloff>:/delete</normaloff>:/delete</iconset>
          </property>
          <property name="iconSize">
           <size>
@@ -4174,7 +4203,7 @@ font: 8pt &quot;Verdana&quot;;</string>
        <attribute name="title">
         <string>Reception</string>
        </attribute>
-       <widget class="QLineEdit" name="warehouse_reception_search_line_edit">
+       <widget class="QLineEdit" name="reception_search">
         <property name="geometry">
          <rect>
           <x>1130</x>
@@ -4242,7 +4271,7 @@ font: 8pt &quot;Verdana&quot;;</string>
         <property name="checked">
          <bool>false</bool>
         </property>
-        <widget class="QLabel" name="reception_status_label">
+        <widget class="QLabel" name="reception_status">
          <property name="geometry">
           <rect>
            <x>0</x>
@@ -4285,7 +4314,7 @@ font: 8pt &quot;Verdana&quot;;</string>
           <bool>false</bool>
          </property>
         </widget>
-        <widget class="QCheckBox" name="reception_empty_checkbox">
+        <widget class="QCheckBox" name="reception_empty">
          <property name="geometry">
           <rect>
            <x>30</x>
@@ -4298,7 +4327,7 @@ font: 8pt &quot;Verdana&quot;;</string>
           <string>Empty</string>
          </property>
         </widget>
-        <widget class="QCheckBox" name="reception_partially_checkbox">
+        <widget class="QCheckBox" name="reception_partially">
          <property name="geometry">
           <rect>
            <x>30</x>
@@ -4311,7 +4340,7 @@ font: 8pt &quot;Verdana&quot;;</string>
           <string>Partially processed</string>
          </property>
         </widget>
-        <widget class="QCheckBox" name="reception_completed_checkbox">
+        <widget class="QCheckBox" name="reception_completed">
          <property name="geometry">
           <rect>
            <x>30</x>
@@ -4324,7 +4353,7 @@ font: 8pt &quot;Verdana&quot;;</string>
           <string>Completed</string>
          </property>
         </widget>
-        <widget class="QCheckBox" name="reception_cancelled_checkbox">
+        <widget class="QCheckBox" name="reception_cancelled">
          <property name="geometry">
           <rect>
            <x>30</x>
@@ -4337,7 +4366,7 @@ font: 8pt &quot;Verdana&quot;;</string>
           <string>Cancelled</string>
          </property>
         </widget>
-        <widget class="QToolButton" name="warehouse_reception_apply_button">
+        <widget class="QToolButton" name="reception_apply">
          <property name="geometry">
           <rect>
            <x>50</x>
@@ -4375,7 +4404,7 @@ font: 8pt &quot;Verdana&quot;;</string>
         <property name="frameShadow">
          <enum>QFrame::Sunken</enum>
         </property>
-        <widget class="QToolButton" name="check_button">
+        <widget class="QToolButton" name="reception_check">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -4404,7 +4433,7 @@ font: 8pt &quot;Verdana&quot;;</string>
           <bool>true</bool>
          </property>
         </widget>
-        <widget class="QToolButton" name="reception_process_button">
+        <widget class="QToolButton" name="reception_process">
          <property name="geometry">
           <rect>
            <x>90</x>
@@ -4433,7 +4462,7 @@ font: 8pt &quot;Verdana&quot;;</string>
           <bool>true</bool>
          </property>
         </widget>
-        <widget class="QToolButton" name="reception_print_button">
+        <widget class="QToolButton" name="reception_print">
          <property name="geometry">
           <rect>
            <x>170</x>
@@ -4448,6 +4477,35 @@ font: 8pt &quot;Verdana&quot;;</string>
          <property name="icon">
           <iconset resource="../app/icons.qrc">
            <normaloff>:/print</normaloff>:/print</iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>40</width>
+           <height>40</height>
+          </size>
+         </property>
+         <property name="toolButtonStyle">
+          <enum>Qt::ToolButtonTextUnderIcon</enum>
+         </property>
+         <property name="autoRaise">
+          <bool>true</bool>
+         </property>
+        </widget>
+        <widget class="QToolButton" name="reception_delete">
+         <property name="geometry">
+          <rect>
+           <x>250</x>
+           <y>20</y>
+           <width>51</width>
+           <height>51</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Delete</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../app/icons.qrc">
+           <normaloff>:/delete</normaloff>:/delete</iconset>
          </property>
          <property name="iconSize">
           <size>

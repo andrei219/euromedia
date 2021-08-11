@@ -78,395 +78,388 @@ class MainGui(Ui_MainGui, QMainWindow):
     def initFiltersSwitchers(self):
         # Set label status to implement all/none filters selected:
         # Invoice sale:
-        self.invoice_sale_series_label_on = False
-        self.invoice_sale_financial_label_on = False
-        self.invoice_sale_logistic_label_on = False
-        self.invoice_sale_shipment_label_on = False
+        self.invoice_sale_series_on = False
+        self.invoice_sale_financial_on = False
+        self.invoice_sale_logistic_on = False
+        self.invoice_sale_shipment_on = False
        
         # Invoice purchase
-        self.invoice_purchase_series_label_on = False
-        self.invoice_purchase_financial_label_on = False
-        self.invoice_purchase_logistic_label_on = False
-        self.invoice_purchase_shipment_label_on = False
+        self.invoice_purchase_series_on = False
+        self.invoice_purchase_financial_on = False
+        self.invoice_purchase_logistic_on = False
+        self.invoice_purchase_shipment_on = False
 
         # proforma sale:
-        self.proforma_sale_series_label_on = False
-        self.proforma_sale_financial_label_on  = False
-        self.proforma_sale_shipment_label_on = False
-        self.proforma_sale_logistic_label_on = False
+        self.proforma_sale_series_on = False
+        self.proforma_sale_financial_on  = False
+        self.proforma_sale_shipment_on = False
+        self.proforma_sale_logistic_on = False
         
         # proforma purchase
-        self.proforma_purchase_series_label_on = False
-        self.proforma_purchase_financial_label_on = False
-        self.proforma_purchase_shipment_label_on = False
-        self.proforma_purchase_logistic_label_on = False
+        self.proforma_purchase_series_on = False
+        self.proforma_purchase_financial_on = False
+        self.proforma_purchase_shipment_on = False
+        self.proforma_purchase_logistic_on = False
 
         # warehouse 
-        self.warehouse_expedition_status_label_on = False
-        self.warehouse_reception_status_label_on = False
+        self.expedition_status_on = False
+        self.reception_status_on = False
 
         # Filter headers connections: 
         
         # Invoice sale:
-        self.invoice_sale_series_label.mousePressEvent =  self.on_invoice_sale_series_label_clicked
-        self.invoice_sale_financial_label.mousePressEvent = self.on_invoice_sale_financial_label_clicked
-        self.invoice_sale_logistic_label.mousePressEvent = self.on_invoice_sale_logistic_label_clicked
-        self.invoice_sale_shipment_label.mousePressEvent = self.on_invoice_sale_shipment_label_clicked
+        self.invoice_sale_series.mousePressEvent =  self.on_invoice_sale_series_clicked
+        self.invoice_sale_financial.mousePressEvent = self.on_invoice_sale_financial_clicked
+        self.invoice_sale_logistic.mousePressEvent = self.on_invoice_sale_logistic_clicked
+        self.invoice_sale_shipment.mousePressEvent = self.on_invoice_sale_shipment_clicked
         
         # Invoice purchase:
-        self.invoice_purchase_series_label.mousePressEvent = self.on_invoice_purchase_series_label_clicked
-        self.invoice_purchase_financial_label.mousePressEvent = self.on_invoice_purchase_financial_label_clicked
-        self.invoice_purchase_logistic_label.mousePressEvent = self.on_invoice_purchase_logistic_label_clicked
-        self.invoice_purchase_shipment_label.mousePressEvent = self.on_invoice_purchase_shipment_label_clicked
+        self.invoice_purchase_series.mousePressEvent = self.on_invoice_purchase_series_clicked
+        self.invoice_purchase_financial.mousePressEvent = self.on_invoice_purchase_financial_clicked
+        self.invoice_purchase_logistic.mousePressEvent = self.on_invoice_purchase_logistic_clicked
+        self.invoice_purchase_shipment.mousePressEvent = self.on_invoice_purchase_shipment_clicked
 
         # proforma sale:
-        self.proforma_sale_series_label.mousePressEvent = self.on_proforma_sale_series_label_clicked
-        self.proforma_sale_financial_label.mousePressEvent = self.on_proforma_sale_financial_label_clicked
-        self.proforma_sale_logistic_label.mousePressEvent = self.on_proforma_sale_logistic_label_clicked
-        self.proforma_sale_shipment_label.mousePressEvent = self.on_proforma_sale_shipemnt_label_clicked
+        self.proforma_sale_series.mousePressEvent = self.on_proforma_sale_series_clicked
+        self.proforma_sale_financial.mousePressEvent = self.on_proforma_sale_financial_clicked
+        self.proforma_sale_logistic.mousePressEvent = self.on_proforma_sale_logistic_clicked
+        self.proforma_sale_shipment.mousePressEvent = self.on_proforma_sale_shipemnt_clicked
 
 
         # Proforma purchase:
-        self.proforma_purchase_series_label.mousePressEvent = self.on_proforma_purchase_series_label_clicked
-        self.proforma_purchase_logistic_label.mousePressEvent = self.on_proforma_purchase_logistic_label_clicked
-        self.proforma_purchase_financial_label.mousePressEvent = self.on_proforma_purchase_financial_label_clicked
-        self.proforma_purchase_shipment_label.mousePressEvent = self.on_proforma_purchase_shipment_label_clicked
+        self.proforma_purchase_series.mousePressEvent = self.on_proforma_purchase_series_clicked
+        self.proforma_purchase_logistic.mousePressEvent = self.on_proforma_purchase_logistic_clicked
+        self.proforma_purchase_financial.mousePressEvent = self.on_proforma_purchase_financial_clicked
+        self.proforma_purchase_shipment.mousePressEvent = self.on_proforma_purchase_shipment_clicked
         
         # Warehouse
-        self.reception_status_label.mousePressEvent = self.on_warehouse_reception_status_label_clicked
-        self.expedition_status_label.mousePressEvent = self.on_warehouse_expedition_status_label_clicked
+        self.reception_status.mousePressEvent = self.on_reception_status_clicked
+        self.expedition_status.mousePressEvent = self.on_expedition_status_clicked
 
-    def on_invoice_sale_series_label_clicked(self, event):
-        if self.invoice_sale_series_label_on:
-            self.invoice_sale_serie1_checkbox.setChecked(False)
-            self.invoice_sale_serie2_checkbox.setChecked(False)
-            self.invoice_sale_serie3_checkbox.setChecked(False)
-            self.invoice_sale_serie4_checkbox.setChecked(False)
-            self.invoice_sale_serie5_checkbox.setChecked(False)
-            self.invoice_sale_serie6_checkbox.setChecked(False)
-            self.invoice_sale_series_label_on = False
+    def on_invoice_sale_series_clicked(self, event):
+        if self.invoice_sale_series_on:
+            self.invoice_sale_serie1.setChecked(False)
+            self.invoice_sale_serie2.setChecked(False)
+            self.invoice_sale_serie3.setChecked(False)
+            self.invoice_sale_serie4.setChecked(False)
+            self.invoice_sale_serie5.setChecked(False)
+            self.invoice_sale_serie6.setChecked(False)
+            self.invoice_sale_series_on = False
         else:
-            self.invoice_sale_serie1_checkbox.setChecked(True)
-            self.invoice_sale_serie2_checkbox.setChecked(True)
-            self.invoice_sale_serie3_checkbox.setChecked(True)
-            self.invoice_sale_serie4_checkbox.setChecked(True)
-            self.invoice_sale_serie5_checkbox.setChecked(True)
-            self.invoice_sale_serie6_checkbox.setChecked(True)
-            self.invoice_sale_series_label_on = True
+            self.invoice_sale_serie1.setChecked(True)
+            self.invoice_sale_serie2.setChecked(True)
+            self.invoice_sale_serie3.setChecked(True)
+            self.invoice_sale_serie4.setChecked(True)
+            self.invoice_sale_serie5.setChecked(True)
+            self.invoice_sale_serie6.setChecked(True)
+            self.invoice_sale_series_on = True
 
-    def on_invoice_sale_financial_label_clicked(self, event):
-        if self.invoice_sale_financial_label_on:
-            self.invoice_sale_notpaid_checkbox.setChecked(False)
-            self.invoice_sale_partialpaid_checkbox.setChecked(False)
-            self.invoice_sale_fullpaid_checkbox.setChecked(False)
-            self.invoice_sale_cancelled_checkbox.setChecked(False) 
-            self.invoice_sale_financial_label_on = False
+    def on_invoice_sale_financial_clicked(self, event):
+        if self.invoice_sale_financial_on:
+            self.invoice_sale_notpaid.setChecked(False)
+            self.invoice_sale_partialpaid.setChecked(False)
+            self.invoice_sale_fullpaid.setChecked(False)
+            self.invoice_sale_cancelled.setChecked(False) 
+            self.invoice_sale_financial_on = False
         else:
-            self.invoice_sale_notpaid_checkbox.setChecked(True)
-            self.invoice_sale_partialpaid_checkbox.setChecked(True)
-            self.invoice_sale_fullpaid_checkbox.setChecked(True)
-            self.invoice_sale_cancelled_checkbox.setChecked(True)
-            self.invoice_sale_financial_label_on = True 
+            self.invoice_sale_notpaid.setChecked(True)
+            self.invoice_sale_partialpaid.setChecked(True)
+            self.invoice_sale_fullpaid.setChecked(True)
+            self.invoice_sale_cancelled.setChecked(True)
+            self.invoice_sale_financial_on = True 
 
-    def on_invoice_sale_logistic_label_clicked(self, event):
-        if self.invoice_sale_logistic_label_on:
-            self.invoice_sale_noinstructions_checkbox.setChecked(False)
-            self.invoice_sale_queued_checkbox.setChecked(False)
-            self.invoice_sale_waiting_checkbox.setChecked(False)
+    def on_invoice_sale_logistic_clicked(self, event):
+        if self.invoice_sale_logistic_on:
+            self.invoice_sale_noinstructions.setChecked(False)
+            self.invoice_sale_queued.setChecked(False)
+            self.invoice_sale_waiting.setChecked(False)
             self.invoice_sale_inpartialprep_chekbox.setChecked(False)
-            self.invoice_sale_infullprep_checkbox.setChecked(False)
-            self.invoice_sale_completed_checkbox.setChecked(False)
-            self.invoice_sale_cancelled_checkbox.setChecked(False)
-            self.invoice_sale_logistic_label_on = False 
+            self.invoice_sale_infullprep.setChecked(False)
+            self.invoice_sale_completed.setChecked(False)
+            self.invoice_sale_cancelled.setChecked(False)
+            self.invoice_sale_logistic_on = False 
         else:
-            self.invoice_sale_noinstructions_checkbox.setChecked(True)
-            self.invoice_sale_queued_checkbox.setChecked(True)
-            self.invoice_sale_waiting_checkbox.setChecked(True)
+            self.invoice_sale_noinstructions.setChecked(True)
+            self.invoice_sale_queued.setChecked(True)
+            self.invoice_sale_waiting.setChecked(True)
             self.invoice_sale_inpartialprep_chekbox.setChecked(True)
-            self.invoice_sale_infullprep_checkbox.setChecked(True)
-            self.invoice_sale_completed_checkbox.setChecked(True)
-            self.invoice_sale_cancelled_checkbox.setChecked(True)
-            self.invoice_sale_logistic_label_on = True 
+            self.invoice_sale_infullprep.setChecked(True)
+            self.invoice_sale_completed.setChecked(True)
+            self.invoice_sale_cancelled.setChecked(True)
+            self.invoice_sale_logistic_on = True 
 
-    def on_invoice_sale_shipment_label_clicked(self, event):
-        if self.invoice_sale_shipment_label_on:
-            self.invoice_sale_sent_checkbox.setChecked(False)
-            self.invoice_sale_notsent_checkbox.setChecked(False)
-            self.invoice_sale_shipment_label_on = False 
+    def on_invoice_sale_shipment_clicked(self, event):
+        if self.invoice_sale_shipment_on:
+            self.invoice_sale_sent.setChecked(False)
+            self.invoice_sale_notsent.setChecked(False)
+            self.invoice_sale_shipment_on = False 
         else:
-            self.invoice_sale_sent_checkbox.setChecked(True)
-            self.invoice_sale_notsent_checkbox.setChecked(True) 
-            self.invoice_sale_shipment_label_on = True
+            self.invoice_sale_sent.setChecked(True)
+            self.invoice_sale_notsent.setChecked(True) 
+            self.invoice_sale_shipment_on = True
 
     # invoice purchase 
-    def on_invoice_purchase_series_label_clicked(self, event):
-        if self.invoice_purchase_series_label_on:
-            self.invoice_purchase_serie1_checkbox.setChecked(False)
-            self.invoice_purchase_serie2_checkbox.setChecked(False)
-            self.invoice_purchase_serie3_checkbox.setChecked(False)
-            self.invoice_purchase_serie4_checkbox.setChecked(False)
-            self.invoice_purchase_serie5_checkbox.setChecked(False)
-            self.invoice_purchase_serie6_checkbox.setChecked(False)
-            self.invoice_purchase_series_label_on = False
+    def on_invoice_purchase_series_clicked(self, event):
+        if self.invoice_purchase_series_on:
+            self.invoice_purchase_serie1.setChecked(False)
+            self.invoice_purchase_serie2.setChecked(False)
+            self.invoice_purchase_serie3.setChecked(False)
+            self.invoice_purchase_serie4.setChecked(False)
+            self.invoice_purchase_serie5.setChecked(False)
+            self.invoice_purchase_serie6.setChecked(False)
+            self.invoice_purchase_series_on = False
         else:
-            self.invoice_purchase_serie1_checkbox.setChecked(True)
-            self.invoice_purchase_serie2_checkbox.setChecked(True)
-            self.invoice_purchase_serie3_checkbox.setChecked(True)
-            self.invoice_purchase_serie4_checkbox.setChecked(True)
-            self.invoice_purchase_serie5_checkbox.setChecked(True)
-            self.invoice_purchase_serie6_checkbox.setChecked(True)
-            self.invoice_purchase_series_label_on = True
+            self.invoice_purchase_serie1.setChecked(True)
+            self.invoice_purchase_serie2.setChecked(True)
+            self.invoice_purchase_serie3.setChecked(True)
+            self.invoice_purchase_serie4.setChecked(True)
+            self.invoice_purchase_serie5.setChecked(True)
+            self.invoice_purchase_serie6.setChecked(True)
+            self.invoice_purchase_series_on = True
     
-    def on_invoice_purchase_financial_label_clicked(self, event):
-        if self.invoice_purchase_financial_label_on:
-            self.invoice_purchase_notpaid_checkbox.setChecked(False)
-            self.invoice_purchase_fullpaid_checkbox.setChecked(False)
-            self.invoice_purchase_partialpaid_checkbox.setChecked(False)
-            self.invoice_purchase_financial_label_on = False
+    def on_invoice_purchase_financial_clicked(self, event):
+        if self.invoice_purchase_financial_on:
+            self.invoice_purchase_notpaid.setChecked(False)
+            self.invoice_purchase_fullpaid.setChecked(False)
+            self.invoice_purchase_partialpaid.setChecked(False)
+            self.invoice_purchase_financial_on = False
         else:
-            self.invoice_purchase_notpaid_checkbox.setChecked(True)
-            self.invoice_purchase_fullpaid_checkbox.setChecked(True)
-            self.invoice_purchase_partialpaid_checkbox.setChecked(True)
-            self.invoice_purchase_financial_label_on = True
-       
+            self.invoice_purchase_notpaid.setChecked(True)
+            self.invoice_purchase_fullpaid.setChecked(True)
+            self.invoice_purchase_partialpaid.setChecked(True)
+            self.invoice_purchase_financial_on = True
 
-    def on_invoice_purchase_logistic_label_clicked(self, event):
-        if self.invoice_purchase_logistic_label_on:
-            self.invoice_purchase_noinstructions_checkbox.setChecked(False)
-            self.invoice_purchase_queued_checkbox.setChecked(False)
-            self.invoice_purchase_waiting_checkbox.setChecked(False)
-            self.invoice_purchase_partialreceived_checkbox.setChecked(False)
-            self.invoice_purchase_fullreceived_checkbox.setChecked(False)
-            self.invoice_purchase_completed_checkbox.setChecked(False)
-            self.invoice_purchase_cancelled_checkbox.setChecked(False)
-            self.invoice_purchase_logistic_label_on = False
+    def on_invoice_purchase_logistic_clicked(self, event):
+        if self.invoice_purchase_logistic_on:
+            self.invoice_purchase_noinstructions.setChecked(False)
+            self.invoice_purchase_queued.setChecked(False)
+            self.invoice_purchase_waiting.setChecked(False)
+            self.invoice_purchase_partialreceived.setChecked(False)
+            self.invoice_purchase_fullreceived.setChecked(False)
+            self.invoice_purchase_completed.setChecked(False)
+            self.invoice_purchase_cancelled.setChecked(False)
+            self.invoice_purchase_logistic_on = False
         else:
-            self.invoice_purchase_noinstructions_checkbox.setChecked(True)
-            self.invoice_purchase_queued_checkbox.setChecked(True)
-            self.invoice_purchase_waiting_checkbox.setChecked(True)
-            self.invoice_purchase_partialreceived_checkbox.setChecked(True)
-            self.invoice_purchase_fullreceived_checkbox.setChecked(True)
-            self.invoice_purchase_completed_checkbox.setChecked(True)
-            self.invoice_purchase_cancelled_checkbox.setChecked(True)
-            self.invoice_purchase_logistic_label_on = True
+            self.invoice_purchase_noinstructions.setChecked(True)
+            self.invoice_purchase_queued.setChecked(True)
+            self.invoice_purchase_waiting.setChecked(True)
+            self.invoice_purchase_partialreceived.setChecked(True)
+            self.invoice_purchase_fullreceived.setChecked(True)
+            self.invoice_purchase_completed.setChecked(True)
+            self.invoice_purchase_cancelled.setChecked(True)
+            self.invoice_purchase_logistic_on = True
 
-    def on_invoice_purchase_shipment_label_clicked(self, event):
-        if self.invoice_purchase_shipment_label_on:
-            self.invoice_purchase_sent_checkbox.setChecked(False)
-            self.invoice_purchase_notsent_checkbox.setChecked(False)
-            self.invoice_purchase_shipment_label_on = False
+    def on_invoice_purchase_shipment_clicked(self, event):
+        if self.invoice_purchase_shipment_on:
+            self.invoice_purchase_sent.setChecked(False)
+            self.invoice_purchase_notsent.setChecked(False)
+            self.invoice_purchase_shipment_on = False
         else:
-            self.invoice_purchase_sent_checkbox.setChecked(True)
-            self.invoice_purchase_notsent_checkbox.setChecked(True)
-            self.invoice_purchase_shipment_label_on = True
+            self.invoice_purchase_sent.setChecked(True)
+            self.invoice_purchase_notsent.setChecked(True)
+            self.invoice_purchase_shipment_on = True
             
 
     # proforma sale:
-    def on_proforma_sale_series_label_clicked(self, event):
-        if self.proforma_sale_series_label_on:
-            self.proforma_sale_serie1_checkbox.setChecked(False)
-            self.proforma_sale_serie2_checkbox.setChecked(False)
-            self.proforma_sale_serie3_checkbox.setChecked(False)
-            self.proforma_sale_serie4_checkbox.setChecked(False)
-            self.proforma_sale_serie5_checkbox.setChecked(False)
-            self.proforma_sale_serie6_checkbox.setChecked(False)
-            self.proforma_sale_series_label_on = False
+    def on_proforma_sale_series_clicked(self, event):
+        if self.proforma_sale_series_on:
+            self.proforma_sale_serie1.setChecked(False)
+            self.proforma_sale_serie2.setChecked(False)
+            self.proforma_sale_serie3.setChecked(False)
+            self.proforma_sale_serie4.setChecked(False)
+            self.proforma_sale_serie5.setChecked(False)
+            self.proforma_sale_serie6.setChecked(False)
+            self.proforma_sale_series_on = False
         else:
-            self.proforma_sale_serie1_checkbox.setChecked(True)
-            self.proforma_sale_serie2_checkbox.setChecked(True)
-            self.proforma_sale_serie3_checkbox.setChecked(True)
-            self.proforma_sale_serie4_checkbox.setChecked(True)
-            self.proforma_sale_serie5_checkbox.setChecked(True)
-            self.proforma_sale_serie6_checkbox.setChecked(True)
-            self.proforma_sale_series_label_on = True
+            self.proforma_sale_serie1.setChecked(True)
+            self.proforma_sale_serie2.setChecked(True)
+            self.proforma_sale_serie3.setChecked(True)
+            self.proforma_sale_serie4.setChecked(True)
+            self.proforma_sale_serie5.setChecked(True)
+            self.proforma_sale_serie6.setChecked(True)
+            self.proforma_sale_series_on = True
             
-    def on_proforma_sale_financial_label_clicked(self, event):
-        if self.proforma_sale_financial_label_on:
-            self.proforma_sale_notpaid_checkbox.setChecked(False)
-            self.proforma_sale_partialpaid_checkbox.setChecked(False)
-            self.proforma_sale_fullpaid_checkbox.setChecked(False)
-            self.proforma_sale_financial_label_on = False
+    def on_proforma_sale_financial_clicked(self, event):
+        if self.proforma_sale_financial_on:
+            self.proforma_sale_notpaid.setChecked(False)
+            self.proforma_sale_partialpaid.setChecked(False)
+            self.proforma_sale_fullpaid.setChecked(False)
+            self.proforma_sale_financial_on = False
         else:
-            self.proforma_sale_notpaid_checkbox.setChecked(True)
-            self.proforma_sale_partialpaid_checkbox.setChecked(True)
-            self.proforma_sale_fullpaid_checkbox.setChecked(True)
-            self.proforma_sale_financial_label_on = True
+            self.proforma_sale_notpaid.setChecked(True)
+            self.proforma_sale_partialpaid.setChecked(True)
+            self.proforma_sale_fullpaid.setChecked(True)
+            self.proforma_sale_financial_on = True
     
-    def on_proforma_sale_logistic_label_clicked(self, event):
-        if self.proforma_sale_logistic_label_on:
-            self.proforma_sale_noinstructions_checkbox.setChecked(False)
-            self.proforma_sale_queued_checkbox.setChecked(False)
-            self.proforma_sale_waitingstock_checkbox.setChecked(False)
+    def on_proforma_sale_logistic_clicked(self, event):
+        if self.proforma_sale_logistic_on:
+            self.proforma_sale_noinstructions.setChecked(False)
+            self.proforma_sale_queued.setChecked(False)
+            self.proforma_sale_waitingstock.setChecked(False)
             self.proforma_sale_inpartialprep_chekbox.setChecked(False)
-            self.proforma_sale_infullprep_checkbox.setChecked(False)
-            self.proforma_sale_cancelled_checkbox.setChecked(False)
-            self.proforma_sale_completed_checkbox.setChecked(False)
-            self.proforma_sale_logistic_label_on = False
+            self.proforma_sale_infullprep.setChecked(False)
+            self.proforma_sale_cancelled.setChecked(False)
+            self.proforma_sale_completed.setChecked(False)
+            self.proforma_sale_logistic_on = False
         else:
-            self.proforma_sale_noinstructions_checkbox.setChecked(True)
-            self.proforma_sale_queued_checkbox.setChecked(True)
-            self.proforma_sale_waitingstock_checkbox.setChecked(True)
+            self.proforma_sale_noinstructions.setChecked(True)
+            self.proforma_sale_queued.setChecked(True)
+            self.proforma_sale_waitingstock.setChecked(True)
             self.proforma_sale_inpartialprep_chekbox.setChecked(True)
-            self.proforma_sale_infullprep_checkbox.setChecked(True)
-            self.proforma_sale_cancelled_checkbox.setChecked(True)
-            self.proforma_sale_completed_checkbox.setChecked(True)
-            self.proforma_sale_logistic_label_on = True
+            self.proforma_sale_infullprep.setChecked(True)
+            self.proforma_sale_cancelled.setChecked(True)
+            self.proforma_sale_completed.setChecked(True)
+            self.proforma_sale_logistic_on = True
 
-    def on_proforma_sale_shipemnt_label_clicked(self, event):
-        if self.proforma_sale_shipment_label_on:
-            self.proforma_sale_sent_checkbox.setChecked(False)
-            self.proforma_sale_notsent_checkbox.setChecked(False)
-            self.proforma_sale_shipment_label_on = False
+    def on_proforma_sale_shipemnt_clicked(self, event):
+        if self.proforma_sale_shipment_on:
+            self.proforma_sale_sent.setChecked(False)
+            self.proforma_sale_notsent.setChecked(False)
+            self.proforma_sale_shipment_on = False
         else:
-            self.proforma_sale_sent_checkbox.setChecked(True)
-            self.proforma_sale_notsent_checkbox.setChecked(True)
-            self.proforma_sale_shipment_label_on = True
+            self.proforma_sale_sent.setChecked(True)
+            self.proforma_sale_notsent.setChecked(True)
+            self.proforma_sale_shipment_on = True
 
     # proforma purchase
-    def on_proforma_purchase_series_label_clicked(self, event):
-        if self.proforma_purchase_series_label_on:
-            self.proforma_purchase_serie1_checkbox.setChecked(False)
-            self.proforma_purchase_serie2_checkbox.setChecked(False)
-            self.proforma_purchase_serie3_checkbox.setChecked(False)
-            self.proforma_purchase_serie4_checkbox.setChecked(False)
-            self.proforma_purchase_serie5_checkbox.setChecked(False)
-            self.proforma_purchase_serie6_checkbox.setChecked(False)
-            self.proforma_purchase_series_label_on = False
+    def on_proforma_purchase_series_clicked(self, event):
+        if self.proforma_purchase_series_on:
+            self.proforma_purchase_serie1.setChecked(False)
+            self.proforma_purchase_serie2.setChecked(False)
+            self.proforma_purchase_serie3.setChecked(False)
+            self.proforma_purchase_serie4.setChecked(False)
+            self.proforma_purchase_serie5.setChecked(False)
+            self.proforma_purchase_serie6.setChecked(False)
+            self.proforma_purchase_series_on = False
         else:
-            self.proforma_purchase_serie1_checkbox.setChecked(True)
-            self.proforma_purchase_serie2_checkbox.setChecked(True)
-            self.proforma_purchase_serie3_checkbox.setChecked(True)
-            self.proforma_purchase_serie4_checkbox.setChecked(True)
-            self.proforma_purchase_serie5_checkbox.setChecked(True)
-            self.proforma_purchase_serie6_checkbox.setChecked(True)
-            self.proforma_purchase_series_label_on = True
+            self.proforma_purchase_serie1.setChecked(True)
+            self.proforma_purchase_serie2.setChecked(True)
+            self.proforma_purchase_serie3.setChecked(True)
+            self.proforma_purchase_serie4.setChecked(True)
+            self.proforma_purchase_serie5.setChecked(True)
+            self.proforma_purchase_serie6.setChecked(True)
+            self.proforma_purchase_series_on = True
 
-    def on_proforma_purchase_financial_label_clicked(self, event):
-        if self.proforma_purchase_financial_label_on:
-            self.proforma_purchase_notpaid_checkbox.setChecked(False)
-            self.proforma_purchase_fullpaid_checkbox.setChecked(False)
-            self.proforma_purchase_partialpaid_checkbox.setChecked(False) 
-            self.proforma_purchase_financial_label_on = False
+    def on_proforma_purchase_financial_clicked(self, event):
+        if self.proforma_purchase_financial_on:
+            self.proforma_purchase_notpaid.setChecked(False)
+            self.proforma_purchase_fullpaid.setChecked(False)
+            self.proforma_purchase_partialpaid.setChecked(False) 
+            self.proforma_purchase_financial_on = False
         else:
-            self.proforma_purchase_notpaid_checkbox.setChecked(True)
-            self.proforma_purchase_fullpaid_checkbox.setChecked(True)
-            self.proforma_purchase_partialpaid_checkbox.setChecked(True) 
-            self.proforma_purchase_financial_label_on = True
+            self.proforma_purchase_notpaid.setChecked(True)
+            self.proforma_purchase_fullpaid.setChecked(True)
+            self.proforma_purchase_partialpaid.setChecked(True) 
+            self.proforma_purchase_financial_on = True
 
-    def on_proforma_purchase_logistic_label_clicked(self, event):
-        if self.proforma_purchase_logistic_label_on:
-            self.proforma_purchase_noinstructions_checkbox.setChecked(False)
-            self.proforma_purchase_queued_checkbox.setChecked(False)
-            self.proforma_purchase_waitingstock_checkbox.setChecked(False)
-            self.proforma_purchase_partiallyreceived_checkbox.setChecked(False)
-            self.proforma_purchase_fullreceived_checkbox.setChecked(False)
-            self.proforma_purchase_completed_checkbox.setChecked(False)
-            self.proforma_purchase_cancelled_checkbox.setChecked(False)
-            self.proforma_purchase_logistic_label_on = False
+    def on_proforma_purchase_logistic_clicked(self, event):
+        if self.proforma_purchase_logistic_on:
+            self.proforma_purchase_noinstructions.setChecked(False)
+            self.proforma_purchase_queued.setChecked(False)
+            self.proforma_purchase_waitingstock.setChecked(False)
+            self.proforma_purchase_partiallyreceived.setChecked(False)
+            self.proforma_purchase_fullreceived.setChecked(False)
+            self.proforma_purchase_completed.setChecked(False)
+            self.proforma_purchase_cancelled.setChecked(False)
+            self.proforma_purchase_logistic_on = False
         else:
-            self.proforma_purchase_noinstructions_checkbox.setChecked(True)
-            self.proforma_purchase_queued_checkbox.setChecked(True)
-            self.proforma_purchase_waitingstock_checkbox.setChecked(True)
-            self.proforma_purchase_partiallyreceived_checkbox.setChecked(True)
-            self.proforma_purchase_fullreceived_checkbox.setChecked(True)
-            self.proforma_purchase_completed_checkbox.setChecked(True)
-            self.proforma_purchase_cancelled_checkbox.setChecked(True)
-            self.proforma_purchase_logistic_label_on = True
+            self.proforma_purchase_noinstructions.setChecked(True)
+            self.proforma_purchase_queued.setChecked(True)
+            self.proforma_purchase_waitingstock.setChecked(True)
+            self.proforma_purchase_partiallyreceived.setChecked(True)
+            self.proforma_purchase_fullreceived.setChecked(True)
+            self.proforma_purchase_completed.setChecked(True)
+            self.proforma_purchase_cancelled.setChecked(True)
+            self.proforma_purchase_logistic_on = True
 
-    def on_proforma_purchase_shipment_label_clicked(self, event):
-        if self.proforma_purchase_shipment_label_on:
-            self.proforma_purchase_sent_checkbox.setChecked(False)
-            self.proforma_purchase_notsent_checkbox.setChecked(False)
-            self.proforma_purchase_shipment_label_on = False
+    def on_proforma_purchase_shipment_clicked(self, event):
+        if self.proforma_purchase_shipment_on:
+            self.proforma_purchase_sent.setChecked(False)
+            self.proforma_purchase_notsent.setChecked(False)
+            self.proforma_purchase_shipment_on = False
         else:
-            self.proforma_purchase_sent_checkbox.setChecked(True)
-            self.proforma_purchase_notsent_checkbox.setChecked(True)
-            self.proforma_purchase_shipment_label_on = True
+            self.proforma_purchase_sent.setChecked(True)
+            self.proforma_purchase_notsent.setChecked(True)
+            self.proforma_purchase_shipment_on = True
 
     # Warehouse:
     # Warehouse reception:
-    def on_warehouse_reception_status_label_clicked(self, event):
-        if self.warehouse_reception_status_label_on:
-            self.warehouse_reception_queued_checkbox.setChecked(False)
-            self.warehouse_reception_waiting_checkbox.setChecked(False)
-            self.warehouse_reception_partiallyreceived_checkbox.setChecked(False)
-            self.warehouse_reception_fullyreceived_checkbox.setChecked(False)
-            self.warehouse_reception_completed_checkbox.setChecked(False)
-            self.warehouse_reception_cancelled_checkbox.setChecked(False)
-            self.warehouse_reception_status_label_on = False
+    def on_reception_status_clicked(self, event):
+        if self.reception_status_on:
+            self.reception_empty.setChecked(False) 
+            self.reception_partially.setChecked(False)
+            self.reception_completed.setChecked(False)
+            self.reception_cancelled.setChecked(False)
+            self.reception_status_on = False
         else:
-            self.warehouse_reception_queued_checkbox.setChecked(True)
-            self.warehouse_reception_waiting_checkbox.setChecked(True)
-            self.warehouse_reception_partiallyreceived_checkbox.setChecked(True)
-            self.warehouse_reception_fullyreceived_checkbox.setChecked(True)
-            self.warehouse_reception_completed_checkbox.setChecked(True)
-            self.warehouse_reception_cancelled_checkbox.setChecked(True)
-            self.warehouse_reception_status_label_on = True
+            self.reception_empty.setChecked(True) 
+            self.reception_partially.setChecked(True)
+            self.reception_completed.setChecked(True)
+            self.reception_cancelled.setChecked(True)
+            self.reception_status_on = True
 
     # Warehouse expedition:
-    def on_warehouse_expedition_status_label_clicked(self, event):
-        if self.warehouse_expedition_status_label_on:
-            self.warehouse_expedition_queued_checkbox.setChecked(False)
-            self.warehouse_expedition_waiting_checkbox.setChecked(False)
-            self.warehouse_expedition_inpartialprep_checkbox.setChecked(False)
-            self.warehouse_expedition_infullprep_checkbox.setChecked(False)
-            self.warehouse_expedition_completed_checkbox.setChecked(False)
-            self.warehouse_expedition_cancelled_checkbox.setChecked(False)
-            self.warehouse_expedition_status_label_on = False
+    def on_expedition_status_clicked(self, event):
+        if self.expedition_status_on:
+            self.expedition_empty.setChecked(False) 
+            self.expedition_partially.setChecked(False)
+            self.expedition_completed.setChecked(False)
+            self.expedition_cancelled.setChecked(False)
+            self.expedition_status_on = False
         else:
-            self.warehouse_expedition_queued_checkbox.setChecked(True)
-            self.warehouse_expedition_waiting_checkbox.setChecked(True)
-            self.warehouse_expedition_inpartialprep_checkbox.setChecked(True)
-            self.warehouse_expedition_infullprep_checkbox.setChecked(True)
-            self.warehouse_expedition_completed_checkbox.setChecked(True)
-            self.warehouse_expedition_cancelled_checkbox.setChecked(True)
-            self.warehouse_expedition_status_label_on = True
+            self.expedition_empty.setChecked(True) 
+            self.expedition_partially.setChecked(True)
+            self.expedition_completed.setChecked(True)
+            self.expedition_cancelled.setChecked(True)
+            self.expedition_status_on = True
 
 
-    def on_invoice_purchase_apply_button_pressed(self):
+    def on_invoice_purchase_apply_pressed(self):
         filters = self._captureInvoicePurchaseFilters()
         print(filters)
 
-    def on_proforma_sale_apply_button_pressed(self):
+    def on_proforma_sale_apply_pressed(self):
         filters = self._captureProformaSaleFilters() 
 
-    def on_proforma_purchase_apply_button_pressed(self):
+    def on_proforma_purchase_apply_pressed(self):
         filters = self._captureProformaPurchaseFilters()
         print(filters)
     
-    def on_warehouse_expedition_apply_button_pressed(self):
+    def on_expedition_apply_pressed(self):
         filters = self._captureWarehouseExpeditionFilters()
-        print(filters)
+        search_key = self.expedition_search.text() 
+        self.setUpSaleOrdersModelAndView(filters=filters, search_key=search_key)
     
-    def on_warehouse_reception_apply_button_pressed(self):
+    def on_reception_apply_pressed(self):
         filters = self._captureWarehouseReceptionFilters() 
-        print(filters)
+        search_key = self.reception_search.text() 
+        self.setUpPurchaseOrdersModelAndView(filters=filters, search_key=search_key)        
 
     def _captureInvoiceSaleFilters(self):   
         
         filters = {
             "series":[
-                1 if self.invoice_sale_serie1_checkbox.isChecked() else None, 
-                2 if self.invoice_sale_serie2_checkbox.isChecked() else None, 
-                3 if self.invoice_sale_serie3_checkbox.isChecked() else None, 
-                4 if self.invoice_sale_serie4_checkbox.isChecked() else None, 
-                5 if self.invoice_sale_serie5_checkbox.isChecked() else None, 
-                6 if self.invoice_sale_serie6_checkbox.isChecked() else None
+                1 if self.invoice_sale_serie1.isChecked() else None, 
+                2 if self.invoice_sale_serie2.isChecked() else None, 
+                3 if self.invoice_sale_serie3.isChecked() else None, 
+                4 if self.invoice_sale_serie4.isChecked() else None, 
+                5 if self.invoice_sale_serie5.isChecked() else None, 
+                6 if self.invoice_sale_serie6.isChecked() else None
             ], 
             "financial":[
-                "not" if self.invoice_sale_notpaid_checkbox.isChecked() else None, 
-                "full" if self.invoice_sale_fullpaid_checkbox.isChecked() else None, 
-                "partial" if self.invoice_sale_partialpaid_checkbox.isChecked() else None, 
-                "cancelled" if self.invoice_sale_cancelled_checkbox.isChecked() else None
+                "not" if self.invoice_sale_notpaid.isChecked() else None, 
+                "full" if self.invoice_sale_fullpaid.isChecked() else None, 
+                "partial" if self.invoice_sale_partialpaid.isChecked() else None, 
+                "cancelled" if self.invoice_sale_cancelled.isChecked() else None
             ], 
             "logistic":[
-                "queued" if self.invoice_sale_queued_checkbox.isChecked() else None, 
-                "waiting stock" if self.invoice_sale_waiting_checkbox.isChecked() else None, 
-                "completed" if self.invoice_sale_completed_checkbox.isChecked() else None, 
+                "queued" if self.invoice_sale_queued.isChecked() else None, 
+                "waiting stock" if self.invoice_sale_waiting.isChecked() else None, 
+                "completed" if self.invoice_sale_completed.isChecked() else None, 
             ], 
             "shipment":[
-                "sent" if self.invoice_sale_sent_checkbox.isChecked() else None, 
-                "not" if self.invoice_sale_notsent_checkbox.isChecked() else None
+                "sent" if self.invoice_sale_sent.isChecked() else None, 
+                "not" if self.invoice_sale_notsent.isChecked() else None
             ]
         }
 
@@ -476,30 +469,30 @@ class MainGui(Ui_MainGui, QMainWindow):
         
         filters = {
             "series":[
-                1 if self.invoice_purchase_serie1_checkbox.isChecked() else None, 
-                2 if self.invoice_purchase_serie2_checkbox.isChecked() else None, 
-                3 if self.invoice_purchase_serie3_checkbox.isChecked() else None, 
-                4 if self.invoice_purchase_serie4_checkbox.isChecked() else None, 
-                5 if self.invoice_purchase_serie5_checkbox.isChecked() else None, 
-                6 if self.invoice_purchase_serie6_checkbox.isChecked() else None
+                1 if self.invoice_purchase_serie1.isChecked() else None, 
+                2 if self.invoice_purchase_serie2.isChecked() else None, 
+                3 if self.invoice_purchase_serie3.isChecked() else None, 
+                4 if self.invoice_purchase_serie4.isChecked() else None, 
+                5 if self.invoice_purchase_serie5.isChecked() else None, 
+                6 if self.invoice_purchase_serie6.isChecked() else None
             ], 
             "logistic":[
-                "no instructions" if self.invoice_purchase_noinstructions_checkbox.isChecked() else None, 
-                "queued" if self.invoice_purchase_queued_checkbox.isChecked() else None, 
-                "waiting stock" if self.invoice_purchase_waiting_checkbox.isChecked() else None, 
-                "partially received" if self.invoice_purchase_partialreceived_checkbox.isChecked() else None, 
-                "fully received" if self.invoice_purchase_fullreceived_checkbox.isChecked() else None, 
-                "completed" if self.invoice_purchase_completed_checkbox.isChecked() else None, 
-                "cancelled" if self.invoice_purchase_cancelled_checkbox.isChecked() else None 
+                "no instructions" if self.invoice_purchase_noinstructions.isChecked() else None, 
+                "queued" if self.invoice_purchase_queued.isChecked() else None, 
+                "waiting stock" if self.invoice_purchase_waiting.isChecked() else None, 
+                "partially received" if self.invoice_purchase_partialreceived.isChecked() else None, 
+                "fully received" if self.invoice_purchase_fullreceived.isChecked() else None, 
+                "completed" if self.invoice_purchase_completed.isChecked() else None, 
+                "cancelled" if self.invoice_purchase_cancelled.isChecked() else None 
             ],"financial":[
-                "full" if self.invoice_purchase_fullpaid_checkbox.isChecked() else None, 
-                "partial" if self.invoice_purchase_partialpaid_checkbox.isChecked() else None, 
-                "not" if self.invoice_purchase_notpaid_checkbox.isChecked() else None, 
-                "cancelled" if self.invoice_purchase_cancelled_checkbox.isChecked() else None 
+                "full" if self.invoice_purchase_fullpaid.isChecked() else None, 
+                "partial" if self.invoice_purchase_partialpaid.isChecked() else None, 
+                "not" if self.invoice_purchase_notpaid.isChecked() else None, 
+                "cancelled" if self.invoice_purchase_cancelled.isChecked() else None 
             ], 
             "shipment":[
-                "sent" if self.invoice_purchase_sent_checkbox.isChecked() else None, 
-                "not" if self.invoice_purchase_notsent_checkbox.isChecked() else None 
+                "sent" if self.invoice_purchase_sent.isChecked() else None, 
+                "not" if self.invoice_purchase_notsent.isChecked() else None 
             ] 
         }
     
@@ -508,27 +501,27 @@ class MainGui(Ui_MainGui, QMainWindow):
     def _captureProformaSaleFilters(self):
         filters = {
             "series":[
-                1 if self.proforma_sale_serie1_checkbox.isChecked() else None, 
-                2 if self.proforma_sale_serie2_checkbox.isChecked() else None, 
-                3 if self.proforma_sale_serie3_checkbox.isChecked() else None, 
-                4 if self.proforma_sale_serie4_checkbox.isChecked() else None, 
-                5 if self.proforma_sale_serie5_checkbox.isChecked() else None, 
-                6 if self.proforma_sale_serie6_checkbox.isChecked() else None,
+                1 if self.proforma_sale_serie1.isChecked() else None, 
+                2 if self.proforma_sale_serie2.isChecked() else None, 
+                3 if self.proforma_sale_serie3.isChecked() else None, 
+                4 if self.proforma_sale_serie4.isChecked() else None, 
+                5 if self.proforma_sale_serie5.isChecked() else None, 
+                6 if self.proforma_sale_serie6.isChecked() else None,
             ], "financial":[
-                "not paid" if self.proforma_sale_notpaid_checkbox.isChecked() else None, 
-                "fully paid" if self.proforma_sale_fullpaid_checkbox.isChecked() else None, 
-                "partially paid" if self.proforma_sale_partialpaid_checkbox.isChecked() else None
+                "not paid" if self.proforma_sale_notpaid.isChecked() else None, 
+                "fully paid" if self.proforma_sale_fullpaid.isChecked() else None, 
+                "partially paid" if self.proforma_sale_partialpaid.isChecked() else None
             ], "logistic":[
-                "no instructions" if self.proforma_sale_noinstructions_checkbox.isChecked() else None, 
-                "queued" if self.proforma_sale_queued_checkbox.isChecked() else None, 
-                "waiting stock" if self.proforma_sale_waitingstock_checkbox.isChecked() else None, 
+                "no instructions" if self.proforma_sale_noinstructions.isChecked() else None, 
+                "queued" if self.proforma_sale_queued.isChecked() else None, 
+                "waiting stock" if self.proforma_sale_waitingstock.isChecked() else None, 
                 "in partial preparation" if self.proforma_sale_inpartialprep_chekbox.isChecked() else None, 
-                "in full preparation" if self.proforma_sale_infullprep_checkbox.isChecked() else None, 
-                "completed" if self.proforma_sale_completed_checkbox.isChecked() else None, 
-                "cancelled" if self.proforma_sale_cancelled_checkbox.isChecked() else None
+                "in full preparation" if self.proforma_sale_infullprep.isChecked() else None, 
+                "completed" if self.proforma_sale_completed.isChecked() else None, 
+                "cancelled" if self.proforma_sale_cancelled.isChecked() else None
             ], "shipment":[
-                "sent" if self.proforma_sale_sent_checkbox.isChecked() else None, 
-                "not sent" if self.proforma_sale_notsent_checkbox.isChecked() else None
+                "sent" if self.proforma_sale_sent.isChecked() else None, 
+                "not sent" if self.proforma_sale_notsent.isChecked() else None
             ]
         }
 
@@ -537,27 +530,27 @@ class MainGui(Ui_MainGui, QMainWindow):
     def _captureProformaPurchaseFilters(self):
         filters = {
             "series":[
-                1 if self.proforma_purchase_serie1_checkbox.isChecked() else None, 
-                2 if self.proforma_purchase_serie2_checkbox.isChecked() else None, 
-                3 if self.proforma_purchase_serie3_checkbox.isChecked() else None, 
-                4 if self.proforma_purchase_serie4_checkbox.isChecked() else None, 
-                5 if self.proforma_purchase_serie5_checkbox.isChecked() else None, 
-                6 if self.proforma_purchase_serie6_checkbox.isChecked() else None 
+                1 if self.proforma_purchase_serie1.isChecked() else None, 
+                2 if self.proforma_purchase_serie2.isChecked() else None, 
+                3 if self.proforma_purchase_serie3.isChecked() else None, 
+                4 if self.proforma_purchase_serie4.isChecked() else None, 
+                5 if self.proforma_purchase_serie5.isChecked() else None, 
+                6 if self.proforma_purchase_serie6.isChecked() else None 
             ], "financial":[
-                "partially paid" if self.proforma_purchase_partialpaid_checkbox.isChecked() else None, 
-                "fully paid" if self.proforma_purchase_fullpaid_checkbox.isChecked() else None, 
-                "not paid" if self.proforma_purchase_notpaid_checkbox.isChecked() else None 
+                "partially paid" if self.proforma_purchase_partialpaid.isChecked() else None, 
+                "fully paid" if self.proforma_purchase_fullpaid.isChecked() else None, 
+                "not paid" if self.proforma_purchase_notpaid.isChecked() else None 
             ], "logistic":[
-                "no instructions" if self.proforma_sale_noinstructions_checkbox.isChecked() else None, 
-                "queued" if self.proforma_purchase_queued_checkbox.isChecked() else None, 
-                "waiting" if self.proforma_purchase_waitingstock_checkbox.isChecked() else None, 
-                "partially received" if self.proforma_purchase_partiallyreceived_checkbox.isChecked() else None, 
-                "fully received" if self.proforma_purchase_fullreceived_checkbox.isChecked() else None, 
-                "completed" if self.proforma_purchase_completed_checkbox.isChecked() else None, 
-                "cancelled" if self.proforma_purchase_cancelled_checkbox.isChecked() else None
+                "no instructions" if self.proforma_sale_noinstructions.isChecked() else None, 
+                "queued" if self.proforma_purchase_queued.isChecked() else None, 
+                "waiting" if self.proforma_purchase_waitingstock.isChecked() else None, 
+                "partially received" if self.proforma_purchase_partiallyreceived.isChecked() else None, 
+                "fully received" if self.proforma_purchase_fullreceived.isChecked() else None, 
+                "completed" if self.proforma_purchase_completed.isChecked() else None, 
+                "cancelled" if self.proforma_purchase_cancelled.isChecked() else None
             ], "shipment":[
-                "sent" if self.proforma_purchase_sent_checkbox.isChecked() else None, 
-                "not sent" if self.proforma_purchase_notsent_checkbox.isChecked() else None
+                "sent" if self.proforma_purchase_sent.isChecked() else None, 
+                "not sent" if self.proforma_purchase_notsent.isChecked() else None
             ]
         }
 
@@ -568,12 +561,10 @@ class MainGui(Ui_MainGui, QMainWindow):
             filter(
                 None, 
                 (
-                    "queued" if self.warehouse_expedition_queued_checkbox.isChecked() else None, 
-                    "waiting stock" if self.warehouse_expedition_waiting_checkbox.isChecked() else None, 
-                    "in partial preparation" if self.warehouse_expedition_inpartialprep_checkbox.isChecked() else None, 
-                    "in full preparation" if self.warehouse_expedition_infullprep_checkbox.isChecked() else None, 
-                    "completed" if self.warehouse_expedition_completed_checkbox.isChecked() else None, 
-                    "cancelled" if self.warehouse_expedition_cancelled_checkbox.isChecked() else None
+                    "empty" if self.expedition_empty.isChecked() else None, 
+                    "partially processed" if self.expedition_partially.isChecked() else None, 
+                    "completed" if self.expedition_completed.isChecked() else None, 
+                    "cancelled" if self.expedition_cancelled.isChecked() else None
                 )
             )
         )
@@ -583,12 +574,10 @@ class MainGui(Ui_MainGui, QMainWindow):
             filter(
                 None, 
                 (
-                    "queued" if self.warehouse_reception_queued_checkbox.isChecked() else None, 
-                    "waiting stock" if self.warehouse_reception_waiting_checkbox.isChecked() else None, 
-                    "partially received" if self.warehouse_reception_partiallyreceived_checkbox.isChecked() else None, 
-                    "fully received" if self.warehouse_reception_fullyreceived_checkbox.isChecked() else None, 
-                    "completed" if self.warehouse_reception_completed_checkbox.isChecked() else None, 
-                    "cancelled" if self.warehouse_reception_cancelled_checkbox.isChecked() else None
+                    "empty" if self.reception_empty.isChecked() else None, 
+                    "partially processed" if self.reception_partially.isChecked() else None, 
+                    "completed" if self.reception_completed.isChecked() else None, 
+                    "cancelled" if self.reception_cancelled.isChecked() else None
                 )
             )
         )
@@ -1142,11 +1131,11 @@ class MainGui(Ui_MainGui, QMainWindow):
         self.invoice_purchase_print_button.clicked.connect(self.purchaseInvoicePrintHandler)
 
     def setUpPurchaseOrderHandlers(self):
-        self.reception_process_button.clicked.connect(self.processPurchaseOrder) 
+        self.reception_process.clicked.connect(self.processPurchaseOrder) 
         self.warehouse_reception_view.doubleClicked.connect(self.purchaseOrderDoubleClicked)
 
     def setUpSaleOrdersHandlers(self):
-        self.expedition_process_button.clicked.connect(self.processSaleOrder) 
+        self.expedition_process.clicked.connect(self.processSaleOrder) 
         self.warehouse_expedition_view.doubleClicked.connect(self.saleOrderDoubleClicked)
 
     def setupToolsHandlers(self):

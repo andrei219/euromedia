@@ -75,7 +75,7 @@ class OrderForm(Ui_OrderForm, QDialog):
         self.order_date_line_edit.setText(str(self.order.created_on.strftime('%d/%m/%Y')))
         self.partner_line_edit.setText(self.order.proforma.partner.fiscal_name)
         self.agent_line_edit.setText(self.order.proforma.agent.fiscal_name)
-        self.warehouse_line_edit.setText(self.order.warehouse.description)
+        self.warehouse_line_edit.setText(self.order.proforma.warehouse.description)
         self.order_total_line_edit.setText(str(self._total()))
 
     def populateBody(self):

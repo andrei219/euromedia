@@ -696,7 +696,7 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
 
     def toWarehouse(self, proforma, note):
         # put this code in wareohouse model 
-        order = db.PurchaseOrder(proforma, proforma.warehouse, note) 
+        order = db.PurchaseOrder(proforma, note) 
         self.session.add(order) 
         for line in proforma.lines:
             self.session.add(db.PurchaseOrderLine(order, line.item, line.condition,\
@@ -888,7 +888,7 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
             raise 
 
     def toWarehouse(self, proforma, note):
-        order = db.SaleOrder(proforma, proforma.warehouse, note) 
+        order = db.SaleOrder(proforma, note) 
         self.session.add(order) 
         for line in proforma.lines:
             self.session.add(db.SaleOrderLine(order, line.item, line.condition,\
@@ -1256,19 +1256,42 @@ class OrderModel(BaseTable, QtCore.QAbstractTableModel):
         self.name = 'orders' 
         
         if sale:
-            self.Order = db.SaleOrder
+            Order = db.SaleOrder
+            Proforma = db.SaleProforma
         else:
-            self.Order = db.PurchaseOrder
+            Order = db.PurchaseOrder
+            Proforma = db.PurchaseProforma
 
-        self.query = self.session.query(self.Order)
+        query = self.session.query(Order).join(Proforma).join(db.Agent).join(db.Partner).join(db.Warehouse) 
 
         if search_key:
-            pass 
-        
-        if filters:
-            pass 
+            clause = or_(
+                db.Agent.fiscal_name.contains(search_key), db.Partner.fiscal_name.contains(search_key), \
+                    db.Warehouse.description.contains(search_key)) 
+            query = query.where(clause) 
 
-        self.orders = self.query.all() 
+        if filters:
+            self.orders = query.all() 
+            filtered = [] 
+            if 'cancelled' in filters:
+                filtered += [ order for order in self.orders if order.proforma.cancelled]
+
+            if 'partially processed' in filters:
+                filtered += [ order for order in self.orders if not order.proforma.cancelled and \
+                    0 < self._processed(order) < self._total(order)]
+
+            if 'empty' in filters:
+                filtered += [ order for order in self.orders if not order.proforma.cancelled and \
+                    not self._processed(order)]
+
+            if 'completed' in filters:
+                filtered += [ order for order in self.orders if not order.proforma.cancelled and \
+                    self._processed(order) == self._total(order)]
+                
+            self.orders = filtered
+
+        else:
+            self.orders = query.all() 
 
     def data(self, index, role=Qt.DisplayRole):
         if not index.isValid():
@@ -1280,7 +1303,7 @@ class OrderModel(BaseTable, QtCore.QAbstractTableModel):
             if column == OrderModel.ID:
                 return str(order.id).zfill(6)
             elif column == OrderModel.WAREHOUSE:
-                return order.warehouse.description
+                return order.proforma.warehouse.description 
             elif column == OrderModel.TOTAL:
                 return str(self._total(order))
             elif column == OrderModel.PARTNER:
