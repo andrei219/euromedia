@@ -542,10 +542,10 @@ class SaleOrderLine(Base):
     item_id = Column(Integer, ForeignKey('items.id'))
     condition = Column(String(50))
     specification = Column(String(50))
-    
     quantity = Column(Integer)
-    # arrived = Column(Integer, nullable=False)
 
+    item = relationship('Item', uselist=False)
+    order = relationship('SaleOrder', backref=backref('lines'))
 
     def __init__(self, order, item, condition, specification, quantity):
         self.order = order
@@ -553,10 +553,6 @@ class SaleOrderLine(Base):
         self.condition = condition
         self.specification = specification
         self.quantity = quantity
-
-
-    item = relationship('Item', uselist=False)
-    order = relationship('SaleOrder', backref=backref('lines'))
 
     __table_args__ = (
         UniqueConstraint('id', 'order_id'), 
@@ -588,7 +584,6 @@ class PurchaseOrderLine(Base):
     quantity = Column(Integer)
 
     order = relationship('PurchaseOrder', backref=backref('lines'))
-
     item = relationship('Item', uselist=False)
 
 
@@ -884,5 +879,7 @@ if __name__ == '__main__':
 
     import random
 
-    for type in (1, 2, 3, 4, 4, 4, 3, 2):
-        create_sale(type)
+    types = (1, 2, 3, 4, 4, 4, 3, 2)
+
+    for i in range(500):
+        create_sale(random.choice(types))

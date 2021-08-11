@@ -63,7 +63,7 @@
 font: 8pt &quot;Verdana&quot;;</string>
     </property>
     <property name="currentIndex">
-     <number>4</number>
+     <number>2</number>
     </property>
     <property name="iconSize">
      <size>
@@ -556,7 +556,7 @@ font: 8pt &quot;Verdana&quot;;</string>
           <number>0</number>
          </property>
          <property name="text">
-          <string>Series </string>
+          <string>Type</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
@@ -915,7 +915,7 @@ font: 8pt &quot;Verdana&quot;;</string>
          </property>
         </widget>
        </widget>
-       <widget class="QLineEdit" name="proforma_purchase_search_lineedit">
+       <widget class="QLineEdit" name="proforma_purchase_search">
         <property name="geometry">
          <rect>
           <x>1130</x>
@@ -1355,7 +1355,7 @@ font: 8pt &quot;Verdana&quot;;</string>
        <attribute name="title">
         <string>Sales </string>
        </attribute>
-       <widget class="QLineEdit" name="proforma_sale_search_edit">
+       <widget class="QLineEdit" name="proforma_sale_search">
         <property name="geometry">
          <rect>
           <x>1130</x>
@@ -1454,7 +1454,7 @@ font: 8pt &quot;Verdana&quot;;</string>
           <number>0</number>
          </property>
          <property name="text">
-          <string>Series </string>
+          <string>Type</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
@@ -1764,7 +1764,7 @@ font: 8pt &quot;Verdana&quot;;</string>
           <string>Completed</string>
          </property>
         </widget>
-        <widget class="QCheckBox" name="proforma_sale_cancelled_checkbox">
+        <widget class="QCheckBox" name="proforma_sale_cancelled">
          <property name="geometry">
           <rect>
            <x>40</x>
@@ -2377,7 +2377,7 @@ font: 8pt &quot;Verdana&quot;;</string>
           <number>0</number>
          </property>
          <property name="text">
-          <string>Series </string>
+          <string>Type</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
@@ -3141,7 +3141,7 @@ font: 8pt &quot;Verdana&quot;;</string>
           <number>0</number>
          </property>
          <property name="text">
-          <string>Series </string>
+          <string>Type </string>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>

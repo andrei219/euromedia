@@ -259,7 +259,6 @@ class MainGui(Ui_MainGui, QMainWindow):
             self.invoice_purchase_notsent.setChecked(True)
             self.invoice_purchase_shipment_on = True
             
-
     # proforma sale:
     def on_proforma_sale_series_clicked(self, event):
         if self.proforma_sale_series_on:
@@ -282,33 +281,27 @@ class MainGui(Ui_MainGui, QMainWindow):
     def on_proforma_sale_financial_clicked(self, event):
         if self.proforma_sale_financial_on:
             self.proforma_sale_notpaid.setChecked(False)
-            self.proforma_sale_partialpaid.setChecked(False)
-            self.proforma_sale_fullpaid.setChecked(False)
+            self.proforma_sale_partiallypaid.setChecked(False)
+            self.proforma_sale_fullypaid.setChecked(False)
+            self.proforma_sale_cancelled.setChecked(False) 
             self.proforma_sale_financial_on = False
         else:
             self.proforma_sale_notpaid.setChecked(True)
-            self.proforma_sale_partialpaid.setChecked(True)
-            self.proforma_sale_fullpaid.setChecked(True)
+            self.proforma_sale_partiallypaid.setChecked(True)
+            self.proforma_sale_fullypaid.setChecked(True)
+            self.proforma_sale_cancelled.setChecked(True)
             self.proforma_sale_financial_on = True
     
     def on_proforma_sale_logistic_clicked(self, event):
         if self.proforma_sale_logistic_on:
-            self.proforma_sale_noinstructions.setChecked(False)
-            self.proforma_sale_queued.setChecked(False)
-            self.proforma_sale_waitingstock.setChecked(False)
-            self.proforma_sale_inpartialprep_chekbox.setChecked(False)
-            self.proforma_sale_infullprep.setChecked(False)
-            self.proforma_sale_cancelled.setChecked(False)
+            self.proforma_sale_empty.setChecked(False)
             self.proforma_sale_completed.setChecked(False)
+            self.proforma_sale_partially_prepared.setChecked(False)
             self.proforma_sale_logistic_on = False
         else:
-            self.proforma_sale_noinstructions.setChecked(True)
-            self.proforma_sale_queued.setChecked(True)
-            self.proforma_sale_waitingstock.setChecked(True)
-            self.proforma_sale_inpartialprep_chekbox.setChecked(True)
-            self.proforma_sale_infullprep.setChecked(True)
-            self.proforma_sale_cancelled.setChecked(True)
+            self.proforma_sale_empty.setChecked(True)
             self.proforma_sale_completed.setChecked(True)
+            self.proforma_sale_partially_prepared.setChecked(True)
             self.proforma_sale_logistic_on = True
 
     def on_proforma_sale_shipemnt_clicked(self, event):
@@ -420,6 +413,8 @@ class MainGui(Ui_MainGui, QMainWindow):
 
     def on_proforma_sale_apply_pressed(self):
         filters = self._captureProformaSaleFilters() 
+        search_key = self.proforma_sale_search.text() 
+        self.setUpSaleProformasModelAndView(filters=filters, search_key=search_key)
 
     def on_proforma_purchase_apply_pressed(self):
         filters = self._captureProformaPurchaseFilters()
@@ -500,7 +495,7 @@ class MainGui(Ui_MainGui, QMainWindow):
 
     def _captureProformaSaleFilters(self):
         filters = {
-            "series":[
+            "type":[
                 1 if self.proforma_sale_serie1.isChecked() else None, 
                 2 if self.proforma_sale_serie2.isChecked() else None, 
                 3 if self.proforma_sale_serie3.isChecked() else None, 
@@ -509,16 +504,13 @@ class MainGui(Ui_MainGui, QMainWindow):
                 6 if self.proforma_sale_serie6.isChecked() else None,
             ], "financial":[
                 "not paid" if self.proforma_sale_notpaid.isChecked() else None, 
-                "fully paid" if self.proforma_sale_fullpaid.isChecked() else None, 
-                "partially paid" if self.proforma_sale_partialpaid.isChecked() else None
-            ], "logistic":[
-                "no instructions" if self.proforma_sale_noinstructions.isChecked() else None, 
-                "queued" if self.proforma_sale_queued.isChecked() else None, 
-                "waiting stock" if self.proforma_sale_waitingstock.isChecked() else None, 
-                "in partial preparation" if self.proforma_sale_inpartialprep_chekbox.isChecked() else None, 
-                "in full preparation" if self.proforma_sale_infullprep.isChecked() else None, 
-                "completed" if self.proforma_sale_completed.isChecked() else None, 
+                "fully paid" if self.proforma_sale_fullypaid.isChecked() else None, 
+                "partially paid" if self.proforma_sale_partiallypaid.isChecked() else None, 
                 "cancelled" if self.proforma_sale_cancelled.isChecked() else None
+            ], "logistic":[
+                "completed" if self.proforma_sale_completed.isChecked() else None,
+                "partially prepared" if self.proforma_sale_partially_prepared.isChecked() else None, 
+                "empty" if self.proforma_sale_empty.isChecked() else None 
             ], "shipment":[
                 "sent" if self.proforma_sale_sent.isChecked() else None, 
                 "not sent" if self.proforma_sale_notsent.isChecked() else None
@@ -879,7 +871,6 @@ class MainGui(Ui_MainGui, QMainWindow):
             self.saleProformaModel.toWarehouse(proforma, note)
             QMessageBox.information(self, 'Information', 'Successfully created warehouse order')            
         except IntegrityError as ex:
-            raise ex
             if ex.orig.args[0] == 1048:
                 d = 'Invoice' if invoice else 'Proforma'
                 QMessageBox.critical(self, 'Update - Error', f'Warehouse order for this {d} already exists')
@@ -1090,7 +1081,7 @@ class MainGui(Ui_MainGui, QMainWindow):
         self.proforma_purchase_new_button.clicked.connect(self.purchaseProformaNewButtonHandler) 
         self.proforma_purchase_payment_button.clicked.connect(self.purchaseProformaPaymentsHandler)
         self.proforma_purchase_cancel_button.clicked.connect(self.purchaseProformaCancelHandler)
-        self.proforma_purchase_search_lineedit.returnPressed.connect(self.purchaseProformaSearchHandler)
+        self.proforma_purchase_search.returnPressed.connect(self.purchaseProformaSearchHandler)
         self.proforma_purchase_expense_button.clicked.connect(self.purchaseProformaExpenseButtonHandler)
         self.proforma_purchase_documents_button.clicked.connect(self.purchaseProformaDocsButtonHandler) 
         self.proforma_purchase_invoice_button.clicked.connect(self.purchaseProformaToInvoiceButtonHandler)  
