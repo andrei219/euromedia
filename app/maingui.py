@@ -336,33 +336,28 @@ class MainGui(Ui_MainGui, QMainWindow):
     def on_proforma_purchase_financial_clicked(self, event):
         if self.proforma_purchase_financial_on:
             self.proforma_purchase_notpaid.setChecked(False)
-            self.proforma_purchase_fullpaid.setChecked(False)
-            self.proforma_purchase_partialpaid.setChecked(False) 
+            self.proforma_purchase_fullypaid.setChecked(False)
+            self.proforma_purchase_partiallypaid.setChecked(False) 
+            self.proforma_purchase_cancelled.setChecked(False)
             self.proforma_purchase_financial_on = False
         else:
             self.proforma_purchase_notpaid.setChecked(True)
-            self.proforma_purchase_fullpaid.setChecked(True)
-            self.proforma_purchase_partialpaid.setChecked(True) 
+            self.proforma_purchase_fullypaid.setChecked(True)
+            self.proforma_purchase_partiallypaid.setChecked(True) 
+            self.proforma_purchase_cancelled.setChecked(True)
+            
             self.proforma_purchase_financial_on = True
 
     def on_proforma_purchase_logistic_clicked(self, event):
         if self.proforma_purchase_logistic_on:
-            self.proforma_purchase_noinstructions.setChecked(False)
-            self.proforma_purchase_queued.setChecked(False)
-            self.proforma_purchase_waitingstock.setChecked(False)
-            self.proforma_purchase_partiallyreceived.setChecked(False)
-            self.proforma_purchase_fullreceived.setChecked(False)
+            self.proforma_purchase_empty.setChecked(False)
+            self.proforma_purchase_partially_received.setChecked(False)
             self.proforma_purchase_completed.setChecked(False)
-            self.proforma_purchase_cancelled.setChecked(False)
             self.proforma_purchase_logistic_on = False
         else:
-            self.proforma_purchase_noinstructions.setChecked(True)
-            self.proforma_purchase_queued.setChecked(True)
-            self.proforma_purchase_waitingstock.setChecked(True)
-            self.proforma_purchase_partiallyreceived.setChecked(True)
-            self.proforma_purchase_fullreceived.setChecked(True)
+            self.proforma_purchase_empty.setChecked(True) 
+            self.proforma_purchase_partially_received.setChecked(True)
             self.proforma_purchase_completed.setChecked(True)
-            self.proforma_purchase_cancelled.setChecked(True)
             self.proforma_purchase_logistic_on = True
 
     def on_proforma_purchase_shipment_clicked(self, event):
@@ -418,8 +413,9 @@ class MainGui(Ui_MainGui, QMainWindow):
 
     def on_proforma_purchase_apply_pressed(self):
         filters = self._captureProformaPurchaseFilters()
-        print(filters)
-    
+        search_key = self.proforma_purchase_search.text() 
+        self.setUpPurchaseProformasModelAndView(filters=filters, search_key=search_key)
+
     def on_expedition_apply_pressed(self):
         filters = self._captureWarehouseExpeditionFilters()
         search_key = self.expedition_search.text() 
@@ -529,17 +525,14 @@ class MainGui(Ui_MainGui, QMainWindow):
                 5 if self.proforma_purchase_serie5.isChecked() else None, 
                 6 if self.proforma_purchase_serie6.isChecked() else None 
             ], "financial":[
-                "partially paid" if self.proforma_purchase_partialpaid.isChecked() else None, 
-                "fully paid" if self.proforma_purchase_fullpaid.isChecked() else None, 
-                "not paid" if self.proforma_purchase_notpaid.isChecked() else None 
-            ], "logistic":[
-                "no instructions" if self.proforma_sale_noinstructions.isChecked() else None, 
-                "queued" if self.proforma_purchase_queued.isChecked() else None, 
-                "waiting" if self.proforma_purchase_waitingstock.isChecked() else None, 
-                "partially received" if self.proforma_purchase_partiallyreceived.isChecked() else None, 
-                "fully received" if self.proforma_purchase_fullreceived.isChecked() else None, 
-                "completed" if self.proforma_purchase_completed.isChecked() else None, 
+                "partially paid" if self.proforma_purchase_partiallypaid.isChecked() else None, 
+                "fully paid" if self.proforma_purchase_fullypaid.isChecked() else None, 
+                "not paid" if self.proforma_purchase_notpaid.isChecked() else None, 
                 "cancelled" if self.proforma_purchase_cancelled.isChecked() else None
+            ], "logistic":[
+                "empty" if self.proforma_purchase_empty.isChecked() else None, 
+                "partially received" if self.proforma_purchase_partially_received.isChecked() else None, 
+                "completed" if self.proforma_purchase_completed.isChecked() else None, 
             ], "shipment":[
                 "sent" if self.proforma_purchase_sent.isChecked() else None, 
                 "not sent" if self.proforma_purchase_notsent.isChecked() else None
@@ -1027,7 +1020,7 @@ class MainGui(Ui_MainGui, QMainWindow):
         setCommonViewConfig(self.partners_view)
     
     def setUpPurchaseProformasModelAndView(self, search_key=None, filters=None):
-        self.purchaseProformaModel = models.PurchaseProformaModel(filter, search_key) 
+        self.purchaseProformaModel = models.PurchaseProformaModel(filters, search_key) 
         self.proforma_purchases_view.setModel(self.purchaseProformaModel) 
         self.proforma_purchases_view.setSelectionBehavior(QTableView.SelectRows)
         self.proforma_purchases_view.setSortingEnabled(True)

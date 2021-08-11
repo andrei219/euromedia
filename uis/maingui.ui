@@ -473,7 +473,7 @@ font: 8pt &quot;Verdana&quot;;</string>
        </rect>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <property name="iconSize">
        <size>
@@ -702,7 +702,7 @@ font: 8pt &quot;Verdana&quot;;</string>
           <string>Not Paid</string>
          </property>
         </widget>
-        <widget class="QCheckBox" name="proforma_purchase_partialpaid">
+        <widget class="QCheckBox" name="proforma_purchase_partiallypaid">
          <property name="geometry">
           <rect>
            <x>40</x>
@@ -715,7 +715,7 @@ font: 8pt &quot;Verdana&quot;;</string>
           <string>Partially Paid</string>
          </property>
         </widget>
-        <widget class="QCheckBox" name="proforma_purchase_fullpaid">
+        <widget class="QCheckBox" name="proforma_purchase_fullypaid">
          <property name="geometry">
           <rect>
            <x>40</x>

@@ -532,9 +532,68 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
         query = self.session.query(db.PurchaseProforma) 
 
         if search_key:
-            query = query.where(db.PProforma.date.contains(search_key)) 
+            query = query.join(db.Partner).join(db.Agent)
+            predicate = or_(db.Agent.fiscal_name.contains(search_key),db.Partner.fiscal_name.contains(search_key)) 
+            query = query.where(predicate)
 
-        self.proformas = query.all() 
+        if filters:
+            self.proformas = query.all() 
+
+            if 'type' in filters:
+                self.proformas = filter(lambda p : p.type in filters['type'], self.proformas)
+
+            if 'financial' in filters:
+                if 'not paid' in filters['financial']:
+                    self.proformas = filter(lambda p: not self._paid(p), self.proformas)
+                if 'cancelled' in filters['financial']:
+                    self.proformas = filter(lambda p:p.cancelled, self.proformas)
+                if 'fully paid' in filters['financial']:
+                    self.proformas = filter(lambda p:not p.cancelled and self._paid(p) == self._totalDebt(p), self.proformas)
+                if 'partially paid' in filters['financial']:
+                    self.proformas = filter(lambda p:not p.cancelled and 0 < self._paid(p) < self._totalDebt(p) ,self.proformas)
+            
+            if 'logistic' in filters:
+                if 'empty' in filters['logistic']:
+                    self.proformas = filter(lambda p:not p.cancelled and not self._totalProcessed(p), self.proformas)
+                if 'partially prepared' in filters['logistic']:
+                    self.proformas = filter(lambda p:not p.cancelled and 0 < self._totalProcessed(p) < self._totalQuantity(p),\
+                        self.proformas) 
+                
+                if 'completed' in filters['logistic']:
+                    self.proformas = filter(lambda p:not p.cancelled and self._totalProcessed(p) == self._totalQuantity(p), \
+                        self.proformas)
+
+            if 'shipment' in filters:
+                if 'sent' in filters['shipment']:
+                    self.proformas = filter(lambda p:p.sent, self.proformas)
+                if 'not sent' in filters['shipment']:
+                    self.proformas = filter(lambda p:not p.sent, self.proformas)
+
+            if isinstance(self.proformas, filter):
+                self.proformas = list(self.proformas) 
+        else:
+            self.proformas = query.all() 
+
+    def _totalDebt(self, proforma):
+        return sum([line.quantity * line.price for line in proforma.lines])
+    
+    def _paid(self, proforma):
+        return sum([payment.amount for payment in proforma.payments])
+
+
+    def _totalQuantity(self, proforma):
+        return sum([line.quantity for line in proforma.lines])
+
+
+    def _totalProcessed(self, proforma):
+        processed = 0
+        try:
+            for line in proforma.order.lines:
+                for serie in line.series:
+                    processed += 1
+            return processed
+        except AttributeError:
+            return 0 
 
     def data(self, index, role=Qt.DisplayRole):
         if not index.isValid():
@@ -750,7 +809,7 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
                         self.proformas) 
                 
                 if 'completed' in filters['logistic']:
-                    self.proformas = filter(lambda p:not p.cancelled and self._totalProcessed(p) == self._totaQuantity(p), \
+                    self.proformas = filter(lambda p:not p.cancelled and self._totalProcessed(p) == self._totalQuantity(p), \
                         self.proformas)
 
             if 'shipment' in filters:
@@ -1314,7 +1373,7 @@ class OrderModel(BaseTable, QtCore.QAbstractTableModel):
         self.session = db.Session() 
         self._headerData = ['Order_id', 'Warehouse', 'Total', 'Processed', 'Status','Partner', 'Agent', 'Warning']
         self.name = 'orders' 
-        
+        self.sale = sale 
         if sale:
             Order = db.SaleOrder
             Proforma = db.SaleProforma
@@ -1372,7 +1431,10 @@ class OrderModel(BaseTable, QtCore.QAbstractTableModel):
                     if total == processed:
                         return 'Completed'
                     elif 0 < processed < total:
-                        return 'Partially Prepared'
+                        if self.sale:
+                            return 'Partially Prepared'
+                        else:
+                            return 'Partially Received'
                     elif processed == 0:
                         return 'Empty'
             elif column == OrderModel.AGENT:
