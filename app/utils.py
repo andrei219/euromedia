@@ -106,9 +106,7 @@ def getTracking(parent, proforma):
 def getNote(parent, proforma):
     type_num = str(proforma.type) + '-' + str(proforma.number).zfill(6)
     text, ok = QInputDialog.getText(parent, 'Warehouse', 'Enter a warning for the warehouse order')
-    if text and ok:
-        return text
-
+    return ok, text
 
 def build_description(item:Item):
     return ' '.join([item.manufacturer, item.category, item.model, item.capacity, 'GB', \

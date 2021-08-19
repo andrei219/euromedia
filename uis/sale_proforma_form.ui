@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1160</width>
+    <width>1182</width>
     <height>982</height>
    </rect>
   </property>
@@ -37,7 +37,7 @@
    <property name="geometry">
     <rect>
      <x>50</x>
-     <y>570</y>
+     <y>610</y>
      <width>111</width>
      <height>16</height>
     </rect>
@@ -53,13 +53,13 @@
    <property name="geometry">
     <rect>
      <x>40</x>
-     <y>590</y>
+     <y>630</y>
      <width>1071</width>
      <height>221</height>
     </rect>
    </property>
   </widget>
-  <widget class="QToolButton" name="save_and_exit_tool_button">
+  <widget class="QToolButton" name="save">
    <property name="geometry">
     <rect>
      <x>920</x>
@@ -91,7 +91,7 @@
     <bool>true</bool>
    </property>
   </widget>
-  <widget class="QToolButton" name="cancel_tool_button">
+  <widget class="QToolButton" name="cancel">
    <property name="geometry">
     <rect>
      <x>1030</x>
@@ -572,7 +572,7 @@
    <property name="geometry">
     <rect>
      <x>40</x>
-     <y>330</y>
+     <y>350</y>
      <width>1071</width>
      <height>211</height>
     </rect>
@@ -582,7 +582,7 @@
    <property name="geometry">
     <rect>
      <x>1030</x>
-     <y>550</y>
+     <y>570</y>
      <width>81</width>
      <height>31</height>
     </rect>
@@ -906,7 +906,7 @@
      </widget>
     </item>
     <item>
-     <widget class="QComboBox" name="type_combo_box">
+     <widget class="QComboBox" name="type">
       <property name="minimumSize">
        <size>
         <width>41</width>
@@ -1333,52 +1333,120 @@
     </item>
    </layout>
   </widget>
-  <widget class="QRadioButton" name="in_warehouse">
+  <widget class="QToolButton" name="search">
    <property name="geometry">
     <rect>
-     <x>390</x>
-     <y>10</y>
-     <width>121</width>
-     <height>20</height>
+     <x>160</x>
+     <y>300</y>
+     <width>131</width>
+     <height>31</height>
     </rect>
    </property>
-   <property name="text">
-    <string>In warehouse</string>
+   <property name="styleSheet">
+    <string notr="true">background-color:lightgray; </string>
    </property>
-   <property name="checked">
-    <bool>true</bool>
+   <property name="text">
+    <string>Search Stock</string>
+   </property>
+   <property name="icon">
+    <iconset resource="../app/icons.qrc">
+     <normaloff>:/search</normaloff>:/search</iconset>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonTextBesideIcon</enum>
    </property>
   </widget>
-  <widget class="QRadioButton" name="coming">
+  <widget class="QFrame" name="frame_3">
    <property name="geometry">
     <rect>
-     <x>520</x>
+     <x>370</x>
      <y>10</y>
-     <width>95</width>
-     <height>20</height>
+     <width>311</width>
+     <height>21</height>
     </rect>
    </property>
-   <property name="text">
-    <string>Coming </string>
+   <property name="frameShape">
+    <enum>QFrame::StyledPanel</enum>
    </property>
+   <property name="frameShadow">
+    <enum>QFrame::Raised</enum>
+   </property>
+   <widget class="QRadioButton" name="normal_sale">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>0</y>
+      <width>121</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Normal Sale</string>
+    </property>
+    <property name="checked">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="advance_sale">
+    <property name="geometry">
+     <rect>
+      <x>170</x>
+      <y>0</y>
+      <width>121</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Advance Sale</string>
+    </property>
+   </widget>
   </widget>
  </widget>
  <tabstops>
-  <tabstop>type_combo_box</tabstop>
+  <tabstop>type</tabstop>
   <tabstop>number</tabstop>
   <tabstop>date</tabstop>
-  <tabstop>they_pay_we_ship</tabstop>
+  <tabstop>partner</tabstop>
   <tabstop>they_pay_they_ship</tabstop>
   <tabstop>eur</tabstop>
   <tabstop>usd</tabstop>
   <tabstop>incoterms</tabstop>
+  <tabstop>stock_view</tabstop>
+  <tabstop>save</tabstop>
+  <tabstop>cancel</tabstop>
+  <tabstop>lines_view</tabstop>
+  <tabstop>deleteButton</tabstop>
+  <tabstop>search</tabstop>
+  <tabstop>description</tabstop>
+  <tabstop>condition</tabstop>
+  <tabstop>spec</tabstop>
+  <tabstop>quantity</tabstop>
+  <tabstop>price</tabstop>
+  <tabstop>subtotal</tabstop>
+  <tabstop>tax</tabstop>
+  <tabstop>total</tabstop>
+  <tabstop>addButton</tabstop>
+  <tabstop>subtotal_proforma</tabstop>
+  <tabstop>proforma_total</tabstop>
+  <tabstop>proforma_tax</tabstop>
+  <tabstop>we_pay_we_ship</tabstop>
+  <tabstop>they_pay_we_ship</tabstop>
+  <tabstop>warehouse</tabstop>
+  <tabstop>courier</tabstop>
+  <tabstop>warranty</tabstop>
+  <tabstop>agent</tabstop>
+  <tabstop>available_credit</tabstop>
+  <tabstop>credit</tabstop>
+  <tabstop>days</tabstop>
+  <tabstop>normal_sale</tabstop>
+  <tabstop>advance_sale</tabstop>
  </tabstops>
  <resources>
   <include location="../app/icons.qrc"/>
  </resources>
  <connections>
   <connection>
-   <sender>cancel_tool_button</sender>
+   <sender>cancel</sender>
    <signal>clicked()</signal>
    <receiver>SalesProformaForm</receiver>
    <slot>close()</slot>

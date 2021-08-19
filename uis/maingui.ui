@@ -473,7 +473,7 @@ font: 8pt &quot;Verdana&quot;;</string>
        </rect>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <property name="iconSize">
        <size>
@@ -3847,7 +3847,7 @@ font: 8pt &quot;Verdana&quot;;</string>
        </rect>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <property name="iconSize">
        <size>
@@ -5255,6 +5255,19 @@ font: 8pt &quot;Verdana&quot;;</string>
       </property>
       <property name="text">
        <string>Create Product</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="check_inventory">
+      <property name="geometry">
+       <rect>
+        <x>310</x>
+        <y>340</y>
+        <width>141</width>
+        <height>61</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Check Inventory</string>
       </property>
      </widget>
     </widget>

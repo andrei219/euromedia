@@ -9,7 +9,7 @@ from ui_maingui import Ui_MainGui
 import models
 
 import agentgui, partner_form, product_form, purchase_proforma_form, payments_form, expenses_form, \
-    document_form, order_form, sale_proforma_form
+    document_form, order_form, sale_proforma_form, inventory_form
 
 from sqlalchemy.exc import IntegrityError
 
@@ -62,16 +62,11 @@ class MainGui(Ui_MainGui, QMainWindow):
         self.setUpPurchaseOrderHandlers() 
         self.setUpSaleOrdersHandlers() 
 
-
-
         # Tools setup:
-
         self.setupToolsHandlers() 
 
         self.initFiltersSwitchers() 
         self.main_tab.currentChanged.connect(self.tabChanged)
-
-
 
     ### CHECK BOX FILTERS SETUP ##########################################
 
@@ -401,7 +396,6 @@ class MainGui(Ui_MainGui, QMainWindow):
             self.expedition_cancelled.setChecked(True)
             self.expedition_status_on = True
 
-
     def on_invoice_purchase_apply_pressed(self):
         filters = self._captureInvoicePurchaseFilters()
         print(filters)
@@ -414,7 +408,7 @@ class MainGui(Ui_MainGui, QMainWindow):
     def on_proforma_purchase_apply_pressed(self):
         filters = self._captureProformaPurchaseFilters()
         search_key = self.proforma_purchase_search.text() 
-        self.setUpPurchaseProformasModelAndView(filters=filters, search_key=search_key)
+        self.setUpPurchaseProformasModelAndView(filters=filters, search_key=search_keyi)
 
     def on_expedition_apply_pressed(self):
         filters = self._captureWarehouseExpeditionFilters()
@@ -724,8 +718,8 @@ class MainGui(Ui_MainGui, QMainWindow):
         if not proforma:
             return 
         try:
-            note = getNote(self, proforma)
-            if not note:
+            ok, note = getNote(self, proforma)
+            if not ok:
                 return 
             self.purchaseProformaModel.toWarehouse(proforma, note)
             QMessageBox.information(self, 'Information', 'Successfully created warehouse order')            
@@ -751,6 +745,33 @@ class MainGui(Ui_MainGui, QMainWindow):
         except:
             raise 
             QMessageBox.critical(self, 'Update - Error', 'Could not update tracking number')
+
+    def purchaseProformaSelectionChanged(self):
+        rows = {index.row() for index in self.proforma_purchases_view.selectedIndexes()}
+
+        # ship 
+        if len(rows) != 1:
+            self.proforma_purchase_ship_button.setEnabled(False)
+        else:
+            row = rows.pop() 
+            if not self.purchaseProformaModel.proformas[row].sent:
+                self.proforma_purchase_ship_button.setEnabled(True)
+            else:
+                self.proforma_purchase_ship_button.setEnabled(False)
+
+        rows = {index.row() for index in self.proforma_purchases_view.selectedIndexes()}
+        
+        if len(rows) == 1:
+            try:
+                self.purchaseProformaModel.proformas[row].order.lines
+                self.proforma_purchase_warehouse_button.setEnabled(False)
+            except AttributeError:
+                self.proforma_purchase_warehouse_button.setEnabled(True)
+        elif not rows:
+            self.proforma_purchase_warehouse_button.setEnabled(True)
+        else:
+            self.proforma_purchase_warehouse_button.setEnabled(False)
+
 
     def launchPurchaseProformaForm(self, index=None):
         if index:
@@ -856,13 +877,24 @@ class MainGui(Ui_MainGui, QMainWindow):
         else:
             proforma = self._getOneSaleProforma('Warehouse') 
         if not proforma:
-            return 
+            return  
         try:
-            note = getNote(self, proforma)
-            if not note:
-                return 
+
+            if not proforma.normal:
+                pass 
+                # Pensare mas adelante 
+            else:
+                if not self.saleProformaModel.physicalStockAvailable(proforma.warehouse_id, proforma.lines):
+                    QMessageBox.critical(self, 'Error', "Can't send to warehouse for preparation. Not enough SN in physical stock.")
+                    return
+
+            ok, note = getNote(self, proforma)
+            if not ok:
+                return
             self.saleProformaModel.toWarehouse(proforma, note)
-            QMessageBox.information(self, 'Information', 'Successfully created warehouse order')            
+            QMessageBox.information(self, 'Information', 'Successfully created warehouse order')  
+            self.proforma_purchases_view.clearSelection() 
+            
         except IntegrityError as ex:
             if ex.orig.args[0] == 1048:
                 d = 'Invoice' if invoice else 'Proforma'
@@ -1008,6 +1040,12 @@ class MainGui(Ui_MainGui, QMainWindow):
         password = getPassword(self) 
         if password == PASSWORD:
             d.exec_() 
+
+    def showInventoryHandler(self):
+        d = inventory_form.InventoryForm(self)
+        password = getPassword(self)
+        if password == PASSWORD:
+            d.exec_() 
     
     def setUpAgentsModelAndView(self, search_key=None):
         self.agentModel = models.AgentModel(search_key) 
@@ -1070,6 +1108,7 @@ class MainGui(Ui_MainGui, QMainWindow):
         self.partner_search_line_edit.returnPressed.connect(self.partnerSearchHandler) 
 
     def setUpPurchaseProformaHandlers(self):
+        self.proforma_purchases_view.selectionModel().selectionChanged.connect(self.purchaseProformaSelectionChanged)
         self.proforma_purchases_view.doubleClicked.connect(self.purchaseProformaDoubleClickedHandler)
         self.proforma_purchase_new_button.clicked.connect(self.purchaseProformaNewButtonHandler) 
         self.proforma_purchase_payment_button.clicked.connect(self.purchaseProformaPaymentsHandler)
@@ -1124,6 +1163,7 @@ class MainGui(Ui_MainGui, QMainWindow):
 
     def setupToolsHandlers(self):
         self.create_product_button.clicked.connect(self.createProductHandler)
+        self.check_inventory.clicked.connect(self.showInventoryHandler)
 
     def tabChanged(self, index):
         # Clean up the filters also 
@@ -1137,6 +1177,7 @@ class MainGui(Ui_MainGui, QMainWindow):
         elif index == 2:
             self.purchaseProformaModel = models.PurchaseProformaModel() 
             self.proforma_purchases_view.setModel(self.purchaseProformaModel)
+            self.proforma_purchases_view.selectionModel().selectionChanged.connect(self.purchaseProformaSelectionChanged)
             self.saleProformaModel = models.SaleProformaModel() 
             self.proforma_sales_view.setModel(self.saleProformaModel) 
         elif index == 3:
@@ -1155,5 +1196,4 @@ class MainGui(Ui_MainGui, QMainWindow):
             w.close() 
         
         super().closeEvent(event)
-
 

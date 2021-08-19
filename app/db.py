@@ -3,9 +3,11 @@ from sqlalchemy.sql import func
 from sqlalchemy.orm import sessionmaker, scoped_session
 
 
-engine = create_engine('mysql+mysqlconnector://root:hnq#4506@localhost:3306/appdb') # pool_size=20, max_overflow=0)
+engine = create_engine('mysql+mysqlconnector://root:hnq#4506@localhost:3306/appdb') 
 
-# engine = create_engine('sqlite:///euro.db', echo=True)
+# pool_size=20, max_overflow=0)
+
+# engine = create_engine('sqlite:///euro.db')
 
 Session = scoped_session(sessionmaker(bind=engine, autoflush=False))
 
@@ -80,7 +82,7 @@ class Item(Base):
         return self.manufacturer + ' ' + self.category + ' ' + self.model + ' ' + str(self.capacity) +\
             ' GB ' + self.color 
 
-
+    
 # Agents:
 class Agent(Base):
     __tablename__ = 'agents'
@@ -373,7 +375,7 @@ class SaleProforma(Base):
     number = Column(Integer)
     created_on = Column(DateTime, default=datetime.now)
  
-    in_warehouse = Column(Boolean, nullable=False, default=True)
+    normal = Column(Boolean, nullable=False, default=True)
 
     date = Column(Date, nullable=False)
     eta = Column(Date, nullable=False)
@@ -385,16 +387,17 @@ class SaleProforma(Base):
     eur_currency = Column(Boolean, nullable=False, default=True)
 
     they_pay_they_ship = Column(Boolean, default=False, nullable=False)
-    we_pay_they_ship = Column(Boolean, default=False, nullable=False)
+    they_pay_we_ship = Column(Boolean, default=False, nullable=False)
     we_pay_we_ship = Column(Boolean, default=False, nullable=False)
 
-    order = relationship('SaleOrder', uselist=False, back_populates='proforma')
 
     partner_id = Column(Integer, ForeignKey('partners.id'))
     courier_id = Column(Integer, ForeignKey('couriers.id'))
     warehouse_id = Column(Integer, ForeignKey('warehouses.id'))
     agent_id = Column(Integer, ForeignKey('agents.id'))
     sale_invoice_id = Column(Integer, ForeignKey('sale_invoices.id'))
+    # sale_order_id = Column(Integer, ForeignKey('sale_orders.id'))
+
     
     credit_amount = Column(Numeric(10, 2), nullable=False, default=0)
     credit_days = Column(Integer, nullable=False, default=0)
@@ -406,10 +409,13 @@ class SaleProforma(Base):
     warehouse = relationship('Warehouse', uselist=False)
     agent = relationship('Agent', uselist=False)
     invoice = relationship('SaleInvoice', uselist=False)
-    
+    order = relationship('SaleOrder', uselist=False, back_populates='proforma')
+
+
     incoterm = Column(String(3), nullable=False) 
 
     __table_args__ = (
+
         UniqueConstraint('type', 'number'), 
     )
 
@@ -502,14 +508,14 @@ class SaleProformaLine(Base):
     item = relationship('Item', uselist=False)
     proforma = relationship('SaleProforma', backref=backref('lines'))
     
-    eta = Column(Date, nullable=False) 
+    eta = Column(Date, nullable=True) 
 
     __table_args__ = (
         UniqueConstraint('id', 'proforma_id'), 
     )
 
 
-    def __init__(self, item, condition, specification, price, quantity, tax, eta):
+    def __init__(self, item, condition, specification, price, quantity, tax, eta=None):
         self.quantity = quantity
         self.price = price 
         self.item = item 
@@ -532,6 +538,10 @@ class SaleOrder(Base):
         self.note = note 
 
     proforma = relationship('SaleProforma', back_populates='order')
+
+    __table_args__ = (
+        UniqueConstraint('proforma_id', name='sale_order_from_onlyone_proforma'), 
+    )
 
 class SaleOrderLine(Base):
     __tablename__ = 'sale_order_lines'
@@ -766,7 +776,7 @@ def create_and_populate():
 
     proforma.lines = [
         PurchaseProformaLine(item1, 'NEW', 'EEUU', 100.0, 10, 21), 
-        PurchaseProformaLine(item2, 'USED', 'France', 500, 10, 21)
+        PurchaseProformaLine(item2, 'USED', 'FRANCE', 500, 10, 21)
     ]
 
     session.add(proforma) 
@@ -827,7 +837,7 @@ def create_sale(type):
     proforma.eta = proforma.date + timedelta(days=5) 
     proforma.partner = session.query(Partner).first() 
     proforma.agent = session.query(Agent).first() 
-    proforma.warehouse = session.query(Warehouse).where(Warehouse.id == 2).one() 
+    proforma.warehouse = session.query(Warehouse).where(Warehouse.id == 4).one() 
     proforma.courier = session.query(Courier).first()
     proforma.eur_currency = True
     proforma.incoterm = 'FOB'
@@ -836,8 +846,8 @@ def create_sale(type):
     proforma.cancelled = False
 
     proforma.lines = [
-        SaleProformaLine(session.query(Item)[-1] , 'A+/B', 'JAPAN', 100.0, 5, 21, datetime(2020, 10, 11) + timedelta(days=5)), 
-        SaleProformaLine(session.query(Item).first(), 'A+', 'JAPAN', 500, 5, 21, datetime(2020, 10, 11) + timedelta(days=5))
+        SaleProformaLine(session.query(Item)[-1] , 'USED', 'FRANCE', 100.0, 1, 21, datetime(2020, 10, 11) + timedelta(days=5)), 
+        # SaleProformaLine(session.query(Item).first(), 'A+', 'JAPAN', 500, 5, 21, datetime(2020, 10, 11) + timedelta(days=5))
     ]
     
     session.add(proforma)
@@ -856,7 +866,7 @@ def create_imeis():
     imei.specification = 'EEUU'
     imei.warehouse = w
     imei.item = item1
-    imei.imei = '234551234512345'
+    imei.imei = '234551234512ZXC DFSSCD5'
 
     session.add(imei) 
 
@@ -864,22 +874,112 @@ def create_imeis():
     imei.condition = 'NEW'
     imei.specification = 'EEUU'
     imei.warehouse = w
+    imei.item = item2
+    imei.imei = '2345562345DFVCZ 45'
+
+    session.add(imei) 
+
+    imei = Imei() 
+    imei.condition = 'NEW'
+    imei.specification = 'FRANCE'
+    imei.warehouse = w
     imei.item = item1
-    imei.imei = '234556234512345'
+    imei.imei = '23455623XCZXDs2345'
+
+    session.add(imei)
+
+    imei = Imei() 
+    imei.condition = 'USED'
+    imei.specification = 'EEUU'
+    imei.warehouse = w
+    imei.item = item2
+    imei.imei = '2345562CVFpl2345'
 
     session.add(imei) 
 
     session.commit()
 
+
+@event.listens_for(PurchaseSerie, 'after_insert')
+def insert_imei_after_purchase(mapper, connection, target):
+    stmt = insert(Imei).values(
+        imei = target.serie, 
+        item_id = target.line.item_id, 
+        condition = target.line.condition, 
+        specification = target.line.specification, 
+        warehouse_id = target.line.order.proforma.warehouse.id
+    )
+    connection.execute(stmt)
+
+
+@event.listens_for(PurchaseSerie, 'after_delete')
+def delete_imei_after_purchase(mapper, connection, target):
+    stmt = delete(Imei).where(Imei.imei == target.serie)
+    connection.execute(stmt) 
+
+from exceptions import NotExistingStockOutput
+
+@event.listens_for(SaleSerie, 'after_insert')
+def delete_imei_after_sale(mapper, connection, target:SaleSerie):
+    condition = target.line.condition 
+    specification = target.line.specification 
+    stmt = delete(Imei).where(Imei.imei == target.serie).where(Imei.condition == condition).\
+        where(Imei.specification == specification)
+    result = connection.execute(stmt) 
+    if not result.rowcount:
+        raise NotExistingStockOutput
+
+
+@event.listens_for(SaleSerie, 'after_delete')
+def insert_imei_after_sale(mapper, connection, target):
+    stmt = insert(Imei).values(
+        imei = target.serie, 
+        item_id = target.line.item_id, 
+        condition = target.line.condition, 
+        specification = target.line.specification, 
+        warehouse_id = target.line.order.proforma.warehouse.id
+    )
+    
+    connection.execute(stmt)
+
+class SpecificationChange(Base):
+
+    __tablename__ = 'specification_changes'
+
+    id = Column(Integer, primary_key=True) 
+    sn = Column(String(50), nullable=False) 
+    before = Column(String(50), nullable=False)
+    after = Column(String(50), nullable=False)
+    created_on = Column(DateTime, default=datetime.now)
+
+class WarehouseChange(Base):
+
+    __tablename__ = 'warehouse_changes'
+
+    id = Column(Integer, primary_key=True)
+    sn = Column(String(50), nullable=False) 
+    before = Column(String(50), nullable=False)
+    after = Column(String(50), nullable=False)
+    created_on = Column(DateTime, default=datetime.now)    
+
+
+class ConditionChange(Base):
+
+    __tablename__ = 'condition_changes'
+
+    id = Column(Integer, primary_key=True)
+    sn = Column(String(50), nullable=False) 
+    before = Column(String(50), nullable=False)
+    after = Column(String(50), nullable=False)
+    created_on = Column(DateTime, default=datetime.now) 
+
 if __name__ == '__main__':
 
     create_and_populate() 
 
-    create_imeis() 
-
     import random
 
-    types = (1, 2, 3, 4, 4, 4, 3, 2)
+    # types = (1, 2, 3, 4, 4, 4, 3, 2)
 
-    for i in range(500):
-        create_sale(random.choice(types))
+    # for i in range(2):
+    #     create_sale(random.choice(types))

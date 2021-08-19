@@ -23,3 +23,6 @@ class SeriePresentError(Exception):
 
 class LineCompletedError(Exception):
     pass 
+
+class NotExistingStockOutput(Exception):
+    pass 

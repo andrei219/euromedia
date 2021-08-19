@@ -142,14 +142,18 @@ class Form(Ui_PurchaseProformaForm, QWidget):
         if not partner_id:
             return
         
-        available_credit, max_credit = self._computeCreditAvailable(partner_id) 
-        self.available_credit_spinbox.setValue(float(available_credit))
+        try:
+            available_credit, max_credit = self._computeCreditAvailable(partner_id) 
+            self.available_credit_spinbox.setValue(float(available_credit))
 
-        def prevent(value):
-            if value > available_credit:
-                self.with_credit_spinbox.setValue(available_credit)
+            def prevent(value): 
+                if value > available_credit:
+                    self.with_credit_spinbox.setValue(available_credit)
 
-        self.with_credit_spinbox.valueChanged.connect(prevent) 
+            self.with_credit_spinbox.valueChanged.connect(prevent) 
+
+        except TypeError:
+            pass 
 
         result = self.session.query(Agent.fiscal_name, Partner.warranty, Partner.euro,\
             Partner.they_pay_they_ship, Partner.we_pay_they_ship, Partner.we_pay_we_ship,\
@@ -188,8 +192,9 @@ class Form(Ui_PurchaseProformaForm, QWidget):
             PurchaseProforma, PurchasePayment).where(PurchaseProforma.partner_id == Partner.id).\
                 where(PurchasePayment.proforma_id == PurchaseProforma.id).\
                     where(Partner.id == partner_id).scalar() 
-
-        return max_credit + paid - total, max_credit 
+        if total and paid:
+            return max_credit + paid - total, max_credit 
+    
 
     def _validHeader(self):
         try:

@@ -7,6 +7,10 @@ from models import SerieModel
 
 from exceptions import LineCompletedError, SeriePresentError
 
+from sqlalchemy.exc import IntegrityError
+
+from exceptions import NotExistingStockOutput
+
 class OrderForm(Ui_OrderForm, QDialog):
 
     def __init__(self, parent, order, session, sale=False):
@@ -53,9 +57,17 @@ class OrderForm(Ui_OrderForm, QDialog):
             QMessageBox.critical(self, 'Update - Error', f'Serie {serie} already present')
         except LineCompletedError:
             QMessageBox.critical(self, 'Update - Error', 'Line completed! Switch to next')
-        except:
-            raise 
-            QMessageBox.critical(self, 'Update - Error', f'Error updating Imei/SN: {serie}')
+        except IntegrityError as err:
+            if err.orig.args[0] == 1062:
+                s = f"""
+                    IMEI/SN: {serie} exists as physical stock.You have received it two times without selling it first.
+                    The same sn/imeis were processed in two different reception orders. 
+                """
+                QMessageBox.critical(self, 'Update - Error', s)
+                return
+        except NotExistingStockOutput:
+            QMessageBox.critical(self, 'Error', 'This SN is not in physical stock')
+            return
 
         self.imei_line_edit.setText('')
 
@@ -87,7 +99,7 @@ class OrderForm(Ui_OrderForm, QDialog):
         self.number_line_edit.setText(str(self.current_index + 1) + '/' + str(self.total_lines))
         self.total_processed_line_edit.setText(str(self._totalProcessed()))
 
-    def next(self, sign):
+    def next(self):
         if self.current_index + 1 == self.total_lines:
             self.current_index = 0 
         else:
