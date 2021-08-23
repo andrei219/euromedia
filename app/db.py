@@ -3,11 +3,11 @@ from sqlalchemy.sql import func
 from sqlalchemy.orm import sessionmaker, scoped_session
 
 
-engine = create_engine('mysql+mysqlconnector://root:hnq#4506@localhost:3306/appdb') 
+# engine = create_engine('mysql+mysqlconnector://root:hnq#4506@localhost:3306/appdb') 
 
 # pool_size=20, max_overflow=0)
 
-# engine = create_engine('sqlite:///euro.db')
+engine = create_engine('sqlite:///euro.db')
 
 Session = scoped_session(sessionmaker(bind=engine, autoflush=False))
 
@@ -378,7 +378,6 @@ class SaleProforma(Base):
     normal = Column(Boolean, nullable=False, default=True)
 
     date = Column(Date, nullable=False)
-    eta = Column(Date, nullable=False)
     warranty = Column(Integer, nullable=False, default=0)
 
     cancelled = Column(Boolean, nullable=False, default=True)
@@ -581,6 +580,10 @@ class PurchaseOrder(Base):
     def __init__(self, proforma, note ):
         self.proforma = proforma 
         self.note = note 
+
+    __table_args__ = (
+        UniqueConstraint('proforma_id', name='purchase_order_from_onlyone_proforma'),
+    )
 
 class PurchaseOrderLine(Base):
     __tablename__ = 'purchase_order_lines'
@@ -974,12 +977,13 @@ class ConditionChange(Base):
     created_on = Column(DateTime, default=datetime.now) 
 
 if __name__ == '__main__':
+    
 
     create_and_populate() 
 
-    import random
+    # import random
 
     # types = (1, 2, 3, 4, 4, 4, 3, 2)
 
-    # for i in range(2):
+    # for i in range(1):
     #     create_sale(random.choice(types))

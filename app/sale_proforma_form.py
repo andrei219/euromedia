@@ -18,6 +18,8 @@ from db import Agent, Partner, SaleProformaLine, SaleProforma, SalePayment, func
 from utils import setCommonViewConfig
 from exceptions import DuplicateLine
 
+from quantity_price_form import QuantityPriceForm
+
 class Form(Ui_SalesProformaForm, QWidget):
 
     def __init__(self, parent, view):
@@ -116,8 +118,6 @@ class Form(Ui_SalesProformaForm, QWidget):
 
         self.partner.setCompleter(c) 
 
-
-
         def priceOrQuantityChanged(value):
             self.subtotal.setValue(self.quantity.value() * self.price.value())
         
@@ -144,7 +144,7 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.deleteButton.clicked.connect(self.deleteHandler) 
         self.save.clicked.connect(self.saveHandler) 
         self.advance_sale.toggled.connect(self.advanceSaleToggled)
-
+        self.availbale_stock_label.setText('Available Physical Stock:')
 
         self.normal_sale.setChecked(True)
         self.searchClicked() 
@@ -167,17 +167,47 @@ class Form(Ui_SalesProformaForm, QWidget):
             self._resetIncomingStock(warehouse, condition=condition, specification=specification, item=item)
 
     def stockDoubleClicked(self):
-        print('working . stock double clicked') 
+        row = {index.row() for index in self.stock_view.selectedIndexes()}.pop() 
+        stock = self.stock_model.stocks[row]
+        available_qnt = stock.quantity
+        form = QuantityPriceForm(self) 
+        form.quantity.setMinimum(1)
+        form.quantity.setMaximum(available_qnt)
+        if form.exec_():
+            if not form.quantity.value():
+                QMessageBox.critical(self, 'Line - Error', 'Quantity must be > 0')
+                return
+            try:
+                1 / form.price.value()
+            except ZeroDivisionError:
+                QMessageBox.critical(self, 'Line - Error', 'Price must be > 0 ') 
+                return    
+        
+            warehouse = self.warehouse.currentText() 
+            tax = int(self.tax.currentText()) 
+            item = self.items[stock.item]
+            try:
+                self.lines_model.add(item, stock.condition, stock.specification, form.quantity.value(), \
+                    form.price.value(), tax, stock.eta) 
+                self._clearLineFields() 
+                self._resetIncomingStock(warehouse, item=None, condition=None, specification=None)
+
+            except DuplicateLine:
+                QMessageBox.critical(self, 'Line - Error', 'Cant add duplicate line!')
+                return
 
     def advanceSaleToggled(self, checked):
+        self.lines_model.reset() 
         if checked:
             self.stock_view.doubleClicked.connect(self.stockDoubleClicked)
             self.addButton.clicked.disconnect(self.normalAddHandler)
             self.addButton.clicked.connect(self.advanceAddHandler) 
+            self.availbale_stock_label.setText('Available Incoming Stock:')
         else:
             self.stock_view.doubleClicked.disconnect(self.stockDoubleClicked)
             self.addButton.clicked.disconnect(self.advanceAddHandler)
             self.addButton.clicked.connect(self.normalAddHandler) 
+            self.availbale_stock_label.setText('Available Physical Stock:')
 
     def partnerSearch(self):
         partner_id = self.partner_name_to_id.get(self.partner.text())
@@ -234,9 +264,6 @@ class Form(Ui_SalesProformaForm, QWidget):
         # Default returns None, caller will check unpacking error 
 
     def _resetStockAvailable(self, warehouse, *, item, condition, specification):
-        
-        for line in self.lines_model.lines:
-            print(line)
 
         self.stock_model = AvailableStockModel(warehouse, item=item, condition=condition, \
             specification=specification, lines=self.lines_model.lines)
@@ -244,7 +271,9 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.stock_view.setModel(self.stock_model)
 
     def _resetIncomingStock(self, warehouse, *, item, condition, specification):
-        self.stock_model = IncomingStockModel(warehouse, condition=condition, item=item, specification=specification)
+        print('in resetInomcing, lines=', self.lines_model.lines)
+        self.stock_model = IncomingStockModel(warehouse, condition=condition, item=item,\
+             specification=specification, lines=self.lines_model.lines)
         
         self.stock_view.setModel(self.stock_model)
     
@@ -296,7 +325,26 @@ class Form(Ui_SalesProformaForm, QWidget):
         return True
 
     def _formToProforma(self):
-        pass 
+        proforma = db.SaleProforma() 
+        proforma.type = int(self.type.currentText())
+        proforma.number = int(self.number.text())
+        proforma.date = self._dateFromString(self.date.text())
+        proforma.warranty = self.warranty.value()
+        proforma.they_pay_they_ship = self.they_pay_they_ship.isChecked()
+        proforma.they_pay_we_ship = self.they_pay_we_ship.isChecked() 
+        proforma.we_pay_we_ship = self.we_pay_we_ship.isChecked() 
+        proforma.agent_id = self.agent_name_to_id[self.agent.currentText()]
+        proforma.partner_id = self.partner_name_to_id[self.partner.text()]
+        proforma.warehouse_id = self.warehouse_name_to_id[self.warehouse.currentText()]
+        proforma.courier_id = self.courier_name_to_id[self.courier.currentText()]
+        proforma.eur_currency = self.eur.isChecked()
+        proforma.credit_amount = self.credit.value()
+        proforma.credit_days = self.days.value() 
+        proforma.incoterm = self.incoterms.currentText() 
+        proforma.external = self.external.text() 
+        proforma.tracking = self.tracking.text() 
+        return proforma
+
 
     def _clearLineFields(self):
         self.description.setText('')
@@ -350,10 +398,26 @@ class Form(Ui_SalesProformaForm, QWidget):
         return
 
     def deleteHandler(self):
-        pass 
+        indexes = self.lines_view.selectedIndexes() 
+        try:
+            self.lines_model.delete(indexes) 
+        except:
+            raise 
 
     def saveHandler(self):
-        pass 
+        if not self._validHeader():
+            return
+        if not self.lines_model.lines:
+            QMessageBox.critical(self, 'Error - Lines', 'Empty proforma')
+            return
+        proforma = self._formToProforma() 
+        try:
+            self.model.add(proforma)
+            self.lines_model.save(proforma) 
+        except:
+            raise 
+        else:
+            self.close() 
 
     def closeEvent(self, event):
         try:
