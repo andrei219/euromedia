@@ -245,7 +245,8 @@ class Form(Ui_SalesProformaForm, QWidget):
         from db import Partner, SaleProformaLine, SaleProforma, \
             SalePayment, func
         
-        max_credit = self.session.query(db.Partner.amount_credit_limit).scalar()
+        max_credit = self.session.query(db.Partner.amount_credit_limit).\
+            where(db.Partner.id == partner_id).scalar()
 
         total = self.session.query(func.sum(SaleProformaLine.quantity * SaleProformaLine.price)).\
             select_from(Partner, SaleProforma, SaleProformaLine).\
