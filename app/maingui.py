@@ -9,7 +9,8 @@ from ui_maingui import Ui_MainGui
 import models
 
 import agentgui, partner_form, product_form, purchase_proforma_form, payments_form, expenses_form, \
-    document_form, order_form, sale_proforma_form, inventory_form, spec_change_form
+    document_form, order_form, sale_proforma_form, inventory_form, spec_change_form, condition_change_form, \
+        warehouse_change_form
 
 from sqlalchemy.exc import IntegrityError
 
@@ -1052,7 +1053,16 @@ class MainGui(Ui_MainGui, QMainWindow):
         # password = getPassword(self)
         # if password == PASSWORD:
         d.exec_() 
+
+    def changeCondtionHandler(self):
+        d = condition_change_form.ConditionChange(self)
+        d.exec_() 
     
+
+    def changeWarehouseHandler(self):
+        d = warehouse_change_form.WarehouseChange(self)
+        d.exec_() 
+
     def setUpAgentsModelAndView(self, search_key=None):
         self.agentModel = models.AgentModel(search_key) 
         self.agents_view.setModel(self.agentModel)
@@ -1171,6 +1181,8 @@ class MainGui(Ui_MainGui, QMainWindow):
         self.create_product_button.clicked.connect(self.createProductHandler)
         self.check_inventory.clicked.connect(self.showInventoryHandler)
         self.change_spec.clicked.connect(self.changeSpecHandler)
+        self.change_condition.clicked.connect(self.changeCondtionHandler)
+        self.change_warehouse.clicked.connect(self.changeWarehouseHandler)
 
     def tabChanged(self, index):
         # Clean up the filters also 
