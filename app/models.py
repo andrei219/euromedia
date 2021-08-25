@@ -413,11 +413,11 @@ class PartnerContactModel(QtCore.QAbstractTableModel):
 
 class InvoiceModel(BaseTable, QtCore.QAbstractTableModel):
      
-    TYPE_NUM , DATE, ETA, PARTNER, AGENT, FINANCIAL, LOGISTIC, SENT, OWING, TOTAL = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
+    TYPE_NUM , DATE, PARTNER, AGENT, FINANCIAL, LOGISTIC, SENT, OWING, TOTAL = 0, 1, 2, 3, 4, 5, 6, 7, 8 
     
     def __init__(self, sale=False, search_key=None, filters=None):
         super().__init__() 
-        self._headerData = ['Type & Num', 'Date', 'ETA', 'Partner', 'Agent', 'Financial', \
+        self._headerData = ['Type & Num', 'Date', 'Partner', 'Agent', 'Financial', \
             'Logistic', 'Shipment', 'Owing', 'Total']
         self.session = db.session
         self.name = 'invoices'
@@ -477,8 +477,6 @@ class InvoiceModel(BaseTable, QtCore.QAbstractTableModel):
                 return s 
             elif col == InvoiceModel.DATE:
                 return proforma.date.strftime('%d/%m/%Y')
-            elif col == InvoiceModel.ETA:
-                return proforma.eta.strftime('%d/%m/%Y')
             elif col == InvoiceModel.PARTNER:
                 return proforma.partner.fiscal_name 
             elif col == InvoiceModel.AGENT:
@@ -509,12 +507,12 @@ class InvoiceModel(BaseTable, QtCore.QAbstractTableModel):
                         return 'Partially Received'                
                 elif processed_quantity == total_quantity:
                     return 'completed'
-            elif col == PurchaseProformaModel.SENT:
+            elif col == InvoiceModel.SENT:
                 return "Sent" if proforma.sent else "Not Sent"
-            elif col == PurchaseProformaModel.OWING:
+            elif col == InvoiceModel.OWING:
                 sign = ' -€' if proforma.eur_currency else ' $'
                 return str(total_debt - paid) + sign       
-            elif col == PurchaseProformaModel.TOTAL:
+            elif col == InvoiceModel.TOTAL:
                 sign = ' -€' if proforma.eur_currency else ' $'
                 return str(total_debt) + sign
 
@@ -527,7 +525,7 @@ class InvoiceModel(BaseTable, QtCore.QAbstractTableModel):
                         return QtGui.QIcon(':\greentick')
                     elif paid == 0 or (0 < paid < total_debt) or (paid > total_debt) :
                         return QtGui.QIcon(':\cross')
-            elif col == InvoiceModel.DATE or col == InvoiceModel.ETA:
+            elif col == InvoiceModel.DATE:
                 return QtGui.QIcon(':\calendar')
             elif col == InvoiceModel.PARTNER:
                 return QtGui.QIcon(':\partners')
@@ -903,7 +901,7 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
                 return proforma.agent.fiscal_name 
             elif col == SaleProformaModel.FINANCIAL:
                 if proforma.cancelled:
-                    return 'Cancelled'     
+                    return 'Cancelled'
                 else:
                     if paid == 0 and total_debt > paid:
                         return 'Not Paid'
@@ -1861,14 +1859,9 @@ class IncomingStockModel(BaseTable, QtCore.QAbstractTableModel):
         if lines:
             for line in lines:
                 for incoming in incomings:
-                    print(str(line.item), incoming.item)
-                    print(line.condition, incoming.condition)
-                    print(line.specification, incoming.specification)
-                    print(line.eta, incoming.eta)
                     if str(line.item) == incoming.item and line.condition == incoming.condition and \
                         line.specification == incoming.specification and line.eta == incoming.eta:
                             incoming.quantity -= line.quantity
-                            print('if line == incoin')
                             break 
 
         incomings = list(filter(lambda o : o.quantity != 0, incomings))
