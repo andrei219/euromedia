@@ -79,8 +79,11 @@ class OrderForm(Ui_OrderForm, QDialog):
             self.model.delete(indexes[0])
             self.populateBody() 
             self.view.clearSelection() 
+        except NotExistingStockOutput:
+            QMessageBox.critical(self, 'Error', 'This SN is not in physical stock.May be you changed condition or spec')
+            return
         except:
-            raise  
+            raise 
 
     def populateHeader(self):
         self.order_number_line_edit.setText(str(self.order.id).zfill(6))

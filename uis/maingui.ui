@@ -63,7 +63,7 @@
 font: 8pt &quot;Verdana&quot;;</string>
     </property>
     <property name="currentIndex">
-     <number>3</number>
+     <number>4</number>
     </property>
     <property name="iconSize">
      <size>
@@ -5260,14 +5260,53 @@ font: 8pt &quot;Verdana&quot;;</string>
      <widget class="QPushButton" name="check_inventory">
       <property name="geometry">
        <rect>
-        <x>310</x>
-        <y>340</y>
+        <x>590</x>
+        <y>300</y>
         <width>141</width>
         <height>61</height>
        </rect>
       </property>
       <property name="text">
        <string>Check Inventory</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="change_warehouse">
+      <property name="geometry">
+       <rect>
+        <x>850</x>
+        <y>200</y>
+        <width>141</width>
+        <height>61</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Change Warehouse</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="change_condition">
+      <property name="geometry">
+       <rect>
+        <x>850</x>
+        <y>290</y>
+        <width>141</width>
+        <height>61</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Change Condition</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="change_spec">
+      <property name="geometry">
+       <rect>
+        <x>850</x>
+        <y>380</y>
+        <width>141</width>
+        <height>61</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Change Spec</string>
       </property>
      </widget>
     </widget>

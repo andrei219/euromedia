@@ -343,6 +343,7 @@ class Form(Ui_SalesProformaForm, QWidget):
         proforma.incoterm = self.incoterms.currentText() 
         proforma.external = self.external.text() 
         proforma.tracking = self.tracking.text() 
+        proforma.cancelled = False
         return proforma
 
 

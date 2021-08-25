@@ -48,7 +48,8 @@ class Form(Ui_PurchaseProformaForm, QWidget):
         }        
     
         self.agent_name_to_id = {
-            agent.fiscal_name:agent.id for agent in self.session.query(db.Agent.id, db.Agent.fiscal_name)
+            agent.fiscal_name:agent.id for agent in self.session.query(db.Agent.id, db.Agent.fiscal_name).\
+                where(db.Agent.active == True)
         }
 
 
