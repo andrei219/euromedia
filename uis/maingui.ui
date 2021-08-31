@@ -63,7 +63,7 @@
 font: 8pt &quot;Verdana&quot;;</string>
     </property>
     <property name="currentIndex">
-     <number>4</number>
+     <number>3</number>
     </property>
     <property name="iconSize">
      <size>
@@ -3840,14 +3840,14 @@ font: 8pt &quot;Verdana&quot;;</string>
      <widget class="QTabWidget" name="warehouse">
       <property name="geometry">
        <rect>
-        <x>0</x>
+        <x>-10</x>
         <y>0</y>
         <width>1671</width>
         <height>771</height>
        </rect>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <property name="iconSize">
        <size>
@@ -4067,39 +4067,10 @@ font: 8pt &quot;Verdana&quot;;</string>
         <property name="frameShadow">
          <enum>QFrame::Sunken</enum>
         </property>
-        <widget class="QToolButton" name="expedition_check">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>10</y>
-           <width>51</width>
-           <height>61</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Check</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../app/icons.qrc">
-           <normaloff>:/check</normaloff>:/check</iconset>
-         </property>
-         <property name="iconSize">
-          <size>
-           <width>40</width>
-           <height>40</height>
-          </size>
-         </property>
-         <property name="toolButtonStyle">
-          <enum>Qt::ToolButtonTextUnderIcon</enum>
-         </property>
-         <property name="autoRaise">
-          <bool>true</bool>
-         </property>
-        </widget>
         <widget class="QToolButton" name="expedition_process">
          <property name="geometry">
           <rect>
-           <x>90</x>
+           <x>20</x>
            <y>10</y>
            <width>61</width>
            <height>61</height>
@@ -4128,7 +4099,7 @@ font: 8pt &quot;Verdana&quot;;</string>
         <widget class="QToolButton" name="expedition_print">
          <property name="geometry">
           <rect>
-           <x>170</x>
+           <x>120</x>
            <y>10</y>
            <width>51</width>
            <height>61</height>
@@ -4157,10 +4128,10 @@ font: 8pt &quot;Verdana&quot;;</string>
         <widget class="QToolButton" name="expedition_delete">
          <property name="geometry">
           <rect>
-           <x>240</x>
-           <y>20</y>
-           <width>51</width>
-           <height>51</height>
+           <x>200</x>
+           <y>10</y>
+           <width>61</width>
+           <height>61</height>
           </rect>
          </property>
          <property name="text">
@@ -4404,39 +4375,10 @@ font: 8pt &quot;Verdana&quot;;</string>
         <property name="frameShadow">
          <enum>QFrame::Sunken</enum>
         </property>
-        <widget class="QToolButton" name="reception_check">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>10</y>
-           <width>51</width>
-           <height>61</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Check</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../app/icons.qrc">
-           <normaloff>:/check</normaloff>:/check</iconset>
-         </property>
-         <property name="iconSize">
-          <size>
-           <width>40</width>
-           <height>40</height>
-          </size>
-         </property>
-         <property name="toolButtonStyle">
-          <enum>Qt::ToolButtonTextUnderIcon</enum>
-         </property>
-         <property name="autoRaise">
-          <bool>true</bool>
-         </property>
-        </widget>
         <widget class="QToolButton" name="reception_process">
          <property name="geometry">
           <rect>
-           <x>90</x>
+           <x>20</x>
            <y>10</y>
            <width>61</width>
            <height>61</height>
@@ -4465,7 +4407,7 @@ font: 8pt &quot;Verdana&quot;;</string>
         <widget class="QToolButton" name="reception_print">
          <property name="geometry">
           <rect>
-           <x>170</x>
+           <x>100</x>
            <y>10</y>
            <width>51</width>
            <height>61</height>
@@ -4494,7 +4436,7 @@ font: 8pt &quot;Verdana&quot;;</string>
         <widget class="QToolButton" name="reception_delete">
          <property name="geometry">
           <rect>
-           <x>250</x>
+           <x>170</x>
            <y>20</y>
            <width>51</width>
            <height>51</height>
@@ -4527,108 +4469,6 @@ font: 8pt &quot;Verdana&quot;;</string>
           <x>220</x>
           <y>40</y>
           <width>1451</width>
-          <height>601</height>
-         </rect>
-        </property>
-       </widget>
-      </widget>
-      <widget class="QWidget" name="warehouse_incoming_rma_tab">
-       <attribute name="icon">
-        <iconset resource="../app/icons.qrc">
-         <normaloff>:/input</normaloff>:/input</iconset>
-       </attribute>
-       <attribute name="title">
-        <string>Incoming RMAs</string>
-       </attribute>
-       <attribute name="toolTip">
-        <string>Physical Check Incoming RMAs. They return to us.</string>
-       </attribute>
-       <widget class="QLineEdit" name="warehouse_incoming_search_edit">
-        <property name="geometry">
-         <rect>
-          <x>1130</x>
-          <y>10</y>
-          <width>271</width>
-          <height>20</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="frame">
-         <bool>false</bool>
-        </property>
-        <property name="placeholderText">
-         <string>Search ... </string>
-        </property>
-       </widget>
-       <widget class="QLabel" name="label_35">
-        <property name="geometry">
-         <rect>
-          <x>1410</x>
-          <y>10</y>
-          <width>21</width>
-          <height>21</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="pixmap">
-         <pixmap resource="../app/icons.qrc">:/search</pixmap>
-        </property>
-       </widget>
-       <widget class="QFrame" name="frame_11">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>640</y>
-          <width>1591</width>
-          <height>81</height>
-         </rect>
-        </property>
-        <property name="frameShape">
-         <enum>QFrame::Box</enum>
-        </property>
-        <property name="frameShadow">
-         <enum>QFrame::Sunken</enum>
-        </property>
-        <widget class="QToolButton" name="warehouse_incoming_open_button">
-         <property name="geometry">
-          <rect>
-           <x>20</x>
-           <y>10</y>
-           <width>51</width>
-           <height>61</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Open</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../app/icons.qrc">
-           <normaloff>:/open</normaloff>:/open</iconset>
-         </property>
-         <property name="iconSize">
-          <size>
-           <width>40</width>
-           <height>40</height>
-          </size>
-         </property>
-         <property name="toolButtonStyle">
-          <enum>Qt::ToolButtonTextUnderIcon</enum>
-         </property>
-         <property name="autoRaise">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </widget>
-       <widget class="QTableView" name="warehouse_incoming_rma_view">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>40</y>
-          <width>1591</width>
           <height>601</height>
          </rect>
         </property>
@@ -4731,6 +4571,108 @@ font: 8pt &quot;Verdana&quot;;</string>
           <x>10</x>
           <y>40</y>
           <width>1661</width>
+          <height>601</height>
+         </rect>
+        </property>
+       </widget>
+      </widget>
+      <widget class="QWidget" name="warehouse_incoming_rma_tab">
+       <attribute name="icon">
+        <iconset resource="../app/icons.qrc">
+         <normaloff>:/input</normaloff>:/input</iconset>
+       </attribute>
+       <attribute name="title">
+        <string>Incoming RMAs</string>
+       </attribute>
+       <attribute name="toolTip">
+        <string>Physical Check Incoming RMAs. They return to us.</string>
+       </attribute>
+       <widget class="QLineEdit" name="warehouse_incoming_search_edit">
+        <property name="geometry">
+         <rect>
+          <x>1130</x>
+          <y>10</y>
+          <width>271</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="frame">
+         <bool>false</bool>
+        </property>
+        <property name="placeholderText">
+         <string>Search ... </string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_35">
+        <property name="geometry">
+         <rect>
+          <x>1410</x>
+          <y>10</y>
+          <width>21</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="pixmap">
+         <pixmap resource="../app/icons.qrc">:/search</pixmap>
+        </property>
+       </widget>
+       <widget class="QFrame" name="frame_11">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>640</y>
+          <width>1591</width>
+          <height>81</height>
+         </rect>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::Box</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Sunken</enum>
+        </property>
+        <widget class="QToolButton" name="warehouse_incoming_open_button">
+         <property name="geometry">
+          <rect>
+           <x>20</x>
+           <y>10</y>
+           <width>51</width>
+           <height>61</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Open</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../app/icons.qrc">
+           <normaloff>:/open</normaloff>:/open</iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>40</width>
+           <height>40</height>
+          </size>
+         </property>
+         <property name="toolButtonStyle">
+          <enum>Qt::ToolButtonTextUnderIcon</enum>
+         </property>
+         <property name="autoRaise">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </widget>
+       <widget class="QTableView" name="warehouse_incoming_rma_view">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>40</y>
+          <width>1591</width>
           <height>601</height>
          </rect>
         </property>

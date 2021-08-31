@@ -80,5 +80,5 @@ class SpecChange(Ui_SpecChange, QDialog):
             QMessageBox.critical(self, 'Search Error', 'No IMEI/SN was found')
             return
         except MultipleResultsFound:
-            QMessageBox.critical(self, 'FATAL-ERROR', 'Call the developer')
+            QMessageBox.critical(self, 'FATAL-ERROR', 'Call the developer') 
             return 

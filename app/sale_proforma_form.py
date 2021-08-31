@@ -345,6 +345,7 @@ class Form(Ui_SalesProformaForm, QWidget):
         proforma.external = self.external.text() 
         proforma.tracking = self.tracking.text() 
         proforma.cancelled = False
+        proforma.normal = self.normal_sale.isChecked() or False
         return proforma
 
 

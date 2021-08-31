@@ -880,14 +880,12 @@ class MainGui(Ui_MainGui, QMainWindow):
         if not proforma:
             return  
         try:
+            
+            # Hay que meter el codigo de la prioridad aqui.
 
-            if not proforma.normal:
-                pass 
-                # Pensare mas adelante 
-            else:
-                if not self.saleProformaModel.physicalStockAvailable(proforma.warehouse_id, proforma.lines):
-                    QMessageBox.critical(self, 'Error', "Can't send to warehouse for preparation. Not enough SN in physical stock.")
-                    return
+            if not self.saleProformaModel.physicalStockAvailable(proforma.warehouse_id, proforma.lines):
+                QMessageBox.critical(self, 'Error', "Can't send to warehouse for preparation. Not enough SN in physical stock.")
+                return
 
             ok, note = getNote(self, proforma)
             if not ok:
@@ -1018,6 +1016,9 @@ class MainGui(Ui_MainGui, QMainWindow):
     def purchaseOrderDoubleClicked(self, index):
         self.processPurchaseOrder() 
 
+    def purchaseOrderDeleteHandler(self):
+        print('aaa')
+
     def _getOrder(self, view, model):
         rows = { index.row() for index in view.selectedIndexes()}
         if len(rows) == 0:
@@ -1035,12 +1036,23 @@ class MainGui(Ui_MainGui, QMainWindow):
     def saleOrderDoubleClicked(self):
         self.processSaleOrder() 
 
+    def saleOrderDeleteHandler(self):
+        order = self._getOrder(self.warehouse_expedition_view, self.saleOrderModel)
+        if not order:
+            return
+        session = self.saleOrderModel.session
+        from sqlalchemy import delete
+
+
+
     # TOOLS HANDLERS:
     def createProductHandler(self):
         d = product_form.ProductForm(self)  
         password = getPassword(self) 
         if password == PASSWORD:
             d.exec_() 
+
+
 
     def showInventoryHandler(self):
         d = inventory_form.InventoryForm(self)
@@ -1172,10 +1184,12 @@ class MainGui(Ui_MainGui, QMainWindow):
     def setUpPurchaseOrderHandlers(self):
         self.reception_process.clicked.connect(self.processPurchaseOrder) 
         self.warehouse_reception_view.doubleClicked.connect(self.purchaseOrderDoubleClicked)
+        self.reception_delete.clicked.connect(self.purchaseOrderDeleteHandler)
 
     def setUpSaleOrdersHandlers(self):
         self.expedition_process.clicked.connect(self.processSaleOrder) 
         self.warehouse_expedition_view.doubleClicked.connect(self.saleOrderDoubleClicked)
+        self.expedition_delete.clicked.connect(self.saleOrderDeleteHandler)
 
     def setupToolsHandlers(self):
         self.create_product_button.clicked.connect(self.createProductHandler)

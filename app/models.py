@@ -1434,7 +1434,6 @@ class SerieModel(QtCore.QAbstractListModel):
         self.series_at_order_level  = {r[0] for r in self.session.query(self.Serie.serie).join(self.Line).join(self.Order).\
             where(self.Order.id == order.id)}
 
-        print(self.series_at_order_level)
 
     def add(self, line, _serie):
 
@@ -1709,7 +1708,6 @@ class AvailableStockModel(BaseTable, QtCore.QAbstractTableModel):
                 for stock in actual_stock:
                     if str(line.item) == stock.item and line.condition == stock.condition and \
                         line.specification == stock.specification:
-                            print('HIT')
                             stock.quantity -= line.quantity
 
         stocks = list(filter(lambda o : o.quantity != 0, actual_stock))
@@ -1749,11 +1747,9 @@ class IncomingStockModel(BaseTable, QtCore.QAbstractTableModel):
         super().__init__() 
         self._headerData = ['Description', 'Condition', 'Specification', 'ETA', 'quantity']
         self.name = 'stocks'
-        print('before compute stock, lines=', lines)
         self.stocks = self.computeStock(warehouse, item, condition, specification, lines) 
 
     def computeStock(self, warehouse, item, condition, specification, lines):
-        print('at compute stock beggingin lines=', lines)
         # Logic:
         # not_arrived_yet = asked - processed 
         # incoming = not_arrived_yet + total purchase with no warehouse order
@@ -1826,7 +1822,7 @@ class IncomingStockModel(BaseTable, QtCore.QAbstractTableModel):
             in incoming_query}
 
         
-        sales = { IncomingStockEntry(e.item, e.specification, e.condition, e.outgoing, e.eta) for e \
+        sales = { IncomingStockEntry(e.Item, e.specification, e.condition, e.outgoing, e.eta) for e \
             in sales_query}
 
         for a in asked:
@@ -1850,7 +1846,7 @@ class IncomingStockModel(BaseTable, QtCore.QAbstractTableModel):
             for sale in sales:
                 for incoming in incomings:
                     if sale == incoming:
-                        incoming.quantity -= sale 
+                        incoming.quantity -= sale.quantity
                         break 
             lost_sales = sales.difference(incomings)
             for sale in lost_sales:

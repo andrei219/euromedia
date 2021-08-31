@@ -2,7 +2,6 @@ from sqlalchemy import create_engine, event, insert, select, update, delete, and
 from sqlalchemy.sql import func
 from sqlalchemy.orm import sessionmaker, scoped_session
 
-
 engine = create_engine('mysql+mysqlconnector://root:hnq#4506@localhost:3306/appdb') 
 
 # pool_size=20, max_overflow=0)
@@ -935,8 +934,10 @@ def delete_imei_after_sale(mapper, connection, target:SaleSerie):
     specification = target.line.specification 
     stmt = delete(Imei).where(Imei.imei == target.serie).where(Imei.condition == condition).\
         where(Imei.specification == specification)
+    print(stmt)
     result = connection.execute(stmt) 
     if not result.rowcount:
+        print('x')
         raise NotExistingStockOutput
 
 
