@@ -937,7 +937,6 @@ def delete_imei_after_sale(mapper, connection, target:SaleSerie):
     print(stmt)
     result = connection.execute(stmt) 
     if not result.rowcount:
-        print('x')
         raise NotExistingStockOutput
 
 

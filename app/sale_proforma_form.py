@@ -138,17 +138,21 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.type.currentTextChanged.connect(typeChanged)
         self.warehouse.currentTextChanged.connect(warehouseChanged)
 
-
         self.partner.returnPressed.connect(self.partnerSearch)
         self.search.clicked.connect(self.searchClicked)
         self.deleteButton.clicked.connect(self.deleteHandler) 
         self.save.clicked.connect(self.saveHandler) 
         self.advance_sale.toggled.connect(self.advanceSaleToggled)
-        self.availbale_stock_label.setText('Available Physical Stock:')
+        self.available_stock_label.setText('Available Physical Stock:')
 
         self.normal_sale.setChecked(True)
         self.searchClicked() 
         self.addButton.clicked.connect(self.normalAddHandler) 
+
+        self.apply_config.clicked.connect(self.apply_configClicked)
+
+    def apply_configClicked(self):
+        print('clicked')
 
     def searchClicked(self):
         description = self.description.text() 
@@ -202,12 +206,12 @@ class Form(Ui_SalesProformaForm, QWidget):
             self.stock_view.doubleClicked.connect(self.stockDoubleClicked)
             self.addButton.clicked.disconnect(self.normalAddHandler)
             self.addButton.clicked.connect(self.advanceAddHandler) 
-            self.availbale_stock_label.setText('Available Incoming Stock:')
+            self.available_stock_label.setText('Available Incoming Stock:')
         else:
             self.stock_view.doubleClicked.disconnect(self.stockDoubleClicked)
             self.addButton.clicked.disconnect(self.advanceAddHandler)
             self.addButton.clicked.connect(self.normalAddHandler) 
-            self.availbale_stock_label.setText('Available Physical Stock:')
+            self.available_stock_label.setText('Available Physical Stock:')
 
     def partnerSearch(self):
         partner_id = self.partner_name_to_id.get(self.partner.text())
@@ -347,7 +351,6 @@ class Form(Ui_SalesProformaForm, QWidget):
         proforma.cancelled = False
         proforma.normal = self.normal_sale.isChecked() or False
         return proforma
-
 
     def _clearLineFields(self):
         self.description.setText('')
