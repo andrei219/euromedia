@@ -1,4 +1,4 @@
-
+                    
 from PyQt5.QtWidgets import QDialog, QMessageBox
 
 from ui_order_form import Ui_OrderForm
@@ -14,7 +14,7 @@ from exceptions import NotExistingStockOutput
 class OrderForm(Ui_OrderForm, QDialog):
 
     def __init__(self, parent, order, session, sale=False):
-        super().__init__() 
+        super().__init__(parent=parent) 
         self.setupUi(self) 
         self.order = order
         self.session = session
@@ -24,6 +24,7 @@ class OrderForm(Ui_OrderForm, QDialog):
 
         self.next_line_tool_button.clicked.connect(self.next) 
         self.prev_line_button.clicked.connect(self.prev) 
+        self.imei_line_edit.textChanged.connect(self.input_text_changed)
         
         if self.order.proforma.cancelled:
             self.imei_line_edit.returnPressed.connect(self.alertNoInputCancelled) 
@@ -41,6 +42,14 @@ class OrderForm(Ui_OrderForm, QDialog):
 
         self.populateHeader() 
         self.populateBody() 
+
+
+
+    def input_text_changed(self, text):
+        if self.automatic_input.isChecked():
+            lenght = self.lenght.value()
+            if len(text) == lenght:
+                self.serieInput() 
 
     def alertNoInputCancelled(self):
         QMessageBox.critical(self, 'Update - Error', "Can't add SN/Imei to canelled order. Only remove")
@@ -125,11 +134,8 @@ class OrderForm(Ui_OrderForm, QDialog):
         return sum([line.quantity for line in self.order.lines])
 
     def _processed(self, line):
-        processed = 0
-        for serie in line.series:
-            processed += 1 
-        return processed
-    
+        return sum([1 for serie in line.series]) or 0 
+
     def _totalProcessed(self):
         processed = 0
         for line in self.order.lines:

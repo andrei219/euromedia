@@ -18,7 +18,7 @@
     <normaloff>:/proformas</normaloff>:/proformas</iconset>
   </property>
   <property name="styleSheet">
-   <string notr="true">background: white;</string>
+   <string notr="true"/>
   </property>
   <widget class="QLabel" name="label">
    <property name="geometry">
@@ -1238,7 +1238,7 @@
      <string notr="true">font-weight:normal; </string>
     </property>
     <property name="currentText">
-     <string>21</string>
+     <string>0</string>
     </property>
     <property name="frame">
      <bool>false</bool>
@@ -1466,6 +1466,32 @@
      </widget>
     </item>
    </layout>
+  </widget>
+  <widget class="QTextEdit" name="note">
+   <property name="geometry">
+    <rect>
+     <x>50</x>
+     <y>700</y>
+     <width>331</width>
+     <height>87</height>
+    </rect>
+   </property>
+   <property name="placeholderText">
+    <string>Proforma Purchase note ... ( Max 255 chars)</string>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="mixed">
+   <property name="geometry">
+    <rect>
+     <x>490</x>
+     <y>10</y>
+     <width>81</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Mixed</string>
+   </property>
   </widget>
  </widget>
  <tabstops>

@@ -21,13 +21,13 @@
     <normaloff>:/proformas</normaloff>:/proformas</iconset>
   </property>
   <property name="styleSheet">
-   <string notr="true">background: white;</string>
+   <string notr="true"/>
   </property>
   <widget class="QTableView" name="stock_view">
    <property name="geometry">
     <rect>
      <x>40</x>
-     <y>660</y>
+     <y>600</y>
      <width>1071</width>
      <height>241</height>
     </rect>
@@ -101,7 +101,7 @@
    <property name="geometry">
     <rect>
      <x>40</x>
-     <y>250</y>
+     <y>190</y>
      <width>1071</width>
      <height>111</height>
     </rect>
@@ -530,7 +530,7 @@
    <property name="geometry">
     <rect>
      <x>40</x>
-     <y>390</y>
+     <y>330</y>
      <width>1071</width>
      <height>221</height>
     </rect>
@@ -540,7 +540,7 @@
    <property name="geometry">
     <rect>
      <x>1030</x>
-     <y>620</y>
+     <y>560</y>
      <width>81</width>
      <height>31</height>
     </rect>
@@ -566,7 +566,7 @@
    <property name="geometry">
     <rect>
      <x>450</x>
-     <y>910</y>
+     <y>850</y>
      <width>190</width>
      <height>82</height>
     </rect>
@@ -683,7 +683,7 @@
    <property name="geometry">
     <rect>
      <x>950</x>
-     <y>120</y>
+     <y>60</y>
      <width>89</width>
      <height>16</height>
     </rect>
@@ -699,7 +699,7 @@
    <property name="geometry">
     <rect>
      <x>950</x>
-     <y>140</y>
+     <y>80</y>
      <width>191</width>
      <height>81</height>
     </rect>
@@ -754,7 +754,7 @@
    <property name="geometry">
     <rect>
      <x>61</x>
-     <y>140</y>
+     <y>80</y>
      <width>716</width>
      <height>24</height>
     </rect>
@@ -844,7 +844,7 @@
    <property name="geometry">
     <rect>
      <x>61</x>
-     <y>100</y>
+     <y>40</y>
      <width>807</width>
      <height>24</height>
     </rect>
@@ -1057,7 +1057,7 @@
    <property name="geometry">
     <rect>
      <x>71</x>
-     <y>180</y>
+     <y>120</y>
      <width>854</width>
      <height>24</height>
     </rect>
@@ -1295,7 +1295,7 @@
    <property name="geometry">
     <rect>
      <x>300</x>
-     <y>350</y>
+     <y>290</y>
      <width>121</width>
      <height>31</height>
     </rect>
@@ -1318,7 +1318,7 @@
    <property name="geometry">
     <rect>
      <x>60</x>
-     <y>370</y>
+     <y>310</y>
      <width>51</width>
      <height>20</height>
     </rect>
@@ -1334,7 +1334,7 @@
    <property name="geometry">
     <rect>
      <x>150</x>
-     <y>220</y>
+     <y>160</y>
      <width>200</width>
      <height>24</height>
     </rect>
@@ -1356,7 +1356,7 @@
    <property name="geometry">
     <rect>
      <x>450</x>
-     <y>220</y>
+     <y>160</y>
      <width>215</width>
      <height>24</height>
     </rect>
@@ -1374,127 +1374,11 @@
     </item>
    </layout>
   </widget>
-  <widget class="QGroupBox" name="normal_group">
-   <property name="geometry">
-    <rect>
-     <x>60</x>
-     <y>10</y>
-     <width>521</width>
-     <height>80</height>
-    </rect>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">font-weight:bold</string>
-   </property>
-   <property name="title">
-    <string>Normal Sale</string>
-   </property>
-   <property name="checkable">
-    <bool>false</bool>
-   </property>
-   <widget class="QRadioButton" name="normal_sale">
-    <property name="geometry">
-     <rect>
-      <x>70</x>
-      <y>30</y>
-      <width>121</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Normal Sale</string>
-    </property>
-    <property name="checked">
-     <bool>true</bool>
-    </property>
-   </widget>
-   <widget class="QRadioButton" name="advance_sale">
-    <property name="geometry">
-     <rect>
-      <x>260</x>
-      <y>30</y>
-      <width>131</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Advance Sale</string>
-    </property>
-   </widget>
-  </widget>
-  <widget class="QGroupBox" name="mixed_group">
-   <property name="geometry">
-    <rect>
-     <x>580</x>
-     <y>10</y>
-     <width>521</width>
-     <height>80</height>
-    </rect>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">font-weight:bold</string>
-   </property>
-   <property name="title">
-    <string>Mixed Sale</string>
-   </property>
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="checked">
-    <bool>false</bool>
-   </property>
-   <widget class="QRadioButton" name="manual">
-    <property name="geometry">
-     <rect>
-      <x>260</x>
-      <y>30</y>
-      <width>81</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Manual</string>
-    </property>
-   </widget>
-   <widget class="QRadioButton" name="proportional">
-    <property name="geometry">
-     <rect>
-      <x>70</x>
-      <y>30</y>
-      <width>121</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Proportional</string>
-    </property>
-    <property name="checked">
-     <bool>true</bool>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="apply_config">
-    <property name="geometry">
-     <rect>
-      <x>392</x>
-      <y>40</y>
-      <width>111</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">background-color:lightgray; 
-font-weight:normal; </string>
-    </property>
-    <property name="text">
-     <string>Apply Config</string>
-    </property>
-   </widget>
-  </widget>
   <widget class="QLabel" name="available_stock_label">
    <property name="geometry">
     <rect>
      <x>50</x>
-     <y>630</y>
+     <y>570</y>
      <width>261</width>
      <height>20</height>
     </rect>
@@ -1504,6 +1388,48 @@ font-weight:normal; </string>
    </property>
    <property name="text">
     <string>Lines</string>
+   </property>
+  </widget>
+  <widget class="QTextEdit" name="note">
+   <property name="geometry">
+    <rect>
+     <x>50</x>
+     <y>860</y>
+     <width>331</width>
+     <height>87</height>
+    </rect>
+   </property>
+   <property name="placeholderText">
+    <string>Proforma Slale Note ... (Max 255 chars)</string>
+   </property>
+  </widget>
+  <widget class="QRadioButton" name="advance_sale">
+   <property name="geometry">
+    <rect>
+     <x>330</x>
+     <y>10</y>
+     <width>131</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Advance Sale</string>
+   </property>
+  </widget>
+  <widget class="QRadioButton" name="normal_sale">
+   <property name="geometry">
+    <rect>
+     <x>480</x>
+     <y>10</y>
+     <width>121</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Normal Sale</string>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
    </property>
   </widget>
  </widget>

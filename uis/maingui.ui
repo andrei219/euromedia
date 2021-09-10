@@ -30,8 +30,7 @@
     <normaloff>:/euromedia</normaloff>:/euromedia</iconset>
   </property>
   <property name="styleSheet">
-   <string notr="true">background:white;
-</string>
+   <string notr="true"/>
   </property>
   <property name="animated">
    <bool>false</bool>
@@ -63,7 +62,7 @@
 font: 8pt &quot;Verdana&quot;;</string>
     </property>
     <property name="currentIndex">
-     <number>3</number>
+     <number>4</number>
     </property>
     <property name="iconSize">
      <size>
@@ -997,7 +996,7 @@ font: 8pt &quot;Verdana&quot;;</string>
         <widget class="QToolButton" name="proforma_purchase_print_button">
          <property name="geometry">
           <rect>
-           <x>265</x>
+           <x>190</x>
            <y>10</y>
            <width>75</width>
            <height>60</height>
@@ -1061,7 +1060,7 @@ font: 8pt &quot;Verdana&quot;;</string>
         <widget class="QToolButton" name="proforma_purchase_pdf_button">
          <property name="geometry">
           <rect>
-           <x>350</x>
+           <x>290</x>
            <y>10</y>
            <width>75</width>
            <height>60</height>
@@ -1090,7 +1089,7 @@ font: 8pt &quot;Verdana&quot;;</string>
         <widget class="QToolButton" name="proforma_purchase_payment_button">
          <property name="geometry">
           <rect>
-           <x>520</x>
+           <x>390</x>
            <y>10</y>
            <width>75</width>
            <height>60</height>
@@ -1128,7 +1127,7 @@ font: 8pt &quot;Verdana&quot;;</string>
         <widget class="QToolButton" name="proforma_purchase_expense_button">
          <property name="geometry">
           <rect>
-           <x>605</x>
+           <x>480</x>
            <y>10</y>
            <width>75</width>
            <height>60</height>
@@ -1163,7 +1162,7 @@ font: 8pt &quot;Verdana&quot;;</string>
         <widget class="QToolButton" name="proforma_purchase_invoice_button">
          <property name="geometry">
           <rect>
-           <x>860</x>
+           <x>670</x>
            <y>10</y>
            <width>75</width>
            <height>60</height>
@@ -1198,7 +1197,7 @@ font: 8pt &quot;Verdana&quot;;</string>
         <widget class="QToolButton" name="proforma_purchase_warehouse_button">
          <property name="geometry">
           <rect>
-           <x>945</x>
+           <x>780</x>
            <y>10</y>
            <width>75</width>
            <height>60</height>
@@ -1233,7 +1232,7 @@ font: 8pt &quot;Verdana&quot;;</string>
         <widget class="QToolButton" name="proforma_purchase_ship_button">
          <property name="geometry">
           <rect>
-           <x>1030</x>
+           <x>880</x>
            <y>10</y>
            <width>75</width>
            <height>60</height>
@@ -1303,7 +1302,7 @@ font: 8pt &quot;Verdana&quot;;</string>
         <widget class="QToolButton" name="proforma_purchase_documents_button">
          <property name="geometry">
           <rect>
-           <x>690</x>
+           <x>570</x>
            <y>10</y>
            <width>75</width>
            <height>60</height>
@@ -1333,6 +1332,22 @@ font: 8pt &quot;Verdana&quot;;</string>
          </property>
          <property name="autoRaise">
           <bool>true</bool>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="regenerate">
+         <property name="geometry">
+          <rect>
+           <x>1000</x>
+           <y>30</y>
+           <width>93</width>
+           <height>28</height>
+          </rect>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color:lightgray; </string>
+         </property>
+         <property name="text">
+          <string>REGENERATE</string>
          </property>
         </widget>
        </widget>

@@ -14,11 +14,11 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_PurchaseProformaForm(object):
     def setupUi(self, PurchaseProformaForm):
         PurchaseProformaForm.setObjectName("PurchaseProformaForm")
-        PurchaseProformaForm.resize(1187, 870)
+        PurchaseProformaForm.resize(1168, 878)
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(":/proformas"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         PurchaseProformaForm.setWindowIcon(icon)
-        PurchaseProformaForm.setStyleSheet("background: white;")
+        PurchaseProformaForm.setStyleSheet("")
         self.label = QtWidgets.QLabel(PurchaseProformaForm)
         self.label.setGeometry(QtCore.QRect(70, 20, 61, 16))
         self.label.setStyleSheet("font-weight:bold; ")
@@ -445,6 +445,12 @@ class Ui_PurchaseProformaForm(object):
         self.total_tax_line_edit.setReadOnly(True)
         self.total_tax_line_edit.setObjectName("total_tax_line_edit")
         self.gridLayout_4.addWidget(self.total_tax_line_edit, 1, 1, 1, 1)
+        self.note = QtWidgets.QTextEdit(PurchaseProformaForm)
+        self.note.setGeometry(QtCore.QRect(50, 700, 331, 87))
+        self.note.setObjectName("note")
+        self.mixed = QtWidgets.QCheckBox(PurchaseProformaForm)
+        self.mixed.setGeometry(QtCore.QRect(490, 10, 81, 20))
+        self.mixed.setObjectName("mixed")
 
         self.retranslateUi(PurchaseProformaForm)
         self.cancel_tool_button.pressed.connect(PurchaseProformaForm.close)
@@ -536,6 +542,7 @@ class Ui_PurchaseProformaForm(object):
         self.label_22.setText(_translate("PurchaseProformaForm", "Price"))
         self.label_23.setText(_translate("PurchaseProformaForm", "Subtotal"))
         self.label_24.setText(_translate("PurchaseProformaForm", "Tax"))
+        self.tax_combobox.setCurrentText(_translate("PurchaseProformaForm", "0"))
         self.tax_combobox.setItemText(0, _translate("PurchaseProformaForm", "0"))
         self.tax_combobox.setItemText(1, _translate("PurchaseProformaForm", "4"))
         self.tax_combobox.setItemText(2, _translate("PurchaseProformaForm", "10"))
@@ -545,4 +552,6 @@ class Ui_PurchaseProformaForm(object):
         self.label_30.setText(_translate("PurchaseProformaForm", "Subtotal:"))
         self.label_31.setText(_translate("PurchaseProformaForm", "Tax:"))
         self.label_32.setText(_translate("PurchaseProformaForm", "Total "))
+        self.note.setPlaceholderText(_translate("PurchaseProformaForm", "Proforma Purchase note ... ( Max 255 chars)"))
+        self.mixed.setText(_translate("PurchaseProformaForm", "Mixed"))
 import icons_rc

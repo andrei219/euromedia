@@ -235,6 +235,8 @@ class PurchaseProforma(Base):
 
     cancelled = Column(Boolean, nullable=False, default=False)
     sent = Column(Boolean, nullable=False, default=False) 
+    note = Column(String(255))
+    mixed = Column(Boolean, nullable=False, default=False)
 
     eur_currency = Column(Boolean, nullable=False, default=True)
 
@@ -275,8 +277,8 @@ class PurchaseProformaLine(Base):
     id = Column(Integer, primary_key=True)
     proforma_id = Column(Integer, ForeignKey('purchase_proformas.id')) 
     item_id = Column(Integer, ForeignKey('items.id'))
-    condition = Column(String(50))
-    specification = Column(String(50))
+    condition = Column(String(50), nullable=False)
+    specification = Column(String(50), nullable=False)
 
     quantity = Column(Integer, nullable=False)
     price = Column(Numeric(10, 2), nullable=False)
@@ -292,6 +294,32 @@ class PurchaseProformaLine(Base):
         self.condition = condition
         self.tax = tax 
         self.specification = specification
+
+
+class MixedPurchaseLine(Base):
+
+    __tablename__ = 'mixed_purchase_lines'
+
+    id = Column(Integer, primary_key=True)
+    proforma_id = Column(Integer, ForeignKey('purchase_proformas.id'))
+    description = Column(String(100), nullable=False)
+    condition = Column(String(50), nullable=False)
+    specification = Column(String(50), nullable=False)
+
+    quantity = Column(Integer, nullable=False)
+    price = Column(Numeric(10, 2), nullable=False)
+    tax = Column(Integer, nullable=False)
+
+    proforma = relationship('PurchaseProforma', backref=backref('mixed_lines'))
+
+    def __init__(self, description, condition, specification, quantity, price, tax):
+        self.quantity = quantity
+        self.price = price 
+        self.description = description 
+        self.condition = condition
+        self.tax = tax 
+        self.specification = specification
+
 
 class PurchaseDocument(Base):
     
@@ -381,6 +409,7 @@ class SaleProforma(Base):
 
     cancelled = Column(Boolean, nullable=False, default=False)
     sent = Column(Boolean, nullable=False, default=False)
+    note = Column(String(255))
 
     eur_currency = Column(Boolean, nullable=False, default=True)
 
@@ -567,6 +596,7 @@ class SaleOrderLine(Base):
     )
 
 class PurchaseOrder(Base):
+
     __tablename__ = 'purchase_orders'
     
     id = Column(Integer, primary_key=True)
@@ -585,6 +615,7 @@ class PurchaseOrder(Base):
     )
 
 class PurchaseOrderLine(Base):
+
     __tablename__ = 'purchase_order_lines'
     
     id = Column(Integer, primary_key=True)
@@ -610,6 +641,52 @@ class PurchaseOrderLine(Base):
     __table_args__ = (
         UniqueConstraint('id', 'order_id'), 
     )
+
+
+class MixedPurchaseOrderLine(Base):
+
+    __tablename__ = 'mixed_purchase_order_lines'
+
+    id = Column(Integer, primary_key=True)
+    order_id = Column(Integer, ForeignKey('purchase_orders.id'))
+
+    description = Column(String(100), nullable=False)
+    condition = Column(String(50), nullable=False)
+    specification = Column(String(50), nullable=False)
+
+    quantity = Column(Integer, nullable=False)
+
+    order = relationship('PurchaseOrder', backref=backref('mixed_lines'))
+
+    def __init__(self, order, description, condition, specification, quantity):
+        self.order = order 
+        self.description = description
+        self.condition = condition
+        self.specification = specification
+        self.quantity = quantity
+
+
+class MixedPurchaseSerie(Base):
+
+    __tablename__ = 'mixed_purchase_series'
+
+    id = Column(Integer, primary_key=True)
+    item_id = Column(Integer, ForeignKey('items.id'), nullable=False)
+    line_id = Column(Integer, ForeignKey('mixed_purchase_order_lines.id'), nullable=False)
+    sn = Column(String(50), nullable=False)
+    condition = Column(String(50), nullable=False)
+    spec = Column(String(50), nullable=False)
+
+    item = relationship('Item', uselist=False)
+    line = relationship('MixedPurchaseOrderLine', backref=backref('series'))
+
+    def __init__(self, item_id, line_id, sn, condition, spec):
+        self.item_id = item_id
+        self.line_id = line_id
+        self.sn = sn 
+        self.condition = condition
+        self.spec = spec
+
 
 class PurchaseSerie(Base):
     __tablename__ = 'purchase_series'
@@ -987,10 +1064,3 @@ if __name__ == '__main__':
     
 
     create_and_populate() 
-
-    # import random
-
-    # types = (1, 2, 3, 4, 4, 4, 3, 2)
-
-    # for i in range(1):
-    #     create_sale(random.choice(types))

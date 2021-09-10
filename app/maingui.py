@@ -10,7 +10,7 @@ import models
 
 import agentgui, partner_form, product_form, purchase_proforma_form, payments_form, expenses_form, \
     document_form, order_form, sale_proforma_form, inventory_form, spec_change_form, condition_change_form, \
-        warehouse_change_form
+        warehouse_change_form, mixed_reception_order as mixed_form
 
 from sqlalchemy.exc import IntegrityError
 
@@ -749,7 +749,6 @@ class MainGui(Ui_MainGui, QMainWindow):
 
     def purchaseProformaSelectionChanged(self):
         rows = {index.row() for index in self.proforma_purchases_view.selectedIndexes()}
-
         # ship 
         if len(rows) != 1:
             self.proforma_purchase_ship_button.setEnabled(False)
@@ -773,7 +772,6 @@ class MainGui(Ui_MainGui, QMainWindow):
         else:
             self.proforma_purchase_warehouse_button.setEnabled(False)
 
-
     def launchPurchaseProformaForm(self, index=None):
         if index:
             pass 
@@ -784,6 +782,9 @@ class MainGui(Ui_MainGui, QMainWindow):
 
                 self.opened_windows_instances.add(self.pp) 
                 self.opened_windows_classes.add(purchase_proforma_form.Form) 
+
+    def regenerateHandler(self):
+        print('regenerate')
 
     def _getOnePurchaseProforma(self, s=None):
         rows = { index.row() for index in self.proforma_purchases_view.selectedIndexes()}
@@ -1011,7 +1012,15 @@ class MainGui(Ui_MainGui, QMainWindow):
         if not order:
             return 
         session = self.purchaseOrdersModel.session
-        order_form.OrderForm(self, order, session).exec_() 
+        if order.proforma.mixed:
+            processed = sum([1 for line in order.mixed_lines for serie in line.series])
+            total = sum([line.quantity for line in order.mixed_lines])
+            if total == processed:
+                mixed_form.EditableForm(self, order, session).exec_() 
+            else:
+                mixed_form.MixedReceptionForm(self, order, session).exec_()
+        else:
+            order_form.OrderForm(self, order, session).exec_() 
     
     def purchaseOrderDoubleClicked(self, index):
         self.processPurchaseOrder() 
@@ -1147,6 +1156,8 @@ class MainGui(Ui_MainGui, QMainWindow):
         self.proforma_purchase_invoice_button.clicked.connect(self.purchaseProformaToInvoiceButtonHandler)  
         self.proforma_purchase_ship_button.clicked.connect(self.purchaseProformaShippedHandler) 
         self.proforma_purchase_warehouse_button.clicked.connect(self.purchaseProformaToWarehouseHandler)
+        self.regenerate.clicked.connect(self.regenerateHandler)
+
 
     def setUpSalesProformasHandler(self):
         self.proforma_sale_new_button.clicked.connect(self.saleProformaNewButtonHandler)
@@ -1200,7 +1211,7 @@ class MainGui(Ui_MainGui, QMainWindow):
 
     def tabChanged(self, index):
         # Clean up the filters also 
-        # And complete the rest of the models mai frei 
+        # And complete the rest of the models
         if index == 0:
             self.agentModel = models.AgentModel() 
             self.agents_view.setModel(self.agentModel)

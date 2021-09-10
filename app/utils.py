@@ -141,3 +141,4 @@ def buildMapsAndCombos(self):
     self.agent_combobox.addItems(self.agentname_to_agent_map.keys())
     self.warehouse_combobox.addItems(self.warehouse_name_to_warehouse_map.keys())
     self.tax_combobox.addItems([str(v) for v in self.taxname_to_tax_map.keys()]) 
+
