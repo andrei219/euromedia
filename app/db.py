@@ -517,17 +517,34 @@ class SaleInvoice(Base):
         UniqueConstraint('type', 'number', name='unique_sales_sale_invoices'), 
     )
 
+class MixedSaleLine(Base):
+
+    __tablename__ = 'mixed_sale_lines'
+
+    id = Column(Integer, primary_key=True) 
+    proforma_id = Column(Integer, ForeignKey('sale_proformas.id'), nullable=False)
+    item_id = Column(Integer, ForeignKey('items.id'), nullable=False)
+    
+    conditions = Column(String(50), nullable=False)
+    spec = Column(String(50), nullable=False)
+    qnt = Column(Integer, nullable=False)
+
+    item = relationship('Item', uselist=False)
+
 class SaleProformaLine(Base):
 
     __tablename__ = 'sale_proforma_lines'
 
     id = Column(Integer, primary_key=True) 
-    proforma_id = Column(Integer, ForeignKey('sale_proformas.id'))
+    proforma_id = Column(Integer, ForeignKey('sale_proformas.id'), nullable=False)
+    mixed_id = Column(Integer, ForeignKey('mixed_sale_lines.id'), nullable=True)
 
-    item_id = Column(Integer, ForeignKey('items.id'))
-    condition = Column(String(50))
-    specification = Column(String(50))
-
+    item_id = Column(Integer, ForeignKey('items.id'), nullable=True)
+    mixed_description = Column(String(100), nullable=True)
+    condition = Column(String(50), nullable=False)
+    showing_condition = Column(String(50), nullable=True)
+    specification = Column(String(50), nullable=False)
+    ignore_specification = Column(Boolean, nullable=False) 
     quantity = Column(Integer, nullable=False)
     price = Column(Numeric(10, 2), nullable=False)
     tax = Column(Integer, nullable=False)
@@ -535,6 +552,8 @@ class SaleProformaLine(Base):
     item = relationship('Item', uselist=False)
     proforma = relationship('SaleProforma', backref=backref('lines'))
     
+    mixed_lines = relationship('MixedSaleLine')
+
     eta = Column(Date, nullable=True) 
 
     __table_args__ = (
@@ -542,7 +561,9 @@ class SaleProformaLine(Base):
     )
 
 
-    def __init__(self, item, condition, specification, price, quantity, tax, eta=None):
+    def __init__(self, item, condition, showing_condition, specification,\
+        ignore, price, quantity, tax, eta=None, mixed_description=None):
+        
         self.quantity = quantity
         self.price = price 
         self.item = item 
@@ -550,11 +571,15 @@ class SaleProformaLine(Base):
         self.tax = tax 
         self.specification = specification
         self.eta = eta
+        self.ignore_specification = ignore
+        self.showing_condition = showing_condition
+        self.mixed_description = mixed_description
+
 
 class SaleOrder(Base):
     
     __tablename__ = 'sale_orders'
-
+     
     id = Column(Integer, primary_key=True)
     proforma_id = Column(Integer, ForeignKey('sale_proformas.id'), nullable=False)
     note = Column(String(50))

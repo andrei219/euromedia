@@ -87,8 +87,12 @@ from PyQt5.QtWidgets import QTableView
 def setCommonViewConfig(view):
     view.setSelectionBehavior(QTableView.SelectRows)
     view.setSelectionMode(QTableView.SingleSelection)
+    
     view.setSortingEnabled(True)
+    
     view.setAlternatingRowColors(True)
+    
+    
     view.setEditTriggers(QTableView.NoEditTriggers)
 
 

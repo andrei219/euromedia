@@ -62,7 +62,7 @@
 font: 8pt &quot;Verdana&quot;;</string>
     </property>
     <property name="currentIndex">
-     <number>4</number>
+     <number>2</number>
     </property>
     <property name="iconSize">
      <size>
@@ -472,7 +472,7 @@ font: 8pt &quot;Verdana&quot;;</string>
        </rect>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <property name="iconSize">
        <size>
@@ -1848,12 +1848,12 @@ font: 8pt &quot;Verdana&quot;;</string>
           <rect>
            <x>10</x>
            <y>10</y>
-           <width>75</width>
-           <height>60</height>
+           <width>151</width>
+           <height>51</height>
           </rect>
          </property>
          <property name="text">
-          <string>New</string>
+          <string>New Current Stock Sale</string>
          </property>
          <property name="icon">
           <iconset resource="../app/icons.qrc">
@@ -1875,7 +1875,7 @@ font: 8pt &quot;Verdana&quot;;</string>
         <widget class="QToolButton" name="proforma_sale_print_button">
          <property name="geometry">
           <rect>
-           <x>265</x>
+           <x>460</x>
            <y>10</y>
            <width>75</width>
            <height>60</height>
@@ -1939,7 +1939,7 @@ font: 8pt &quot;Verdana&quot;;</string>
         <widget class="QToolButton" name="proforma_sale_pdf_button">
          <property name="geometry">
           <rect>
-           <x>350</x>
+           <x>545</x>
            <y>10</y>
            <width>75</width>
            <height>60</height>
@@ -1968,7 +1968,7 @@ font: 8pt &quot;Verdana&quot;;</string>
         <widget class="QToolButton" name="proforma_sale_payment_button">
          <property name="geometry">
           <rect>
-           <x>520</x>
+           <x>715</x>
            <y>10</y>
            <width>75</width>
            <height>60</height>
@@ -2003,7 +2003,7 @@ font: 8pt &quot;Verdana&quot;;</string>
         <widget class="QToolButton" name="proforma_sale_expense_button">
          <property name="geometry">
           <rect>
-           <x>605</x>
+           <x>800</x>
            <y>10</y>
            <width>75</width>
            <height>60</height>
@@ -2038,7 +2038,7 @@ font: 8pt &quot;Verdana&quot;;</string>
         <widget class="QToolButton" name="proforma_sale_invoice_button">
          <property name="geometry">
           <rect>
-           <x>860</x>
+           <x>1055</x>
            <y>10</y>
            <width>75</width>
            <height>60</height>
@@ -2073,7 +2073,7 @@ font: 8pt &quot;Verdana&quot;;</string>
         <widget class="QToolButton" name="proforma_sale_warehouse_button">
          <property name="geometry">
           <rect>
-           <x>945</x>
+           <x>1140</x>
            <y>10</y>
            <width>75</width>
            <height>60</height>
@@ -2108,7 +2108,7 @@ font: 8pt &quot;Verdana&quot;;</string>
         <widget class="QToolButton" name="proforma_sale_mail_button">
          <property name="geometry">
           <rect>
-           <x>435</x>
+           <x>630</x>
            <y>10</y>
            <width>75</width>
            <height>60</height>
@@ -2137,7 +2137,7 @@ font: 8pt &quot;Verdana&quot;;</string>
         <widget class="QToolButton" name="proforma_sale_ship_button">
          <property name="geometry">
           <rect>
-           <x>1030</x>
+           <x>1225</x>
            <y>10</y>
            <width>75</width>
            <height>60</height>
@@ -2172,7 +2172,7 @@ font: 8pt &quot;Verdana&quot;;</string>
         <widget class="QToolButton" name="sales_proformas_cancel_button">
          <property name="geometry">
           <rect>
-           <x>95</x>
+           <x>385</x>
            <y>10</y>
            <width>75</width>
            <height>60</height>
@@ -2207,7 +2207,7 @@ font: 8pt &quot;Verdana&quot;;</string>
         <widget class="QToolButton" name="proforma_sale_documents_button">
          <property name="geometry">
           <rect>
-           <x>690</x>
+           <x>885</x>
            <y>10</y>
            <width>75</width>
            <height>60</height>
@@ -2237,6 +2237,22 @@ font: 8pt &quot;Verdana&quot;;</string>
          </property>
          <property name="autoRaise">
           <bool>true</bool>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="advance_sale_button">
+         <property name="geometry">
+          <rect>
+           <x>200</x>
+           <y>30</y>
+           <width>141</width>
+           <height>31</height>
+          </rect>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background:light; </string>
+         </property>
+         <property name="text">
+          <string>NEW ADVANCE SALE</string>
          </property>
         </widget>
        </widget>
@@ -5264,6 +5280,19 @@ font: 8pt &quot;Verdana&quot;;</string>
       </property>
       <property name="text">
        <string>Change Spec</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="create_warehouse">
+      <property name="geometry">
+       <rect>
+        <x>590</x>
+        <y>380</y>
+        <width>141</width>
+        <height>61</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Create Warehouse</string>
       </property>
      </widget>
     </widget>

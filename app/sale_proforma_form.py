@@ -1,21 +1,22 @@
 
 from datetime import date
 
-from PyQt5.QtWidgets import QWidget, QMessageBox, QCompleter
+from PyQt5.QtWidgets import QWidget, QMessageBox, QCompleter, QTableView
 from PyQt5.QtCore import QStringListModel, Qt
-
+from PyQt5.QtCore import QAbstractTableModel
 
 from utils import parse_date
 
 from ui_sale_proforma_form import Ui_SalesProformaForm
 
-from models import AvailableStockModel, SaleProformaLineModel, IncomingStockModel
+from models import AvailableStockModel, SaleProformaLineModel, ManualStockModel
 
 import db
 
 from db import Agent, Partner, SaleProformaLine, SaleProforma, SalePayment, func
 
 from utils import setCommonViewConfig
+
 from exceptions import DuplicateLine
 
 from quantity_price_form import QuantityPriceForm
@@ -26,18 +27,34 @@ class Form(Ui_SalesProformaForm, QWidget):
         super().__init__() 
         self.setupUi(self) 
         self.model = view.model() 
-        self.parent = parent
         self.session = self.model.session 
+        self.parent = parent
+
         self.lines_model = SaleProformaLineModel(self.session)
-        self.lines_view.setModel(self.lines_model) 
-        
-        self.setUp() 
+        self.lines_view.setModel(self.lines_model)
 
-    def setUp(self):
+        self.base_items = {str(item):item for item in self.session.query(db.Item)}
 
-        self.items = {str(item):item for item in self.session.query(db.Item)}
-        self.specs = {spec[0] for spec in self.session.query(db.PurchaseProformaLine.specification).distinct()}
-        self.conditions = {c[0] for c in self.session.query(db.PurchaseProformaLine.condition).distinct()}
+        self.base_specs = {spec[0] for spec in \
+            self.session.query(db.PurchaseProformaLine.specification).distinct()}
+
+        self.base_conditions = {c[0] for c in \
+            self.session.query(db.PurchaseProformaLine.condition).distinct()}
+
+        self.set_up_header() 
+
+        self.set_filter_completers()
+
+        self.search.clicked.connect(self.normal_search) 
+        self.stock_view.doubleClicked.connect(self.stock_double_clicked)
+        self.delete_all.clicked.connect(self.delete_all_clicked)
+        self.lines_view.clicked.connect(self.lines_view_clicked)
+        self.delete_button.clicked.connect(self.delete_clicked)
+        self.mixed.toggled.connect(self.mixed_toggled)
+        self.automatic.toggled.connect(self.automatic_toggled)
+        self.generate_line.clicked.connect(self.generate_line_clicked) 
+
+    def set_up_header(self):
 
         self.partner.setFocus() 
 
@@ -63,50 +80,9 @@ class Form(Ui_SalesProformaForm, QWidget):
             courier.description:courier.id for courier in self.session.query(db.Courier.id, db.Courier.description)
         }
 
-
-        setCommonViewConfig(self.lines_view)
-        setCommonViewConfig(self.stock_view)
-
-
         self.warehouse.addItems(self.warehouse_name_to_id.keys())
-        self.warehouse.setCurrentText('Free Sale')        
-
         self.agent.addItems(self.agent_name_to_id.keys())
         self.courier.addItems(self.courier_name_to_id.keys())
-
-
-        # Completers:
-
-        m = QStringListModel()
-        m.setStringList(self.items.keys())
-
-        c = QCompleter()
-        c.setFilterMode(Qt.MatchContains)
-        c.setCaseSensitivity(False)
-        c.setModel(m)
-
-        self.description.setCompleter(c) 
-
-        m = QStringListModel()
-        m.setStringList(self.specs)
-
-        c = QCompleter()
-        c.setFilterMode(Qt.MatchContains)
-        c.setCaseSensitivity(False)
-        c.setModel(m)
-
-        self.spec.setCompleter(c) 
-
-
-        m = QStringListModel()
-        m.setStringList(self.conditions)
-
-        c = QCompleter()
-        c.setFilterMode(Qt.MatchContains)
-        c.setCaseSensitivity(False)
-        c.setModel(m)
-
-        self.condition.setCompleter(c) 
 
         m = QStringListModel()
         m.setStringList(self.partner_name_to_id.keys())
@@ -118,118 +94,24 @@ class Form(Ui_SalesProformaForm, QWidget):
 
         self.partner.setCompleter(c) 
 
-        def priceOrQuantityChanged(value):
-            self.subtotal.setValue(self.quantity.value() * self.price.value())
-        
-        def subtotalOrTaxChanged(value):
-            self.total.setValue(self.subtotal.value() * (1 + int(self.tax.currentText())/100))
-
         def typeChanged(type):
             next_num = self.model.nextNumberOfType(int(type))
             self.number.setText(str(next_num))
 
-        def warehouseChanged(text):
-            self.lines_model.reset() 
-
-        self.price.valueChanged.connect(priceOrQuantityChanged) 
-        self.quantity.valueChanged.connect(priceOrQuantityChanged)
-        self.tax.currentIndexChanged.connect(subtotalOrTaxChanged)
-        self.subtotal.valueChanged.connect(subtotalOrTaxChanged)
         self.type.currentTextChanged.connect(typeChanged)
-        self.warehouse.currentTextChanged.connect(warehouseChanged)
+        self.partner.returnPressed.connect(self.partner_search)
 
-        self.partner.returnPressed.connect(self.partnerSearch)
-        self.search.clicked.connect(self.searchClicked)
-        self.deleteButton.clicked.connect(self.deleteHandler) 
-        self.save.clicked.connect(self.saveHandler) 
-        self.advance_sale.toggled.connect(self.advanceSaleToggled)
-        self.available_stock_label.setText('Available Physical Stock:')
-
-        self.normal_sale.setChecked(True)
-        self.searchClicked() 
-        self.addButton.clicked.connect(self.normalAddHandler) 
-
-        self.apply_config.clicked.connect(self.apply_configClicked)
-
-    def apply_configClicked(self):
-        print('clicked')
-
-    def searchClicked(self):
-        description = self.description.text() 
-        try:
-            item = self.items[description] 
-        except KeyError:
-            item = None
-        warehouse = self.warehouse.currentText() 
-        normal = self.normal_sale.isChecked() 
-        specification = self.spec.text() 
-        condition = self.condition.text()  
-        if normal:
-            self._resetStockAvailable(warehouse, condition=condition, specification=specification, \
-                item=item)
-        else:
-            self._resetIncomingStock(warehouse, condition=condition, specification=specification, item=item)
-
-    def stockDoubleClicked(self):
-        row = {index.row() for index in self.stock_view.selectedIndexes()}.pop() 
-        stock = self.stock_model.stocks[row]
-        available_qnt = stock.quantity
-        form = QuantityPriceForm(self) 
-        form.quantity.setMinimum(1)
-        form.quantity.setMaximum(available_qnt)
-        if form.exec_():
-            if not form.quantity.value():
-                QMessageBox.critical(self, 'Line - Error', 'Quantity must be > 0')
-                return
-            try:
-                1 / form.price.value()
-            except ZeroDivisionError:
-                QMessageBox.critical(self, 'Line - Error', 'Price must be > 0 ') 
-                return    
-        
-            warehouse = self.warehouse.currentText() 
-            tax = int(self.tax.currentText()) 
-            item = self.items[stock.item]
-            try:
-                self.lines_model.add(item, stock.condition, stock.specification, form.quantity.value(), \
-                    form.price.value(), tax, stock.eta) 
-                self._clearLineFields() 
-                self._resetIncomingStock(warehouse, item=None, condition=None, specification=None)
-
-            except DuplicateLine:
-                QMessageBox.critical(self, 'Line - Error', 'Cant add duplicate line!')
-                return
-
-    def advanceSaleToggled(self, checked):
-        self.lines_model.reset() 
-        if checked:
-            self.stock_view.doubleClicked.connect(self.stockDoubleClicked)
-            self.addButton.clicked.disconnect(self.normalAddHandler)
-            self.addButton.clicked.connect(self.advanceAddHandler) 
-            self.available_stock_label.setText('Available Incoming Stock:')
-        else:
-            self.stock_view.doubleClicked.disconnect(self.stockDoubleClicked)
-            self.addButton.clicked.disconnect(self.advanceAddHandler)
-            self.addButton.clicked.connect(self.normalAddHandler) 
-            self.available_stock_label.setText('Available Physical Stock:')
-
-    def partnerSearch(self):
+    def partner_search(self):
         partner_id = self.partner_name_to_id.get(self.partner.text())
         if not partner_id:
             return
-        
         try:
-            available_credit, max_credit = self._computeCreditAvailable(partner_id) 
+            available_credit = self._compute_credit_available(partner_id) 
             self.available_credit.setValue(float(available_credit))
-
-            def prevent(value):
-                if value > available_credit:
-                    self.credit.setValue(available_credit)
-
-            self.credit.valueChanged.connect(prevent) 
-
+            self.credit.setMaximum(float(available_credit))
+        
         except TypeError:
-            pass 
+            raise 
             
         result = self.session.query(Agent.fiscal_name, Partner.warranty, Partner.euro,\
             Partner.they_pay_they_ship, Partner.they_pay_we_ship, Partner.we_pay_we_ship,\
@@ -245,7 +127,8 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.they_pay_we_ship.setChecked(they_pay_we_ship) 
         self.we_pay_we_ship.setChecked(we_pay_we_ship) 
 
-    def _computeCreditAvailable(self, partner_id):
+
+    def _compute_credit_available(self, partner_id):
         from db import Partner, SaleProformaLine, SaleProforma, \
             SalePayment, func
         
@@ -263,181 +146,272 @@ class Form(Ui_SalesProformaForm, QWidget):
                 where(SalePayment.proforma_id == SaleProforma.id).\
                     where(Partner.id == partner_id).scalar() 
 
-        if total and paid:
-            return max_credit + paid - total, max_credit
 
-        # Default returns None, caller will check unpacking error 
+        # Protect against None results from partners with no credits.
+        if max_credit is None:
+            max_credit = 0
+        if total is None:
+            total = 0
+        if paid is None:
+            paid = 0 
 
-    def _resetStockAvailable(self, warehouse, *, item, condition, specification):
+        return max_credit + paid - total 
 
-        self.stock_model = AvailableStockModel(warehouse, item=item, condition=condition, \
-            specification=specification, lines=self.lines_model.lines)
+    def clear_filters(self):
+        self.description.clear()
+        self.spec.clear()
+        self.condition.clear() 
 
-        self.stock_view.setModel(self.stock_model)
-
-    def _resetIncomingStock(self, warehouse, *, item, condition, specification):
-        print('in resetInomcing, lines=', self.lines_model.lines)
-        self.stock_model = IncomingStockModel(warehouse, condition=condition, item=item,\
-             specification=specification, lines=self.lines_model.lines)
-        
-        self.stock_view.setModel(self.stock_model)
+    def mixed_toggled(self, on):
+        self.set_filter_completers(mixed=on)
+        self.clear_filters()
+        self.reconnect(on)
     
-    def _validHeader(self):
+    def reconnect(self, mixed_on):
         try:
-            self.partner_name_to_id[self.partner.text()]
-        except KeyError:
-            QMessageBox.critical(self, 'Update - Error', 'Invalid Partner')
-            return False
-        try:
-            parse_date(self.date.text())
-        except ValueError:
-            QMessageBox.critical(self, 'Update - Error', 'Error in date field. Format: ddmmyyyy')
-            return False
+            self.search.disconnect()
+            self.stock_view.disconnect() 
+        except TypeError:
+            pass 
 
-        if self.credit.value() > self.available_credit.value():
-            QMessageBox.critical(self, 'Erro - Update', 'Credit must be < than avaliable credit')
-            return False
-        return True
-
-    def _validLine(self):
-        self.title = 'Line - Error'
-        try:
-            self.items[self.description.text()]
-        except KeyError:
-            QMessageBox.critical(self, self.title, 'That item does not exist')
-            return False
+        if mixed_on:
+            self.search.clicked.connect(self.manual_search)
+        else:
+            self.search.clicked.connect(self.normal_search)
+            self.stock_view.doubleClicked.connect(self.stock_double_clicked)
         
-        if not self.spec.text():
-            QMessageBox.critical(self, self.title, 'Specification cannot be empty')
-            return False
 
-        if not self.spec.text() in self.specs:
-            QMessageBox.critical(self, self.title, 'Specification must exist')
-
-        if not self.condition.text():
-            QMessageBox.critical(self, self.title, 'Conditions cannot be empty')
-            return False
+    def automatic_toggled(self, on):
+        # No model yet 
+        if not hasattr(self, 'stock_model'): return 
+        if isinstance(self.stock_model, ManualStockModel):
+            for row in range(self.stock_model.rowCount()):
+                index = self.stock_model.index(row, ManualStockModel.REQUEST)
+                self.stock_model.setData(index, 0) 
         
-        if not self.condition.text() in self.conditions:
-            QMessageBox.critical(self, self.title, 'Condition must exist')
-            return False
+        # Change flags method of the model, in order to make all cells
+        # non-editable, editable by you computing the proportionals.
+        # uuuuuuuuuuuuuuuuu goood job my frei .
+        if on:
+            def flags(index):
+                if not index.isValid():
+                    return
+                return Qt.ItemFlags(~Qt.ItemIsEditable) 
+            self.stock_model.flags = flags
+        else:
+            def flags(index):
+                if not index.isValid():
+                    return
+                if index.column() == 4:
+                    return Qt.ItemFlags(QAbstractTableModel.flags(self.stock_model, index) |
+                        Qt.ItemIsEditable)
+                else:
+                    return Qt.ItemFlags(~Qt.ItemIsEditable)
+            
+            self.stock_model.flags = flags 
 
+    def clear_request_stock_model_column(self):
+        pass 
+
+    def set_filter_completers(self, mixed=False):
+            m = QStringListModel()
+            if mixed:
+                s = set() 
+                for desc in self.base_items.keys():
+                    s.add(desc[0:desc.index('GB') + 2] + ' GB Mixed Color')
+                self.current_items = s 
+            else:
+                self.current_items = self.base_items.keys() 
+            
+            m.setStringList(self.current_items) 
+            c = QCompleter()
+            c.setFilterMode(Qt.MatchContains)
+            c.setCaseSensitivity(False)
+            c.setModel(m)
+            self.description.setCompleter(c) 
+
+            m = QStringListModel()
+            self.current_specs = self.base_specs if not mixed else {'Mix'}.union(self.base_specs) 
+            m.setStringList(self.current_specs)
+            c = QCompleter()
+            c.setFilterMode(Qt.MatchContains)
+            c.setCaseSensitivity(False)
+            c.setModel(m)
+
+            self.spec.setCompleter(c) 
+
+
+            m = QStringListModel()
+            self.current_conditions = self.base_conditions if not mixed else \
+                {'Mix'}.union(self.base_conditions) 
+            m.setStringList(self.current_conditions)
+
+            c = QCompleter()
+            c.setFilterMode(Qt.MatchContains)
+            c.setCaseSensitivity(False)
+            c.setModel(m)
+
+            self.condition.setCompleter(c)
+
+
+    def delete_all_clicked(self):
+        self.lines_model.reset() 
+        warehouse = self.warehouse.currentText()
+        self.reset_stock(warehouse, item=None,condition=None, specification=None)
+
+    def lines_view_clicked(self):
+        row = self.lines_view.currentIndex().row() 
+
+    def delete_clicked(self):
+        indexes = self.lines_view.selectedIndexes() 
         try:
-            1 / self.price.value()
-        except ZeroDivisionError: 
-            QMessageBox.critical(self, self.title, 'Price must be > 0')
-            return False
-        return True
+            self.lines_model.delete(indexes)
+        except:
+            raise 
+        else:
+            warehouse = self.warehouse.currentText()
+            self.reset_stock(warehouse, item=None, condition=None, specification=None)
 
-    def _formToProforma(self):
-        proforma = db.SaleProforma() 
-        proforma.type = int(self.type.currentText())
-        proforma.number = int(self.number.text())
-        proforma.date = self._dateFromString(self.date.text())
-        proforma.warranty = self.warranty.value()
-        proforma.they_pay_they_ship = self.they_pay_they_ship.isChecked()
-        proforma.they_pay_we_ship = self.they_pay_we_ship.isChecked() 
-        proforma.we_pay_we_ship = self.we_pay_we_ship.isChecked() 
-        proforma.agent_id = self.agent_name_to_id[self.agent.currentText()]
-        proforma.partner_id = self.partner_name_to_id[self.partner.text()]
-        proforma.warehouse_id = self.warehouse_name_to_id[self.warehouse.currentText()]
-        proforma.courier_id = self.courier_name_to_id[self.courier.currentText()]
-        proforma.eur_currency = self.eur.isChecked()
-        proforma.credit_amount = self.credit.value()
-        proforma.credit_days = self.days.value() 
-        proforma.incoterm = self.incoterms.currentText() 
-        proforma.external = self.external.text() 
-        proforma.tracking = self.tracking.text() 
-        proforma.cancelled = False
-        proforma.note = self.note.toPlainText()[0:255]
-        proforma.normal = self.normal_sale.isChecked() 
-        return proforma
+    def stock_double_clicked(self):
+        from line_complete_form import Form
 
-    def _clearLineFields(self):
-        self.description.setText('')
-        self.spec.setText('')
-        self.condition.setText('')
-        self.quantity.setValue(1)
-        self.price.setValue(0)
+        row = self.stock_view.currentIndex().row() 
+        stock = self.stock_model.stocks[row]
+        f = Form(self) 
+        f.qnt.setMaximum(stock.quantity) 
+        if f.exec_():
+            showing, qnt, price, ignore, tax = \
+                f.condition.text(), f.qnt.value(), f.price.value(), \
+                    f.ignore_spec.isChecked(), int(f.tax.currentText())
+            try:
+                self.lines_model.add(stock.item, stock.condition, showing, stock.specification, \
+                    ignore, qnt, price, tax)
+               
+                self.lines_view.setSelectionBehavior(QTableView.SelectRows)
+                warehouse = self.warehouse.currentText()
+                self.reset_stock(warehouse, item=None, condition=None, specification=None)
+                self.update_total_fields() 
+            except:
+                raise 
+    
+    def not_valid_filters(self):
+        description, condition, spec = self.description.text(), \
+            self.condition.text(), self.spec.text() 
 
-    def _dateFromString(self, date_str):
-        return date(int(date_str[4:len(date_str)]), int(date_str[2:4]), int(date_str[0:2])) 
+        aux_conditions, aux_items, aux_specs = {''}.union(self.current_conditions), \
+            {''}.union(self.current_items), {''}.union(self.current_specs)
 
-    def _updateTotals(self):
+        if description not in aux_items or spec not in aux_specs or \
+            condition not in aux_conditions:
+                return True 
+
+    def better_normal_line(self):
+        f = lambda stock_entry_request:stock_entry_request.requested_quantity > 0
+        aux = list(filter(f,self.stock_model.stocks.values()))
+        return len(aux) == 1
+
+    def generate_line_clicked(self):
+        # No model yet or is not the correct type
+        # Remember lazy eval , this is valid
+        if not hasattr(self, 'stock_model') or not isinstance(self.stock_model, ManualStockModel):
+            return
+        elif self.better_normal_line():
+            # I dont do it from code because we would need showing condition field
+            QMessageBox.critical(self, 'Error', "Make a normal line!")
+            return
+        else:
+            print('process here')
+
+
+    def normal_search(self):
+        if self.not_valid_filters():
+            QMessageBox.critical(self, 'Error', 'You must choose an option given by the autocompleter')
+            return 
+        description = self.description.text() 
+        try:
+            item = self.base_items[description]
+        except KeyError:
+            item = None
+        warehouse = self.warehouse.currentText() 
+        specification = self.spec.text() 
+        condition = self.condition.text()
+        if not condition:
+            condition = None
+        if not specification:
+            specification = None
+        
+        self.reset_stock(warehouse, condition=condition, specification=specification, item=item)
+
+    def update_total_fields(self):
         self.proforma_total.setText(str(self.lines_model.total))
         self.proforma_tax.setText(str(self.lines_model.tax))
         self.subtotal_proforma.setText(str(self.lines_model.subtotal))
 
-    def _lineFromStock(self):
-        for stock in self.stock_model.stocks:
-            if stock.item == self.description.text() and self.spec.text() == stock.specification and \
-                self.condition.text() == stock.condition:
-                    return stock.quantity
-        return False
-
-    def normalAddHandler(self):
-        title = 'Line - Error'
-        if not self._validLine():
-            return 
+    def reset_stock(self, warehouse, *, item, condition, specification):
+        self.stock_model = AvailableStockModel(warehouse, item=item, condition=condition,\
+            specification=specification, lines=self.lines_model.lines)
         
-        stock_qnt = self._lineFromStock() 
-        if not stock_qnt:
-            QMessageBox.critical(self, title, 'That stock is not available')
-            return 
-        elif stock_qnt < self.quantity.value():
-            QMessageBox.critical(self, title, 'Quantity in line exceeds available quantity')
-            return 
-        else:
-            try:
-                item, condition, spec, quantity, price, tax = self.items[self.description.text()], \
-                    self.condition.text(), self.spec.text(), self.quantity.value(), self.price.value(), \
-                        int(self.tax.currentText())
-                self.lines_model.add(item, condition, spec, quantity, price, tax)
-                self._clearLineFields() 
-                self._resetStockAvailable(warehouse=self.warehouse.currentText(), item=None, \
-                    condition=None, specification=None)
-            except DuplicateLine:
-                QMessageBox.critical(self, title, 'Duplicate line!. Try another one.')
-                return
-    
-    def advanceAddHandler(self):
-        QMessageBox.information(self, 'Information', 'For advance sale you need to double-click the stock below')
-        return
+        self.stock_view.setModel(self.stock_model)
+        self.set_stock_view_config() 
 
-    def deleteHandler(self):
-        indexes = self.lines_view.selectedIndexes() 
-        try:
-            self.lines_model.delete(indexes) 
-        except:
-            raise 
+    def set_stock_view_config(self, mixed=False):
+        self.stock_view.setSelectionBehavior(QTableView.SelectRows)
+        if not mixed:
+            self.stock_view.setSelectionMode(QTableView.SingleSelection)
+        # self.stock_view.setAlternatingRowColors(True)
+        self.stock_view.resizeColumnsToContents() 
 
-    def saveHandler(self):
-        if not self._validHeader():
+    def manual_search(self):
+        if self.not_valid_filters():
+            QMessageBox.critical(self, 'Error', 'You must choose an option given by the autocompleter')
             return
-        if not self.lines_model.lines:
-            QMessageBox.critical(self, 'Error - Lines', 'Empty proforma')
-            return
-        proforma = self._formToProforma() 
-        try:
-            self.model.add(proforma)
-            self.lines_model.save(proforma) 
-        except:
-            raise 
-        else:
-            self.close() 
+        warehouse = self.warehouse.currentText() 
+        specification = self.spec.text() 
+        condition = self.condition.text()
+        description = self.description.text() 
+
+        if specification == 'Mix' or not specification:
+            specification = None
+        if condition == 'Mix' or not condition:
+            condition = None
+        if not description:
+            description = None
+
+        self.reset_manual_stock(warehouse, mixed_description=description, \
+            condition=condition, specification=specification)
+
+    def reset_manual_stock(self, warehouse, *, mixed_description ,condition, specification):
+
+        self.stock_model = ManualStockModel(warehouse, mixed_description, condition, \
+            specification, self.lines_model.lines) 
+        self.stock_view.setModel(self.stock_model) 
+        self.set_stock_view_config(mixed=True) 
 
     def closeEvent(self, event):
         try:
             self.parent.opened_windows_classes.remove(self.__class__)
         except:
-            pass       
-
+            pass
+    
     def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Return and self.addButton.hasFocus()\
-            and self.normal_sale.isChecked():
-                self.normalAddHandler() 
+        if event.key() == Qt.Key_Return and self.quantity.hasFocus():
+            indexes = self.stock_view.selectedIndexes()
+            if not indexes:
+                return
+            try:
+                self.set_proportional_stock_request(indexes)
+            except ValueError:
+                pass 
         else:
             super().keyPressEvent(event) 
+        
     
-class EditableSaleProformaForm(Ui_SalesProformaForm, QWidget):
-    pass 
+    def set_proportional_stock_request(self, indexes):
+        rows = {index.row() for index in indexes}
+        total = 0
+        for row in rows:
+            stock_entry = self.stock_model.stocks[row].stock_entry 
+            total += stock_entry.quantity 
+        if total < self.quantity.value():
+            raise ValueError
+        

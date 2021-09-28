@@ -29,9 +29,6 @@ class ProcessedDevicesStore:
             r = Register(sn, item, condition, spec, line)
             self.container.append(r)
 
-    
-    
-
     def __iter__(self):
         return iter(sorted(self.container, key=keyfunc) )
 

@@ -798,7 +798,7 @@ class MainGui(Ui_MainGui, QMainWindow):
     # SALE PROFORMA HANDLERS:
     def saleProformaNewButtonHandler(self):
         self.launchSaleProforma() 
-
+             
     def purchaseProformaSearchHandler(self):
         pass 
 
@@ -1061,8 +1061,6 @@ class MainGui(Ui_MainGui, QMainWindow):
         if password == PASSWORD:
             d.exec_() 
 
-
-
     def showInventoryHandler(self):
         d = inventory_form.InventoryForm(self)
         password = getPassword(self)
@@ -1083,6 +1081,11 @@ class MainGui(Ui_MainGui, QMainWindow):
     def changeWarehouseHandler(self):
         d = warehouse_change_form.WarehouseChange(self)
         d.exec_() 
+
+    def createWarehouseHandler(self):
+        from warehouse import Form
+
+        Form(self).exec_() 
 
     def setUpAgentsModelAndView(self, search_key=None):
         self.agentModel = models.AgentModel(search_key) 
@@ -1208,6 +1211,7 @@ class MainGui(Ui_MainGui, QMainWindow):
         self.change_spec.clicked.connect(self.changeSpecHandler)
         self.change_condition.clicked.connect(self.changeCondtionHandler)
         self.change_warehouse.clicked.connect(self.changeWarehouseHandler)
+        self.create_warehouse.clicked.connect(self.createWarehouseHandler)
 
     def tabChanged(self, index):
         # Clean up the filters also 
