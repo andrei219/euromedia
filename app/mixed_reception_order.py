@@ -147,8 +147,24 @@ class MixedReceptionForm(QDialog, Ui_MixedReceptionForm):
         self.populateHeader() 
         self.populateBody() 
 
-
         self.view.setSelectionBehavior(QTableView.SelectRows)
+
+    def on_automatic_toggled(self, on):
+        if on:
+            self.commit.setEnabled(False)
+            self.sn.textChanged.connect(self.sn_value_changed) 
+        else:
+            self.commit.setEnabled(True)
+            try:
+                self.sn.disconnect() 
+            except TypeError:
+                pass 
+    
+    def sn_value_changed(self, text):
+        lenght = self.lenght.value()
+        if len(text) == lenght:
+            self.commit_handler() 
+
 
     def populateHeader(self):
         self.order_number.setText(str(self.order.id).zfill(6))

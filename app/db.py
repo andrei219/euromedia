@@ -77,6 +77,9 @@ class Item(Base):
                 return True
         return False
 
+    def __hash__(self):
+        return hash(''.join(str(v) for v in self.__dict__.values()))
+    
     def __str__(self):
         return self.manufacturer + ' ' + self.category + ' ' + self.model + ' ' + str(self.capacity) +\
             ' GB ' + self.color 
@@ -517,19 +520,6 @@ class SaleInvoice(Base):
         UniqueConstraint('type', 'number', name='unique_sales_sale_invoices'), 
     )
 
-class MixedSaleLine(Base):
-
-    __tablename__ = 'mixed_sale_lines'
-
-    id = Column(Integer, primary_key=True) 
-    proforma_id = Column(Integer, ForeignKey('sale_proformas.id'), nullable=False)
-    item_id = Column(Integer, ForeignKey('items.id'), nullable=False)
-    
-    conditions = Column(String(50), nullable=False)
-    spec = Column(String(50), nullable=False)
-    qnt = Column(Integer, nullable=False)
-
-    item = relationship('Item', uselist=False)
 
 class SaleProformaLine(Base):
 
@@ -537,10 +527,10 @@ class SaleProformaLine(Base):
 
     id = Column(Integer, primary_key=True) 
     proforma_id = Column(Integer, ForeignKey('sale_proformas.id'), nullable=False)
-    mixed_id = Column(Integer, ForeignKey('mixed_sale_lines.id'), nullable=True)
 
     item_id = Column(Integer, ForeignKey('items.id'), nullable=True)
-    mixed_description = Column(String(100), nullable=True)
+    mixed_group_id = Column(Integer, nullable=True)
+    
     condition = Column(String(50), nullable=False)
     showing_condition = Column(String(50), nullable=True)
     specification = Column(String(50), nullable=False)
@@ -552,7 +542,6 @@ class SaleProformaLine(Base):
     item = relationship('Item', uselist=False)
     proforma = relationship('SaleProforma', backref=backref('lines'))
     
-    mixed_lines = relationship('MixedSaleLine')
 
     eta = Column(Date, nullable=True) 
 
@@ -561,9 +550,8 @@ class SaleProformaLine(Base):
     )
 
 
-    def __init__(self, item, condition, showing_condition, specification,\
-        ignore, price, quantity, tax, eta=None, mixed_description=None):
-        
+    def __init__(self, item, condition, specification,
+        ignore, price, quantity, tax, showing_condition=None, eta=None):
         self.quantity = quantity
         self.price = price 
         self.item = item 
@@ -573,8 +561,16 @@ class SaleProformaLine(Base):
         self.eta = eta
         self.ignore_specification = ignore
         self.showing_condition = showing_condition
-        self.mixed_description = mixed_description
 
+
+    # An alternative constructor: 
+    @classmethod
+    def from_stock(cls, ser, ignore, price, tax):
+        # ser stands for StockEntryRequest, is a pair relating 
+        # a stock entry with a quantity requested . Defined as a named tuple
+        
+        return cls(ser.item_object, ser.stock_entry.condition, \
+            ser.stock_entry.specification , ignore, price, ser.requested_quantity, tax)
 
 class SaleOrder(Base):
     
@@ -852,9 +848,16 @@ def create_and_populate():
 
     item1 = Item('Apple', 'Iphone', 'X', 128, 'Black')
     item2 = Item('Samnsung', 'Galaxy', 'Lite', 256, 'Red')
+    item3 = Item('Apple', 'Iphone', 'X', 128, 'Red')
+    item4 = Item('Apple', 'Iphone', 'X', 128, 'Yellow')
+    item5 = Item('Apple', 'Iphone', 'X', 128, 'Purple')
+
 
     session.add(item1)
     session.add(item2)
+    session.add(item3)
+    session.add(item4)
+    session.add(item5)
 
     session.add(a)
 
@@ -1085,6 +1088,9 @@ class ConditionChange(Base):
     after = Column(String(50), nullable=False)
     created_on = Column(DateTime, default=datetime.now) 
 
+
+# Patch to ser objects 
+# Bad practice, no time for better solution 
 if __name__ == '__main__':
     
 

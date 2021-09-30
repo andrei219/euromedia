@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1284</width>
-    <height>937</height>
+    <height>947</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -218,7 +218,7 @@
    <property name="geometry">
     <rect>
      <x>80</x>
-     <y>735</y>
+     <y>760</y>
      <width>561</width>
      <height>111</height>
     </rect>
@@ -347,6 +347,9 @@
     <property name="text">
      <string>Ignore Spec
  In Invoice</string>
+    </property>
+    <property name="checked">
+     <bool>true</bool>
     </property>
    </widget>
    <widget class="QGroupBox" name="automatic">
@@ -1097,6 +1100,9 @@
      <property name="text">
       <string>SEARCH</string>
      </property>
+     <property name="default">
+      <bool>true</bool>
+     </property>
     </widget>
     <widget class="QLineEdit" name="description">
      <property name="geometry">
@@ -1191,6 +1197,35 @@
    </property>
    <property name="text">
     <string>Delete</string>
+   </property>
+   <property name="default">
+    <bool>false</bool>
+   </property>
+  </widget>
+  <widget class="QLabel" name="total_available">
+   <property name="geometry">
+    <rect>
+     <x>180</x>
+     <y>740</y>
+     <width>191</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QLabel" name="total_requested">
+   <property name="geometry">
+    <rect>
+     <x>440</x>
+     <y>740</y>
+     <width>171</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
    </property>
   </widget>
  </widget>

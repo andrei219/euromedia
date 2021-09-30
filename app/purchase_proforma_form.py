@@ -399,9 +399,7 @@ class Form(Ui_PurchaseProformaForm, QWidget):
         except DuplicateLine:
             QMessageBox.critical(self, self.title, 'Duplicate Line')
             return 
-
         self._clearLineFields()
-
 
     def deleteHandler(self):
         indexes = self.lines_view.selectedIndexes() 
@@ -423,6 +421,7 @@ class Form(Ui_PurchaseProformaForm, QWidget):
         except:
             raise 
         else:
+            QMessageBox.information(self, 'Information', 'Purchase saved successfully')
             self.close() 
         
 class EditableForm(Ui_PurchaseProformaForm, QWidget):

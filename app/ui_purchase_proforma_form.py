@@ -453,6 +453,7 @@ class Ui_PurchaseProformaForm(object):
         self.mixed.setObjectName("mixed")
 
         self.retranslateUi(PurchaseProformaForm)
+        self.tax_combobox.setCurrentIndex(3)
         self.cancel_tool_button.pressed.connect(PurchaseProformaForm.close)
         QtCore.QMetaObject.connectSlotsByName(PurchaseProformaForm)
         PurchaseProformaForm.setTabOrder(self.description_line_edit, self.condition_line_edit)
@@ -542,7 +543,7 @@ class Ui_PurchaseProformaForm(object):
         self.label_22.setText(_translate("PurchaseProformaForm", "Price"))
         self.label_23.setText(_translate("PurchaseProformaForm", "Subtotal"))
         self.label_24.setText(_translate("PurchaseProformaForm", "Tax"))
-        self.tax_combobox.setCurrentText(_translate("PurchaseProformaForm", "0"))
+        self.tax_combobox.setCurrentText(_translate("PurchaseProformaForm", "21"))
         self.tax_combobox.setItemText(0, _translate("PurchaseProformaForm", "0"))
         self.tax_combobox.setItemText(1, _translate("PurchaseProformaForm", "4"))
         self.tax_combobox.setItemText(2, _translate("PurchaseProformaForm", "10"))

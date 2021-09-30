@@ -133,6 +133,12 @@
     <property name="text">
      <string>COMMIT</string>
     </property>
+    <property name="autoDefault">
+     <bool>true</bool>
+    </property>
+    <property name="default">
+     <bool>false</bool>
+    </property>
    </widget>
    <widget class="QLabel" name="chance_label">
     <property name="geometry">
@@ -169,7 +175,7 @@
       <x>0</x>
       <y>20</y>
       <width>731</width>
-      <height>211</height>
+      <height>221</height>
      </rect>
     </property>
    </widget>
@@ -822,6 +828,54 @@
    <property name="text">
     <string>ALL</string>
    </property>
+  </widget>
+  <widget class="QGroupBox" name="automatic">
+   <property name="geometry">
+    <rect>
+     <x>830</x>
+     <y>380</y>
+     <width>191</width>
+     <height>71</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>AUTOMATIC INPUT</string>
+   </property>
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
+   <widget class="QLabel" name="label_8">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>32</y>
+      <width>91</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>IMEI/SN LENGHT:</string>
+    </property>
+   </widget>
+   <widget class="QSpinBox" name="lenght">
+    <property name="geometry">
+     <rect>
+      <x>120</x>
+      <y>30</y>
+      <width>51</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="minimum">
+     <number>1</number>
+    </property>
+    <property name="displayIntegerBase">
+     <number>10</number>
+    </property>
+   </widget>
   </widget>
  </widget>
  <resources>

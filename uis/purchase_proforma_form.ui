@@ -1238,7 +1238,10 @@
      <string notr="true">font-weight:normal; </string>
     </property>
     <property name="currentText">
-     <string>0</string>
+     <string>21</string>
+    </property>
+    <property name="currentIndex">
+     <number>3</number>
     </property>
     <property name="frame">
      <bool>false</bool>
