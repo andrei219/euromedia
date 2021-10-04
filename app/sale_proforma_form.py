@@ -421,25 +421,20 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.set_stock_view_config() 
 
     def set_stock_view_config(self, mixed=False):
-        # self.stock_view.setSelectionBehavior(QTableView.SelectRows)
         if not mixed:
             self.stock_view.setSelectionMode(QTableView.SingleSelection)
             self.total_available.clear()
             self.total_requested.clear() 
-            # if self.stock_view.selectionModel().isSignalConnected(self.stock_view_selection_changed):
-            # self.stock_view.selectionModel().disconnect(self.stock_view_selection_changed)
             try:
                 self.stock_view.disconnect() 
                 self.stock_view.doubleClicked.connect(self.stock_double_clicked)
             except TypeError:
                 pass 
-
         else:
             self.stock_view.setSelectionMode(QTableView.MultiSelection)
-            # if not self.stock_view.selectionModel().isSignalConnected(self.stock_view_selection_changed):
             self.stock_view.selectionModel().selectionChanged.connect(self.stock_view_selection_changed)
-
-
+        
+        
         self.stock_view.resizeColumnsToContents() 
 
     def manual_search(self):

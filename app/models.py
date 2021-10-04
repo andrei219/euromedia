@@ -485,7 +485,7 @@ class InvoiceModel(BaseTable, QtCore.QAbstractTableModel):
 					if paid == 0:
 						return 'Not Paid'
 					elif 0 < paid < total_debt:
-						return 'Partial Paid' 
+						return 'partially paid' 
 					elif paid == total_debt:
 						return 'Paid'
 					elif paid > total_debt:
@@ -659,7 +659,7 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
 					if paid == 0 and total_debt > paid:
 						return 'Not Paid'
 					elif 0 < paid < total_debt:
-						return 'Partial Paid' 
+						return 'partially paid' 
 					elif paid == total_debt:
 						return 'Paid'
 					elif paid > total_debt:
@@ -914,7 +914,7 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 					if paid == 0 and total_debt > paid:
 						return 'Not Paid'
 					elif 0 < paid < total_debt:
-						return 'Partial Paid' 
+						return 'partially paid' 
 					elif paid == total_debt:
 						return 'Paid'
 					elif paid > total_debt:
