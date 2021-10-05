@@ -434,7 +434,6 @@ class Form(Ui_SalesProformaForm, QWidget):
             self.stock_view.setSelectionMode(QTableView.MultiSelection)
             self.stock_view.selectionModel().selectionChanged.connect(self.stock_view_selection_changed)
         
-        
         self.stock_view.resizeColumnsToContents() 
 
     def manual_search(self):

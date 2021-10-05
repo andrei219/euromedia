@@ -1216,6 +1216,7 @@ class MainGui(Ui_MainGui, QMainWindow):
     def tabChanged(self, index):
         # Clean up the filters also 
         # And complete the rest of the models
+        self.refresh_session() 
         if index == 0:
             self.agentModel = models.AgentModel() 
             self.agents_view.setModel(self.agentModel)
@@ -1238,6 +1239,11 @@ class MainGui(Ui_MainGui, QMainWindow):
             self.warehouse_reception_view.setModel(self.purchaseOrdersModel) 
             self.saleOrderModel = models.OrderModel(sale=True) 
             self.warehouse_expedition_view.setModel(self.saleOrderModel) 
+
+
+    def refresh_session(self):
+        import db
+        db.refresh_session() 
 
     def closeEvent(self, event):
         for w in self.opened_windows_instances:

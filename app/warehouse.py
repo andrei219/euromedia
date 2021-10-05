@@ -18,6 +18,7 @@ class Form(Ui_WarehouseForm, QDialog):
         self.add.clicked.connect(self.add_handler)
         self.delete_2.clicked.connect(self.delete_handler)
     
+
     def add_handler(self):
         warehouse_name = self.input.text().strip() 
         if not warehouse_name:
@@ -25,7 +26,8 @@ class Form(Ui_WarehouseForm, QDialog):
         try:
             self.model.add(warehouse_name)
         except ValueError:
-            QMessageBox.critical(self, 'Error - Update', 'Warehouse already exists')
+            QMessageBox.critical(self, 'Error - Update', \
+                'Warehouse already exists')
             return
         else:
             self.input.clear() 
@@ -36,4 +38,5 @@ class Form(Ui_WarehouseForm, QDialog):
             try:
                 self.model.delete(current_index.row())  
             except IntegrityError:
-                QMessageBox.critical(self, 'Error - Update', 'This warehouse has data associated. Can not delete')
+                QMessageBox.critical(self, 'Error - Update', \
+                    'This warehouse has data associated. Can not delete')

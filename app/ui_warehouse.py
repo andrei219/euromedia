@@ -35,6 +35,7 @@ class Ui_WarehouseForm(object):
         self.input.setObjectName("input")
 
         self.retranslateUi(WarehouseForm)
+        self.exit.clicked.connect(WarehouseForm.close)
         QtCore.QMetaObject.connectSlotsByName(WarehouseForm)
 
     def retranslateUi(self, WarehouseForm):

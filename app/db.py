@@ -2,7 +2,7 @@ from sqlalchemy import create_engine, event, insert, select, update, delete, and
 from sqlalchemy.sql import func
 from sqlalchemy.orm import sessionmaker, scoped_session
 
-engine = create_engine('mysql+mysqlconnector://root:hnq#4506@localhost:3306/appdb') 
+engine = create_engine('mysql+mysqlconnector://root:hnq#4506@localhost:3306/appdb', echo=True) 
 
 # pool_size=20, max_overflow=0)
 
@@ -24,6 +24,12 @@ from sqlalchemy.orm import relationship, backref
 Base = declarative_base() 
 
 session = Session() 
+
+
+def refresh_session():
+    global Session, session 
+    Session = scoped_session(sessionmaker(bind=engine, autoflush=False))
+    session = Session()
 
 class Warehouse(Base):
 
@@ -1019,7 +1025,7 @@ def insert_imei_after_purchase(mapper, connection, target):
     connection.execute(stmt)
 
 
-from exceptions import NotExistingStockOutput
+# from exceptions import NotExistingStockOutput
 
 
 @event.listens_for(PurchaseSerie, 'after_delete')

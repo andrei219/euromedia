@@ -810,8 +810,9 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 			'Shipment', 'Owes', 'Total']
 		self.proformas = [] 
 		self.name = 'proformas'
-		db.sale_session = db.Session() 
-		self.session = db.sale_session
+		# db.sale_session = db.Session() 
+		# self.session = db.sale_session
+		self.session = db.Session() 
 		query = self.session.query(db.SaleProforma) 
 
 		if search_key:
@@ -1256,9 +1257,7 @@ class SaleProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 		self.layoutChanged.emit() 
 
 	def save(self, proforma):
-		last_group_number = self.session.query(func.max(db.SaleProformaLine.mixed_group_id)).scalar()
-		if not last_group_number:
-			last_group_number = 0 
+		last_group_number = self._get_last_group_number() 
 		for index in self._lines:
 			line_s = self._lines[index]
 			if isinstance(line_s, db.SaleProformaLine):
@@ -1277,6 +1276,14 @@ class SaleProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 			self.session.rollback()
 			raise 	
 	
+	def _get_last_group_number(self):
+		last_group_number = self.session.query(func.max(db.SaleProformaLine.mixed_group_id)).scalar()
+		if last_group_number is None:
+			last_group_number = 0 
+		else:
+			last_group_number += 1
+		return last_group_number
+
 	def last_row(self):
 		return len(self._lines) - 1
 
@@ -1873,6 +1880,10 @@ from db import Warehouse, Item
 from db import session, func
 from db import SaleProforma as sp
 from db import SaleProformaLine as sl 
+from db import SaleOrderLine as sol 
+from db import SaleSerie as ss 
+from db import SaleOrder as so 
+
 
 class ActualStockEntry:
 
@@ -1955,16 +1966,17 @@ class AvailableStockModel(BaseTable, QtCore.QAbstractTableModel):
 		actual_stock = {ActualStockEntry(r.Imei.item, r.specification, r.condition, r.quantity)\
 			for r in query}
 
-		proformas = { r[0] for r in session.query(sp.id)}
-		orders = { r[0] for r in session.query(db.SaleOrder.proforma_id)}
+		# proformas = { r[0] for r in session.query(sp.id)}
+		# orders = { r[0] for r in session.query(db.SaleOrder.proforma_id)}
 
-		relevant = proformas.difference(orders)
+		# relevant = proformas.difference(orders)
 
 		query = session.query(Item, sl.condition, sl.specification,func.sum(sl.quantity).label('quantity')).\
 			select_from(sp, sl, Warehouse, Item).group_by(Item.id, sl.condition, \
 				sl.specification, Warehouse.id).where(sp.id == sl.proforma_id).where(sp.warehouse_id == Warehouse.id).\
 					where(sl.item_id == Item.id).where(Warehouse.description == warehouse).\
-						where(sp.cancelled == False).where(sp.normal == True).where(sp.id.in_(relevant))
+						where(sp.cancelled == False).where(sp.normal == True)
+						# .where(sp.id.in_(relevant))
 
 		if condition:
 			query = query.where(sl.condition == condition)
@@ -1977,6 +1989,19 @@ class AvailableStockModel(BaseTable, QtCore.QAbstractTableModel):
 		# keys: RMKeyView(['Item', 'condition', 'specification', 'quantity'])
 
 		actual_sales = {ActualStockEntry(r.Item, r.specification, r.condition, r.quantity) for r in query}
+
+		query = session.query(Item, sol.condition, sol.specification, func.count(ss.serie).label('quantity')).\
+			select_from(sol, ss, sp, Warehouse, Item).where(sol.id == ss.line_id).where(sp.warehouse_id == Warehouse.id).\
+				where(sol.item_id == Item.id).where(so.proforma_id == sp.id).where(sol.order_id == so.id).\
+					where(sp.cancelled == False).where(Warehouse.description == warehouse).\
+						group_by(Item.id, sol.condition, sol.specification)
+
+		current_outputs = {ActualStockEntry(r.Item, r.specification, r.condition, r.quantity) for r in query}
+
+		for output in current_outputs:
+			for stock in actual_stock:
+				if output == stock:
+					stock.quantity += output.quantity
 
 		for sale in actual_sales:
 			for stock in actual_stock:
@@ -2328,7 +2353,6 @@ class DefinedDevicesModel(BaseTable, QtCore.QAbstractTableModel):
 				qnt += 1 
 			self.devices.append(item_condt_spec + (qnt, ))
 
-		
 	def data(self, index, role=Qt.DisplayRole):
 		if not index.isValid(): 
 			return

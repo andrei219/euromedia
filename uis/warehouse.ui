@@ -80,5 +80,22 @@
  <resources>
   <include location="../app/icons.qrc"/>
  </resources>
- <connections/>
+ <connections>
+  <connection>
+   <sender>exit</sender>
+   <signal>clicked()</signal>
+   <receiver>WarehouseForm</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>398</x>
+     <y>253</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>349</x>
+     <y>289</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

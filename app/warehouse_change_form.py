@@ -9,7 +9,6 @@ from sqlalchemy.exc import NoResultFound, MultipleResultsFound
 
 import db
 
-
 class WarehouseChange(Ui_WarehouseChange, QDialog):
 
     def __init__(self, parent):
@@ -26,7 +25,8 @@ class WarehouseChange(Ui_WarehouseChange, QDialog):
         self.update.clicked.connect(self.updateHandler)
         self.sn.setFocus() 
 
-        self.warehouses_name_to_id = {r.description: r.id for r in self.session.query(db.Warehouse.description, db.Warehouse.id)}
+        self.warehouses_name_to_id = {r.description: r.id for r in \
+            self.session.query(db.Warehouse.description, db.Warehouse.id)}
         self.warehouses_name_to_id[''] = 0 
 
         self.new_warehouse.addItems(self.warehouses_name_to_id.keys())
@@ -41,7 +41,8 @@ class WarehouseChange(Ui_WarehouseChange, QDialog):
     
     def searchAndPopulate(self):
         try:
-            self.db_result = self.session.query(db.Imei).join(db.Item).join(db.Warehouse).where(db.Imei.imei == self.sn.text()).one() 
+            self.db_result = self.session.query(db.Imei).join(db.Item).join(db.Warehouse).\
+                where(db.Imei.imei == self.sn.text()).one() 
 
             self.description.setText(str(self.db_result.item))
             self.current_warehouse.setText(self.db_result.warehouse.description)
