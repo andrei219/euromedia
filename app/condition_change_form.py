@@ -13,9 +13,6 @@ class ConditionChange(Ui_ConditionChange, QDialog):
     def __init__(self, parent):
         super().__init__(parent=parent)
         self.setupUi(self) 
-
-        self.session = db.Session()
-
         self.setUp()         
         
 
@@ -25,8 +22,8 @@ class ConditionChange(Ui_ConditionChange, QDialog):
         self.sn.setFocus()
 
 
-        conditions = { r[0] for r in self.session.query(db.PurchaseProformaLine.condition).distinct()}.\
-            union({r[0] for r in self.session.query(db.Imei.condition).distinct()})
+        conditions = { r[0] for r in db.session.query(db.PurchaseProformaLine.condition).distinct()}.\
+            union({r[0] for r in db.session.query(db.Imei.condition).distinct()})
 
         m = QStringListModel()
         m.setStringList(conditions)
@@ -57,7 +54,7 @@ class ConditionChange(Ui_ConditionChange, QDialog):
 
         self.db_result.condition = self.new_condition.text() 
         try:
-            self.session.commit() 
+            db.session.commit() 
             self.reset() 
         except:
             raise             
@@ -71,7 +68,7 @@ class ConditionChange(Ui_ConditionChange, QDialog):
     
     def searchAndPopulate(self):
         try:
-            self.db_result = self.session.query(db.Imei).join(db.Item).where(db.Imei.imei == self.sn.text()).one() 
+            self.db_result = db.session.query(db.Imei).join(db.Item).where(db.Imei.imei == self.sn.text()).one() 
             self.description.setText(str(self.db_result.item))
             self.current_condition.setText(self.db_result.condition)
         except NoResultFound:

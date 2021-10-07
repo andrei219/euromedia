@@ -666,13 +666,12 @@ class MainGui(Ui_MainGui, QMainWindow):
         pass 
 
     def purchaseProformaPaymentsHandler(self, invoice=None):
-        session = self.purchaseProformaModel.session
         if invoice:
             proforma = invoice            
         else:
             proforma = self._getOnePurchaseProforma('Payments')
         if proforma:
-            payments_form.PaymentForm(self, proforma, session).exec_() 
+            payments_form.PaymentForm(self, proforma).exec_() 
 
     def purchaseProformaExpenseButtonHandler(self, invoice=None):
         if invoice:
@@ -680,8 +679,7 @@ class MainGui(Ui_MainGui, QMainWindow):
         else:
             proforma = self._getOnePurchaseProforma('Expenses')
         if proforma:
-            session = self.purchaseProformaModel.session
-            expenses_form.ExpenseForm(self, proforma, session).exec_() 
+            expenses_form.ExpenseForm(self, proforma).exec_() 
 
     def purchaseProformaDocsButtonHandler(self, invoice=None):
         if invoice:
@@ -694,7 +692,6 @@ class MainGui(Ui_MainGui, QMainWindow):
     def purchaseProformaToInvoiceButtonHandler(self):
         proforma = self._getOnePurchaseProforma('Invoice') 
         if proforma:
-            
             if proforma.cancelled:
                 QMessageBox.information(self, 'Information', "Cannot build invoice from cancelled proforma")
                 return 
@@ -774,14 +771,13 @@ class MainGui(Ui_MainGui, QMainWindow):
 
     def launchPurchaseProformaForm(self, index=None):
         if index:
-            pass 
+            proforma = self.purchaseProformaModel.proformas[index.row()]
+            delete_enabled = proforma.order is None
+            self.epp = purchase_proforma_form.EditableForm(self, proforma) 
+            self.epp.show() 
         else:
-            if purchase_proforma_form.Form not in self.opened_windows_classes:
-                self.pp = purchase_proforma_form.Form(self, self.proforma_purchases_view) 
-                self.pp.show() 
-
-                self.opened_windows_instances.add(self.pp) 
-                self.opened_windows_classes.add(purchase_proforma_form.Form) 
+            self.pp = purchase_proforma_form.Form(self, self.proforma_purchases_view) 
+            self.pp.show() 
 
     def regenerateHandler(self):
         print('regenerate')
@@ -829,13 +825,12 @@ class MainGui(Ui_MainGui, QMainWindow):
         print('sending mails')
 
     def saleProformaPaymentsHandler(self, invoice=None):
-        session = self.saleProformaModel.session
         if invoice:
             proforma = invoice            
         else:
             proforma = self._getOneSaleProforma('Payments')
         if proforma:
-            payments_form.PaymentForm(self, proforma, session, sale=True).exec_() 
+            payments_form.PaymentForm(self, proforma, sale=True).exec_() 
 
     def saleProformaExpenseButtonHandler(self, invoice=None):
         if invoice:
@@ -843,8 +838,7 @@ class MainGui(Ui_MainGui, QMainWindow):
         else:
             proforma = self._getOneSaleProforma('Expenses')
         if proforma:
-            session = self.saleProformaModel.session
-            expenses_form.ExpenseForm(self, proforma, session, sale=True).exec_() 
+            expenses_form.ExpenseForm(self, proforma, sale=True).exec_() 
 
     def saleProformaDocsButtonHandler(self, invoice=None):
         if invoice:
@@ -881,11 +875,11 @@ class MainGui(Ui_MainGui, QMainWindow):
         if not proforma:
             return  
         try:
-            
             # Hay que meter el codigo de la prioridad aqui.
-
-            if not self.saleProformaModel.physicalStockAvailable(proforma.warehouse_id, proforma.lines):
-                QMessageBox.critical(self, 'Error', "Can't send to warehouse for preparation. Not enough SN in physical stock.")
+            if not self.saleProformaModel.\
+                physicalStockAvailable(proforma.warehouse_id, proforma.lines):
+                QMessageBox.critical(self, 'Error',\
+                    "Can't send to warehouse for preparation. Not enough SN in physical stock.")
                 return
 
             ok, note = getNote(self, proforma)
@@ -1011,16 +1005,15 @@ class MainGui(Ui_MainGui, QMainWindow):
         order = self._getOrder(self.warehouse_reception_view, self.purchaseOrdersModel) 
         if not order:
             return 
-        session = self.purchaseOrdersModel.session
         if order.proforma.mixed:
             processed = sum([1 for line in order.mixed_lines for serie in line.series])
             total = sum([line.quantity for line in order.mixed_lines])
             if total == processed:
-                mixed_form.EditableForm(self, order, session).exec_() 
+                mixed_form.EditableForm(self, order).exec_() 
             else:
-                mixed_form.MixedReceptionForm(self, order, session).exec_()
+                mixed_form.MixedReceptionForm(self, order).exec_()
         else:
-            order_form.OrderForm(self, order, session).exec_() 
+            order_form.OrderForm(self, order).exec_() 
     
     def purchaseOrderDoubleClicked(self, index):
         self.processPurchaseOrder() 
@@ -1039,8 +1032,7 @@ class MainGui(Ui_MainGui, QMainWindow):
         order = self._getOrder(self.warehouse_expedition_view, self.saleOrderModel) 
         if not order:
             return 
-        session = self.saleOrderModel.session
-        order_form.OrderForm(self, order, session, sale=True).exec_()
+        order_form.OrderForm(self, order, sale=True).exec_()
 
     def saleOrderDoubleClicked(self):
         self.processSaleOrder() 
@@ -1049,9 +1041,6 @@ class MainGui(Ui_MainGui, QMainWindow):
         order = self._getOrder(self.warehouse_expedition_view, self.saleOrderModel)
         if not order:
             return
-        session = self.saleOrderModel.session
-        from sqlalchemy import delete
-
 
 
     # TOOLS HANDLERS:

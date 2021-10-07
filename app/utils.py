@@ -14,11 +14,11 @@ from PyQt5.QtWidgets import QFileDialog, QLineEdit
 from country_list import countries_for_language
 from schwifty import IBAN, BIC
 
-from db import Courier, Warehouse, Agent, Item
-from db import engine, Session
-
 # Sqalchemy 
 from sqlalchemy.sql import select, func
+
+
+from db import Item
 
 countries = list(dict(countries_for_language("en")).values())
 
@@ -126,23 +126,4 @@ def parse_date(string):
 
 def today_date():
     return datetime.now().strftime('%d%m%Y')
-
-
-
-def buildMapsAndCombos(self):
-    self.courier_name_to_courier_map = {courier.description:courier for courier in self.session.\
-        query(Courier)}
-
-    self.agentname_to_agent_map = {agent.fiscal_name:agent for agent in self.session.\
-        query(Agent).where(Agent.active == True)}
-    
-    self.warehouse_name_to_warehouse_map = {warehouse.description:warehouse for warehouse in \
-        self.session.query(Warehouse)}
-
-    self.taxname_to_tax_map = {tax.quantity:tax for tax in self.session.query(Tax)}
-
-    self.courier_combobox.addItems(self.courier_name_to_courier_map.keys())
-    self.agent_combobox.addItems(self.agentname_to_agent_map.keys())
-    self.warehouse_combobox.addItems(self.warehouse_name_to_warehouse_map.keys())
-    self.tax_combobox.addItems([str(v) for v in self.taxname_to_tax_map.keys()]) 
 

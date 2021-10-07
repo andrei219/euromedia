@@ -11,11 +11,11 @@ from models import PaymentModel
 
 class PaymentForm(Ui_PaymentsForm, QDialog):
 
-    def __init__(self, parent, proforma, session, sale=False):
+    def __init__(self, parent, proforma, sale=False):
         super().__init__(parent) 
         self.setupUi(self) 
         self.proforma = proforma
-        self.model = PaymentModel(session, proforma, sale) 
+        self.model = PaymentModel(proforma, sale) 
         self.view.setModel(self.model) 
 
         self.add_payment_tool_button.pressed.connect(self.addHandler) 

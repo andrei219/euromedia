@@ -7,7 +7,9 @@ from utils import parse_date, build_description
 
 from ui_purchase_proforma_form import Ui_PurchaseProformaForm
 
-from models import PurchaseProformaLineModel, MixedPurchaseLineModel
+from models import PurchaseProformaLineModel, MixedPurchaseLineModel, \
+    FullEditableMixedPurchaseLineModel, SemiEditableMixedPurchaseLineModel, \
+        FullEditablePurchaseProformaModel, SemiEditablePurchaseProformaModel
 
 import db
 
@@ -26,15 +28,13 @@ class Form(Ui_PurchaseProformaForm, QWidget):
         self.setupUi(self)
         self.parent = parent 
         self.model = view.model() 
-        self.session = view.model().session 
-        self.lines_model = PurchaseProformaLineModel(self.session) 
+        self.lines_model = PurchaseProformaLineModel() 
         self.lines_view.setModel(self.lines_model)
         self.title = 'Line - Error'
+        self.lines_view.setSelectionBehavior(QTableView.SelectRows)
         self.setUp() 
 
     def setUp(self):
-
-        self.lines_view.setSelectionBehavior(QTableView.SelectRows) 
 
         self.partner_line_edit.setFocus() 
 
@@ -43,36 +43,36 @@ class Form(Ui_PurchaseProformaForm, QWidget):
         self.date_line_edit.setText(date.today().strftime('%d%m%Y'))
 
         self.partner_name_to_id = {
-            partner.fiscal_name:partner.id for partner in self.session.query(db.Partner.id, db.Partner.fiscal_name).\
+            partner.fiscal_name:partner.id for partner in db.session.query(db.Partner.id, db.Partner.fiscal_name).\
                 where(db.Partner.active == True)
         }        
     
         self.agent_name_to_id = {
-            agent.fiscal_name:agent.id for agent in self.session.query(db.Agent.id, db.Agent.fiscal_name).\
+            agent.fiscal_name:agent.id for agent in db.session.query(db.Agent.id, db.Agent.fiscal_name).\
                 where(db.Agent.active == True)
         }
 
 
         self.warehouse_name_to_id = {
-            warehouse.description:warehouse.id for warehouse in self.session.query(db.Warehouse.id, db.Warehouse.description)
+            warehouse.description:warehouse.id for warehouse in db.session.query(db.Warehouse.id, db.Warehouse.description)
         }
 
         self.courier_name_to_id = {
-            courier.description:courier.id for courier in self.session.query(db.Courier.id, db.Courier.description)
+            courier.description:courier.id for courier in db.session.query(db.Courier.id, db.Courier.description)
         }
         
-        self.desc_to_item = {build_description(item):item for item in self.session.query(db.Item)}
+        self.desc_to_item = {str(item):item for item in db.session.query(db.Item)}
 
         self.mixed_descriptions = self.getMixedDescriptions()
 
         self.specs = set() 
-        for r in self.session.query(PurchaseProformaLine.specification).distinct():
+        for r in db.session.query(PurchaseProformaLine.specification).distinct():
             self.specs.add(r[0])
 
         self.mixed_specs = self.specs.union({'Mixed'})
 
         self.conditions = set() 
-        for r in self.session.query(PurchaseProformaLine.condition).distinct():
+        for r in db.session.query(PurchaseProformaLine.condition).distinct():
             self.conditions.add(r[0])
         self.mixed_conditions = self.conditions.union({'Mixed'})
 
@@ -123,10 +123,10 @@ class Form(Ui_PurchaseProformaForm, QWidget):
         self.setConditionsCompleter(on)
         self.switchAddHanlder(on)
         if on:
-            self.lines_model = MixedPurchaseLineModel(self.session)
+            self.lines_model = MixedPurchaseLineModel()
             self.lines_view.setModel(self.lines_model)
         else:
-            self.lines_model = PurchaseProformaLineModel(self.session) 
+            self.lines_model = PurchaseProformaLineModel() 
             self.lines_view.setModel(self.lines_model)
 
     def _mixedValidLine(self):
@@ -231,9 +231,10 @@ class Form(Ui_PurchaseProformaForm, QWidget):
             manufacturer, category, model, capacity, gb, color = description.split(' ')
             description = ' '.join([manufacturer, category, model, 'Mixed', gb, color])
             ds.add(description)
-        return ds.union(self.desc_to_item.keys())
+        return ds
 
     def partnerSearch(self):
+
         partner_id = self.partner_name_to_id.get(self.partner_line_edit.text())
         if not partner_id:
             return
@@ -251,7 +252,7 @@ class Form(Ui_PurchaseProformaForm, QWidget):
         except TypeError:
             pass 
 
-        result = self.session.query(Agent.fiscal_name, Partner.warranty, Partner.euro,\
+        result = db.session.query(Agent.fiscal_name, Partner.warranty, Partner.euro,\
             Partner.they_pay_they_ship, Partner.we_pay_they_ship, Partner.we_pay_we_ship,\
                 Partner.days_credit_limit).join(Agent).where(Partner.id == partner_id).one() 
 
@@ -276,16 +277,16 @@ class Form(Ui_PurchaseProformaForm, QWidget):
         from db import Partner, PurchaseProformaLine, PurchaseProforma, \
             PurchasePayment, func
         
-        max_credit = self.session.query(db.Partner.amount_credit_limit).\
+        max_credit = db.session.query(db.Partner.amount_credit_limit).\
              where(db.Partner.id == partner_id).scalar()
 
-        total = self.session.query(func.sum(PurchaseProformaLine.quantity * PurchaseProformaLine.price)).\
+        total = db.session.query(func.sum(PurchaseProformaLine.quantity * PurchaseProformaLine.price)).\
             select_from(Partner, PurchaseProforma, PurchaseProformaLine).\
                 where(PurchaseProformaLine.proforma_id == PurchaseProforma.id).\
                     where(PurchaseProforma.partner_id == Partner.id).\
                         where(Partner.id == partner_id).scalar() 
 
-        paid = self.session.query(func.sum(PurchasePayment.amount)).select_from(Partner, \
+        paid = db.session.query(func.sum(PurchasePayment.amount)).select_from(Partner, \
             PurchaseProforma, PurchasePayment).where(PurchaseProforma.partner_id == Partner.id).\
                 where(PurchasePayment.proforma_id == PurchaseProforma.id).\
                     where(Partner.id == partner_id).scalar() 
@@ -362,8 +363,13 @@ class Form(Ui_PurchaseProformaForm, QWidget):
         else:
             super().keyPressEvent(event)
 
-    def _formToProforma(self):
-        proforma = db.PurchaseProforma() 
+    def _formToProforma(self, input_proforma=None):
+        # Allow this method to be used in subclass in order to update proforma
+        if not input_proforma:
+            proforma = db.PurchaseProforma() 
+        else:
+            proforma = input_proforma
+
         proforma.type = int(self.type_combo_box.currentText())
         proforma.number = int(self.number_line_edit.text())
         proforma.date = self._dateFromString(self.date_line_edit.text())
@@ -421,12 +427,154 @@ class Form(Ui_PurchaseProformaForm, QWidget):
         except:
             raise 
         else:
-            QMessageBox.information(self, 'Information', 'Purchase saved successfully')
+            QMessageBox.information(self, 'Information',\
+                'Purchase saved successfully')
             self.close() 
-        
-class EditableForm(Ui_PurchaseProformaForm, QWidget):
+
+
+# Estoy hasta los huevos me voy a hinchar a poner ifs y a repetir codigo mas de lo ya 
+# hecho y a tomar por culo . 
+class EditableForm(Form):
     
-    def __init__(self, index):
-        super().__init__() 
+    def __init__(self, parent, proforma:db.PurchaseProforma):
+        super(QWidget, Form).__init__(self) 
+        self.setupUi(self)
+        self.parent = parent
+        self.proforma = proforma 
+        self.mixed.setChecked(proforma.mixed) 
+        self.mixed.setEnabled(False) 
+        self.type_combo_box.setEnabled(False) 
+        self.lines_view.setSelectionBehavior(QTableView.SelectRows)
+        self.title = 'Line - Error'
+
+        if proforma.mixed and proforma.order is not None:
+            self.lines_model = SemiEditableMixedPurchaseLineModel(proforma)
+        elif proforma.mixed and proforma.order is None:
+            self.lines_model = FullEditableMixedPurchaseLineModel(proforma)
+        elif not proforma.mixed and proforma.order is not None:
+            self.lines_model = SemiEditablePurchaseProformaModel(proforma)
+        elif not proforma.mixed and proforma.order is None:
+            self.lines_model = FullEditablePurchaseProformaModel(proforma) 
+
+        self.lines_view.setModel(self.lines_model) 
+        self.deleteButton.clicked.connect(self.deleteHandler)
+        self.addButton.clicked.connect(self.addHandler)
+        self.partner_line_edit.returnPressed.connect(self.partnerSearch)
+
+        self.setUp()
+
+    def partnerSearch(self):
+        super().partnerSearch() 
+
+    def setUp(self):
+
+        self.partner_name_to_id = {
+            partner.fiscal_name:partner.id for partner in db.session.query(db.Partner.id, db.Partner.fiscal_name).\
+                where(db.Partner.active == True)
+        }        
+
+        self.agent_name_to_id = {
+            agent.fiscal_name:agent.id for agent in db.session.query(db.Agent.id, db.Agent.fiscal_name).\
+                where(db.Agent.active == True)
+        }
+
+
+        self.warehouse_name_to_id = {
+            warehouse.description:warehouse.id for warehouse in db.session.query(db.Warehouse.id, db.Warehouse.description)
+        }
+
+        self.courier_name_to_id = {
+            courier.description:courier.id for courier in db.session.query(db.Courier.id, db.Courier.description)
+        }
+        
+
+        self.desc_to_item = {str(item):item for item in db.session.query(db.Item)}
+
+        self.mixed_descriptions = super().getMixedDescriptions()
+
+        self.specs = set() 
+        for r in db.session.query(PurchaseProformaLine.specification).distinct():
+            self.specs.add(r[0])
+
+        self.mixed_specs = self.specs.union({'Mixed'})
+
+        self.conditions = set() 
+        for r in db.session.query(PurchaseProformaLine.condition).distinct():
+            self.conditions.add(r[0])
+        self.mixed_conditions = self.conditions.union({'Mixed'})
+
+        super().setConditionsCompleter(mixed=self.proforma.mixed)
+        super().setDescriptionCompleter(mixed=self.proforma.mixed)
+        super().setSpecsCompleter(mixed=self.proforma.mixed)
+
+
+        m = QStringListModel()
+        m.setStringList(self.partner_name_to_id.keys())
+
+        c = QCompleter()
+        c.setFilterMode(Qt.MatchContains)
+        c.setCaseSensitivity(False)
+        c.setModel(m)
+
+        self.partner_line_edit.setCompleter(c) 
+
+        def priceOrQuantityChanged(value):
+            self.subtotal_spinbox.setValue(self.quantity_spinbox.value() * self.price_spinbox.value())
+        
+        def subtotalOrTaxChanged(value):
+            self.total_spinbox.setValue(self.subtotal_spinbox.value() * (1 + int(self.tax_combobox.currentText())/100))
+
+        self.price_spinbox.valueChanged.connect(priceOrQuantityChanged) 
+        self.quantity_spinbox.valueChanged.connect(priceOrQuantityChanged)
+        self.tax_combobox.currentIndexChanged.connect(subtotalOrTaxChanged)
+        self.subtotal_spinbox.valueChanged.connect(subtotalOrTaxChanged)
+
+        self.populate_combos()
+        self.proforma_to_form()        
+
+
+    def populate_combos(self):
+        self.warehouse_combobox.addItems(r[0] for r in \
+            db.session.query(db.Warehouse.description))
+        self.courier_combobox.addItems(r[0] for r in \
+            db.session.query(db.Courier.description))
+        self.agent_combobox.addItems(r[0] for r in \
+            db.session.query(db.Agent.fiscal_name).\
+                where(db.Agent.active == True))
+
+    def proforma_to_form(self):
+        p = self.proforma
+        self.mixed.setChecked(p.mixed)
+        self.type_combo_box.setCurrentText(str(p.type))
+        self.number_line_edit.setText(str(p.number))
+        self.date_line_edit.setText(p.date.strftime('%d%m%Y'))
+        self.eta_line_edit.setText(p.eta.strftime('%d%m%Y'))
+        self.partner_line_edit.setText(p.partner.fiscal_name)
+        self.agent_combobox.setCurrentText(p.agent.fiscal_name)
+        self.warehouse_combobox.setCurrentText(p.warehouse.description)
+        self.courier_combobox.setCurrentText(p.courier.description)
+        self.incoterms_combo_box.setCurrentText(p.incoterm)
+        self.warranty_spinbox.setValue(p.warranty)
+        self.days_credit_spinbox.setValue(p.credit_days)
+        self.eur_radio_button.setChecked(p.eur_currency)
+        self.with_credit_spinbox.setValue(p.credit_amount)
+        self.external_line_edit.setText(p.external)
+        self.tracking_line_edit.setText(p.tracking)
+        self.they_pay_they_ship_shipping_radio_button.setChecked(p.they_pay_they_ship)
+        self.we_pay_we_ship_shipping_radio_button.setChecked(p.we_pay_we_ship)
+        self.we_pay_they_ship_shipping_radio_button.setChecked(p.we_pay_they_ship)
         
     
+    def addHandler(self):
+        super().addHandler() 
+
+    def deleteHandler(self):
+        indexes = self.lines_view.selectedIndexes() 
+        if not indexes:
+            return
+        try:
+            self.lines_model.delete(indexes)
+        except: raise 
+
+    def save(self):
+        pass 

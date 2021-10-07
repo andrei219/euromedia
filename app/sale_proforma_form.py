@@ -28,22 +28,21 @@ class Form(Ui_SalesProformaForm, QWidget):
         super().__init__() 
         self.setupUi(self) 
         self.model = view.model() 
-        self.session = self.model.session 
         self.parent = parent
 
-        self.lines_model = SaleProformaLineModel(self.session)
+        self.lines_model = SaleProformaLineModel()
         self.lines_view.setModel(self.lines_model)
         self.lines_view.setSelectionBehavior(QTableView.SelectRows)
         self.stock_view.setSelectionBehavior(QTableView.SelectRows)
 
         
-        self.base_items = {str(item):item for item in self.session.query(db.Item)}
+        self.base_items = {str(item):item for item in db.session.query(db.Item)}
 
         self.base_specs = {spec[0] for spec in \
-            self.session.query(db.PurchaseProformaLine.specification).distinct()}
+            db.session.query(db.PurchaseProformaLine.specification).distinct()}
 
         self.base_conditions = {c[0] for c in \
-            self.session.query(db.PurchaseProformaLine.condition).distinct()}
+            db.session.query(db.PurchaseProformaLine.condition).distinct()}
 
         self.set_up_header() 
 
@@ -68,21 +67,21 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.date.setText(date.today().strftime('%d%m%Y'))
 
         self.partner_name_to_id = {
-            partner.fiscal_name:partner.id for partner in self.session.query(db.Partner.id, db.Partner.fiscal_name).\
+            partner.fiscal_name:partner.id for partner in db.session.query(db.Partner.id, db.Partner.fiscal_name).\
                 where(db.Partner.active == True)
         }
 
         self.agent_name_to_id = {
-            agent.fiscal_name:agent.id for agent in self.session.query(db.Agent.id, db.Agent.fiscal_name).\
+            agent.fiscal_name:agent.id for agent in db.session.query(db.Agent.id, db.Agent.fiscal_name).\
                 where(db.Agent.active == True)
         }
 
         self.warehouse_name_to_id = {
-            warehouse.description:warehouse.id for warehouse in self.session.query(db.Warehouse.id, db.Warehouse.description)
+            warehouse.description:warehouse.id for warehouse in db.session.query(db.Warehouse.id, db.Warehouse.description)
         }
 
         self.courier_name_to_id = {
-            courier.description:courier.id for courier in self.session.query(db.Courier.id, db.Courier.description)
+            courier.description:courier.id for courier in db.session.query(db.Courier.id, db.Courier.description)
         }
 
         self.warehouse.addItems(self.warehouse_name_to_id.keys())
@@ -118,7 +117,7 @@ class Form(Ui_SalesProformaForm, QWidget):
         except TypeError:
             raise 
             
-        result = self.session.query(Agent.fiscal_name, Partner.warranty, Partner.euro,\
+        result = db.session.query(Agent.fiscal_name, Partner.warranty, Partner.euro,\
             Partner.they_pay_they_ship, Partner.they_pay_we_ship, Partner.we_pay_we_ship,\
                 Partner.days_credit_limit).join(Agent).where(Partner.id == partner_id).one() 
 
@@ -137,16 +136,16 @@ class Form(Ui_SalesProformaForm, QWidget):
         from db import Partner, SaleProformaLine, SaleProforma, \
             SalePayment, func
         
-        max_credit = self.session.query(db.Partner.amount_credit_limit).\
+        max_credit = db.session.query(db.Partner.amount_credit_limit).\
             where(db.Partner.id == partner_id).scalar()
 
-        total = self.session.query(func.sum(SaleProformaLine.quantity * SaleProformaLine.price)).\
+        total = db.session.query(func.sum(SaleProformaLine.quantity * SaleProformaLine.price)).\
             select_from(Partner, SaleProforma, SaleProformaLine).\
                 where(SaleProformaLine.proforma_id == SaleProforma.id).\
                     where(SaleProforma.partner_id == Partner.id).\
                         where(Partner.id == partner_id).scalar() 
 
-        paid = self.session.query(func.sum(SalePayment.amount)).select_from(Partner, \
+        paid = db.session.query(func.sum(SalePayment.amount)).select_from(Partner, \
             SaleProforma, SalePayment).where(SaleProforma.partner_id == Partner.id).\
                 where(SalePayment.proforma_id == SaleProforma.id).\
                     where(Partner.id == partner_id).scalar() 

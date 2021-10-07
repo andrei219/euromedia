@@ -19,12 +19,13 @@ class ExcessLimitError(BaseException):
 
 class Register:
     
-    def __init__(self, sn, item, condition, spec, line):
+    def __init__(self, sn, item, condition, spec, line_id, line=None):
         self.sn = sn
         self.item = item 
         self.condition = condition
         self.spec = spec
-        self.line = line 
+        self.line_id = line_id 
+        self.line = line
 
     def __str__(self):
         return ' '.join([str(type(v)) for v in self.__dict__.values()])
@@ -47,12 +48,12 @@ class ProcessedDevicesStore:
                 self.container[key] = self.buildRegisters(line) 
 
     def buildRegisters(self, line):
-        return [Register(m.sn, str(m.item), m.condition, m.spec, m.line) for m in line.series]
+        return [Register(m.sn, str(m.item), m.condition, m.spec, m.line_id) for m in line.series]
 
     def __iter__(self):
         return iter(self.container[self.current_description_key])
 
-    def add(self, sn, item, condition, spec, line):
+    def add(self, sn, item, condition, spec, line_id, line):
         
         # global check 
         for description_key in self.container:
@@ -64,20 +65,13 @@ class ProcessedDevicesStore:
                 raise ExcessLimitError
 
             self.container[self.current_description_key].\
-                append(Register(sn, item, condition, spec, line)) 
+                append(Register(sn, item, condition, spec, line_id, line)) 
     
-    # def print(self):
-    #     for key in self.container:
-    #         print(key)
-    #         for r in self.container[key]:
-    #             print(' '*10, end=' ')
-    #             print(r)
-
-    def update(self, sn, item, condition, spec, line):
+    def update(self, sn, item, condition, spec, line_id):
         for key in self.container:
             for r in self.container[key]:
                 if r.sn == sn:
-                    r.item, r.condition, r.spec, r.line = item, condition, spec, line 
+                    r.item, r.condition, r.spec, r.line_id = item, condition, spec, line_id
                     break
 
     def delete(self, sn):
@@ -117,18 +111,17 @@ class ProcessedDevicesStore:
 
 class MixedReceptionForm(QDialog, Ui_MixedReceptionForm):
 
-    def __init__(self, parent, order, session):
+    def __init__(self, parent, order):
         super().__init__(parent=parent) 
         self.setupUi(self)
-        self.session = session
 
-        self.desc_to_item_id_holder = {str(item):item.id for item in self.session.query(db.Item)}
+        self.desc_to_item_id_holder = {str(item):item.id for item in db.session.query(db.Item)}
 
-        self.specs = {r[0] for r in self.session.query(db.PurchaseProformaLine.specification)}.\
-            union({r[0] for r in self.session.query(db.SpecificationChange.after)})
+        self.specs = {r[0] for r in db.session.query(db.PurchaseProformaLine.specification)}.\
+            union({r[0] for r in db.session.query(db.SpecificationChange.after)})
 
-        self.conditions = {r[0] for r in self.session.query(db.PurchaseProformaLine.condition)}.\
-            union({r[0] for r in self.session.query(db.ConditionChange.after)})
+        self.conditions = {r[0] for r in db.session.query(db.PurchaseProformaLine.condition)}.\
+            union({r[0] for r in db.session.query(db.ConditionChange.after)})
 
 
         self.order = order
@@ -225,7 +218,9 @@ class MixedReceptionForm(QDialog, Ui_MixedReceptionForm):
         self.line_total.setText(str(self.order.mixed_lines[self.current_index].quantity))
         self.condition.setText(self.order.mixed_lines[self.current_index].condition)
         self.spec.setText(self.order.mixed_lines[self.current_index].specification)
-        self.processed.setText(str(self._processed_in_line(self.order.mixed_lines[self.current_index])))
+        # self.processed.setText(str(self._processed_in_line(self.order.mixed_lines[self.current_index])))
+        self.processed.setText(str(self._processed_in_line()))
+        
         self.line_number.setText(str(self.current_index + 1) + '/' + str(self.total_lines))
         self.total_processed.setText(str(self._total_processed()))
         self.configure_line_fields_and_description_dict() 
@@ -275,8 +270,9 @@ class MixedReceptionForm(QDialog, Ui_MixedReceptionForm):
             sn = self.sn.text() 
             condition = self.actual_condition.text() 
             spec = self.actual_spec.text() 
-            # line = int(self.line_number.text().split('/')[0]) 
-            line = self.order.mixed_lines[self.current_index].id 
+            line_id, line = self.order.mixed_lines[self.current_index].id, \
+                self.order.mixed_lines[self.current_index]
+            
 
         if not condition:
             QMessageBox.critical(self, 'Error', 'Condition cannot be empty')
@@ -291,14 +287,14 @@ class MixedReceptionForm(QDialog, Ui_MixedReceptionForm):
             return 
 
         try:
-            self.processed_store.add(sn, desc, condition, spec, line)
+            self.processed_store.add(sn, desc, condition, spec, line_id, line)
             self.populateBody()
             self._set_defined_devices_model() 
             
         except AlreadyProcessedError:
             if QMessageBox.question(self, 'Update - Device', 'Device already processed. Update it ?', \
                 QMessageBox.Yes | QMessageBox.No) == QMessageBox.Yes:
-                    self.processed_store.update(sn, desc, condition, spec, line)
+                    self.processed_store.update(sn, desc, condition, spec, line_id)
                     self._set_defined_devices_model() 
         except ExcessLimitError:
             QMessageBox.critical(self, 'Error', 'You can not add more devices in this line')
@@ -389,7 +385,7 @@ class MixedReceptionForm(QDialog, Ui_MixedReceptionForm):
         self.view.setModel(self.defined_devices_model)
         self.view.selectionModel().selectionChanged.connect(self.defined_devices_selection_changed) 
     
-    def _processed_in_line(self, line):
+    def _processed_in_line(self):
         return self.processed_store.processed_in_line() 
 
     def _total_processed(self):
@@ -405,21 +401,19 @@ class MixedReceptionForm(QDialog, Ui_MixedReceptionForm):
 
 class EditableForm(MixedReceptionForm):
 
-    def __init__(self, parent, order, session):
+    def __init__(self, parent, order):
         super(QDialog, MixedReceptionForm).__init__(self)
-        # super().__init__(self, order, session)
         self.setupUi(self) 
         self.processed_store = ProcessedDevicesStore(order, editable=True)
         
-        self.session = session
 
-        self.desc_to_item_id_holder = {str(item):item.id for item in self.session.query(db.Item)}
+        self.desc_to_item_id_holder = {str(item):item.id for item in db.session.query(db.Item)}
 
-        self.specs = {r[0] for r in self.session.query(db.PurchaseProformaLine.specification)}.\
-            union({r[0] for r in self.session.query(db.SpecificationChange.after)})
+        self.specs = {r[0] for r in db.session.query(db.PurchaseProformaLine.specification)}.\
+            union({r[0] for r in db.session.query(db.SpecificationChange.after)})
 
-        self.conditions = {r[0] for r in self.session.query(db.PurchaseProformaLine.condition)}.\
-            union({r[0] for r in self.session.query(db.ConditionChange.after)})
+        self.conditions = {r[0] for r in db.session.query(db.PurchaseProformaLine.condition)}.\
+            union({r[0] for r in db.session.query(db.ConditionChange.after)})
 
 
         self.order = order
@@ -442,7 +436,7 @@ class EditableForm(MixedReceptionForm):
         self.commit.setDisabled(True)
         self.finish.setDisabled(True)
         self.all.setDisabled(True)
-        self.exit.clicked.connect(lambda : self.close)
+        self.exit.clicked.connect(lambda : self.close())
         self.sn.setDisabled(True)
         self.actual_condition.setDisabled(True)
         self.actual_spec.setDisabled(True)

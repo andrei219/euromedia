@@ -14,9 +14,6 @@ class WarehouseChange(Ui_WarehouseChange, QDialog):
     def __init__(self, parent):
         super().__init__(parent)
         self.setupUi(self) 
-
-        self.session = db.Session() 
-
         self.setUp()
 
     
@@ -26,7 +23,7 @@ class WarehouseChange(Ui_WarehouseChange, QDialog):
         self.sn.setFocus() 
 
         self.warehouses_name_to_id = {r.description: r.id for r in \
-            self.session.query(db.Warehouse.description, db.Warehouse.id)}
+            db.session.query(db.Warehouse.description, db.Warehouse.id)}
         self.warehouses_name_to_id[''] = 0 
 
         self.new_warehouse.addItems(self.warehouses_name_to_id.keys())
@@ -41,7 +38,7 @@ class WarehouseChange(Ui_WarehouseChange, QDialog):
     
     def searchAndPopulate(self):
         try:
-            self.db_result = self.session.query(db.Imei).join(db.Item).join(db.Warehouse).\
+            self.db_result = db.session.query(db.Imei).join(db.Item).join(db.Warehouse).\
                 where(db.Imei.imei == self.sn.text()).one() 
 
             self.description.setText(str(self.db_result.item))
@@ -77,7 +74,7 @@ class WarehouseChange(Ui_WarehouseChange, QDialog):
         self.db_result.warehouse_id = self.warehouses_name_to_id[self.new_warehouse.currentText()]
 
         try:
-            self.session.commit() 
+            db.session.commit() 
             self.reset() 
         except:
             raise             

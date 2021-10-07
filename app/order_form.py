@@ -13,11 +13,10 @@ from exceptions import NotExistingStockOutput
 
 class OrderForm(Ui_OrderForm, QDialog):
 
-    def __init__(self, parent, order, session, sale=False):
+    def __init__(self, parent, order, sale=False):
         super().__init__(parent=parent) 
         self.setupUi(self) 
         self.order = order
-        self.session = session
         self.current_index = 0 
         self.total_lines = len(order.lines)
         self.sale = sale 
@@ -144,5 +143,5 @@ class OrderForm(Ui_OrderForm, QDialog):
         return processed
 
     def _setModel(self, line):
-        self.model = SerieModel(self.session, line, self.order, self.sale) 
+        self.model = SerieModel(line, self.order, self.sale) 
         self.view.setModel(self.model) 

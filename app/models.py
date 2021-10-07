@@ -12,6 +12,7 @@ from sqlalchemy import select, func
 import db 
 import operator
 
+from copy import deepcopy
 
 from exceptions import DuplicateLine, SeriePresentError, LineCompletedError
 
@@ -41,8 +42,8 @@ class AgentModel(QtCore.QAbstractTableModel):
 	def __init__(self, search_key=None):
 		super().__init__()
 		self._headerData = ['Code', 'Agent', 'Phone Nº', 'E-mail', 'Country', 'Active'] 
-		self.session = db.Session() 
-		query = self.session.query(db.Agent)
+		# db.session = db.Session() 
+		query = db.session.query(db.Agent)
 		
 		if search_key:
 			query = query.filter(
@@ -109,13 +110,13 @@ class AgentModel(QtCore.QAbstractTableModel):
 		return super().flags(index) | Qt.ItemIsEditable
 
 	def add(self, agent):
-		self.session.add(agent)
+		db.session.add(agent)
 		try:
-			self.session.commit() 
+			db.session.commit() 
 			self.agents.append(agent) 
 			self.layoutChanged.emit() 
 		except:
-			self.session.rollback()
+			db.session.rollback()
 			raise 
 
 	def update(self, agent):
@@ -143,9 +144,9 @@ class AgentModel(QtCore.QAbstractTableModel):
 		old_agent.bank_routing = agent.bank_routing
 
 		try:
-			self.session.commit()
+			db.session.commit()
 		except:
-			self.session.rollback()
+			db.session.rollback()
 			raise
 		self.dataChanged.emit(QModelIndex(), QModelIndex())
 
@@ -154,15 +155,15 @@ class AgentModel(QtCore.QAbstractTableModel):
 			return
 		row = index.row() 
 		candidate_agent = self.agents[row]
-		self.session.delete(candidate_agent)
+		db.session.delete(candidate_agent)
 		try:
-			self.session.commit() 
+			db.session.commit() 
 			# Dont check ValueError, this code executes only if self.agents is populated
 			self.agents.remove(candidate_agent)
 			self.layoutChanged.emit() 
 
 		except IntegrityError:
-			self.session.rollback() 
+			db.session.rollback() 
 			raise 
 
 	def sort(self, section, order):
@@ -182,12 +183,12 @@ class DocumentModel(QtCore.QAbstractListModel):
 
 	def __init__(self, key, value, sqlAlchemyChildClass, sqlAlchemyParentClass):
 		super().__init__()
-		self.session = db.Session() 
+		# db.session = db.Session() 
 		self.key = key
 		self.value = value  
 		self.sqlAlchemyChildClass = sqlAlchemyChildClass
 		self.sqlAlchemyParentClass = sqlAlchemyParentClass
-		self.documents = self.session.query(sqlAlchemyChildClass). \
+		self.documents = db.session.query(sqlAlchemyChildClass). \
 			join(sqlAlchemyParentClass).where(getattr(sqlAlchemyChildClass, key) == value).all() 
 
 	def data(self, index, role=Qt.DisplayRole):
@@ -202,26 +203,26 @@ class DocumentModel(QtCore.QAbstractListModel):
 
 	def delete(self, index):
 		document = self.documents[index.row()]
-		self.session.delete(document)
+		db.session.delete(document)
 		try:
-			self.session.commit()
+			db.session.commit()
 			del self.documents[index.row()]
 			self.layoutChanged.emit()
 		except:
-			self.session.rollback()
+			db.session.rollback()
 			raise 
 
 
 	def add(self, filename, base64Pdf):
 		document = self.sqlAlchemyChildClass(name=filename, document=base64Pdf)
 		setattr(document, self.key, self.value)
-		self.session.add(document)        
+		db.session.add(document)        
 		try:
-			self.session.commit()
+			db.session.commit()
 			self.documents.append(document)
 			self.layoutChanged.emit() 
 		except:
-			self.session.rollback() 
+			db.session.rollback() 
 			raise 
 
 class PartnerModel(QtCore.QAbstractTableModel):
@@ -234,8 +235,8 @@ class PartnerModel(QtCore.QAbstractTableModel):
 
 		self._headerData = ['Code', 'Trading Name', 'Fiscal Name', 'Fiscal Number', 'Country', 'Contact', \
 			'Phone', 'E-mail', 'Active']
-		self.session = db.Session() 
-		query = self.session.query(db.Partner).outerjoin(db.PartnerContact)
+		# db.session = db.Session() 
+		query = db.session.query(db.Partner).outerjoin(db.PartnerContact)
 		if search_key:
 			query = query.filter(
 				or_(
@@ -294,13 +295,13 @@ class PartnerModel(QtCore.QAbstractTableModel):
 			self.layoutChanged.emit() 
 	
 	def add(self, partner):
-		self.session.add(partner)
+		db.session.add(partner)
 		try:
-			self.session.commit()
+			db.session.commit()
 			self.partners.append(partner)
 			self.layoutChanged.emit()
 		except:
-			self.session.rollback()
+			db.session.rollback()
 			raise 
 	
 	def delete(self, index):
@@ -308,13 +309,13 @@ class PartnerModel(QtCore.QAbstractTableModel):
 			return
 		row = index.row()
 		candidate_partner = self.partners[row]
-		self.session.delete(candidate_partner)
+		db.session.delete(candidate_partner)
 		try:
-			self.session.commit()
+			db.session.commit()
 			self.partners.remove(candidate_partner)
 			self.layoutChanged.emit()
 		except:
-			self.session.rollback()
+			db.session.rollback()
 			raise 
 
 	def col_to_data_map(self, col, partner:db.Partner):
@@ -416,14 +417,14 @@ class InvoiceModel(BaseTable, QtCore.QAbstractTableModel):
 		super().__init__() 
 		self._headerData = ['Type & Num', 'Date', 'Partner', 'Agent', 'Financial', \
 			'Logistic', 'Shipment', 'Owing', 'Total', 'From Proforma']
-		self.session = db.session
+		# db.session = db.session
 		self.name = 'invoices'
 		self.sale = sale 
 		self.Proforma = db.PurchaseProforma    
 		if sale:
 			self.Proforma = db.SaleProforma
 		
-		self.invoices = self.session.query(self.Proforma).where(self.Proforma.invoice != None).all()         
+		self.invoices = db.session.query(self.Proforma).where(self.Proforma.invoice != None).all()         
 
 	
 	def _totalDebt(self, invoice):
@@ -552,9 +553,7 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
 		self._headerData = ['Type & Num', 'Date', 'ETA', 'Partner', 'Agent', 'Financial', 'Logistic', \
 			'Shipment', 'Owing', 'Total', 'Mixed']
 		self.name = 'proformas'
-		db.session = db.Session() 
-		self.session = db.session 
-		query = self.session.query(db.PurchaseProforma) 
+		query = db.session.query(db.PurchaseProforma) 
 
 		if search_key:
 			query = query.join(db.Partner).join(db.Agent)
@@ -608,13 +607,14 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
 
 
 	def _totalQuantity(self, proforma):
-		return sum([line.quantity for line in proforma.lines]) + sum([line.quantity for line \
-			in proforma.mixed_lines])
-
+		return sum([line.quantity for line in proforma.mixed_lines]) if proforma.mixed \
+			else sum([line.quantity for line in  proforma.lines])
+		
 	def _totalProcessed(self, proforma):
 		processed = 0
 		try:
-			for line in proforma.order.lines:
+			lines = iter(proforma.order.mixed_lines) if proforma.mixed else iter(proforma.order.lines)
+			for line in lines:
 				for serie in line.series:
 					processed += 1
 			return processed
@@ -627,18 +627,13 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
 		row, col = index.row(), index.column()
 		proforma = self.proformas[row]
 
-		if col in (PurchaseProformaModel.FINANCIAL, PurchaseProformaModel.OWING, PurchaseProformaModel.TOTAL):
+		if col in (PurchaseProformaModel.FINANCIAL, PurchaseProformaModel.OWING, \
+			PurchaseProformaModel.TOTAL):
 			paid = self._paid(proforma) 
 			total_debt = self._totalDebt(proforma) 
 		elif col == PurchaseProformaModel.LOGISTIC:
 			total_quantity = self._totalQuantity(proforma)
-			try:
-				processed_quantity = 0 
-				for line in proforma.order.lines:
-					for serie in line.series:
-						processed_quantity+=1 
-			except AttributeError:
-				processed_quantity = 0 
+			processed_quantity = self._totalProcessed(proforma)
 
 		if role == Qt.DisplayRole:
 			if col == PurchaseProformaModel.TYPE_NUM:
@@ -666,12 +661,16 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
 						return 'They Owe'
 
 			elif col == PurchaseProformaModel.LOGISTIC:
+				
 				if processed_quantity == 0:
 					return "Empty"
 				elif 0 < processed_quantity < total_quantity:
 					return "Partially Received"
 				elif processed_quantity == total_quantity:
 					return 'Fully Received'
+			
+			
+			
 			elif col == PurchaseProformaModel.SENT:
 				return "Sent" if proforma.sent else "Not Sent"
 			elif col == PurchaseProformaModel.OWING:
@@ -729,17 +728,17 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
 				self.layoutChanged.emit() 
 
 	def add(self, proforma):
-		self.session.add(proforma)
+		db.session.add(proforma)
 		try:
-			self.session.commit()
+			db.session.commit()
 			self.proformas.append(proforma) 
 			self.layoutChanged.emit()   
 		except:
-			self.session.rollback()
+			db.session.rollback()
 			raise 
 	
 	def nextNumberOfType(self, type):
-		current_num = self.session.query(func.max(db.PurchaseProforma.number)). \
+		current_num = db.session.query(func.max(db.PurchaseProforma.number)). \
 			where(db.PurchaseProforma.type == type).scalar()  
 		return 1 if not current_num else current_num + 1 
 	
@@ -750,14 +749,14 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
 			if not p.cancelled:
 				p.cancelled = True 
 		try:
-			self.session.commit()
+			db.session.commit()
 			self.layoutChanged.emit() 
 		except:
-			self.session.rollback() 
+			db.session.rollback() 
 			raise 
 
 	def associateInvoice(self, proforma):
-		current_num = self.session.query(func.max(db.PurchaseInvoice.number)).\
+		current_num = db.session.query(func.max(db.PurchaseInvoice.number)).\
 			where(db.PurchaseInvoice.type == proforma.type).scalar() 
 		if current_num: 
 			next_num = current_num + 1 
@@ -765,39 +764,39 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
 			next_num = 1 
 		proforma.invoice = db.PurchaseInvoice(proforma.type, next_num)
 		try:
-			self.session.commit() 
+			db.session.commit() 
 			return proforma.invoice 
 			# Should reset PurchaseInvoice model through a reference to parent
 		except:
-			self.session.rollback() 
+			db.session.rollback() 
 			raise 
 
 	def ship(self, proforma, tracking):
 		proforma.tracking = tracking
 		proforma.sent = True
 		try:
-			self.session.commit()
+			db.session.commit()
 		except:
-			self.session.rollback()
+			db.session.rollback()
 			raise 
 
 	def toWarehouse(self, proforma, note):
 
 		order = db.PurchaseOrder(proforma, note) 
-		self.session.add(order) 
+		db.session.add(order) 
 		
 		if proforma.mixed :
 			for line in proforma.mixed_lines:
-				self.session.add(db.MixedPurchaseOrderLine(order, line.description, \
+				db.session.add(db.MixedPurchaseOrderLine(order, line.description, \
 					line.condition, line.specification, line.quantity))
 		else:
 			for line in proforma.lines:
-				self.session.add(db.PurchaseOrderLine(order, line.item, line.condition, \
+				db.session.add(db.PurchaseOrderLine(order, line.item, line.condition, \
 					line.specification, line.quantity))
 		try:
-			self.session.commit() 
+			db.session.commit() 
 		except:
-			self.session.rollback() 
+			db.session.rollback() 
 			raise
 
 class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
@@ -810,10 +809,7 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 			'Shipment', 'Owes', 'Total']
 		self.proformas = [] 
 		self.name = 'proformas'
-		# db.sale_session = db.Session() 
-		# self.session = db.sale_session
-		self.session = db.Session() 
-		query = self.session.query(db.SaleProforma) 
+		query = db.session.query(db.SaleProforma) 
 
 		if search_key:
 			query = query.join(db.Partner).join(db.Agent)
@@ -984,17 +980,17 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 				self.layoutChanged.emit() 
 
 	def add(self, proforma):
-		self.session.add(proforma)
+		db.session.add(proforma)
 		try:
-			self.session.commit()
+			db.session.commit()
 			self.proformas.append(proforma) 
 			self.layoutChanged.emit()   
 		except:
-			self.session.rollback()
+			db.session.rollback()
 			raise 
 	
 	def nextNumberOfType(self, type):
-		current_num = self.session.query(func.max(db.SaleProforma.number)). \
+		current_num = db.session.query(func.max(db.SaleProforma.number)). \
 			where(db.SaleProforma.type == type).scalar()  
 		if not current_num: # Means first number of type
 			return 1 
@@ -1008,14 +1004,14 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 			if not p.cancelled:
 				p.cancelled = True 
 		try:
-			self.session.commit()
+			db.session.commit()
 			self.layoutChanged.emit() 
 		except:
-			self.session.rollback() 
+			db.session.rollback() 
 			raise 
 
 	def associateInvoice(self, proforma):
-		current_num = self.session.query(func.max(db.SaleInvoice.number)).\
+		current_num = db.session.query(func.max(db.SaleInvoice.number)).\
 			where(db.SaleInvoice.type == proforma.type).scalar() 
 		if current_num: 
 			next_num = current_num + 1 
@@ -1023,31 +1019,31 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 			next_num = 1 
 		proforma.invoice = db.SaleInvoice(proforma.type, next_num)
 		try:
-			self.session.commit() 
+			db.session.commit() 
 			return proforma.invoice 
 		except:
-			self.session.rollback() 
+			db.session.rollback() 
 			raise 
 
 	def ship(self, proforma, tracking):
 		proforma.tracking = tracking
 		proforma.sent = True
 		try:
-			self.session.commit()
+			db.session.commit()
 		except:
-			self.session.rollback()
+			db.session.rollback()
 			raise 
 
 	def toWarehouse(self, proforma, note):
 		order = db.SaleOrder(proforma, note) 
-		self.session.add(order) 
+		db.session.add(order) 
 		for line in proforma.lines:
-			self.session.add(db.SaleOrderLine(order, line.item, line.condition,\
+			db.session.add(db.SaleOrderLine(order, line.item, line.condition,\
 				line.specification, line.quantity))    
 		try:
-			self.session.commit() 
+			db.session.commit() 
 		except:
-			self.session.rollback() 
+			db.session.rollback() 
 			raise
 
 	
@@ -1056,7 +1052,7 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 		lines_number = len(lines)
 		
 		for line in lines:
-			for stock in self.session.query(func.count(db.Imei.imei).label('quantity'), db.Imei.item_id, db.Imei.condition, \
+			for stock in db.session.query(func.count(db.Imei.imei).label('quantity'), db.Imei.item_id, db.Imei.condition, \
 				db.Imei.specification).join(Warehouse).where(Warehouse.id == warehouse_id).\
 					group_by(db.Imei.item_id, db.Imei.specification, db.Imei.condition):
 						if line.item_id == stock.item_id and line.condition == stock.condition and \
@@ -1089,11 +1085,10 @@ class SaleProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 	# simple type checking 
 
 
-	def __init__(self, session):
+	def __init__(self):
 		super().__init__() 
 		self._headerData = ['Description', 'Condition', 'Showing Condt.', 'Spec', \
 			'Ignoring Spec?','Qty.', 'Price', 'Subtotal', 'Tax', 'Total']   
-		self.session = session
 		self.name = '_lines'
 		self._lines = {}
 
@@ -1262,22 +1257,22 @@ class SaleProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 			line_s = self._lines[index]
 			if isinstance(line_s, db.SaleProformaLine):
 				line_s.proforma = proforma
-				self.session.add(line_s) 
+				db.session.add(line_s) 
 			elif isinstance(line_s, list):
 				for line in line_s:
 					line.proforma = proforma
 					line.mixed_group_id = last_group_number
-					self.session.add(line) 
+					db.session.add(line) 
 				last_group_number += 1 
 
 		try:
-			self.session.commit() 
+			db.session.commit() 
 		except:
-			self.session.rollback()
+			db.session.rollback()
 			raise 	
 	
 	def _get_last_group_number(self):
-		last_group_number = self.session.query(func.max(db.SaleProformaLine.mixed_group_id)).scalar()
+		last_group_number = db.session.query(func.max(db.SaleProformaLine.mixed_group_id)).scalar()
 		if last_group_number is None:
 			last_group_number = 0 
 		else:
@@ -1332,10 +1327,9 @@ class ProductModel(BaseTable, QtCore.QAbstractTableModel):
 	def __init__(self):
 
 		super().__init__() 
-		self.session = db.Session() 
 		self._headerData = ['Manufacturer', 'Category', 'Model', 'Capacity', 'Color']
 		self.name = 'items'
-		self.items = self.session.query(db.Item).all() 
+		self.items = db.session.query(db.Item).all() 
 		
 
 	def data(self, index, role=Qt.DisplayRole):
@@ -1356,14 +1350,14 @@ class ProductModel(BaseTable, QtCore.QAbstractTableModel):
 
 	def addItem(self, manufacturer, category, model, capacity, color):
 		item = db.Item(manufacturer, category, model, capacity, color) 
-		self.session.add(item)
+		db.session.add(item)
 
 		try:
-			self.session.commit()
+			db.session.commit()
 			self.items.append(item)
 			self.layoutChanged.emit() 
 		except:
-			self.session.rollback()
+			db.session.rollback()
 			raise 
 
 	def removeItem(self, index):
@@ -1371,21 +1365,21 @@ class ProductModel(BaseTable, QtCore.QAbstractTableModel):
 			return
 		row = index.row() 
 		candidate = self.items[row]
-		self.session.delete(candidate) 
+		db.session.delete(candidate) 
 		try:
-			self.session.commit() 
+			db.session.commit() 
 			del self.items[row]
 			self.layoutChanged.emit() 
 		except:
-			self.session.rollback()
+			db.session.rollback()
 			raise 
 
 class PurchaseProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 
-	def __init__(self, session):
+	def __init__(self):
 		super().__init__()
-		self._headerData = ['Description', 'Condition', 'Spec', 'Qty.', 'Price', 'Subtotal', 'Tax', 'Total']
-		self.session = session
+		self._headerData = ['Description', 'Condition', 'Spec', 'Qty.', \
+			'Price', 'Subtotal', 'Tax', 'Total']
 		self.name = 'lines'
 		self.lines = [] 
 
@@ -1458,24 +1452,167 @@ class PurchaseProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 	def save(self, proforma):
 		for line in self.lines:
 			line.proforma = proforma 
-			self.session.add(line) 
+			db.session.add(line) 
 		try:
-			self.session.commit() 
+			db.session.commit() 
 		except:
-			self.session.rollback() 
+			db.session.rollback() 
 			raise 
+
+
+from collections import namedtuple
+
+Line = namedtuple('Line', 'item condition specification quantity price tax')
+class FullEditablePurchaseProformaModel(QtCore.QAbstractTableModel):
+	
+	def __init__(self, proforma):
+		super().__init__() 
+		self._headerData = ['Description', 'Condition', 'Spec', 'Qty.', \
+			'Price', 'Subtotal', 'Tax', 'Total']
+		self.proforma = proforma
+		self.old_ids = set() 
+		self.initial_lines = [] 
+		for line in db.session.query(db.PurchaseProformaLine).\
+			where(db.PurchaseProformaLine.proforma_id == proforma.id):
+			self.old_ids.add(line.id)
+			self.initial_lines.append(Line(str(line.item), line.condition, line.specification, \
+				line.quantity, float(line.price), line.tax))
+		self.current_lines = deepcopy(self.initial_lines) 
+
+
+	def rowCount(self, index=QModelIndex()):
+		return len(self.current_lines) 
+
+	def columnCount(self, index=Qt.DisplayRole):
+		return len(self._headerData) 
+
+	def headerData(self, section, orientation, role = Qt.DisplayRole):
+		if role == Qt.TextAlignmentRole:
+			if orientation == Qt.Horizontal:
+				return Qt.AlignLeft | Qt.AlignVCenter
+			return Qt.AlignRight | Qt.AlignVCenter
+		if role != Qt.DisplayRole:
+			return 
+		if orientation == Qt.Horizontal:
+			return self._headerData[section]
+
+	def data(self, index, role=Qt.DisplayRole):
+		if not index.isValid():
+			return
+		row, column = index.row(), index.column() 
+		if role == Qt.DisplayRole:
+			line = self.current_lines[row]
+			total = (line.quantity * float(line.price)) * (1 + line.tax/100)
+			subtotal = line.quantity * line.price 
+			return {
+				0:str(line.item), 
+				1:line.condition,
+				2:line.specification, 
+				3:str(line.quantity), 
+				4:str(line.price), 
+				5:str(subtotal), 
+				6:str(line.tax), 
+				7:str(total)
+			}.get(column) 
+
+
+	@property
+	def tax(self):
+		return sum([line.quantity * line.price * line.tax / 100 for line in self.current_lines])
+
+	@property
+	def subtotal(self):
+		return sum([line.quantity * line.price for line in self.current_lines])
+	
+	@property
+	def total(self):
+		return self.tax + self.subtotal
+
+	def delete(self, indexes):
+		rows = {index.row() for index in indexes}
+		for row in sorted(rows, reverse=True):
+			try:
+				del self.current_lines[row]
+			except:pass 
+		self.layoutChanged.emit() 
+
+	def add(self, item, condition, specification, quantity, price, tax):
+		# str(item) here allows me to reuse method of the PurchaseProformaForm super class 
+		# I know this is fucking messy but I cant re-write 
+		# I need to finish this shit once forever
+		line = Line(str(item), condition, specification, quantity, price, tax)
+		if line in self.current_lines:
+			raise DuplicateLine
+
+		self.current_lines.append(line)
+		self.layoutChanged.emit() 
+	
+	
+	def __bool__(self):
+		return bool(self.current_lines) 
+		
+
+class SemiEditablePurchaseProformaModel(QtCore.QAbstractTableModel):
+	
+	def __init__(self, proforma):
+		super().__init__()  
+		self._headerData = ['Description', 'Condition', 'Spec', 'Qty.', \
+			'Price', 'Subtotal', 'Tax', 'Total']
+		self.proforma = proforma
+		self.frozen_lines = db.session.query(db.PurchaseProformaLine).\
+			where(db.PurchaseProformaLine.proforma_id == proforma.id).all() 
+		self.new_lines = [] 
+
+	def headerData(self, section, orientation, role = Qt.DisplayRole):
+		if role == Qt.TextAlignmentRole:
+			if orientation == Qt.Horizontal:
+				return Qt.AlignLeft | Qt.AlignVCenter
+			return Qt.AlignRight | Qt.AlignVCenter
+		if role != Qt.DisplayRole:
+			return 
+		if orientation == Qt.Horizontal:
+			return self._headerData[section]
+
+	def rowCount(self, index=QModelIndex()):
+		return len(self.frozen_lines) 
+		
+	def columnCount(self, index=QModelIndex()):
+		return len(self.header)
+
+	def data(self, index, role=Qt.DisplayRole):
+		if not index.isValid():
+			return
+		row, column = index.row(), index.column() 
+
+		if role == Qt.DisplayRole:
+			if 0 <= row < len(self.frozen_lines):
+				line = self.frozen_lines[row]
+				return self._get_data(row, self.frozen_lines) 
+			elif len(self.frozen_lines) <= row < len(self.frozen_lines) +len(self.new_lines):
+				row = row - len(self.frozen_lines)
+				return self._get_data(row - len(self.frozen_lines), self.new_lines)
+
+		elif role == Qt.DisplayRole:
+			if row < len(self.frozen_lines):
+				return QtGui.QColor('#F0A3A3')
+
+	def _get_data(self, row, lines):
+		return 'A'
+	
+
+
 
 class MixedPurchaseLineModel(BaseTable, QtCore.QAbstractTableModel):
 
-	def __init__(self, session):
+	def __init__(self):
 		super().__init__()
-		self._headerData = ['Description', 'Condition', 'Spec', 'Qty.', 'Price', 'Subtotal', 'Tax', 'Total']
-		self.session = session
+		self._headerData = ['Description', 'Condition', 'Spec', 'Qty.', \
+			'Price', 'Subtotal', 'Tax', 'Total']
 		self.name = 'lines'
 		self.lines = [] 
 
 
-	
+
 	def data(self, index, role=Qt.DisplayRole):
 		if not index.isValid():
 			return 
@@ -1515,9 +1652,10 @@ class MixedPurchaseLineModel(BaseTable, QtCore.QAbstractTableModel):
 
 
 	def add(self, description, condition, specification, quantity, price, tax):
-		line = db.MixedPurchaseLine(description, condition, specification, quantity, price, tax) 
+		line = db.MixedPurchaseLine(description, condition, specification, \
+			quantity, price, tax) 
 
-		if self._alreadyPresent(line):
+		if line in self.lines:
 			raise DuplicateLine
 
 		self.lines.append(line) 
@@ -1533,31 +1671,139 @@ class MixedPurchaseLineModel(BaseTable, QtCore.QAbstractTableModel):
 				pass 
 		self.layoutChanged.emit() 
 
-	def _alreadyPresent(self, line):
-		for _line in self.lines:
-			if _line.description == line.description and _line.specification == line.specification \
-				and _line.condition  == line.condition:
-					return True
-		else:
-			return False
-
 	def save(self, proforma):
 		for line in self.lines:
 			line.proforma = proforma 
-			self.session.add(line) 
+			db.session.add(line) 
 		try:
-			self.session.commit() 
+			db.session.commit() 
 		except:
-			self.session.rollback() 
+			db.session.rollback() 
 			raise      
+
+class SemiEditableMixedPurchaseLineModel(QtCore.QAbstractTableModel):
+
+	def __init__(self, proforma):
+		super().__init__() 
+		self._headerData = ['Description', 'Condition', 'Spec', 'Qty.', \
+			'Price', 'Subtotal', 'Tax', 'Total']
+		self.proforma = proforma 
+		self.frozen_lines = db.session.query(db.MixedPurchaseLine).\
+			where(db.MixedPurchaseLine.proforma_id == proforma.id).all() 
+		self.new_lines = []
+
+	def headerData(self, section, orientation, role = Qt.DisplayRole):
+		if role == Qt.TextAlignmentRole:
+			if orientation == Qt.Horizontal:
+				return Qt.AlignLeft | Qt.AlignVCenter
+			return Qt.AlignRight | Qt.AlignVCenter
+		if role != Qt.DisplayRole:
+			return 
+		if orientation == Qt.Horizontal:
+			return self._headerData[section]
+	
+	def rowCount(self, index=QModelIndex()):
+		return len(self.frozen_lines) 
+
+	def columnCount(self, index=QModelIndex()):
+		return len(self._headerData)
+
+	def data(self, index, role=Qt.DisplayRole):
+		if not index.isValid():
+			return
+		row, column = index.row(), index.column() 
+		if role == Qt.DisplayRole:
+			if 0 <= row < len(self.frozen_lines):
+				pass 
+
+			elif len(self.frozen_lines) <= row < len(self.frozen_lines) + len(self.new_lines):
+				pass 
+		
+		elif role == Qt.BackgroundRole:
+			if row < len(self.frozen_lines):
+				return QtGui.QColor('#F0A3A3') 
+	
+		
+	def add(self, description, condition, specification, quantity, price, tax):
+		line = db.MixedPurchaseLine(description, condition, specification, \
+			quantity, price, tax) 
+
+		if line in self.frozen_lines + self.new_lines:
+			raise DuplicateLine
+
+		self.new_lines.append(line)
+		self.layoutChanged() 
+
+	def delete(self, indexes):
+		rows = {index.row() for index in indexes}
+		frozen_rows = {i for i in range(len(self.frozen_lines))}
+		if rows.intersection(frozen_rows):
+			raise ValueError 
+		else:
+			for row in sorted(rows, reverse=True):
+				try: 
+					del self.new_lines[row]
+				except:pass 
+			self.layoutChanged() 
+	
+	def save(self):
+		for line in self.new_lines:
+			line.proforma = self.proforma
+			db.session.add(line)
+		try:
+			db.session.commit()
+		except:
+			db.session.rollback() 
+			raise 
+
+class FullEditableMixedPurchaseLineModel(QtCore.QAbstractTableModel):
+	
+	def __init__(self, proforma):
+		super().__init__()
+		self._headerData = ['Description', 'Condition', 'Spec', 'Qty.', \
+			'Price', 'Subtotal', 'Tax', 'Total']
+		self.proforma = proforma
+		self.initial_lines = []
+		self.old_ids = set()
+		for line in db.session.query(db.MixedPurchaseProformaLine).\
+			where(db.MixedPurchaseProformaLine.proforma_id==proforma.id):
+			self.old_ids.add(line.id)
+			self.initial_lines.append(Line((str.item), line.condition, line.specification, \
+				line.quantity, line.price, line.tax))
+			self.current_lines = deepcopy(self.initial_lines)
+
+
+	def headerData(self, section, orientation, role = Qt.DisplayRole):
+		if role == Qt.TextAlignmentRole:
+			if orientation == Qt.Horizontal:
+				return Qt.AlignLeft | Qt.AlignVCenter
+			return Qt.AlignRight | Qt.AlignVCenter
+		if role != Qt.DisplayRole:
+			return 
+		if orientation == Qt.Horizontal:
+			return self._headerData[section]
+
+	def rowCount(self, index=QModelIndex()):
+		return len(self.current_lines)
+	
+	def columnCount(self, index=QModelIndex()):
+		return len(self._headerData)
+
+	
+	def data(self, index, role=Qt.DisplayRole):
+		if not index.isValid():
+			return
+		row, column = index.row(), index.colum() 
+
+	def __bool__(self):
+		return bool(self.current_lines) 
 	
 
 
 class PaymentModel(BaseTable, QtCore.QAbstractTableModel):
 
-	def __init__(self, session, proforma, sale):
+	def __init__(self, proforma, sale):
 		super().__init__()
-		self.session = session 
 		self.proforma = proforma 
 		self._headerData = ['Date', 'Amount', 'Info']
 		self.name = 'payments'
@@ -1566,7 +1812,7 @@ class PaymentModel(BaseTable, QtCore.QAbstractTableModel):
 		else:
 			self.Payment = db.PurchasePayment
 
-		self.payments = self.session.query(self.Payment).\
+		self.payments = db.session.query(self.Payment).\
 			where(self.Payment.proforma.has(id=proforma.id)).all() 
 
 	def data(self, index, role=Qt.DisplayRole):
@@ -1590,24 +1836,24 @@ class PaymentModel(BaseTable, QtCore.QAbstractTableModel):
 
 	def add(self, date, amount, note):
 		payment = self.Payment(date, amount, note, self.proforma)
-		self.session.add(payment)
+		db.session.add(payment)
 		try:
-			self.session.commit()
+			db.session.commit()
 			self.payments.append(payment)
 			self.layoutChanged.emit() 
 		except:
-			self.session.rollback() 
+			db.session.rollback() 
 			raise 
 	
 	def delete(self, indexes):
 		rows = {index.row() for index in indexes}
 		for row in rows:
 			payment = self.payments[row]
-			self.session.delete(payment)
+			db.session.delete(payment)
 		try:
-			self.session.commit() 
+			db.session.commit() 
 		except:
-			self.session.rollback() 
+			db.session.rollback() 
 			raise 
 		else:
 			for row in sorted(rows, reverse=True):
@@ -1620,9 +1866,8 @@ class PaymentModel(BaseTable, QtCore.QAbstractTableModel):
 
 class ExpenseModel(BaseTable, QtCore.QAbstractTableModel):
 	
-	def __init__(self, session, proforma, sale):
+	def __init__(self,  proforma, sale):
 		super().__init__() 
-		self.session = session
 		self.proforma = proforma
 		self._headerData = ['Date', 'Amount', 'Info']
 		self.name = 'expenses'
@@ -1631,7 +1876,7 @@ class ExpenseModel(BaseTable, QtCore.QAbstractTableModel):
 		else:
 			self.Expense = db.PurchaseExpense
 
-		self.expenses = self.session.query(self.Expense).\
+		self.expenses = db.session.query(self.Expense).\
 			where(self.Expense.proforma.has(id=proforma.id)).all() 
 
 	def data(self, index, role=Qt.DisplayRole):
@@ -1652,24 +1897,24 @@ class ExpenseModel(BaseTable, QtCore.QAbstractTableModel):
 
 	def add(self, date, amount, info):
 		expense = self.Expense(date, amount, info, self.proforma)
-		self.session.add(expense)
+		db.session.add(expense)
 		try:
-			self.session.commit() 
+			db.session.commit() 
 			self.expenses.append(expense)
 			self.layoutChanged.emit() 
 		except:
-			self.session.rollback()
+			db.session.rollback()
 			raise 
 
 	def delete(self, indexes):
 		rows = {index.row() for index in indexes}
 		for row in rows:
 			expense = self.expenses[row]
-			self.session.delete(expense)
+			db.session.delete(expense)
 		try:
-			self.session.commit() 
+			db.session.commit() 
 		except:
-			self.session.rollback() 
+			db.session.rollback() 
 			raise 
 		else:
 			for row in sorted(rows, reverse=True):
@@ -1682,10 +1927,8 @@ class ExpenseModel(BaseTable, QtCore.QAbstractTableModel):
 
 class SerieModel(QtCore.QAbstractListModel):
 
-	def __init__(self, session, line, order, sale=False):
+	def __init__(self, line, order, sale=False):
 		super().__init__() 
-		self.session = session 
-
 		if sale:
 			self.Serie = db.SaleSerie
 			self.Line = db.SaleOrderLine
@@ -1695,10 +1938,10 @@ class SerieModel(QtCore.QAbstractListModel):
 			self.Line = db.PurchaseOrderLine
 			self.Order = db.PurchaseOrder
 
-		self.series = self.session.query(self.Serie).join(self.Line).\
+		self.series = db.session.query(self.Serie).join(self.Line).\
 			where(self.Serie.line_id == line.id).all()
 
-		self.series_at_order_level  = {r[0] for r in self.session.query(self.Serie.serie).join(self.Line).join(self.Order).\
+		self.series_at_order_level  = {r[0] for r in db.session.query(self.Serie.serie).join(self.Line).join(self.Order).\
 			where(self.Order.id == order.id)}
 
 
@@ -1713,26 +1956,26 @@ class SerieModel(QtCore.QAbstractListModel):
 		serie = self.Serie() 
 		serie.serie = _serie
 		serie.line = line 
-		self.session.add(serie) 
+		db.session.add(serie) 
 		try:
-			self.session.commit() 
+			db.session.commit() 
 			self.series.append(serie)
 			self.series_at_order_level.add(_serie)
 			self.layoutChanged.emit() 
 		except:
-			self.session.rollback() 
+			db.session.rollback() 
 			raise 
 
 	def delete(self, index):
 		serie = self.series[index.row()]
-		self.session.delete(serie) 
+		db.session.delete(serie) 
 		try:
-			self.session.commit() 
+			db.session.commit() 
 			del self.series[index.row()]
 			self.series_at_order_level.remove(serie.serie)
 			self.layoutChanged.emit() 
 		except:
-			self.session.rollback() 
+			db.session.rollback() 
 			raise 
 
 	def rowCount(self, index):
@@ -1757,7 +2000,6 @@ class OrderModel(BaseTable, QtCore.QAbstractTableModel):
 
 	def __init__(self, sale=False, search_key=None, filters=None):
 		super().__init__() 
-		self.session = db.Session() 
 		_headerData = ['Order_id', 'Warehouse', 'Total', 'Processed', 'Status','Partner', 'Agent', \
 			'Warning', 'From Proforma', 'Mixed']
 		self.name = 'orders' 
@@ -1774,7 +2016,7 @@ class OrderModel(BaseTable, QtCore.QAbstractTableModel):
 
 
 
-		query = self.session.query(Order).join(Proforma).join(db.Agent).join(db.Partner).join(db.Warehouse) 
+		query = db.session.query(Order).join(Proforma).join(db.Agent).join(db.Partner).join(db.Warehouse) 
 
 		if search_key:
 			clause = or_(
@@ -2306,9 +2548,8 @@ class InventoryModel(BaseTable, QtCore.QAbstractTableModel):
 	def __init__(self):
 		super().__init__()
 		self._headerData = ['Serie', 'Description', 'Condition', 'Specification', 'Warehouse']
-		self.session = db.Session() 
 		self.name = 'series'
-		self.series = self.session.query(db.Imei).join(Item).join(Warehouse).all() 
+		self.series = db.session.query(db.Imei).join(Item).join(Warehouse).all() 
 	
 	def data(self, index, role=Qt.DisplayRole):
 		if not index.isValid():
@@ -2363,11 +2604,9 @@ class DefinedDevicesModel(BaseTable, QtCore.QAbstractTableModel):
 
 	
 	def save(self):
-		session = db.Session() 
-		cnt = 0 
 		for key in self.processed_store.container:
 			for register in self.processed_store.container[key]:
-				session.add(db.MixedPurchaseSerie(
+				db.session.add(db.MixedPurchaseSerie(
 					self.desc_to_item_id[register.item], 
 					register.line, 
 					register.sn, 
@@ -2375,7 +2614,7 @@ class DefinedDevicesModel(BaseTable, QtCore.QAbstractTableModel):
 					register.spec
 				))
 		try:
-			session.commit()
+			db.session.commit()
 		except:
 			raise 
 
@@ -2429,8 +2668,7 @@ class WarehouseListModel(QtCore.QAbstractListModel):
 
 	def __init__(self):
 		super().__init__() 
-		self.session = db.Session() 
-		self.warehouses = [w for w in self.session.query(db.Warehouse)]
+		self.warehouses = [w for w in db.session.query(db.Warehouse)]
 		
 	def rowCount(self, index):
 		return len(self.warehouses)
@@ -2447,13 +2685,13 @@ class WarehouseListModel(QtCore.QAbstractListModel):
 		except IndexError:
 			return 
 		else:
-			self.session.delete(warehouse)
+			db.session.delete(warehouse)
 			try:
-				self.session.commit()
+				db.session.commit()
 				del self.warehouses[row]
 				self.layoutChanged.emit() 
 			except:
-				self.session.rollback() 
+				db.session.rollback() 
 				raise 
 	
 	def add(self, warehouse_name):
@@ -2461,37 +2699,11 @@ class WarehouseListModel(QtCore.QAbstractListModel):
 			raise ValueError 
 		
 		warehouse = db.Warehouse(warehouse_name)
-		self.session.add(warehouse)
+		db.session.add(warehouse)
 		try:
-			self.session.commit()
+			db.session.commit()
 			self.warehouses.append(warehouse)
 			self.layoutChanged.emit() 
 		except:
-			self.session.rollback() 
+			db.session.rollback() 
 			raise 
-
-
-class FakeLineModel(BaseTable, QtCore.QAbstractTableModel):
-
-	def __init__(self, session):
-		super().__init__()
-		self.session = session
-		self._headerData = ['Description', 'Condition','Showing Condition','Spec', 'Qty.', 'Price', 'Subtotal', 'Tax', 'Total']   
-
-		self.name = 'lines'
-		self.lines = [] 
-		
-	
-	def data(self, index, role=Qt.DisplayRole):
-		pass 
-
-	def delete(self, indexes):
-		pass 
-
-	def add(self):
-		pass 
-
-	def reset(self):
-		self.layoutAboutToBeChanged.emit()
-		self.lines = []
-		self.layoutChanged.emit()

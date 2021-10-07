@@ -13,9 +13,6 @@ class SpecChange(Ui_SpecChange, QDialog):
     def __init__(self, parent):
         super().__init__(parent=parent)
         self.setupUi(self) 
-
-        self.session = db.Session()
-
         self.setUp()         
         
 
@@ -25,8 +22,8 @@ class SpecChange(Ui_SpecChange, QDialog):
         self.sn.setFocus()
 
 
-        specs = { r[0] for r in self.session.query(db.PurchaseProformaLine.specification).distinct()}.\
-            union({r[0] for r in self.session.query(db.Imei.specification).distinct()})
+        specs = { r[0] for r in db.session.query(db.PurchaseProformaLine.specification).distinct()}.\
+            union({r[0] for r in db.session.query(db.Imei.specification).distinct()})
 
         m = QStringListModel()
         m.setStringList(specs)
@@ -57,7 +54,7 @@ class SpecChange(Ui_SpecChange, QDialog):
 
         self.db_result.specification = self.new_spec.text() 
         try:
-            self.session.commit() 
+            db.session.commit() 
             self.reset() 
         except:
             raise             
@@ -71,7 +68,7 @@ class SpecChange(Ui_SpecChange, QDialog):
     
     def searchAndPopulate(self):
         try:
-            self.db_result = self.session.query(db.Imei).join(db.Item).where(db.Imei.imei == self.sn.text()).one() 
+            self.db_result = db.session.query(db.Imei).join(db.Item).where(db.Imei.imei == self.sn.text()).one() 
 
             self.description.setText(str(self.db_result.item))
             self.current_spec.setText(self.db_result.specification)

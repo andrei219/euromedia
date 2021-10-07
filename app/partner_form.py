@@ -4,7 +4,7 @@ from PyQt5.QtCore import Qt
 
 from ui_partner_form import Ui_Partner_Form
 
-from db import Partner, PartnerDocument, Agent, Session, engine, Courier 
+from db import Partner, PartnerDocument, Agent, engine, Courier 
 
 from models import PartnerContactModel
 
@@ -14,6 +14,9 @@ import utils
 
 from sqlalchemy import select 
 
+
+import db 
+
 class PartnerForm(Ui_Partner_Form, QWidget):
 
     EDITABLE_MODE, NEW_MODE = 0, 1 
@@ -21,7 +24,6 @@ class PartnerForm(Ui_Partner_Form, QWidget):
     def __init__(self, parent, view, index=None):
         super().__init__()
         self.setupUi(self) 
-        self.session = view.model().session 
         self.partner_model = view.model() 
         self.parent = parent
         self.view = view 
@@ -88,11 +90,11 @@ class PartnerForm(Ui_Partner_Form, QWidget):
         if self.mode == PartnerForm.EDITABLE_MODE:
             self.formToPartner() 
             try:
-                self.session.commit()
+                db.session.commit()
                 QMessageBox.information(self, 'Partner - Update', 'Partner Updated Successfully')
                 self.close() 
             except:
-                self.session.rollback() 
+                db.session.rollback() 
                 QMessageBox.critical(self, 'Partner - Update ', ' Error Updating Partner')
 
         elif self.mode == PartnerForm.NEW_MODE:
@@ -162,10 +164,10 @@ class PartnerForm(Ui_Partner_Form, QWidget):
         self.partner.shipping_country = self.shipemnt_country_combobox.currentText() 
         
         try:
-            self.partner.agent = self.session.query(Agent).where(Agent.fiscal_name == \
+            self.partner.agent = db.session.query(Agent).where(Agent.fiscal_name == \
                 self.associated_agent_combobox.currentText()).one() 
         except:
-            pass 
+            raise
 
         self.partner.days_credit_limit = self.credit_days_spinbox.value()
         self.partner.amount_credit_limit = self.credit_amount_spinbox.value()

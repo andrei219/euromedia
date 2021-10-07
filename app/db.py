@@ -2,13 +2,14 @@ from sqlalchemy import create_engine, event, insert, select, update, delete, and
 from sqlalchemy.sql import func
 from sqlalchemy.orm import sessionmaker, scoped_session
 
-engine = create_engine('mysql+mysqlconnector://root:hnq#4506@localhost:3306/appdb', echo=True) 
+engine = create_engine('mysql+mysqlconnector://root:hnq#4506@localhost:3306/appdb', echo=False) 
 
 # pool_size=20, max_overflow=0)
 
 # engine = create_engine('sqlite:///euro.db')
 
 Session = scoped_session(sessionmaker(bind=engine, autoflush=False))
+session = Session() 
 
 from datetime import datetime
 
@@ -22,9 +23,6 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, backref
 
 Base = declarative_base() 
-
-session = Session() 
-
 
 def refresh_session():
     global Session, session 
@@ -305,6 +303,17 @@ class PurchaseProformaLine(Base):
         self.specification = specification
 
 
+    def __hash__(self):
+        return hash(''.join([str(self.item), self.condition, self.specification, str(self.tax)]))
+
+    def __eq__(self, other):
+        if self.item == other.item and self.tax == other.tax \
+            and self.specification == other.specification and self.condition\
+                == other.condition:
+                    return True
+        return False 
+
+
 class MixedPurchaseLine(Base):
 
     __tablename__ = 'mixed_purchase_lines'
@@ -329,6 +338,15 @@ class MixedPurchaseLine(Base):
         self.tax = tax 
         self.specification = specification
 
+    def __hash__(self):
+        return hash(''.join([self.description, self.condition, self.specification, str(self.tax)]))
+
+    def __eq__(self, other):
+        if self.description == other.description and self.tax == other.tax \
+            and self.specification == other.specification and self.condition\
+                == other.condition:
+                    return True
+        return False 
 
 class PurchaseDocument(Base):
     
@@ -680,7 +698,6 @@ class MixedPurchaseOrderLine(Base):
     description = Column(String(100), nullable=False)
     condition = Column(String(50), nullable=False)
     specification = Column(String(50), nullable=False)
-
     quantity = Column(Integer, nullable=False)
 
     order = relationship('PurchaseOrder', backref=backref('mixed_lines'))
@@ -707,9 +724,10 @@ class MixedPurchaseSerie(Base):
     item = relationship('Item', uselist=False)
     line = relationship('MixedPurchaseOrderLine', backref=backref('series'))
 
-    def __init__(self, item_id, line_id, sn, condition, spec):
+    def __init__(self, item_id, line, sn, condition, spec):
         self.item_id = item_id
-        self.line_id = line_id
+        # self.line_id = line_id
+        self.line = line 
         self.sn = sn 
         self.condition = condition
         self.spec = spec
@@ -754,20 +772,20 @@ class Imei(Base):
     item = relationship('Item', uselist=False) 
     warehouse = relationship('Warehouse', uselist=False) 
 
-class EagerImeiOutput(Base):
+# class EagerImeiOutput(Base):
     
-    __tablename__ = 'eager_outputs'
+#     __tablename__ = 'eager_outputs'
 
-    imei = Column(String(50), primary_key=True)
+#     imei = Column(String(50), primary_key=True)
 
-    item_id = Column(Integer, ForeignKey('items.id'), nullable=False)
-    condition = Column(String(50))
-    specification = Column(String(50))
-    warehouse_id = Column(Integer, ForeignKey('warehouses.id'))
+#     item_id = Column(Integer, ForeignKey('items.id'), nullable=False)
+#     condition = Column(String(50))
+#     specification = Column(String(50))
+#     warehouse_id = Column(Integer, ForeignKey('warehouses.id'))
 
 
-    item = relationship('Item', uselist=False) 
-    warehouse = relationship('Warehouse', uselist=False) 
+#     item = relationship('Item', uselist=False) 
+#     warehouse = relationship('Warehouse', uselist=False) 
 
 
 def create_and_populate(): 
@@ -1013,6 +1031,17 @@ def create_imeis():
     session.commit()
 
 
+@event.listens_for(MixedPurchaseSerie, 'after_insert')
+def insert_imei_after_mixed_purchase(mapper, connection, target):
+    stmt = insert(Imei).values(
+        imei = target.sn, 
+        item_id = target.item_id, 
+        condition = target.condition, 
+        specification = target.spec, 
+        warehouse_id = target.line.order.proforma.warehouse_id
+    )
+    connection.execute(stmt) 
+
 @event.listens_for(PurchaseSerie, 'after_insert')
 def insert_imei_after_purchase(mapper, connection, target):
     stmt = insert(Imei).values(
@@ -1024,9 +1053,7 @@ def insert_imei_after_purchase(mapper, connection, target):
     )
     connection.execute(stmt)
 
-
 # from exceptions import NotExistingStockOutput
-
 
 @event.listens_for(PurchaseSerie, 'after_delete')
 def delete_imei_after_purchase(mapper, connection, target):
@@ -1098,6 +1125,5 @@ class ConditionChange(Base):
 # Patch to ser objects 
 # Bad practice, no time for better solution 
 if __name__ == '__main__':
-    
 
     create_and_populate() 

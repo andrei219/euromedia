@@ -10,11 +10,11 @@ from models import ExpenseModel
 
 class ExpenseForm(Ui_ExpenseForm, QDialog):
 
-    def __init__(self, parent, proforma, session, sale=False):
+    def __init__(self, parent, proforma,  sale=False):
         super().__init__(parent)
         self.setupUi(self)
         self.proforma = proforma
-        self.model = ExpenseModel(session, proforma, sale)
+        self.model = ExpenseModel(proforma, sale)
         self.view.setModel(self.model) 
 
         self.add_button.pressed.connect(self.addExpense)
