@@ -42,7 +42,6 @@ class AgentModel(QtCore.QAbstractTableModel):
 	def __init__(self, search_key=None):
 		super().__init__()
 		self._headerData = ['Code', 'Agent', 'Phone Nº', 'E-mail', 'Country', 'Active'] 
-		# db.session = db.Session() 
 		query = db.session.query(db.Agent)
 		
 		if search_key:
@@ -183,7 +182,6 @@ class DocumentModel(QtCore.QAbstractListModel):
 
 	def __init__(self, key, value, sqlAlchemyChildClass, sqlAlchemyParentClass):
 		super().__init__()
-		# db.session = db.Session() 
 		self.key = key
 		self.value = value  
 		self.sqlAlchemyChildClass = sqlAlchemyChildClass
@@ -235,7 +233,6 @@ class PartnerModel(QtCore.QAbstractTableModel):
 
 		self._headerData = ['Code', 'Trading Name', 'Fiscal Name', 'Fiscal Number', 'Country', 'Contact', \
 			'Phone', 'E-mail', 'Active']
-		# db.session = db.Session() 
 		query = db.session.query(db.Partner).outerjoin(db.PartnerContact)
 		if search_key:
 			query = query.filter(
@@ -417,7 +414,6 @@ class InvoiceModel(BaseTable, QtCore.QAbstractTableModel):
 		super().__init__() 
 		self._headerData = ['Type & Num', 'Date', 'Partner', 'Agent', 'Financial', \
 			'Logistic', 'Shipment', 'Owing', 'Total', 'From Proforma']
-		# db.session = db.session
 		self.name = 'invoices'
 		self.sale = sale 
 		self.Proforma = db.PurchaseProforma    
@@ -1547,7 +1543,41 @@ class FullEditablePurchaseProformaModel(QtCore.QAbstractTableModel):
 		self.current_lines.append(line)
 		self.layoutChanged.emit() 
 	
+	def changed(self):
+		return self.initial_lines != self.current_lines
 	
+	def save(self):
+		
+		print(self.current_lines)
+
+		return 
+
+		if self.changed():
+			# delete initial
+			# add new objects 
+			sql_statement = db.PurchaseProformaLine.__table__.delete().\
+				where(db.PurchaseProformaLine.id.in_(self.old_ids)) 
+
+			db.session.execute(sql_statement)
+			try:
+				db.session.commit()
+			except:
+				db.session.rollback()
+				raise 
+		
+			for line in self.current_lines:
+				print(line) 
+				db.session.add(
+					db.PurchaseProformaLine(items[line.item], line.condition, line.specification, \
+						line.price, line.quantity, line.tax) 
+				)
+			try:
+				db.session.commit() 
+			except:
+				db.session.rollback()
+				raise 
+
+
 	def __bool__(self):
 		return bool(self.current_lines) 
 		
@@ -2706,4 +2736,92 @@ class WarehouseListModel(QtCore.QAbstractListModel):
 			self.layoutChanged.emit() 
 		except:
 			db.session.rollback() 
+			raise 
+
+
+class ConditionListModel(QtCore.QAbstractListModel):
+
+	def __init__(self):
+		super().__init__()
+		self.conditions = [ c for c in db.session.query(db.Condition)]
+	
+	def rowCount(self, index=QModelIndex()):
+		return len(self.conditions)
+	
+	def data(self, index, role=Qt.DisplayRole):
+		if not index.isValid():
+			return
+		if role == Qt.DisplayRole:
+			return self.conditions[index.row()].description
+	
+	def delete(self, row):
+		try:
+			condition = self.conditions[row]
+		except:
+			return
+		else:
+			db.session.delete(condition)
+			try:
+				db.session.commit()
+				del self.conditions[row]
+				self.layoutChanged.emit()
+			except:
+				db.session.rollback()
+				raise 
+		
+	
+	def add(self, condition_name):
+		if condition_name in self.conditions:
+			raise ValueError
+		condition = db.Condition(condition_name)
+		db.session.add(condition)
+		try:
+			db.session.commit()
+			self.conditions.append(condition)
+			self.layoutChanged.emit()
+		except:
+			db.session.rollback()
+			raise 
+	
+
+class SpecListModel(QtCore.QAbstractListModel):
+
+	def __init__(self):
+		super().__init__()
+		self.specs = [s for s in db.session.query(db.Spec)]
+	
+	def rowCount(self, index=QModelIndex()):
+		return len(self.specs)
+	
+	def data(self, index, role=Qt.DisplayRole):
+		if not index.isValid():return
+		if role == Qt.DisplayRole:
+			return self.specs[index.row()].description
+		
+	def delete(self, row):
+		try:
+			spec = self.specs[row]
+		except IndexError: return
+		else:
+			db.session.delete(spec)
+			try:
+				db.session.commit()
+				del self.specs[row]
+				self.layoutChanged.emit()
+			except:
+				db.session.rollback()
+				raise 
+
+	def add(self, spec_name):
+		if spec_name in self.specs:
+			raise ValueError
+		
+		spec = db.Spec(spec_name)
+		db.session.add(spec)
+		try:
+			db.session.commit()
+			self.specs.append(spec)
+			self.layoutChanged.emit()
+		except:
+			db.session.rollback()
 			raise 

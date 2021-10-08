@@ -1073,7 +1073,14 @@ class MainGui(Ui_MainGui, QMainWindow):
 
     def createWarehouseHandler(self):
         from warehouse import Form
-
+        Form(self).exec_() 
+    
+    def createConditionHandler(self):
+        from condition import Form
+        Form(self).exec_() 
+    
+    def createSpecHandler(self):
+        from spec import Form
         Form(self).exec_() 
 
     def setUpAgentsModelAndView(self, search_key=None):
@@ -1201,6 +1208,9 @@ class MainGui(Ui_MainGui, QMainWindow):
         self.change_condition.clicked.connect(self.changeCondtionHandler)
         self.change_warehouse.clicked.connect(self.changeWarehouseHandler)
         self.create_warehouse.clicked.connect(self.createWarehouseHandler)
+        self.create_spec.clicked.connect(self.createSpecHandler)
+        self.create_condition.clicked.connect(self.createConditionHandler) 
+
 
     def tabChanged(self, index):
         # Clean up the filters also 

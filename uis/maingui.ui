@@ -62,7 +62,7 @@
 font: 8pt &quot;Verdana&quot;;</string>
     </property>
     <property name="currentIndex">
-     <number>2</number>
+     <number>6</number>
     </property>
     <property name="iconSize">
      <size>
@@ -5311,6 +5311,38 @@ font: 8pt &quot;Verdana&quot;;</string>
       </property>
       <property name="text">
        <string>Create Warehouse</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="create_spec">
+      <property name="geometry">
+       <rect>
+        <x>590</x>
+        <y>470</y>
+        <width>141</width>
+        <height>61</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background:lightgray; </string>
+      </property>
+      <property name="text">
+       <string>Create Spec</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="create_condition">
+      <property name="geometry">
+       <rect>
+        <x>850</x>
+        <y>470</y>
+        <width>141</width>
+        <height>61</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background:lightgray; </string>
+      </property>
+      <property name="text">
+       <string>Create Condition</string>
       </property>
      </widget>
     </widget>

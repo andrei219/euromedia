@@ -40,6 +40,12 @@ class Warehouse(Base):
     def __init__(self, description):
         self.description = description 
 
+    def __eq__(self, other):
+        if type(other) is Warehouse:
+            return self.description == other.description
+        elif type(other) is str:
+            return self.description == other
+
 class Courier(Base):
     __tablename__ = 'couriers'
 
@@ -49,6 +55,42 @@ class Courier(Base):
 
     def __init__(self, description):
         self.description = description
+
+
+class Spec(Base):
+
+    __tablename__ = 'specs'
+
+    id = Column(Integer, primary_key=True)
+
+    description = Column(String(50), nullable=False, unique=True)
+
+    def __init__(self, description):
+        self.description = description
+
+    def __eq__(self, other):
+        if type(other) is Spec:
+            return self.description == other.description
+        elif type(other) is str:
+            return self.description == other
+
+
+class Condition(Base):
+
+    __tablename__ = 'conditions'
+
+    id = Column(Integer, primary_key=True)
+
+    description = Column(String(50), nullable=False, unique=True)
+
+    def __init__(self, description):
+        self.description = description
+
+    def __eq__(self, other):
+        if type(other) is Condition:
+            return self.description == other.description
+        elif type(other) is str:
+            return self.description == other
 
 class Item(Base):
 
@@ -804,6 +846,12 @@ def create_and_populate():
 
     session = Session() 
 
+    for spec in [Spec('EEUU'), Spec('JAPAN'), Spec('FRANCE'), Spec('SPAIN')]:
+        session.add(spec)
+    
+    for condition in [Condition('NEW'), Condition('USED'), Condition('A+'), Condition('A+/A-'), Condition('B+')]:
+        session.add(condition)
+
     agent = Agent() 
 
     agent.fiscal_name = 'Andrei Enache'
@@ -903,7 +951,7 @@ def create_and_populate():
     proforma.courier = Courier('USP')
     proforma.eur_currency = True
     proforma.incoterm = 'FOB'
-
+    proforma.we_pay_we_ship = True
 
     proforma.lines = [
         PurchaseProformaLine(item1, 'NEW', 'EEUU', 100.0, 10, 21), 
@@ -940,7 +988,7 @@ def create_and_populate():
     proforma.courier = Courier('XXX')
     proforma.eur_currency = True
     proforma.incoterm = 'FOB'
-
+    proforma.they_pay_they_ship = True
 
     proforma.lines = [
         PurchaseProformaLine(item2, 'A+/B', 'JAPAN', 100.0, 10, 21), 
@@ -1125,5 +1173,9 @@ class ConditionChange(Base):
 # Patch to ser objects 
 # Bad practice, no time for better solution 
 if __name__ == '__main__':
-
-    create_and_populate() 
+    import sys 
+    try:
+        if sys.argv[1] == 'empty':
+            Base.metadata.create_all(engine) 
+    except IndexError:
+        create_and_populate() 
