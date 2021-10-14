@@ -105,7 +105,7 @@ class OrderForm(Ui_OrderForm, QDialog):
         self.description_line_edit.setText(self._buildDescription(self.order.lines[self.current_index].item))
         self.line_total_line_edit.setText(str(self.order.lines[self.current_index].quantity))
         self.condition_line_edit.setText(self.order.lines[self.current_index].condition)
-        self.spec_line_edit.setText(self.order.lines[self.current_index].specification) 
+        self.spec_line_edit.setText(self.order.lines[self.current_index].spec) 
         self.processed_line_edit.setText(str(self._processed(self.order.lines[self.current_index])))
         self.number_line_edit.setText(str(self.current_index + 1) + '/' + str(self.total_lines))
         self.total_processed_line_edit.setText(str(self._totalProcessed()))

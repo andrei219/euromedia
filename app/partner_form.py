@@ -37,8 +37,11 @@ class PartnerForm(Ui_Partner_Form, QWidget):
 
         self.setUpHandlers() 
 
-        agent_names = [r[0] for r in engine.execute(select(Agent.fiscal_name).\
-            where(Agent.active == True))]
+        # agent_names = [r[0] for r in engine.execute(select(Agent.fiscal_name).\
+        #     where(Agent.active == True))]
+
+        agent_names = [r[0] for r in db.session.query(Agent.fiscal_name).\
+            where(Agent.active == True)]
 
         self.associated_agent_combobox.addItems(agent_names)
         
@@ -79,14 +82,9 @@ class PartnerForm(Ui_Partner_Form, QWidget):
         f.exec_() 
 
     def saveButtonHandler(self):
-
         if not self.partner.contacts:
             QMessageBox.critical(self, 'Partner - Update', 'At least one contact must be provided!')
             return 
-
-        for contact in self.partner.contacts:
-            print(contact.name)
-
         if self.mode == PartnerForm.EDITABLE_MODE:
             self.formToPartner() 
             try:
@@ -254,6 +252,9 @@ class PartnerForm(Ui_Partner_Form, QWidget):
         #     QMessageBox.critical(self, 'Error - Update', 'You need to provide at least one contact')
         #     event.ignore()
 
+        if not self.partner.contacts:
+            QMessageBox.critical(self, 'Error', 'At least one contact mus be provided')
+            event.ignore()
         try:
             self.parent.opened_windows_classes.remove(self.__class__)
         except:

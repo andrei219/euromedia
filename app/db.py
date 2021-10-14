@@ -14,9 +14,9 @@ session = Session()
 from datetime import datetime
 
 from sqlalchemy import ( 
-    Table, Column, Integer, Numeric, String, Enum, DateTime, 
+    Table, Column, Integer, String, Enum, DateTime, 
     ForeignKey, UniqueConstraint, SmallInteger, Boolean, LargeBinary,
-    Date, CheckConstraint
+    Date, CheckConstraint, FLOAT
 )
 
 from sqlalchemy.ext.declarative import declarative_base
@@ -144,10 +144,10 @@ class Agent(Base):
     country = Column(String(50), default='Spain')
     
     # Optional, check when populating form:
-    fixed_salary = Column(Numeric(10, 2))
-    from_profit = Column(Numeric(10, 2))
-    from_turnover = Column(Numeric(10, 2))
-    fixed_perpiece = Column(Numeric(10, 2))
+    fixed_salary = Column(FLOAT(10, 2))
+    from_profit = Column(FLOAT(10, 2))
+    from_turnover = Column(FLOAT(10, 2))
+    fixed_perpiece = Column(FLOAT(10, 2))
     bank_name = Column(String(50))
     iban = Column(String(50))
     swift = Column(String(50))
@@ -185,7 +185,7 @@ class Partner(Base):
     trading_name = Column(String(50), nullable=False, unique=True)
     warranty = Column(Integer, default=0)
     note = Column(String(255))
-    amount_credit_limit = Column(Numeric(10, 2), default=0)
+    amount_credit_limit = Column(FLOAT(10, 2), default=0)
     days_credit_limit = Column(Integer, default=0)
     
     agent_id = Column(Integer, ForeignKey('agents.id')) 
@@ -285,7 +285,6 @@ class PurchaseProforma(Base):
     cancelled = Column(Boolean, nullable=False, default=False)
     sent = Column(Boolean, nullable=False, default=False) 
     note = Column(String(255))
-    mixed = Column(Boolean, nullable=False, default=False)
 
     eur_currency = Column(Boolean, nullable=False, default=True)
 
@@ -304,12 +303,12 @@ class PurchaseProforma(Base):
     courier = relationship('Courier', uselist=False)
     warehouse = relationship('Warehouse', uselist=False)
     agent = relationship('Agent', uselist=False)
-    order = relationship('PurchaseOrder', uselist=False, back_populates='proforma') 
+    reception = relationship('Reception', uselist=False, back_populates='proforma') 
 
     tracking = Column(String(50))
     external = Column(String(50))
 
-    credit_amount = Column(Numeric(10, 2), nullable=False, default=0)
+    credit_amount = Column(FLOAT(10, 2), nullable=False, default=0)
     credit_days = Column(Integer, default=0, nullable=False) 
 
     incoterm = Column(String(3), nullable=False)
@@ -325,70 +324,18 @@ class PurchaseProformaLine(Base):
     
     id = Column(Integer, primary_key=True)
     proforma_id = Column(Integer, ForeignKey('purchase_proformas.id')) 
-    item_id = Column(Integer, ForeignKey('items.id'))
-    condition = Column(String(50), nullable=False)
-    specification = Column(String(50), nullable=False)
+    item_id = Column(Integer, ForeignKey('items.id'), nullable=True)
+    description = Column(String(100), nullable=True)
+    condition = Column(String(50), nullable=True)
+    spec = Column(String(50), nullable=True)
 
     quantity = Column(Integer, nullable=False)
-    price = Column(Numeric(10, 2), nullable=False)
-    tax = Column(Integer, nullable=False)
+    price = Column(FLOAT(10, 2), nullable=False, default=1.0)
+    tax = Column(Integer, nullable=False, default=0)
 
     item = relationship('Item', uselist=False)
     proforma = relationship('PurchaseProforma', backref=backref('lines'))
-
-    def __init__(self, item, condition, specification, price, quantity, tax):
-        self.quantity = quantity
-        self.price = price 
-        self.item = item 
-        self.condition = condition
-        self.tax = tax 
-        self.specification = specification
-
-
-    def __hash__(self):
-        return hash(''.join([str(self.item), self.condition, self.specification, str(self.tax)]))
-
-    def __eq__(self, other):
-        if self.item == other.item and self.tax == other.tax \
-            and self.specification == other.specification and self.condition\
-                == other.condition:
-                    return True
-        return False 
-
-
-class MixedPurchaseLine(Base):
-
-    __tablename__ = 'mixed_purchase_lines'
-
-    id = Column(Integer, primary_key=True)
-    proforma_id = Column(Integer, ForeignKey('purchase_proformas.id'))
-    description = Column(String(100), nullable=False)
-    condition = Column(String(50), nullable=False)
-    specification = Column(String(50), nullable=False)
-
-    quantity = Column(Integer, nullable=False)
-    price = Column(Numeric(10, 2), nullable=False)
-    tax = Column(Integer, nullable=False)
-
-    proforma = relationship('PurchaseProforma', backref=backref('mixed_lines'))
-
-    def __init__(self, description, condition, specification, quantity, price, tax):
-        self.quantity = quantity
-        self.price = price 
-        self.description = description 
-        self.condition = condition
-        self.tax = tax 
-        self.specification = specification
-
-    def __hash__(self):
-        return hash(''.join([self.description, self.condition, self.specification, str(self.tax)]))
-
-    def __eq__(self, other):
-        if self.description == other.description and self.tax == other.tax \
-            and self.specification == other.specification and self.condition\
-                == other.condition:
-                    return True
-        return False 
+    
 
 class PurchaseDocument(Base):
     
@@ -430,7 +377,7 @@ class PurchasePayment(Base):
     proforma_id = Column(Integer, ForeignKey('purchase_proformas.id'), index=True)
 
     date = Column(Date)
-    amount = Column(Numeric(10, 2))
+    amount = Column(FLOAT(10, 2))
     note = Column(String(255))
     
     proforma = relationship('PurchaseProforma', backref=backref('payments'))
@@ -450,7 +397,7 @@ class PurchaseExpense(Base):
     proforma_id = Column(Integer, ForeignKey('purchase_proformas.id'))
 
     date = Column(Date)
-    amount = Column(Numeric(10, 2))
+    amount = Column(FLOAT(10, 2))
     note = Column(String(255))
 
     proforma = relationship('PurchaseProforma', backref=backref('expenses'))
@@ -492,10 +439,9 @@ class SaleProforma(Base):
     warehouse_id = Column(Integer, ForeignKey('warehouses.id'))
     agent_id = Column(Integer, ForeignKey('agents.id'))
     sale_invoice_id = Column(Integer, ForeignKey('sale_invoices.id'))
-    # sale_order_id = Column(Integer, ForeignKey('sale_orders.id'))
 
     
-    credit_amount = Column(Numeric(10, 2), nullable=False, default=0)
+    credit_amount = Column(FLOAT(10, 2), nullable=False, default=0)
     credit_days = Column(Integer, nullable=False, default=0)
     tracking = Column(String(50))
     external = Column(String(50))
@@ -505,7 +451,7 @@ class SaleProforma(Base):
     warehouse = relationship('Warehouse', uselist=False)
     agent = relationship('Agent', uselist=False)
     invoice = relationship('SaleInvoice', uselist=False)
-    order = relationship('SaleOrder', uselist=False, back_populates='proforma')
+    expedition = relationship('Expedition', uselist=False, back_populates='proforma')
 
 
     incoterm = Column(String(3), nullable=False) 
@@ -523,7 +469,7 @@ class SalePayment(Base):
     proforma_id = Column(Integer, ForeignKey('sale_proformas.id'))
 
     date = Column(Date)
-    amount = Column(Numeric(10, 2))
+    amount = Column(FLOAT(10, 2))
     note = Column(String(255))
     
     def __init__(self, date, amount, note, proforma):
@@ -541,7 +487,7 @@ class SaleExpense(Base):
     proforma_id = Column(Integer, ForeignKey('sale_proformas.id'))
 
     date = Column(Date)
-    amount = Column(Numeric(10, 2))
+    amount = Column(FLOAT(10, 2))
     note = Column(String(255))
 
     def __init__(self, date, amount, note, proforma):
@@ -599,10 +545,10 @@ class SaleProformaLine(Base):
     
     condition = Column(String(50), nullable=False)
     showing_condition = Column(String(50), nullable=True)
-    specification = Column(String(50), nullable=False)
-    ignore_specification = Column(Boolean, nullable=False) 
+    spec = Column(String(50), nullable=False)
+    ignore_spec = Column(Boolean, nullable=False) 
     quantity = Column(Integer, nullable=False)
-    price = Column(Numeric(10, 2), nullable=False)
+    price = Column(FLOAT(10, 2), nullable=False)
     tax = Column(Integer, nullable=False)
 
     item = relationship('Item', uselist=False)
@@ -616,16 +562,16 @@ class SaleProformaLine(Base):
     )
 
 
-    def __init__(self, item, condition, specification,
+    def __init__(self, item, condition, spec,
         ignore, price, quantity, tax, showing_condition=None, eta=None):
         self.quantity = quantity
         self.price = price 
         self.item = item 
         self.condition = condition
         self.tax = tax 
-        self.specification = specification
+        self.spec = spec
         self.eta = eta
-        self.ignore_specification = ignore
+        self.ignore_spec = ignore
         self.showing_condition = showing_condition
 
 
@@ -636,11 +582,11 @@ class SaleProformaLine(Base):
         # a stock entry with a quantity requested . Defined as a named tuple
         
         return cls(ser.item_object, ser.stock_entry.condition, \
-            ser.stock_entry.specification , ignore, price, ser.requested_quantity, tax)
+            ser.stock_entry.spec , ignore, price, ser.requested_quantity, tax)
 
-class SaleOrder(Base):
+class Expedition(Base):
     
-    __tablename__ = 'sale_orders'
+    __tablename__ = 'expeditions'
      
     id = Column(Integer, primary_key=True)
     proforma_id = Column(Integer, ForeignKey('sale_proformas.id'), nullable=False)
@@ -651,151 +597,138 @@ class SaleOrder(Base):
         self.proforma = proforma 
         self.note = note 
 
-    proforma = relationship('SaleProforma', back_populates='order')
+    proforma = relationship('SaleProforma', back_populates='expedition')
 
     __table_args__ = (
-        UniqueConstraint('proforma_id', name='sale_order_from_onlyone_proforma'), 
+        UniqueConstraint('proforma_id', name='sale_expedition_from_onlyone_proforma'), 
     )
 
-class SaleOrderLine(Base):
-    __tablename__ = 'sale_order_lines'
+class ExpeditionLine(Base):
+    
+    __tablename__ = 'expedition_lines'
 
     id = Column(Integer, primary_key=True)
-    order_id = Column(Integer, ForeignKey('sale_orders.id'))
+    expedition_id = Column(Integer, ForeignKey('expeditions.id'))
     
     item_id = Column(Integer, ForeignKey('items.id'))
     condition = Column(String(50))
-    specification = Column(String(50))
+    spec = Column(String(50))
     quantity = Column(Integer)
 
     item = relationship('Item', uselist=False)
-    order = relationship('SaleOrder', backref=backref('lines'))
+    expedition = relationship('Expedition', backref=backref('lines'))
 
-    def __init__(self, order, item, condition, specification, quantity):
-        self.order = order
+    def __init__(self, expedition, item, condition, spec, quantity):
+        self.expedition = expedition
         self.item = item
         self.condition = condition
-        self.specification = specification
+        self.spec = spec
         self.quantity = quantity
 
     __table_args__ = (
-        UniqueConstraint('id', 'order_id'), 
+        UniqueConstraint('id', 'expedition_id'), 
     )
 
-class PurchaseOrder(Base):
+class Reception(Base):
 
-    __tablename__ = 'purchase_orders'
+    __tablename__ = 'receptions'
     
     id = Column(Integer, primary_key=True)
     proforma_id = Column(Integer, ForeignKey('purchase_proformas.id'), nullable=False)
     note = Column(String(50))
     created_on = Column(DateTime, default=datetime.now)
 
-    proforma = relationship('PurchaseProforma', back_populates='order')
+    proforma = relationship('PurchaseProforma', back_populates='reception')
 
     def __init__(self, proforma, note ):
         self.proforma = proforma 
         self.note = note 
 
     __table_args__ = (
-        UniqueConstraint('proforma_id', name='purchase_order_from_onlyone_proforma'),
+        UniqueConstraint('proforma_id', name='purchase_reception_from_onlyone_proforma'),
     )
 
-class PurchaseOrderLine(Base):
+class ReceptionLine(Base):
 
-    __tablename__ = 'purchase_order_lines'
+    __tablename__ = 'reception_lines'
     
     id = Column(Integer, primary_key=True)
-    order_id = Column(Integer, ForeignKey('purchase_orders.id'))
+    reception_id = Column(Integer, ForeignKey('receptions.id'))
     
-    item_id = Column(Integer, ForeignKey('items.id'))
+    item_id = Column(Integer, ForeignKey('items.id'), nullable=True)
+    description = Column(String(100), nullable=True)
     condition = Column(String(50))
-    specification = Column(String(50))
+    spec = Column(String(50))
     quantity = Column(Integer)
 
-    order = relationship('PurchaseOrder', backref=backref('lines'))
+    reception = relationship('Reception', backref=backref('lines'))
     item = relationship('Item', uselist=False)
 
 
-    def __init__(self, order, item, condition, specification, quantity):
-        self.order = order
-        self.item = item
-        self.condition = condition
-        self.specification = specification
-        self.quantity = quantity
-
+    def __str__(self):
+        return f"{self.item_id}, {self.description}, {self.condition}, {self.spec}"
 
     __table_args__ = (
-        UniqueConstraint('id', 'order_id'), 
+        UniqueConstraint('id', 'reception_id'), 
     )
 
 
-class MixedPurchaseOrderLine(Base):
+class MixedSerie(Base):
 
-    __tablename__ = 'mixed_purchase_order_lines'
-
-    id = Column(Integer, primary_key=True)
-    order_id = Column(Integer, ForeignKey('purchase_orders.id'))
-
-    description = Column(String(100), nullable=False)
-    condition = Column(String(50), nullable=False)
-    specification = Column(String(50), nullable=False)
-    quantity = Column(Integer, nullable=False)
-
-    order = relationship('PurchaseOrder', backref=backref('mixed_lines'))
-
-    def __init__(self, order, description, condition, specification, quantity):
-        self.order = order 
-        self.description = description
-        self.condition = condition
-        self.specification = specification
-        self.quantity = quantity
-
-
-class MixedPurchaseSerie(Base):
-
-    __tablename__ = 'mixed_purchase_series'
+    __tablename__ = 'mixed_series'
 
     id = Column(Integer, primary_key=True)
     item_id = Column(Integer, ForeignKey('items.id'), nullable=False)
-    line_id = Column(Integer, ForeignKey('mixed_purchase_order_lines.id'), nullable=False)
-    sn = Column(String(50), nullable=False)
+    line_id = Column(Integer, ForeignKey('reception_lines.id'), nullable=False)
+    serie = Column(String(50), nullable=False)
     condition = Column(String(50), nullable=False)
     spec = Column(String(50), nullable=False)
 
     item = relationship('Item', uselist=False)
-    line = relationship('MixedPurchaseOrderLine', backref=backref('series'))
+    line = relationship('ReceptionLine', backref=backref('mixed_series'))
 
-    def __init__(self, item_id, line, sn, condition, spec):
+    def __init__(self, item_id, line, serie, condition, spec):
         self.item_id = item_id
-        # self.line_id = line_id
         self.line = line 
-        self.sn = sn 
+        self.serie = serie 
         self.condition = condition
         self.spec = spec
 
 
-class PurchaseSerie(Base):
-    __tablename__ = 'purchase_series'
+class ReceptionSerie(Base):
+   
+    __tablename__ = 'reception_series'
     
     id = Column(Integer, primary_key=True)
-    line_id = Column(Integer, ForeignKey('purchase_order_lines.id'))
+    line_id = Column(Integer, ForeignKey('reception_lines.id'))
     serie = Column(String(50))
 
-    line = relationship('PurchaseOrderLine', backref=backref('series'))
+    line = relationship('ReceptionLine', backref=backref('series'))
+
+
+    def __init__(self, line, serie):
+        self.line = line
+        self.serie = serie 
+
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            return other.serie == self.serie
+        elif isinstance(other, str):
+            return other == self.serie 
 
     __table_args__ = (
         UniqueConstraint('id', 'line_id', 'serie'), 
     )
 
-class SaleSerie(Base):
-    __tablename__ = 'sale_series'
+class ExpeditionSerie(Base):
+    
+    __tablename__ = 'expedition_series'
 
     id = Column(Integer, primary_key=True)
-    line_id = Column(Integer, ForeignKey('sale_order_lines.id'))
+    line_id = Column(Integer, ForeignKey('expedition_lines.id'))
     serie = Column(String(50), nullable=False)
 
-    line = relationship('SaleOrderLine', backref=backref('series')) 
+    line = relationship('ExpeditionLine', backref=backref('series')) 
 
     __table_args__ = (
         UniqueConstraint('id', 'line_id', 'serie'), 
@@ -808,26 +741,12 @@ class Imei(Base):
     imei = Column(String(50), primary_key=True)
     item_id = Column(Integer, ForeignKey('items.id'), nullable=False)
     condition = Column(String(50))
-    specification = Column(String(50))
+    spec = Column(String(50))
     warehouse_id = Column(Integer, ForeignKey('warehouses.id'))
 
     item = relationship('Item', uselist=False) 
     warehouse = relationship('Warehouse', uselist=False) 
 
-# class EagerImeiOutput(Base):
-    
-#     __tablename__ = 'eager_outputs'
-
-#     imei = Column(String(50), primary_key=True)
-
-#     item_id = Column(Integer, ForeignKey('items.id'), nullable=False)
-#     condition = Column(String(50))
-#     specification = Column(String(50))
-#     warehouse_id = Column(Integer, ForeignKey('warehouses.id'))
-
-
-#     item = relationship('Item', uselist=False) 
-#     warehouse = relationship('Warehouse', uselist=False) 
 
 
 def create_and_populate(): 
@@ -846,10 +765,12 @@ def create_and_populate():
 
     session = Session() 
 
-    for spec in [Spec('EEUU'), Spec('JAPAN'), Spec('FRANCE'), Spec('SPAIN')]:
+    for spec in [Spec('EEUU'), Spec('JAPAN'), Spec('FRANCE'), \
+        Spec('SPAIN'), Spec('Mix')]:
         session.add(spec)
     
-    for condition in [Condition('NEW'), Condition('USED'), Condition('A+'), Condition('A+/A-'), Condition('B+')]:
+    for condition in [Condition('NEW'), Condition('USED'), Condition('A+'),\
+        Condition('A+/A-'), Condition('B+'), Condition('Mix')]:
         session.add(condition)
 
     agent = Agent() 
@@ -953,10 +874,29 @@ def create_and_populate():
     proforma.incoterm = 'FOB'
     proforma.we_pay_we_ship = True
 
-    proforma.lines = [
-        PurchaseProformaLine(item1, 'NEW', 'EEUU', 100.0, 10, 21), 
-        PurchaseProformaLine(item2, 'USED', 'FRANCE', 500, 10, 21)
-    ]
+    line = PurchaseProformaLine() 
+    line.proforma = proforma
+    line.item = item1
+    line.condition = 'A+/B-'
+    line.spec = 'FRANCE'
+    line.quantity = 3 
+    proforma.lines.append(line) 
+
+    line = PurchaseProformaLine()
+    line.proforma = proforma 
+    line.description = 'Apple Iphone X 128 GB Mixed Color'
+    line.condition = 'Mix'
+    line.spec = 'EEUU'
+    line.quantity = 5
+    proforma.lines.append(line)
+    
+    line = PurchaseProformaLine()
+    line.proforma = proforma 
+    line.item = item2
+    line.condition = 'A+/B-'
+    line.spec = 'EEUU'
+    line.quantity = 5
+    proforma.lines.append(line)
 
     session.add(proforma) 
 
@@ -965,41 +905,9 @@ def create_and_populate():
     pd.document = base64Pdf(testpath)
     pd.proforma = proforma
 
-    session.add(pd)
-
     from datetime import date
     pp1 = PurchasePayment(date.today(), 5000, 'Caixa / 33423', proforma) 
     pp2 = PurchasePayment(date.today() + timedelta(days=2), 200, 'Santander / 23423', proforma) 
-
-    session.add(pp1)
-    session.add(pp2)
-
-
-    proforma = PurchaseProforma() 
-    proforma.type = 1
-    proforma.number = 2
-    proforma.date = datetime(2020, 10, 11)
-    proforma.warranty = 100
-    from datetime import timedelta
-    proforma.eta = proforma.date + timedelta(days=5) 
-    proforma.partner = partner
-    proforma.agent = agent
-    proforma.warehouse = w
-    proforma.courier = Courier('XXX')
-    proforma.eur_currency = True
-    proforma.incoterm = 'FOB'
-    proforma.they_pay_they_ship = True
-
-    proforma.lines = [
-        PurchaseProformaLine(item2, 'A+/B', 'JAPAN', 100.0, 10, 21), 
-        PurchaseProformaLine(item1, 'A+', 'JAPAN', 500, 10, 21)
-    ]
-
-    session.add(proforma) 
-
-    pay = PurchasePayment(date.today(), 112, 'santander', proforma)
-
-    session.add(pay) 
 
     session.commit() 
 
@@ -1042,7 +950,7 @@ def create_imeis():
 
     imei = Imei() 
     imei.condition = 'NEW'
-    imei.specification = 'EEUU'
+    imei.spec = 'EEUU'
     imei.warehouse = w
     imei.item = item1
     imei.imei = '234551234512ZXC DFSSCD5'
@@ -1051,7 +959,7 @@ def create_imeis():
 
     imei = Imei() 
     imei.condition = 'NEW'
-    imei.specification = 'EEUU'
+    imei.spec = 'EEUU'
     imei.warehouse = w
     imei.item = item2
     imei.imei = '2345562345DFVCZ 45'
@@ -1060,7 +968,7 @@ def create_imeis():
 
     imei = Imei() 
     imei.condition = 'NEW'
-    imei.specification = 'FRANCE'
+    imei.spec = 'FRANCE'
     imei.warehouse = w
     imei.item = item1
     imei.imei = '23455623XCZXDs2345'
@@ -1069,7 +977,7 @@ def create_imeis():
 
     imei = Imei() 
     imei.condition = 'USED'
-    imei.specification = 'EEUU'
+    imei.spec = 'EEUU'
     imei.warehouse = w
     imei.item = item2
     imei.imei = '2345562CVFpl2345'
@@ -1078,69 +986,74 @@ def create_imeis():
 
     session.commit()
 
+# from exceptions import NotExistingStockOutput
 
-@event.listens_for(MixedPurchaseSerie, 'after_insert')
+@event.listens_for(MixedSerie, 'after_insert')
 def insert_imei_after_mixed_purchase(mapper, connection, target):
     stmt = insert(Imei).values(
-        imei = target.sn, 
+        imei = target.serie, 
         item_id = target.item_id, 
         condition = target.condition, 
-        specification = target.spec, 
-        warehouse_id = target.line.order.proforma.warehouse_id
+        spec = target.spec, 
+        warehouse_id = target.line.reception.proforma.warehouse_id
     )
     connection.execute(stmt) 
 
-@event.listens_for(PurchaseSerie, 'after_insert')
+@event.listens_for(MixedSerie, 'after_delete')
+def delete_imei_after_mixed_purchase(mapper, connection, target):
+    # Delete after delete purchase
+    pass 
+
+@event.listens_for(ReceptionSerie, 'after_insert')
 def insert_imei_after_purchase(mapper, connection, target):
     stmt = insert(Imei).values(
         imei = target.serie, 
         item_id = target.line.item_id, 
         condition = target.line.condition, 
-        specification = target.line.specification, 
-        warehouse_id = target.line.order.proforma.warehouse.id
+        spec = target.line.spec, 
+        warehouse_id = target.line.reception.proforma.warehouse.id
     )
     connection.execute(stmt)
 
-# from exceptions import NotExistingStockOutput
 
-@event.listens_for(PurchaseSerie, 'after_delete')
+@event.listens_for(ReceptionSerie, 'after_delete')
 def delete_imei_after_purchase(mapper, connection, target):
     condition = target.line.condition 
-    specification = target.line.specification 
+    spec = target.line.spec 
     stmt = delete(Imei).where(Imei.imei == target.serie).where(Imei.condition == condition).\
-        where(Imei.specification == specification)
+        where(Imei.spec == spec)
     result = connection.execute(stmt) 
     if not result.rowcount:
         raise NotExistingStockOutput
     
 
-@event.listens_for(SaleSerie, 'after_insert')
-def delete_imei_after_sale(mapper, connection, target:SaleSerie):
+@event.listens_for(ExpeditionSerie, 'after_insert')
+def delete_imei_after_sale(mapper, connection, target):
     condition = target.line.condition 
-    specification = target.line.specification 
+    spec = target.line.spec 
     stmt = delete(Imei).where(Imei.imei == target.serie).where(Imei.condition == condition).\
-        where(Imei.specification == specification)
+        where(Imei.spec == spec)
     print(stmt)
     result = connection.execute(stmt) 
     if not result.rowcount:
         raise NotExistingStockOutput
 
 
-@event.listens_for(SaleSerie, 'after_delete')
+@event.listens_for(ExpeditionSerie, 'after_delete')
 def insert_imei_after_sale(mapper, connection, target):
     stmt = insert(Imei).values(
         imei = target.serie, 
         item_id = target.line.item_id, 
         condition = target.line.condition, 
-        specification = target.line.specification, 
-        warehouse_id = target.line.order.proforma.warehouse.id
+        spec = target.line.spec, 
+        warehouse_id = target.line.expedition.proforma.warehouse.id
     )
     
     connection.execute(stmt)
 
-class SpecificationChange(Base):
+class SpecChange(Base):
 
-    __tablename__ = 'specification_changes'
+    __tablename__ = 'spec_changes'
 
     id = Column(Integer, primary_key=True) 
     sn = Column(String(50), nullable=False) 
@@ -1179,3 +1092,5 @@ if __name__ == '__main__':
             Base.metadata.create_all(engine) 
     except IndexError:
         create_and_populate() 
+
+

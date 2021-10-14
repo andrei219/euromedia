@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>MixedReceptionForm</class>
- <widget class="QDialog" name="MixedReceptionForm">
+ <class>Form</class>
+ <widget class="QDialog" name="Form">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Mixed Reception</string>
+   <string>Reception</string>
   </property>
   <property name="windowIcon">
    <iconset resource="../app/icons.qrc">
@@ -143,9 +143,9 @@
    <widget class="QLabel" name="chance_label">
     <property name="geometry">
      <rect>
-      <x>400</x>
+      <x>405</x>
       <y>60</y>
-      <width>121</width>
+      <width>111</width>
       <height>20</height>
      </rect>
     </property>
@@ -241,7 +241,7 @@
      <string>Total Processed:</string>
     </property>
    </widget>
-   <widget class="QLineEdit" name="order_total">
+   <widget class="QLineEdit" name="reception_total">
     <property name="geometry">
      <rect>
       <x>180</x>
@@ -362,7 +362,7 @@
      <bool>true</bool>
     </property>
    </widget>
-   <widget class="QLineEdit" name="order_number">
+   <widget class="QLineEdit" name="reception_number">
     <property name="enabled">
      <bool>true</bool>
     </property>
@@ -378,7 +378,7 @@
      <bool>true</bool>
     </property>
    </widget>
-   <widget class="QLineEdit" name="order_date">
+   <widget class="QLineEdit" name="date">
     <property name="enabled">
      <bool>true</bool>
     </property>
@@ -469,7 +469,7 @@
     </rect>
    </property>
    <property name="title">
-    <string>MIXED LINES:</string>
+    <string>MIXED/NORMAL LINES:</string>
    </property>
    <widget class="QLabel" name="Label2_2">
     <property name="geometry">
@@ -780,19 +780,6 @@
     <string>Delete</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="finish">
-   <property name="geometry">
-    <rect>
-     <x>940</x>
-     <y>160</y>
-     <width>111</width>
-     <height>81</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>FINISH</string>
-   </property>
-  </widget>
   <widget class="QLineEdit" name="search_line_edit">
    <property name="geometry">
     <rect>
@@ -881,5 +868,22 @@
  <resources>
   <include location="../app/icons.qrc"/>
  </resources>
- <connections/>
+ <connections>
+  <connection>
+   <sender>exit</sender>
+   <signal>clicked()</signal>
+   <receiver>Form</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>979</x>
+     <y>82</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1072</x>
+     <y>236</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

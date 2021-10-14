@@ -39,6 +39,10 @@ class AgentGui(QWidget, Ui_AgentGui):
         self.docs_button.clicked.connect(self.docsButtonHandler)
         self.save_button.clicked.connect(self.saveButtonHandler)
         self.iban_line_edit.textChanged.connect(self.ibanHandler)
+        self.from_turnover_spinbox.valueChanged.connect(self.test)
+
+    def test(self, v):
+        print(type(v))
 
     def ibanHandler(self, text):
         if utils.validIban(text):

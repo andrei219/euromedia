@@ -39,7 +39,7 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.base_items = {str(item):item for item in db.session.query(db.Item)}
 
         self.base_specs = {spec[0] for spec in \
-            db.session.query(db.PurchaseProformaLine.specification).distinct()}
+            db.session.query(db.PurchaseProformaLine.spec).distinct()}
 
         self.base_conditions = {c[0] for c in \
             db.session.query(db.PurchaseProformaLine.condition).distinct()}
@@ -270,9 +270,9 @@ class Form(Ui_SalesProformaForm, QWidget):
 
         if self.mixed.isChecked():
             self.reset_manual_stock(warehouse, mixed_description=None, \
-                condition=None, specification=None)
+                condition=None, spec=None)
         else:
-            self.reset_stock(warehouse, item=None,condition=None, specification=None)
+            self.reset_stock(warehouse, item=None,condition=None, spec=None)
 
 
     def lines_view_clicked(self):
@@ -301,7 +301,7 @@ class Form(Ui_SalesProformaForm, QWidget):
             raise 
         else:
             warehouse = self.warehouse.currentText()
-            self.reset_stock(warehouse, item=None, condition=None, specification=None)
+            self.reset_stock(warehouse, item=None, condition=None, spec=None)
 
     def stock_double_clicked(self):
         from line_complete_form import Form
@@ -316,11 +316,11 @@ class Form(Ui_SalesProformaForm, QWidget):
                     f.ignore_spec.isChecked(), int(f.tax.currentText())
             try:
                 item = self.base_items[stock.item] # Database object needs <db.Item> 
-                self.lines_model.add(item, stock.condition, stock.specification, \
+                self.lines_model.add(item, stock.condition, stock.spec, \
                     ignore, qnt, price, tax, showing_condition=showing)
                
                 warehouse = self.warehouse.currentText()
-                self.reset_stock(warehouse, item=None, condition=None, specification=None)
+                self.reset_stock(warehouse, item=None, condition=None, spec=None)
                 self.update_total_fields() 
             except:
                 raise 
@@ -397,24 +397,24 @@ class Form(Ui_SalesProformaForm, QWidget):
         except KeyError:
             item = None
         warehouse = self.warehouse.currentText() 
-        specification = self.spec.text() 
+        spec = self.spec.text() 
         condition = self.condition.text()
         if not condition:
             condition = None
-        if not specification:
-            specification = None
+        if not spec:
+            spec = None
         
-        self.reset_stock(warehouse, condition=condition, specification=specification, item=item)
+        self.reset_stock(warehouse, condition=condition, spec=spec, item=item)
 
     def update_total_fields(self):
         self.proforma_total.setText(str(self.lines_model.total))
         self.proforma_tax.setText(str(self.lines_model.tax))
         self.subtotal_proforma.setText(str(self.lines_model.subtotal))
 
-    def reset_stock(self, warehouse, *, item, condition, specification):
+    def reset_stock(self, warehouse, *, item, condition, spec):
         print
         self.stock_model = AvailableStockModel(warehouse, item=item, condition=condition,\
-            specification=specification, lines=self.lines_model.lines)
+            spec=spec, lines=self.lines_model.lines)
         
         self.stock_view.setModel(self.stock_model)
         self.set_stock_view_config() 
@@ -440,12 +440,12 @@ class Form(Ui_SalesProformaForm, QWidget):
             QMessageBox.critical(self, 'Error', 'You must choose an option given by the autocompleter')
             return
         warehouse = self.warehouse.currentText() 
-        specification = self.spec.text() 
+        spec = self.spec.text() 
         condition = self.condition.text()
         description = self.description.text() 
 
-        if specification == 'Mix' or not specification:
-            specification = None
+        if spec == 'Mix' or not spec:
+            spec = None
         if condition == 'Mix' or not condition:
             condition = None
         if not description:
@@ -456,12 +456,12 @@ class Form(Ui_SalesProformaForm, QWidget):
         if self.automatic.isChecked(): self.automatic.setChecked(False) 
 
         self.reset_manual_stock(warehouse, mixed_description=description, \
-            condition=condition, specification=specification)
+            condition=condition, spec=spec)
 
-    def reset_manual_stock(self, warehouse, *, mixed_description ,condition, specification):
+    def reset_manual_stock(self, warehouse, *, mixed_description ,condition, spec):
 
         self.stock_model = ManualStockModel(warehouse, mixed_description, condition, \
-            specification, self.lines_model.lines) 
+            spec, self.lines_model.lines) 
         self.stock_view.setModel(self.stock_model) 
         self.set_stock_view_config(mixed=True) 
 

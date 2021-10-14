@@ -62,7 +62,7 @@
 font: 8pt &quot;Verdana&quot;;</string>
     </property>
     <property name="currentIndex">
-     <number>6</number>
+     <number>4</number>
     </property>
     <property name="iconSize">
      <size>
@@ -462,7 +462,7 @@ font: 8pt &quot;Verdana&quot;;</string>
      <attribute name="toolTip">
       <string>Work on Proformas</string>
      </attribute>
-     <widget class="QTabWidget" name="pr">
+     <widget class="QTabWidget" name="proformastab">
       <property name="geometry">
        <rect>
         <x>0</x>
@@ -3878,7 +3878,7 @@ font: 8pt &quot;Verdana&quot;;</string>
        </rect>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <property name="iconSize">
        <size>

@@ -127,3 +127,14 @@ def parse_date(string):
 def today_date():
     return datetime.now().strftime('%d%m%Y')
 
+
+from PyQt5.QtCore import QStringListModel, Qt
+from PyQt5.QtWidgets import QCompleter
+def setCompleter(field, data):
+    model = QStringListModel()
+    model.setStringList(data)
+    completer = QCompleter()
+    completer.setFilterMode(Qt.MatchContains)
+    completer.setCaseSensitivity(False)
+    completer.setModel(model)
+    field.setCompleter(completer)

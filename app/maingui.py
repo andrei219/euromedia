@@ -9,8 +9,8 @@ from ui_maingui import Ui_MainGui
 import models
 
 import agentgui, partner_form, product_form, purchase_proforma_form, payments_form, expenses_form, \
-    document_form, order_form, sale_proforma_form, inventory_form, spec_change_form, condition_change_form, \
-        warehouse_change_form, mixed_reception_order as mixed_form
+    document_form, expedition_form, sale_proforma_form, inventory_form, spec_change_form, condition_change_form, \
+        warehouse_change_form, reception_order
 
 from sqlalchemy.exc import IntegrityError
 
@@ -58,10 +58,10 @@ class MainGui(Ui_MainGui, QMainWindow):
 
 
         # Warehouse setup:
-        self.setUpPurchaseOrdersModelAndView() 
-        self.setUpSaleOrdersModelAndView() 
-        self.setUpPurchaseOrderHandlers() 
-        self.setUpSaleOrdersHandlers() 
+        self.setUpReceptionMV() 
+        self.setUpExpeditionMV() 
+        self.setUpReceptionHandlers() 
+        self.setUpExpeditionHandlers() 
 
         # Tools setup:
         self.setupToolsHandlers() 
@@ -414,12 +414,12 @@ class MainGui(Ui_MainGui, QMainWindow):
     def on_expedition_apply_pressed(self):
         filters = self._captureWarehouseExpeditionFilters()
         search_key = self.expedition_search.text() 
-        self.setUpSaleOrdersModelAndView(filters=filters, search_key=search_key)
+        self.setUpExpeditionMV(filters=filters, search_key=search_key)
     
     def on_reception_apply_pressed(self):
         filters = self._captureWarehouseReceptionFilters() 
         search_key = self.reception_search.text() 
-        self.setUpPurchaseOrdersModelAndView(filters=filters, search_key=search_key)        
+        self.setUpReceptionMV(filters=filters, search_key=search_key)        
 
     def _captureInvoiceSaleFilters(self):   
         
@@ -720,11 +720,11 @@ class MainGui(Ui_MainGui, QMainWindow):
             if not ok:
                 return 
             self.purchaseProformaModel.toWarehouse(proforma, note)
-            QMessageBox.information(self, 'Information', 'Successfully created warehouse order')            
+            QMessageBox.information(self, 'Information', 'Successfully created warehouse reception')            
         except IntegrityError as ex:
             if ex.orig.args[0] == 1048:
                 d = 'Invoice' if invoice else 'Proforma'
-                QMessageBox.critical(self, 'Update - Error', f'Warehouse order for this {d} already exists')
+                QMessageBox.critical(self, 'Update - Error', f'Warehouse reception for this {d} already exists')
 
     def purchaseProformaShippedHandler(self, invoice=None):
         if invoice:
@@ -760,7 +760,7 @@ class MainGui(Ui_MainGui, QMainWindow):
         
         if len(rows) == 1:
             try:
-                self.purchaseProformaModel.proformas[row].order.lines
+                self.purchaseProformaModel.proformas[row].receptions.lines
                 self.proforma_purchase_warehouse_button.setEnabled(False)
             except AttributeError:
                 self.proforma_purchase_warehouse_button.setEnabled(True)
@@ -772,8 +772,8 @@ class MainGui(Ui_MainGui, QMainWindow):
     def launchPurchaseProformaForm(self, index=None):
         if index:
             proforma = self.purchaseProformaModel.proformas[index.row()]
-            delete_enabled = proforma.order is None
-            self.epp = purchase_proforma_form.EditableForm(self, proforma) 
+            self.epp = purchase_proforma_form.EditableForm(self,\
+                self.proforma_purchases_view, proforma) 
             self.epp.show() 
         else:
             self.pp = purchase_proforma_form.Form(self, self.proforma_purchases_view) 
@@ -886,13 +886,13 @@ class MainGui(Ui_MainGui, QMainWindow):
             if not ok:
                 return
             self.saleProformaModel.toWarehouse(proforma, note)
-            QMessageBox.information(self, 'Information', 'Successfully created warehouse order')  
+            QMessageBox.information(self, 'Information', 'Successfully created warehouse expedition')  
             self.proforma_purchases_view.clearSelection() 
             
         except IntegrityError as ex:
             if ex.orig.args[0] == 1048:
                 d = 'Invoice' if invoice else 'Proforma'
-                QMessageBox.critical(self, 'Update - Error', f'Warehouse order for this {d} already exists')
+                QMessageBox.critical(self, 'Update - Error', f'Warehouse expedition for this {d} already exists')
 
     def saleProformaShippedHandler(self, invoice=None):
         if invoice:
@@ -1001,47 +1001,46 @@ class MainGui(Ui_MainGui, QMainWindow):
             return model.invoices[rows.pop()]
 
     # WAREHOUSE RECEPTION HANDLERS:
-    def processPurchaseOrder(self):
-        order = self._getOrder(self.warehouse_reception_view, self.purchaseOrdersModel) 
-        if not order:
+    def processReception(self):
+        reception = self.getReception(self.warehouse_reception_view, self.receptionModel) 
+        if not reception:
             return 
-        if order.proforma.mixed:
-            processed = sum([1 for line in order.mixed_lines for serie in line.series])
-            total = sum([line.quantity for line in order.mixed_lines])
-            if total == processed:
-                mixed_form.EditableForm(self, order).exec_() 
-            else:
-                mixed_form.MixedReceptionForm(self, order).exec_()
         else:
-            order_form.OrderForm(self, order).exec_() 
-    
-    def purchaseOrderDoubleClicked(self, index):
-        self.processPurchaseOrder() 
+            reception_order.Form(self, reception).exec_()
 
-    def purchaseOrderDeleteHandler(self):
+    def receptionDoubleClicked(self, index):
+        self.processReception() 
+
+    def receptionDeleteHandler(self):
         print('aaa')
 
-    def _getOrder(self, view, model):
+    def getReception(self, view, model):
         rows = { index.row() for index in view.selectedIndexes()}
         if len(rows) == 0:
             return
-        return model.orders[rows.pop()]
+        return model.receptions[rows.pop()]
+
 
     # WAREHOUSE EXPEDITION:
-    def processSaleOrder(self):
-        order = self._getOrder(self.warehouse_expedition_view, self.saleOrderModel) 
-        if not order:
+    def processExpedition(self):
+        expedition = self.getExpedition(self.warehouse_expedition_view, self.expeditionModel) 
+        if not expedition:
             return 
-        order_form.OrderForm(self, order, sale=True).exec_()
+        expedition_form.Form(self, expedition).exec_()
 
-    def saleOrderDoubleClicked(self):
-        self.processSaleOrder() 
+    def expeditionDoublecClicked(self):
+        self.processExpedition() 
 
-    def saleOrderDeleteHandler(self):
-        order = self._getOrder(self.warehouse_expedition_view, self.saleOrderModel)
-        if not order:
+    def expeditionDeleteHandler(self):
+        expedition = self.getExpedition(self.warehouse_expedition_view, self.expeditionModel)
+        if not expedition:
             return
-
+        
+    def getExpedition(self, view, model):
+        rows = { index.row() for index in view.selectedIndexes()}
+        if len(rows) == 0:
+            return
+        return model.expeditions[rows.pop()]
 
     # TOOLS HANDLERS:
     def createProductHandler(self):
@@ -1119,14 +1118,14 @@ class MainGui(Ui_MainGui, QMainWindow):
         self.sales_invoices_view.setModel(self.saleinvoiceModel) 
         setCommonViewConfig(self.sales_invoices_view) 
 
-    def setUpSaleOrdersModelAndView(self, search_key=None, filters=None):
-        self.saleOrderModel = models.OrderModel(sale=True, search_key=search_key, filters=filters)
-        self.warehouse_expedition_view.setModel(self.saleOrderModel)
+    def setUpExpeditionMV(self, search_key=None, filters=None):
+        self.expeditionModel = models.ExpeditionModel(search_key=search_key, filters=filters)
+        self.warehouse_expedition_view.setModel(self.expeditionModel)
         setCommonViewConfig(self.warehouse_expedition_view)
 
-    def setUpPurchaseOrdersModelAndView(self, search_key=None, filters=None):
-        self.purchaseOrdersModel = models.OrderModel(search_key=search_key, filters=filters) 
-        self.warehouse_reception_view.setModel(self.purchaseOrdersModel) 
+    def setUpReceptionMV(self, search_key=None, filters=None):
+        self.receptionModel = models.ReceptionModel(search_key=search_key, filters=filters) 
+        self.warehouse_reception_view.setModel(self.receptionModel) 
         setCommonViewConfig(self.warehouse_reception_view) 
 
     def setUpAgentsHandlers(self):
@@ -1191,15 +1190,15 @@ class MainGui(Ui_MainGui, QMainWindow):
         self.invoice_purchase_pdf_button.clicked.connect(self.purchaseInvoicePdfHandler) 
         self.invoice_purchase_print_button.clicked.connect(self.purchaseInvoicePrintHandler)
 
-    def setUpPurchaseOrderHandlers(self):
-        self.reception_process.clicked.connect(self.processPurchaseOrder) 
-        self.warehouse_reception_view.doubleClicked.connect(self.purchaseOrderDoubleClicked)
-        self.reception_delete.clicked.connect(self.purchaseOrderDeleteHandler)
+    def setUpReceptionHandlers(self):
+        self.reception_process.clicked.connect(self.processReception) 
+        self.warehouse_reception_view.doubleClicked.connect(self.receptionDoubleClicked)
+        self.reception_delete.clicked.connect(self.receptionDeleteHandler)
 
-    def setUpSaleOrdersHandlers(self):
-        self.expedition_process.clicked.connect(self.processSaleOrder) 
-        self.warehouse_expedition_view.doubleClicked.connect(self.saleOrderDoubleClicked)
-        self.expedition_delete.clicked.connect(self.saleOrderDeleteHandler)
+    def setUpExpeditionHandlers(self):
+        self.expedition_process.clicked.connect(self.processExpedition) 
+        self.warehouse_expedition_view.doubleClicked.connect(self.expeditionDoublecClicked)
+        self.expedition_delete.clicked.connect(self.expeditionDeleteHandler)
 
     def setupToolsHandlers(self):
         self.create_product_button.clicked.connect(self.createProductHandler)
@@ -1234,15 +1233,16 @@ class MainGui(Ui_MainGui, QMainWindow):
             self.saleinvoiceModel = models.InvoiceModel(sale=True) 
             self.sales_invoices_view.setModel(self.saleinvoiceModel)
         elif index == 4:
-            self.purchaseOrdersModel = models.OrderModel() 
-            self.warehouse_reception_view.setModel(self.purchaseOrdersModel) 
-            self.saleOrderModel = models.OrderModel(sale=True) 
-            self.warehouse_expedition_view.setModel(self.saleOrderModel) 
+            self.receptionModel = models.ReceptionModel() 
+            self.warehouse_reception_view.setModel(self.receptionModel) 
+            self.expeditionModel = models.ExpeditionModel() 
+            self.warehouse_expedition_view.setModel(self.expeditionModel) 
 
 
     def refresh_session(self):
         import db
         db.refresh_session() 
+        models.refresh_maps() 
 
     def closeEvent(self, event):
         for w in self.opened_windows_instances:

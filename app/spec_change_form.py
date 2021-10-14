@@ -22,8 +22,8 @@ class SpecChange(Ui_SpecChange, QDialog):
         self.sn.setFocus()
 
 
-        specs = { r[0] for r in db.session.query(db.PurchaseProformaLine.specification).distinct()}.\
-            union({r[0] for r in db.session.query(db.Imei.specification).distinct()})
+        specs = { r[0] for r in db.session.query(db.PurchaseProformaLine.spec).distinct()}.\
+            union({r[0] for r in db.session.query(db.Imei.spec).distinct()})
 
         m = QStringListModel()
         m.setStringList(specs)
@@ -48,11 +48,11 @@ class SpecChange(Ui_SpecChange, QDialog):
         if self.db_result.imei != self.sn.text():
             QMessageBox.critical(self, 'Error', 'Imei/SN field was changed')
             return 
-        if self.db_result.specification == self.new_spec.text() or \
+        if self.db_result.spec == self.new_spec.text() or \
             not self.new_spec.text():
             return
 
-        self.db_result.specification = self.new_spec.text() 
+        self.db_result.spec = self.new_spec.text() 
         try:
             db.session.commit() 
             self.reset() 
@@ -71,7 +71,7 @@ class SpecChange(Ui_SpecChange, QDialog):
             self.db_result = db.session.query(db.Imei).join(db.Item).where(db.Imei.imei == self.sn.text()).one() 
 
             self.description.setText(str(self.db_result.item))
-            self.current_spec.setText(self.db_result.specification)
+            self.current_spec.setText(self.db_result.spec)
 
         except NoResultFound:
             QMessageBox.critical(self, 'Search Error', 'No IMEI/SN was found')

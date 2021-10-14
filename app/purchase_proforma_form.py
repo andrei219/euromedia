@@ -3,15 +3,11 @@ from PyQt5.QtWidgets import QWidget, QMessageBox, QCompleter, QTableView
 
 from PyQt5.QtCore import QStringListModel, Qt
 
-from utils import parse_date, build_description
+from utils import parse_date, setCompleter
 
 from ui_purchase_proforma_form import Ui_PurchaseProformaForm
 
-from models import PurchaseProformaLineModel, MixedPurchaseLineModel, \
-    FullEditableMixedPurchaseLineModel, SemiEditableMixedPurchaseLineModel, \
-        FullEditablePurchaseProformaModel, SemiEditablePurchaseProformaModel
-
-import db
+import models, db
 
 from datetime import date
 
@@ -20,7 +16,7 @@ from exceptions import DuplicateLine
 from db import Partner, PurchaseProformaLine, PurchaseProforma, \
     PurchasePayment, func, Agent
 
-
+  
 class Form(Ui_PurchaseProformaForm, QWidget):
     
     def __init__(self, parent, view):
@@ -28,7 +24,8 @@ class Form(Ui_PurchaseProformaForm, QWidget):
         self.setupUi(self)
         self.parent = parent 
         self.model = view.model() 
-        self.lines_model = PurchaseProformaLineModel() 
+        self.view = view 
+        self.lines_model = models.PurchaseProformaLineModel() 
         self.lines_view.setModel(self.lines_model)
         self.title = 'Line - Error'
         self.lines_view.setSelectionBehavior(QTableView.SelectRows)
@@ -42,58 +39,9 @@ class Form(Ui_PurchaseProformaForm, QWidget):
         self.number_line_edit.setText(str(self.model.nextNumberOfType(1)).zfill(6))
         self.date_line_edit.setText(date.today().strftime('%d%m%Y'))
 
-        self.partner_name_to_id = {
-            partner.fiscal_name:partner.id for partner in db.session.query(db.Partner.id, db.Partner.fiscal_name).\
-                where(db.Partner.active == True)
-        }        
-    
-        self.agent_name_to_id = {
-            agent.fiscal_name:agent.id for agent in db.session.query(db.Agent.id, db.Agent.fiscal_name).\
-                where(db.Agent.active == True)
-        }
-
-
-        self.warehouse_name_to_id = {
-            warehouse.description:warehouse.id for warehouse in db.session.query(db.Warehouse.id, db.Warehouse.description)
-        }
-
-        self.courier_name_to_id = {
-            courier.description:courier.id for courier in db.session.query(db.Courier.id, db.Courier.description)
-        }
+        self.setCombos()
+        self.setCompleters() 
         
-        self.desc_to_item = {str(item):item for item in db.session.query(db.Item)}
-
-        self.mixed_descriptions = self.getMixedDescriptions()
-
-        self.specs = set() 
-        for r in db.session.query(PurchaseProformaLine.specification).distinct():
-            self.specs.add(r[0])
-
-        self.mixed_specs = self.specs.union({'Mixed'})
-
-        self.conditions = set() 
-        for r in db.session.query(PurchaseProformaLine.condition).distinct():
-            self.conditions.add(r[0])
-        self.mixed_conditions = self.conditions.union({'Mixed'})
-
-        self.agent_combobox.addItems(self.agent_name_to_id.keys())
-        self.courier_combobox.addItems(self.courier_name_to_id.keys())
-        self.warehouse_combobox.addItems(self.warehouse_name_to_id.keys())
-
-        m = QStringListModel()
-        m.setStringList(self.partner_name_to_id.keys())
-
-        c = QCompleter()
-        c.setFilterMode(Qt.MatchContains)
-        c.setCaseSensitivity(False)
-        c.setModel(m)
-
-        self.partner_line_edit.setCompleter(c) 
-
-        self.setDescriptionCompleter()
-        self.setConditionsCompleter()
-        self.setSpecsCompleter() 
-       
 
         def priceOrQuantityChanged(value):
             self.subtotal_spinbox.setValue(self.quantity_spinbox.value() * self.price_spinbox.value())
@@ -103,7 +51,7 @@ class Form(Ui_PurchaseProformaForm, QWidget):
 
         def typeChanged(type):
             next_num = self.model.nextNumberOfType(int(type))
-            self.number_line_edit.setText(str(next_num))
+            self.number_line_edit.setText(str(next_num).zfill(6))
 
         self.price_spinbox.valueChanged.connect(priceOrQuantityChanged) 
         self.quantity_spinbox.valueChanged.connect(priceOrQuantityChanged)
@@ -115,139 +63,32 @@ class Form(Ui_PurchaseProformaForm, QWidget):
         self.addButton.clicked.connect(self.addHandler)
         self.deleteButton.clicked.connect(self.deleteHandler)
         self.save_button.clicked.connect(self.saveHandler) 
-        self.mixed.toggled.connect(self.mixedToggled) 
 
-    def mixedToggled(self, on):
-        self.setDescriptionCompleter(on)
-        self.setSpecsCompleter(on)
-        self.setConditionsCompleter(on)
-        self.switchAddHanlder(on)
-        if on:
-            self.lines_model = MixedPurchaseLineModel()
-            self.lines_view.setModel(self.lines_model)
-        else:
-            self.lines_model = PurchaseProformaLineModel() 
-            self.lines_view.setModel(self.lines_model)
+    def setCombos(self):
 
-    def _mixedValidLine(self):
-        
-        if self.description_line_edit.text() not in self.mixed_descriptions:
-            QMessageBox.critical(self, self.title, 'That mixed description does not exist')
-            return False
+        for combo, data in [
+            (self.agent_combobox, models.agent_id_map.keys()), 
+            (self.warehouse_combobox, models.warehouse_id_map.keys()), 
+            (self.courier_combobox, models.courier_id_map.keys())
+        ]: combo.addItems(data)
 
-        if self.condition_line_edit.text() not in self.mixed_conditions:
-            QMessageBox.critical(self, self.title, 'That condition does not exist')
-            return False
-        
-        if self.spec_line_edit.text() not in self.mixed_specs:
-            QMessageBox.critical(self, self.title, 'That spec does not exist')
-            return False
+    def setCompleters(self):
+        for field, data in [
+            (self.partner_line_edit, models.partner_id_map.keys()),
+            (self.description_line_edit, models.descriptions), 
+            (self.spec_line_edit, models.specs), 
+            (self.condition_line_edit, models.conditions)]:
+            setCompleter(field, data)
 
-        try:
-            1 / self.price_spinbox.value()
-        except ZeroDivisionError:
-            QMessageBox.critical(self, self.title, 'Price must be > 0')
-            return False
-
-        return True 
-
-
-    def addMixedHandler(self):
-        if not self._mixedValidLine():
-            return
-        try:
-            self.lines_model.add(self.description_line_edit.text(), \
-                self.condition_line_edit.text(), self.spec_line_edit.text(),\
-                    self.quantity_spinbox.value(), self.price_spinbox.value(), \
-                    int(self.tax_combobox.currentText()))
-            
-            self._updateTotals() 
-        except DuplicateLine:
-            QMessageBox.critical(self, self.title, 'Duplicate Line')
-            return
-        else:
-            self._clearLineFields() 
-        
-
-    def switchAddHanlder(self, mixed):
-        if mixed:
-            self.addButton.clicked.disconnect(self.addHandler)
-            self.addButton.clicked.connect(self.addMixedHandler) 
-        else:
-            self.addButton.clicked.disconnect(self.addMixedHandler)
-            self.addButton.clicked.connect(self.addHandler) 
-
-
-    def setConditionsCompleter(self, mixed=False):
-        m = QStringListModel()
-        conditions = self.mixed_conditions if mixed else self.conditions
-        m.setStringList(conditions)
-
-        c = QCompleter()
-        c.setFilterMode(Qt.MatchContains)
-        c.setCaseSensitivity(False)
-        c.setModel(m)
-
-        self.condition_line_edit.setCompleter(c) 
-
-
-    def setSpecsCompleter(self, mixed=False):
-        m = QStringListModel()
-        specs = self.mixed_specs if mixed else self.specs
-        m.setStringList(specs)
-
-        c = QCompleter()
-        c.setFilterMode(Qt.MatchContains)
-        c.setCaseSensitivity(False)
-        c.setModel(m)
-
-        self.spec_line_edit.setCompleter(c) 
-
-
-    def setDescriptionCompleter(self, mixed=False):
-        m = QStringListModel()
-        descriptions = self.mixed_descriptions if mixed else self.desc_to_item.keys() 
-        m.setStringList(descriptions)
-
-        c = QCompleter()
-        c.setFilterMode(Qt.MatchContains)
-        c.setCaseSensitivity(False)
-        c.setModel(m)
-
-        self.description_line_edit.setCompleter(c) 
-
-
-    def getMixedDescriptions(self):
-        ds = set() 
-        for description in self.desc_to_item.keys():
-            manufacturer, category, model, *_ = description.split(' ')
-            description = ' '.join([manufacturer, category, model, 'Mixed GB', 'Mixed Color'])
-            ds.add(description)
-        for description in self.desc_to_item.keys():
-            index = description.index('GB') + 2 
-            description = description[0:index] + ' Mixed Color'
-            ds.add(description)
-        for description in self.desc_to_item.keys():
-            manufacturer, category, model, capacity, gb, color = description.split(' ')
-            description = ' '.join([manufacturer, category, model, 'Mixed', gb, color])
-            ds.add(description)
-        return ds
 
     def partnerSearch(self):
-
-        partner_id = self.partner_name_to_id.get(self.partner_line_edit.text())
+        partner_id = models.partner_id_map.get(self.partner_line_edit.text())
         if not partner_id:
             return
-        
         try:
-            available_credit, max_credit = self._computeCreditAvailable(partner_id) 
+            available_credit = models.computeCreditAvailable(partner_id) 
             self.available_credit_spinbox.setValue(float(available_credit))
-
-            def prevent(value): 
-                if value > available_credit:
-                    self.with_credit_spinbox.setValue(available_credit)
-
-            self.with_credit_spinbox.valueChanged.connect(prevent) 
+            self.with_credit_spinbox.setMaximum(available_credit)
 
         except TypeError:
             raise 
@@ -272,35 +113,12 @@ class Form(Ui_PurchaseProformaForm, QWidget):
         except KeyError:
             pass 
 
-    def _computeCreditAvailable(self, partner_id):
-        
-        from db import Partner, PurchaseProformaLine, PurchaseProforma, \
-            PurchasePayment, func
-        
-        max_credit = db.session.query(db.Partner.amount_credit_limit).\
-             where(db.Partner.id == partner_id).scalar()
-
-        total = db.session.query(func.sum(PurchaseProformaLine.quantity * PurchaseProformaLine.price)).\
-            select_from(Partner, PurchaseProforma, PurchaseProformaLine).\
-                where(PurchaseProformaLine.proforma_id == PurchaseProforma.id).\
-                    where(PurchaseProforma.partner_id == Partner.id).\
-                        where(Partner.id == partner_id).scalar() 
-
-        paid = db.session.query(func.sum(PurchasePayment.amount)).select_from(Partner, \
-            PurchaseProforma, PurchasePayment).where(PurchaseProforma.partner_id == Partner.id).\
-                where(PurchasePayment.proforma_id == PurchaseProforma.id).\
-                    where(Partner.id == partner_id).scalar() 
-        if total and paid:
-            return max_credit + paid - total, max_credit 
-    
-
     def _validHeader(self):
         try:
-            self.partner_name_to_id[self.partner_line_edit.text()]
+            models.partner_id_map[self.partner_line_edit.text()]
         except KeyError:
             QMessageBox.critical(self, 'Update - Error', 'Invalid Partner')
             return False
-
         try:
             parse_date(self.date_line_edit.text())
         except ValueError:
@@ -310,32 +128,6 @@ class Form(Ui_PurchaseProformaForm, QWidget):
             parse_date(self.eta_line_edit.text())
         except ValueError:
             QMessageBox.critical(self, 'Update - Error', 'Error in eta field. Format : ddmmyyyy')
-            return False
-
-        if self.with_credit_spinbox.value() > self.available_credit_spinbox.value():
-            QMessageBox.critical(self, 'Erro - Update', 'Credit must be < than avaliable credit')
-            return False
-        return True
-
-    def _validLine(self):
-        try:
-            self.desc_to_item[self.description_line_edit.text()]
-        except KeyError:
-            QMessageBox.critical(self, self.title, 'That item does not exist')
-            return False
-        
-        if not self.spec_line_edit.text():
-            QMessageBox.critical(self, self.title, 'Specification cannot be empty')
-            return False
-
-        if not self.condition_line_edit.text():
-            QMessageBox.critical(self, self.title, 'Conditions cannot be empty')
-            return False
-
-        try:
-            1 / self.price_spinbox.value()
-        except ZeroDivisionError: 
-            QMessageBox.critical(self, self.title, 'Price must be > 0')
             return False
         return True
 
@@ -350,7 +142,6 @@ class Form(Ui_PurchaseProformaForm, QWidget):
         self.total_tax_line_edit.setText(str(self.lines_model.tax))
         self.subtotal_proforma_line_edit.setText(str(self.lines_model.subtotal))
         self.total_proforma_line_edit.setText(str(self.lines_model.total))
-
 
     def _dateFromString(self, date_str):
         return date(int(date_str[4:len(date_str)]), int(date_str[2:4]), int(date_str[0:2])) 
@@ -378,10 +169,10 @@ class Form(Ui_PurchaseProformaForm, QWidget):
         proforma.they_pay_they_ship = self.they_pay_they_ship_shipping_radio_button.isChecked() 
         proforma.we_pay_we_ship = self.we_pay_we_ship_shipping_radio_button.isChecked() 
         proforma.we_pay_they_ship = self.we_pay_they_ship_shipping_radio_button.isChecked() 
-        proforma.partner_id = self.partner_name_to_id[self.partner_line_edit.text()]
-        proforma.agent_id = self.agent_name_to_id[self.agent_combobox.currentText()]
-        proforma.warehouse_id = self.warehouse_name_to_id[self.warehouse_combobox.currentText()]
-        proforma.courier_id = self.courier_name_to_id[self.courier_combobox.currentText()]
+        proforma.partner_id = models.partner_id_map[self.partner_line_edit.text()]
+        proforma.agent_id = models.agent_id_map[self.agent_combobox.currentText()]
+        proforma.warehouse_id = models.warehouse_id_map[self.warehouse_combobox.currentText()]
+        proforma.courier_id = models.courier_id_map[self.courier_combobox.currentText()]
         proforma.eur_currency = self.eur_radio_button.isChecked()
         proforma.credit_amount = self.with_credit_spinbox.value()
         proforma.credit_days = self.days_credit_spinbox.value()
@@ -389,26 +180,28 @@ class Form(Ui_PurchaseProformaForm, QWidget):
         proforma.external = self.external_line_edit.text() 
         proforma.tracking = self.tracking_line_edit.text() 
         proforma.note = self.note.toPlainText()[0:255]
-        proforma.mixed = self.mixed.isChecked()
         return proforma
 
     def addHandler(self):
+        
+        description = self.description_line_edit.text()
+        condition = self.condition_line_edit.text()
+        spec = self.spec_line_edit.text()
+        if not description: return 
+        if description in models.descriptions and \
+            condition not in models.conditions and spec not in models.specs:
+                QMessageBox.critical(self, 'Error', 'You cant add a device without condition and spec')
+                return 
 
-        if not self._validLine():
-            return 
-        try:
-            self.lines_model.add(self.desc_to_item[self.description_line_edit.text()], \
-                self.condition_line_edit.text(), self.spec_line_edit.text(), self.quantity_spinbox.value(),\
-                    self.price_spinbox.value(), int(self.tax_combobox.currentText()))
-            self._updateTotals() 
-
-        except DuplicateLine:
-            QMessageBox.critical(self, self.title, 'Duplicate Line')
-            return 
+        self.lines_model.add(self.description_line_edit.text(), \
+            self.condition_line_edit.text(), self.spec_line_edit.text(), self.quantity_spinbox.value(),\
+                self.price_spinbox.value(), int(self.tax_combobox.currentText()))
+        self._updateTotals() 
         self._clearLineFields()
 
     def deleteHandler(self):
         indexes = self.lines_view.selectedIndexes() 
+        if not indexes:return 
         try:
             self.lines_model.delete(indexes)
         except:
@@ -416,9 +209,6 @@ class Form(Ui_PurchaseProformaForm, QWidget):
 
     def saveHandler(self):
         if not self._validHeader():
-            return 
-        if not self.lines_model.lines:
-            QMessageBox.critical(self, 'Error - Update', 'Empty Proforma')
             return 
         proforma = self._formToProforma() 
         try:
@@ -433,116 +223,37 @@ class Form(Ui_PurchaseProformaForm, QWidget):
 
 class EditableForm(Form):
     
-    def __init__(self, parent, proforma:db.PurchaseProforma):
+    def __init__(self, parent, view, proforma:db.PurchaseProforma):
         super(QWidget, Form).__init__(self) 
         self.setupUi(self)
         self.parent = parent
         self.proforma = proforma 
-        self.mixed.setChecked(proforma.mixed) 
-        self.mixed.setEnabled(False) 
         self.type_combo_box.setEnabled(False) 
         self.lines_view.setSelectionBehavior(QTableView.SelectRows)
         self.title = 'Line - Error'
-
-        if proforma.mixed and proforma.order is not None:
-            self.lines_model = SemiEditableMixedPurchaseLineModel(proforma)
-        elif proforma.mixed and proforma.order is None:
-            self.lines_model = FullEditableMixedPurchaseLineModel(proforma)
-        elif not proforma.mixed and proforma.order is not None:
-            self.lines_model = SemiEditablePurchaseProformaModel(proforma)
-        elif not proforma.mixed and proforma.order is None:
-            self.lines_model = FullEditablePurchaseProformaModel(proforma) 
-
+        self.model = view.model() 
+        
+        
+        self.lines_model = models.PurchaseProformaLineModel(proforma.lines,\
+            delete_allowed = proforma.reception is None)
+        
         self.lines_view.setModel(self.lines_model) 
+
+        self.setUp()
+        self.proforma_to_form()
+
+
+    def setHandlers(self):
         self.deleteButton.clicked.connect(self.deleteHandler)
         self.addButton.clicked.connect(self.addHandler)
         self.partner_line_edit.returnPressed.connect(self.partnerSearch)
         self.save_button.clicked.connect(self.saveHandler)
 
-        self.setUp()
-
     def partnerSearch(self):
-        super().partnerSearch() 
-
-    def setUp(self):
-
-        self.partner_name_to_id = {
-            partner.fiscal_name:partner.id for partner in db.session.query(db.Partner.id, db.Partner.fiscal_name).\
-                where(db.Partner.active == True)
-        }        
-
-        self.agent_name_to_id = {
-            agent.fiscal_name:agent.id for agent in db.session.query(db.Agent.id, db.Agent.fiscal_name).\
-                where(db.Agent.active == True)
-        }
-
-
-        self.warehouse_name_to_id = {
-            warehouse.description:warehouse.id for warehouse in db.session.query(db.Warehouse.id, db.Warehouse.description)
-        }
-
-        self.courier_name_to_id = {
-            courier.description:courier.id for courier in db.session.query(db.Courier.id, db.Courier.description)
-        }
-        
-
-        self.desc_to_item = {str(item):item for item in db.session.query(db.Item)}
-
-        self.mixed_descriptions = super().getMixedDescriptions()
-
-        self.specs = set() 
-        for r in db.session.query(PurchaseProformaLine.specification).distinct():
-            self.specs.add(r[0])
-
-        self.mixed_specs = self.specs.union({'Mixed'})
-
-        self.conditions = set() 
-        for r in db.session.query(PurchaseProformaLine.condition).distinct():
-            self.conditions.add(r[0])
-        self.mixed_conditions = self.conditions.union({'Mixed'})
-
-        super().setConditionsCompleter(mixed=self.proforma.mixed)
-        super().setDescriptionCompleter(mixed=self.proforma.mixed)
-        super().setSpecsCompleter(mixed=self.proforma.mixed)
-
-
-        m = QStringListModel()
-        m.setStringList(self.partner_name_to_id.keys())
-
-        c = QCompleter()
-        c.setFilterMode(Qt.MatchContains)
-        c.setCaseSensitivity(False)
-        c.setModel(m)
-
-        self.partner_line_edit.setCompleter(c) 
-
-        def priceOrQuantityChanged(value):
-            self.subtotal_spinbox.setValue(self.quantity_spinbox.value() * self.price_spinbox.value())
-        
-        def subtotalOrTaxChanged(value):
-            self.total_spinbox.setValue(self.subtotal_spinbox.value() * (1 + int(self.tax_combobox.currentText())/100))
-
-        self.price_spinbox.valueChanged.connect(priceOrQuantityChanged) 
-        self.quantity_spinbox.valueChanged.connect(priceOrQuantityChanged)
-        self.tax_combobox.currentIndexChanged.connect(subtotalOrTaxChanged)
-        self.subtotal_spinbox.valueChanged.connect(subtotalOrTaxChanged)
-
-        self.populate_combos()
-        self.proforma_to_form()        
-
-
-    def populate_combos(self):
-        self.warehouse_combobox.addItems(r[0] for r in \
-            db.session.query(db.Warehouse.description))
-        self.courier_combobox.addItems(r[0] for r in \
-            db.session.query(db.Courier.description))
-        self.agent_combobox.addItems(r[0] for r in \
-            db.session.query(db.Agent.fiscal_name).\
-                where(db.Agent.active == True))
+        super().partnerSearch()
 
     def proforma_to_form(self):
         p = self.proforma
-        self.mixed.setChecked(p.mixed)
         self.type_combo_box.setCurrentText(str(p.type))
         self.number_line_edit.setText(str(p.number))
         self.date_line_edit.setText(p.date.strftime('%d%m%Y'))
@@ -574,49 +285,21 @@ class EditableForm(Form):
             self.lines_model.delete(indexes)
         except: raise 
 
-    def _header_changed(self):
-        return any((
-            self.date_line_edit.text() != self.proforma.date, 
-            self.warranty_spinbox.value() != self.proforma.warranty, 
-            super()._dateFromString(self.eta_line_edit.text()) != self.proforma.eta, 
-            self.partner_line_edit.text() != self.proforma.partner.fiscal_name, 
-            self.agent_combobox.currentText() != self.proforma.agent.fiscal_name, 
-            self.warehouse_combobox.currentText() != self.proforma.warehouse.description, 
-            self.courier_combobox.currentText() != self.proforma.courier.description, 
-            self.eur_radio_button.isChecked() and self.proforma.eur_currency, 
-            self.days_credit_spinbox.value() != self.proforma.credit_days, 
-            self.incoterms_combo_box.currentText() != self.proforma.incoterm, 
-            self.external_line_edit.text() != self.proforma.external, 
-            self.tracking_line_edit.text() != self.proforma.tracking
-        ))
-
-
     def saveHandler(self):
         if not super()._validHeader():
             return
-        
-        header_changed = self._header_changed() 
-        lines_changed = self.lines_model.changed()
-
-        if header_changed or lines_changed:
-            if QMessageBox.question(self, 'Save', 'Save changes?',\
-                QMessageBox.Yes | QMessageBox.No) == QMessageBox.Yes:
-                    try:
-                        self._formToProforma(self.proforma) 
-                        db.session.commit() 
-                    except:
-                        db.session.rollback() 
-                        raise 
-                    else:
-                        try:
-                            self.lines_model.save() 
-                        except:
-                            db.session.rollback()
-                            raise 
-                        else:
-                            QMessageBox.information(self, 'Exit - Saving', \
-                                'Proforma saved successfully')
-                            self.close() 
-
-        super()._formToProforma(self.proforma)
-        
+        self._formToProforma(input_proforma=self.proforma)
+        try:
+            db.session.commit()
+        except:
+            db.session.rollback()
+            raise 
+        else:
+            try:
+                self.model.updateWarehouse(self.proforma) 
+            except:
+                raise 
+            else:
+                QMessageBox.information(self, "Information", \
+                    "Proforma saved and Reception order updated successfully")
+                self.close() 

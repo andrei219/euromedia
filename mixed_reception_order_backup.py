@@ -128,7 +128,9 @@ class MixedReceptionForm(QDialog, Ui_MixedReceptionForm):
         self.total_lines = len(order.mixed_lines)
         self.current_index = 0 
         self.processed_store = ProcessedDevicesStore(order) 
+        
         self._set_defined_devices_model() 
+        
         self.next.clicked.connect(self.next_handler)
         self.prev.clicked.connect(self.prev_handler)
         self.commit.clicked.connect(self.commit_handler)
