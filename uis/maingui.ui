@@ -472,7 +472,7 @@ font: 8pt &quot;Verdana&quot;;</string>
        </rect>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <property name="iconSize">
        <size>
@@ -783,7 +783,7 @@ font: 8pt &quot;Verdana&quot;;</string>
           <string>Empty</string>
          </property>
         </widget>
-        <widget class="QCheckBox" name="proforma_purchase_partially_received">
+        <widget class="QCheckBox" name="proforma_purchase_partially_processed">
          <property name="geometry">
           <rect>
            <x>40</x>
@@ -1406,9 +1406,9 @@ font: 8pt &quot;Verdana&quot;;</string>
         <property name="geometry">
          <rect>
           <x>0</x>
-          <y>0</y>
-          <width>201</width>
-          <height>721</height>
+          <y>10</y>
+          <width>211</width>
+          <height>711</height>
          </rect>
         </property>
         <property name="toolTip">
@@ -1681,7 +1681,7 @@ font: 8pt &quot;Verdana&quot;;</string>
           <bool>false</bool>
          </property>
         </widget>
-        <widget class="QCheckBox" name="proforma_sale_partially_prepared">
+        <widget class="QCheckBox" name="proforma_sale_partially_processed">
          <property name="geometry">
           <rect>
            <x>40</x>

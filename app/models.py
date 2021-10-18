@@ -26,7 +26,7 @@ from utils import parse_date
 # GREEN FOR COMPLETED
 # ORANGE FOR EMPTY OR PARTIAL
 # YELLOW FOR OVERFLOW
-RED, GREEN, YELLOW, ORANGE = '#FF0000', '#00FF00', '#FFFF00', '#FFA500'
+RED, GREEN, YELLOW, ORANGE = '#FF7F7F', '#90EE90', '#FFFF66', '#FFD580'
 
 class BaseTable:
 
@@ -518,18 +518,16 @@ class InvoiceModel(BaseTable, QtCore.QAbstractTableModel):
 		self.invoices = db.session.query(self.Proforma).where(self.Proforma.invoice != None).all()         
 
 	
-	def _totalDebt(self, invoice):
+	def total_debt(self, invoice):
 		return sum([line.quantity * line.price for line in invoice.lines])
 	
-	def _paid(self, invoice):
+	def totaltotaltotaltotaltotaltotal_paid(self, invoice):
 		return sum([payment.amount for payment in invoice.payments])
 
-
-	def _totalQuantity(self, invoice):
+	def total_quantity(self, invoice):
 		return sum([line.quantity for line in invoice.lines])
 
-
-	def _totalProcessed(self, invoice):
+	def tota_processed(self, invoice):
 		processed = 0
 		try:
 			lines = invoice.expedition.lines if self.sale else \
@@ -542,7 +540,6 @@ class InvoiceModel(BaseTable, QtCore.QAbstractTableModel):
 		except AttributeError:
 			return 0 
 
-
 	def data(self, index, role=Qt.DisplayRole):
 		if not index.isValid():
 			return 
@@ -554,8 +551,8 @@ class InvoiceModel(BaseTable, QtCore.QAbstractTableModel):
 			paid = sum([payment.amount for payment in proforma.payments])
 			total_debt = sum([line.quantity * line.price for line in proforma.lines])
 		elif col == InvoiceModel.LOGISTIC:
-			total_quantity = self._totalQuantity(proforma)
-			processed = self._totalProcessed(proforma)
+			total_quantity = self.total_quantity(proforma)
+			processed = self.tota_processed(proforma)
 
 		if role == Qt.DisplayRole:
 			if col == InvoiceModel.TYPE_NUM:
@@ -652,35 +649,45 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
 			self.proformas = query.all() 
 
 			if 'type' in filters:
+				print('HIT type in filters')
+				print(filters['type'])
 				self.proformas = filter(lambda p : p.type in filters['type'], self.proformas)
 
 			if 'financial' in filters:
 				if 'not paid' in filters['financial']:
-					self.proformas = filter(lambda p: not self._paid(p), self.proformas)
+					print('HIT not paid in filters[financial]')
+					self.proformas = filter(lambda p: self.not_paid(p), self.proformas)
+					
 				if 'cancelled' in filters['financial']:
+					print('HIT cancelled in filters[financial]')
 					self.proformas = filter(lambda p:p.cancelled, self.proformas)
 				if 'fully paid' in filters['financial']:
-					self.proformas = filter(lambda p:not p.cancelled and self._paid(p) == self._totalDebt(p), self.proformas)
+					print('HIT fully paid in filters[financial]')
+					self.proformas = filter(lambda p:not p.cancelled and self.fully_paid(p), self.proformas)
 				if 'partially paid' in filters['financial']:
-					self.proformas = filter(lambda p:not p.cancelled and 0 < self._paid(p) < self._totalDebt(p) ,self.proformas)
+					print('HIT partially paid in filters[financial]')
+					self.proformas = filter(lambda p:not p.cancelled and self.partially_paid(p) ,self.proformas)
 			
 			if 'logistic' in filters:
 				if 'empty' in filters['logistic']:
-					self.proformas = filter(lambda p:not p.cancelled and not self._totalProcessed(p), self.proformas)
+					print('HIT empty in filters')
+					self.proformas = filter(lambda p:not p.cancelled and self.empty(p), self.proformas)
 				if 'partially prepared' in filters['logistic']:
-					self.proformas = filter(lambda p:not p.cancelled and 0 < self._totalProcessed(p) < self._totalQuantity(p),\
-						self.proformas) 
+					print('HIT partially prepaed in filters[logistic]')
+					self.proformas = filter(lambda p:not p.cancelled and self.partially_prepared(p), self.proformas) 
 				if 'completed' in filters['logistic']:
-					self.proformas = filter(lambda p:not p.cancelled and self._totalProcessed(p) == self._totalQuantity(p), \
-						self.proformas)
+					print('HIT completed in filters[logistic]')
+					self.proformas = filter(lambda p:not p.cancelled and self.completed(p), self.proformas)
 				if 'overflowed' in filters['logistic']:
-					self.proformas = filter(lambda p:not p.cancelled and self._totalProcessed(p) > self._totalQuantity(p), \
-						self.proformas)
+					print('overflowed in filters[logistic]')
+					self.proformas = filter(lambda p:not p.cancelled and self.overflowed(p), self.proformas)
 
 			if 'shipment' in filters:
 				if 'sent' in filters['shipment']:
+					print('sent in filters[shipment]')
 					self.proformas = filter(lambda p:p.sent, self.proformas)
 				if 'not sent' in filters['shipment']:
+					print('HIT not sent in filters[shipment]')
 					self.proformas = filter(lambda p:not p.sent, self.proformas)
 
 			if isinstance(self.proformas, filter):
@@ -688,33 +695,59 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
 		else:
 			self.proformas = query.all() 
 
-	def _totalDebt(self, proforma):
+	def total_debt(self, proforma):
 		return sum([line.quantity * line.price for line in proforma.lines]) 
 	
-	def _paid(self, proforma):
+	def total_paid(self, proforma):
 		return sum([payment.amount for payment in proforma.payments])
 
-
-	def _totalQuantity(self, proforma):
-		counter = 0 
-		for line in proforma.lines:
-			if line.description in descriptions or line.item_id:
-				counter += 1
-		return counter 
+	def total_quantity(self, proforma):
+		return sum(line.quantity for line in proforma.lines \
+			if line.description in descriptions or line.item_id)
 		
-	def _totalProcessed(self, proforma):
-		if not hasattr(proforma.reception, 'lines'): return 0 
-		counter = 0
-		for line in proforma.reception.lines:
-			try:
-				for serie in line.mixed_series:
-					counter += 1 
-			except AttributeError: pass 
-			try:
-				for serie in line.series: 
-					counter += 1 
-			except AttributeError: pass 
-		return counter 
+	def total_processed(self, proforma):
+		try:
+			return sum(
+				1 for line in proforma.reception.lines for serie in line.series
+			)
+		except AttributeError:
+			return 0 
+
+	# Logistic filters:
+	def empty(self, proforma):
+		return self.total_processed(proforma) == 0 
+
+	def partially_received(self, proforma):
+		return self.total_processed(proforma) < self.total_quantity(proforma)
+
+	def completed(self, proforma):
+		return self.tota_processed(proforma) == self.total_quantity(proforma)
+
+	def overflowed(self, proforma):
+		try:
+			return True if any(
+				[
+					True 
+					for line in proforma.reception.lines
+					if sum(1 for serie in line.series) > line.quantity			 
+				]
+			) else False 
+		except AttributeError:
+			return False 
+
+	
+	# Financial filters:
+	def not_paid(self, proforma):
+		return self.total_paid(proforma) == 0 
+
+	def partially_paid(self, proforma):
+		return self.total_paid(proforma) < self.total_debt(proforma) 
+
+	def fully_paid(self, proforma):
+		return self.total_debt(proforma) == self.total_paid(proforma) 
+	
+	def overpaid(self, proforma):
+		return self.total_paid(proforma) > self.total_debt(proforma) 
 
 
 	def data(self, index, role=Qt.DisplayRole):
@@ -722,14 +755,6 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
 			return 
 		row, col = index.row(), index.column()
 		proforma = self.proformas[row]
-
-		if col in (PurchaseProformaModel.FINANCIAL, PurchaseProformaModel.OWING, \
-			PurchaseProformaModel.TOTAL):
-			paid = self._paid(proforma) 
-			total_debt = self._totalDebt(proforma) 
-		elif col == PurchaseProformaModel.LOGISTIC:
-			total_quantity = self._totalQuantity(proforma)
-			processed_quantity = self._totalProcessed(proforma)
 
 		if role == Qt.DisplayRole:
 			if col == PurchaseProformaModel.TYPE_NUM:
@@ -746,67 +771,66 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
 			elif col == PurchaseProformaModel.FINANCIAL:
 				if proforma.cancelled:
 					return 'Cancelled'     
-				else:
-					if paid == 0 and total_debt > paid:
-						return 'Not Paid'
-					elif 0 < paid < total_debt:
-						return 'partially paid' 
-					elif paid == total_debt:
-						return 'Paid'
-					elif paid > total_debt:
-						return 'They Owe'
-						
+				elif self.not_paid(proforma):
+					return "Not Paid"
+				elif self.partially_paid(proforma):
+					return "Partially Paid"
+				elif self.fully_paid(proforma):
+					return "Paid"
+				elif self.overpaid(proforma):
+					return "They owe"
 
 			elif col == PurchaseProformaModel.LOGISTIC:
-				
-				if processed_quantity == 0:
+				if self.empty(proforma):
 					return "Empty"
-				elif 0 < processed_quantity < total_quantity:
+				elif self.overflowed(proforma):
+					return "Overflowed"	
+				elif self.partially_received(proforma):
 					return "Partially Received"
-				elif processed_quantity == total_quantity:
-					return 'Fully Received'
-				elif processed_quantity > total_quantity:
-					return 'Overflowed'
+				elif self.completed(proforma):
+					return "Completed"
+				
 			
 			elif col == PurchaseProformaModel.SENT:
 				return "Sent" if proforma.sent else "Not Sent"
 			elif col == PurchaseProformaModel.OWING:
 				sign = ' -€' if proforma.eur_currency else ' $'
-				return str(round(total_debt - paid, 2)) + sign       
+				owing = self.total_debt(proforma) - self.total_paid(proforma) 
+				return str(round(owing, 2)) + sign       
+			
 			elif col == PurchaseProformaModel.TOTAL:
 				sign = ' -€' if proforma.eur_currency else ' $'
-				return str(round(total_debt, 2)) + sign
-
+				return str(round(self.total_debt(proforma), 2)) + sign
 		elif role == Qt.DecorationRole:
 			if col == PurchaseProformaModel.FINANCIAL:
 				if proforma.cancelled:
 					return QtGui.QColor(RED)
-				else:
-					if total_debt == paid:
-						return QtGui.QColor(GREEN)
-					elif paid == 0:
-						return QtGui.QColor(YELLOW)
-					elif  0 < paid < total_debt:
-						return QtGui.QColor(ORANGE)
-					elif  paid > total_debt:
-						return QtGui.QColor(YELLOW)
+				elif self.not_paid(proforma):
+					return QtGui.QColor(YELLOW)
+				elif self.partially_paid(proforma):
+					return QtGui.QColor(ORANGE)
+				elif self.fully_paid(proforma):
+					return QtGui.QColor(GREEN)
+				elif self.overpaid(proforma):
+					return QtGui.QColor(RED) 
 			elif col == PurchaseProformaModel.DATE or col == PurchaseProformaModel.ETA:
 				return QtGui.QIcon(':\calendar')
 			elif col == PurchaseProformaModel.PARTNER:
 				return QtGui.QIcon(':\partners')
 			elif col == PurchaseProformaModel.AGENT:
 				return QtGui.QIcon(':\\agents')
-			elif col == PurchaseProformaModel.SENT:
-				return QtGui.QColor(GREEN) if proforma.sent else QtGui.QColor(RED)
 			elif col == PurchaseProformaModel.LOGISTIC:
-				if processed_quantity == 0:
+				if self.empty(proforma):
 					return QtGui.QColor(ORANGE)
-				elif processed_quantity == total_quantity:
+				# Overflow contained in partially received, then must be checked first.
+				# Every overflow is partially received, not otherwise 
+				elif self.overflowed(proforma):
+					return QtGui.QColor(RED)
+				elif self.partially_received(proforma):
+					return QtGui.QColor(ORANGE)
+				elif self.completed(proforma):
 					return QtGui.QColor(GREEN)
-				elif 0 < processed_quantity < total_quantity:
-					return QtGui.QColor(ORANGE)
-				elif processed_quantity > total_quantity:
-					return QtGui.QColor(YELLOW)
+
 
 	def sort(self, section, order):
 		reverse = True if order == Qt.AscendingOrder else False
@@ -872,8 +896,9 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
 			db.session.rollback() 
 			raise 
 
-	def ship(self, proforma, tracking):
-		proforma.tracking = tracking
+	def ship(self, proforma, tracking=None):
+		if tracking:
+			proforma.tracking = Tracking
 		proforma.sent = True
 		try:
 			db.session.commit()
@@ -907,8 +932,6 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
 				descriptions:
 					reception_line.reception = reception 
 		# reception is attached to session, will cascade-commit the lines.
-
-
 
 	def updateWarehouse(self, proforma):
 		
@@ -973,23 +996,23 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 
 			if 'financial' in filters:
 				if 'not paid' in filters['financial']:
-					self.proformas = filter(lambda p: not self._paid(p), self.proformas)
+					self.proformas = filter(lambda p: not self.totaltotaltotaltotaltotal_paid(p), self.proformas)
 				if 'cancelled' in filters['financial']:
 					self.proformas = filter(lambda p:p.cancelled, self.proformas)
 				if 'fully paid' in filters['financial']:
-					self.proformas = filter(lambda p:not p.cancelled and self._paid(p) == self._totalDebt(p), self.proformas)
+					self.proformas = filter(lambda p:not p.cancelled and self.totaltotaltotaltotaltotal_paid(p) == self.total_debt(p), self.proformas)
 				if 'partially paid' in filters['financial']:
-					self.proformas = filter(lambda p:not p.cancelled and 0 < self._paid(p) < self._totalDebt(p) ,self.proformas)
+					self.proformas = filter(lambda p:not p.cancelled and 0 < self.totaltotaltotaltotaltotal_paid(p) < self.total_debt(p) ,self.proformas)
 			
 			if 'logistic' in filters:
 				if 'empty' in filters['logistic']:
-					self.proformas = filter(lambda p:not p.cancelled and not self._totalProcessed(p), self.proformas)
+					self.proformas = filter(lambda p:not p.cancelled and not self.tota_processed(p), self.proformas)
 				if 'partially prepared' in filters['logistic']:
-					self.proformas = filter(lambda p:not p.cancelled and 0 < self._totalProcessed(p) < self._totalQuantity(p),\
+					self.proformas = filter(lambda p:not p.cancelled and 0 < self.tota_processed(p) < self.total_quantity(p),\
 						self.proformas) 
 				
 				if 'completed' in filters['logistic']:
-					self.proformas = filter(lambda p:not p.cancelled and self._totalProcessed(p) == self._totalQuantity(p), \
+					self.proformas = filter(lambda p:not p.cancelled and self.tota_processed(p) == self.total_quantity(p), \
 						self.proformas)
 
 			if 'shipment' in filters:
@@ -1004,17 +1027,17 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 		else:
 			self.proformas = query.all() 
 	
-	def _totalDebt(self, proforma):
+	def total_debt(self, proforma):
 		return sum([line.quantity * line.price for line in proforma.lines])
 	
-	def _paid(self, proforma):
+	def totaltotaltotaltotaltotal_paid(self, proforma):
 		return sum([payment.amount for payment in proforma.payments])
 
 
-	def _totalQuantity(self, proforma):
+	def total_quantity(self, proforma):
 		return sum([line.quantity for line in proforma.lines])
 
-	def _totalProcessed(self, proforma):
+	def tota_processed(self, proforma):
 		processed = 0
 		try:
 			for line in proforma.expedition.lines:
@@ -1031,10 +1054,10 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 		proforma = self.proformas[row]
 
 		if col in (SaleProformaModel.FINANCIAL, SaleProformaModel.OWING, SaleProformaModel.TOTAL):
-			paid = self._paid(proforma) 
-			total_debt = self._totalDebt(proforma) 
+			paid = self.totaltotaltotaltotaltotaltotal_paid(proforma) 
+			total_debt = self.total_debt(proforma) 
 		elif col == SaleProformaModel.LOGISTIC:
-			total_quantity = self._totalQuantity(proforma) 
+			total_quantity = self.total_quantity(proforma) 
 			try:
 				processed_quantity = 0 
 				for line in proforma.expedition.lines:
@@ -1530,8 +1553,8 @@ class PurchaseProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 
 	def __init__(self, lines=None, delete_allowed=True):
 		super().__init__()
-		self._headerData = ['Description', 'Condition', 'Spec', 'Qty.', \
-			'Price', 'Subtotal', 'Tax', 'Total']
+		self._headerData = ['Description', 'Condition', 'Spec', 'Qty.(Editable)', \
+			'Price (Editable)', 'Subtotal', 'Tax (Editable)', 'Total']
 		self.name = 'lines'
 		self.lines = lines or [] 
 
@@ -1724,9 +1747,9 @@ class PaymentModel(BaseTable, QtCore.QAbstractTableModel):
 		if role == Qt.DisplayRole:
 			if column == self.__class__.DATE:
 				return payment.date.strftime('%d/%m/%Y')
-			elif column == 1:
-				return str(payment.amount) 
 			elif column == self.__class__.AMOUNT:
+				return str(payment.amount) 
+			elif column == self.__class__.NOTE:
 				return payment.note
 		elif role == Qt.DecorationRole:
 			if column == self.__class__.DATE:
@@ -1753,12 +1776,10 @@ class PaymentModel(BaseTable, QtCore.QAbstractTableModel):
 					return True 
 				except ValueError:
 					return False
-				
 			elif column == self.__class__.NOTE:
 				payment.note = value[0:255]
 				return True 
 		return False
-
 
 	def flags(self, index):
 		if not index.isValid():
@@ -1790,6 +1811,14 @@ class PaymentModel(BaseTable, QtCore.QAbstractTableModel):
 			for row in sorted(rows, reverse=True):
 				del self.payments[row]
 			self.layoutChanged.emit() 
+
+
+	def save(self):
+		try:
+			db.session.commit()
+		except:
+			db.session.rollback()
+			raise 
 
 	@property
 	def paid(self):
@@ -2049,7 +2078,7 @@ class ReceptionModel(BaseTable, QtCore.QAbstractTableModel):
 			if 'completed' in filters:
 				self.receptions = filter(lambda o: not o.cancelled and self._processed(o) == self._total(o), self.receptions)
 			if "overflowed" in filters:
-				self.receptions = filter(lambda o: not o.cancelled and self._processed(o) > self._total(o), self.receptions) 
+				self.receptions = filter(lambda o: not o.cancelled and self.overflowed(o), self.receptions) 
 
 			if isinstance(self.receptions, filter):
 				self.receptions = list(self.receptions)
@@ -2114,6 +2143,19 @@ class ReceptionModel(BaseTable, QtCore.QAbstractTableModel):
 						return QtGui.QColor(ORANGE)
 					elif processed > total:
 						return QtGui.QColor(YELLOW)
+
+
+	def _overflowed(self, reception):
+		try:
+			return True if any(
+				[
+					True 
+					for line in reception.lines
+					for serie in line.series
+				]
+			) else False 
+		except AttributeError:
+			return False 
 
 	def _total(self, reception):
 		return sum([line.quantity for line in reception.proforma.lines \

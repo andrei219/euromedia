@@ -87,6 +87,15 @@ class PaymentForm(Ui_PaymentsForm, QDialog):
 
         self.owing_lineedit.setText(str(float(self.total) - float(self.paid)))
 
+
+    def closeEvent(self, event):
+        try:
+            self.model.save()
+        except:
+            raise 
+        else:
+            super().closeEvent(event)
+
     @property
     def total(self):
         return sum([line.price * line.quantity for line in self.proforma.lines])

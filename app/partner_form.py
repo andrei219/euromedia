@@ -239,13 +239,13 @@ class PartnerForm(Ui_Partner_Form, QWidget):
         self.docs_button.setEnabled(True)
 
     def setUpHandlers(self):
-        self.copy_address_button.pressed.connect(self.copyAddress)
+        self.copy_address_button.clicked.connect(self.copyAddress)
         self.billing_country_combobox.currentTextChanged.connect(self.enablecheckboxs)
         self.shipemnt_country_combobox.currentTextChanged.connect(self.enablecheckboxs) 
-        self.add_row_button.pressed.connect(self.addContact)
-        self.delete_row_button.pressed.connect(self.removeContact)
-        self.docs_button.pressed.connect(self.docsButtonHandler)
-        self.save_button.pressed.connect(self.saveButtonHandler)
+        self.add_row_button.clicked.connect(self.addContact)
+        self.delete_row_button.clicked.connect(self.removeContact)
+        self.docs_button.clicked.connect(self.docsButtonHandler)
+        self.save_button.clicked.connect(self.saveButtonHandler)
 
     def closeEvent(self, event):
         # if not self.partner.contacts and self.mode == PartnerForm.EDITABLE_MODE:
