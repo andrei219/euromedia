@@ -16,7 +16,7 @@ from datetime import datetime
 from sqlalchemy import ( 
     Table, Column, Integer, String, Enum, DateTime, 
     ForeignKey, UniqueConstraint, SmallInteger, Boolean, LargeBinary,
-    Date, CheckConstraint, FLOAT
+    Date, CheckConstraint, Numeric
 )
 
 from sqlalchemy.ext.declarative import declarative_base
@@ -144,10 +144,10 @@ class Agent(Base):
     country = Column(String(50), default='Spain')
     
     # Optional, check when populating form:
-    fixed_salary = Column(FLOAT(10, 2))
-    from_profit = Column(FLOAT(10, 2))
-    from_turnover = Column(FLOAT(10, 2))
-    fixed_perpiece = Column(FLOAT(10, 2))
+    fixed_salary = Column(Numeric(10, 2, asdecimal=False))
+    from_profit = Column(Numeric(10, 2, asdecimal=False))
+    from_turnover = Column(Numeric(10, 2, asdecimal=False))
+    fixed_perpiece = Column(Numeric(10, 2, asdecimal=False))
     bank_name = Column(String(50))
     iban = Column(String(50))
     swift = Column(String(50))
@@ -185,7 +185,7 @@ class Partner(Base):
     trading_name = Column(String(50), nullable=False, unique=True)
     warranty = Column(Integer, default=0)
     note = Column(String(255))
-    amount_credit_limit = Column(FLOAT(10, 2), default=0)
+    amount_credit_limit = Column(Numeric(10, 2, asdecimal=False), default=0)
     days_credit_limit = Column(Integer, default=0)
     
     agent_id = Column(Integer, ForeignKey('agents.id')) 
@@ -308,7 +308,7 @@ class PurchaseProforma(Base):
     tracking = Column(String(50))
     external = Column(String(50))
 
-    credit_amount = Column(FLOAT(10, 2), nullable=False, default=0)
+    credit_amount = Column(Numeric(10, 2, asdecimal=False), nullable=False, default=0)
     credit_days = Column(Integer, default=0, nullable=False) 
 
     incoterm = Column(String(3), nullable=False)
@@ -330,12 +330,39 @@ class PurchaseProformaLine(Base):
     spec = Column(String(50), nullable=True)
 
     quantity = Column(Integer, nullable=False)
-    price = Column(FLOAT(10, 2), nullable=False, default=1.0)
+    price = Column(Numeric(10, 2, asdecimal=False), nullable=False, default=1.0)
     tax = Column(Integer, nullable=False, default=0)
 
     item = relationship('Item', uselist=False)
-    proforma = relationship('PurchaseProforma', backref=backref('lines'))
+    proforma = relationship(
+        'PurchaseProforma', 
+        backref=backref(
+            'lines', 
+            cascade='delete-orphan, delete, save-update'
+        )
+    ) 
     
+    # This __eq__ method is a callback
+    # For the set difference between reception lines 
+    # and proforma purchase lines, in order to update the
+    # receptions when they are already created and user 
+    # wants the update proforma. 
+    def __eq__(self, other):
+        return all((
+            other.item_id == self.item_id, 
+            other.description == self.description, 
+            other.condition == self.condition, 
+            other.spec == self.spec
+        ))
+
+    def __hash__(self):
+        return hash(''.join(map(str, [
+            self.description, self.item_id, 
+            self.condition, self.spec
+        ])))
+
+    def __str__(self):
+        return f"{self.item_id},{self.description},{self.condition},{self.spec}"
 
 class PurchaseDocument(Base):
     
@@ -377,7 +404,7 @@ class PurchasePayment(Base):
     proforma_id = Column(Integer, ForeignKey('purchase_proformas.id'), index=True)
 
     date = Column(Date)
-    amount = Column(FLOAT(10, 2))
+    amount = Column(Numeric(10, 2, asdecimal=False))
     note = Column(String(255))
     
     proforma = relationship('PurchaseProforma', backref=backref('payments'))
@@ -397,7 +424,7 @@ class PurchaseExpense(Base):
     proforma_id = Column(Integer, ForeignKey('purchase_proformas.id'))
 
     date = Column(Date)
-    amount = Column(FLOAT(10, 2))
+    amount = Column(Numeric(10, 2, asdecimal=False))
     note = Column(String(255))
 
     proforma = relationship('PurchaseProforma', backref=backref('expenses'))
@@ -441,7 +468,7 @@ class SaleProforma(Base):
     sale_invoice_id = Column(Integer, ForeignKey('sale_invoices.id'))
 
     
-    credit_amount = Column(FLOAT(10, 2), nullable=False, default=0)
+    credit_amount = Column(Numeric(10, 2, asdecimal=False), nullable=False, default=0)
     credit_days = Column(Integer, nullable=False, default=0)
     tracking = Column(String(50))
     external = Column(String(50))
@@ -469,7 +496,7 @@ class SalePayment(Base):
     proforma_id = Column(Integer, ForeignKey('sale_proformas.id'))
 
     date = Column(Date)
-    amount = Column(FLOAT(10, 2))
+    amount = Column(Numeric(10, 2, asdecimal=False))
     note = Column(String(255))
     
     def __init__(self, date, amount, note, proforma):
@@ -487,7 +514,7 @@ class SaleExpense(Base):
     proforma_id = Column(Integer, ForeignKey('sale_proformas.id'))
 
     date = Column(Date)
-    amount = Column(FLOAT(10, 2))
+    amount = Column(Numeric(10, 2, asdecimal=False))
     note = Column(String(255))
 
     def __init__(self, date, amount, note, proforma):
@@ -548,7 +575,7 @@ class SaleProformaLine(Base):
     spec = Column(String(50), nullable=False)
     ignore_spec = Column(Boolean, nullable=False) 
     quantity = Column(Integer, nullable=False)
-    price = Column(FLOAT(10, 2), nullable=False)
+    price = Column(Numeric(10, 2, asdecimal=False), nullable=False)
     tax = Column(Integer, nullable=False)
 
     item = relationship('Item', uselist=False)
@@ -664,18 +691,39 @@ class ReceptionLine(Base):
     reception = relationship('Reception', backref=backref('lines'))
     item = relationship('Item', uselist=False)
 
+    reception = relationship(
+        'Reception', 
+        backref=backref(
+            'lines', 
+            cascade='delete-orphan, delete, save-update'
+        )
+    )
+
+    def __eq__(self, other):
+        return all((
+            other.item_id == self.item_id, 
+            other.description == self.description, 
+            other.condition == self.condition, 
+            other.spec == self.spec
+        ))
+
+    def __hash__(self):
+        return hash(''.join(map(str, [
+            self.description, self.item_id, 
+            self.condition, self.spec
+        ])))
 
     def __str__(self):
-        return f"{self.item_id}, {self.description}, {self.condition}, {self.spec}"
+        return f"{self.item_id},{self.description},{self.condition},{self.spec}"
 
     __table_args__ = (
         UniqueConstraint('id', 'reception_id'), 
     )
 
 
-class MixedSerie(Base):
+class ReceptionSerie(Base):
 
-    __tablename__ = 'mixed_series'
+    __tablename__ = 'reception_series'
 
     id = Column(Integer, primary_key=True)
     item_id = Column(Integer, ForeignKey('items.id'), nullable=False)
@@ -685,7 +733,7 @@ class MixedSerie(Base):
     spec = Column(String(50), nullable=False)
 
     item = relationship('Item', uselist=False)
-    line = relationship('ReceptionLine', backref=backref('mixed_series'))
+    line = relationship('ReceptionLine', backref=backref('series'))
 
     def __init__(self, item_id, line, serie, condition, spec):
         self.item_id = item_id
@@ -694,31 +742,6 @@ class MixedSerie(Base):
         self.condition = condition
         self.spec = spec
 
-
-class ReceptionSerie(Base):
-   
-    __tablename__ = 'reception_series'
-    
-    id = Column(Integer, primary_key=True)
-    line_id = Column(Integer, ForeignKey('reception_lines.id'))
-    serie = Column(String(50))
-
-    line = relationship('ReceptionLine', backref=backref('series'))
-
-
-    def __init__(self, line, serie):
-        self.line = line
-        self.serie = serie 
-
-    def __eq__(self, other):
-        if isinstance(other, self.__class__):
-            return other.serie == self.serie
-        elif isinstance(other, str):
-            return other == self.serie 
-
-    __table_args__ = (
-        UniqueConstraint('id', 'line_id', 'serie'), 
-    )
 
 class ExpeditionSerie(Base):
     
@@ -749,9 +772,15 @@ class Imei(Base):
 
 
 
+item1 = Item('Apple', 'Iphone', 'X', 128, 'Black')
+item2 = Item('Samnsung', 'Galaxy', 'Lite', 256, 'Red')
+item3 = Item('Apple', 'Iphone', 'X', 128, 'Red')
+item4 = Item('Apple', 'Iphone', 'X', 128, 'Yellow')
+item5 = Item('Apple', 'Iphone', 'X', 128, 'Purple')
+
 def create_and_populate(): 
 
-    import sys
+    import sys, random
 
     if sys.platform == 'win32':
         testpath = r'.\app\SalesInvoice_LWI003703.pdf'
@@ -765,30 +794,51 @@ def create_and_populate():
 
     session = Session() 
 
-    for spec in [Spec('EEUU'), Spec('JAPAN'), Spec('FRANCE'), \
-        Spec('SPAIN'), Spec('Mix')]:
-        session.add(spec)
+    spec_list = [Spec('EEUU'), Spec('JAPAN'), Spec('FRANCE'), \
+        Spec('SPAIN'), Spec('Mix')]
     
-    for condition in [Condition('NEW'), Condition('USED'), Condition('A+'),\
-        Condition('A+/A-'), Condition('B+'), Condition('Mix')]:
-        session.add(condition)
+    
+    condition_list =  [Condition('NEW'), Condition('USED'), Condition('A+'),\
+        Condition('A+/A-'), Condition('B+'), Condition('Mix')]
+    
+    session.add_all(spec_list)
+    session.add_all(condition_list) 
 
-    agent = Agent() 
+    a1 = Agent() 
 
-    agent.fiscal_name = 'Andrei Enache'
-    agent.fiscal_number = 'X4946057E'
-    agent.email = 'andrei.officee@gmail.com'
-    agent.phone = '604178304'
-    agent.country = 'Spain'
-    agent.active = True
+    a1.fiscal_name = 'Andrei Enache'
+    a1.fiscal_number = 'X4946057E'
+    a1.email = 'andrei.officee@gmail.com'
+    a1.phone = '604178304'
+    a1.country = 'Spain'
+    a1.active = True
 
-    partner = Partner()
+    a2 = Agent() 
 
-    partner.fiscal_name = 'Euromedia Investment Group, S.L.'
-    partner.fiscal_number = 'B98815608'
-    partner.trading_name = 'Euromedia'
-    partner.billing_country = 'Spain'
-    partner.agent = agent
+    a2.fiscal_name = 'Raimundo Cortès'
+    a2.fiscal_number = '4253234532'
+    a2.email = 'raimun.cortes@bbb.com'
+    a2.phone = '898949865'
+    a2.country = 'France'
+    a2.active = True
+
+    a3 = Agent()
+    a3.fiscal_name = 'Raimundo Lopez'
+    a3.fiscal_number = 'X34234234'
+    a3.active = False
+    a3.country = 'Spain'
+    a3.email = 'aasdasdnwe@fas.com'
+    a3.phone = '7723324324'
+
+    agent_list = [a1, a2, a3]
+
+    partner1 = Partner()
+
+    partner1.fiscal_name = 'Euromedia Investment Group, S.L.'
+    partner1.fiscal_number = 'B98815608'
+    partner1.trading_name = 'Euromedia'
+    partner1.billing_country = 'Spain'
+    partner1.agent = random.choice(agent_list)
 
     contact1 = PartnerContact('Angel Mirchev', 'CEO', '673567274', \
         'angel.bn@euromediagroup.com', 'Boss of the people')
@@ -796,118 +846,134 @@ def create_and_populate():
     contact2 = PartnerContact('Tihomir Damyianov', 'Sales Manager', '772342343',\
         'tihomir.dv@euromediagroup.com', 'The boss of the salesman')
 
+    partner1.contacts.extend([contact1, contact2])
 
-    partner.contacts.extend([contact1, contact2])
+    partner1.we_pay_they_ship = True
+    partner1.days_credit_limit = 30 
+    partner1.amount_credit_limit = 10000
+    partner1.warranty = 7
 
-    partner.agent = agent
-    partner.we_pay_they_ship = True
-    partner.days_credit_limit = 30 
-    partner.amount_credit_limit = 10000
+    partner2 = Partner()
+    
+    partner2.fiscal_name = 'The boring company.'
+    partner2.fiscal_number = '32442234235324'
+    partner2.trading_name = 'The boring comany'
+    partner2.billing_country = 'EEUU'
+    partner2.agent = random.choice(agent_list) 
 
-    session.add(partner)
-    session.add(agent)
+    contact1 = PartnerContact('Elon Musk', 'CEO', '673567274', \
+        'elon.musk@tre.com', 'Boss of the people')
+    
+    contact2 = PartnerContact('Jose Ignacio Fernanzed', 'Admin', '772342343',\
+        'jose@ignacio.com', 'Un idiota')
 
+    partner2.contacts.extend([contact1, contact2])
+
+    partner2.warranty = 9 
+    partner2.we_pay_they_ship = True
+    partner2.days_credit_limit = 10 
+    partner2.amount_credit_limit = 50000
+
+    partner_list = [partner1, partner2]
 
     from utils import base64Pdf 
 
     ad1 = AgentDocument()
     ad1.name = 'NIE'
     ad1.document = base64Pdf(testpath) 
-    ad1.agent = agent
+    ad1.agent = random.choice(agent_list)
 
     ad2 = AgentDocument()
     ad2.name = 'Passport'
     ad2.document = base64Pdf(testpath)
-    ad2.agent = agent
+    ad2.agent = random.choice(agent_list) 
 
 
     pd = PartnerDocument()
     pd.name = 'TAF'
     pd.document = base64Pdf(testpath)
-    pd.partner = partner
-
-    session.add(ad1)
-    session.add(ad2)
-    session.add(pd)
-
-    a = Agent()
-    a.fiscal_name = 'Raimundo Lopez'
-    a.fiscal_number = 'X34234234'
-    a.active = False
-    a.country = 'Spain'
-    a.email = 'aasdasdnwe@fas.com'
-    a.phone = '7723324324'
-
-
-    item1 = Item('Apple', 'Iphone', 'X', 128, 'Black')
-    item2 = Item('Samnsung', 'Galaxy', 'Lite', 256, 'Red')
-    item3 = Item('Apple', 'Iphone', 'X', 128, 'Red')
-    item4 = Item('Apple', 'Iphone', 'X', 128, 'Yellow')
-    item5 = Item('Apple', 'Iphone', 'X', 128, 'Purple')
-
-
-    session.add(item1)
-    session.add(item2)
-    session.add(item3)
-    session.add(item4)
-    session.add(item5)
-
-    session.add(a)
-
-    w = Warehouse('Free Sale')
-    session.add_all([Warehouse('Drebno'), w, Warehouse('Trash')])
-
-    session.add_all([Courier('DHL'), Courier('MRV'), Courier('Fedex')])
+    pd.partner = random.choice(partner_list) 
     
-    proforma = PurchaseProforma() 
-    proforma.type = 1
-    proforma.number = 1
-    proforma.date = datetime(2020, 10, 11)
-    proforma.warranty = 100
-    from datetime import timedelta
-    proforma.eta = proforma.date + timedelta(days=5) 
-    proforma.partner = partner
-    proforma.agent = agent
-    proforma.warehouse = Warehouse('WarehouseB')
-    proforma.courier = Courier('USP')
-    proforma.eur_currency = True
-    proforma.incoterm = 'FOB'
-    proforma.we_pay_we_ship = True
-
-    line = PurchaseProformaLine() 
-    line.proforma = proforma
-    line.item = item1
-    line.condition = 'A+/B-'
-    line.spec = 'FRANCE'
-    line.quantity = 3 
-    proforma.lines.append(line) 
-
-    line = PurchaseProformaLine()
-    line.proforma = proforma 
-    line.description = 'Apple Iphone X 128 GB Mixed Color'
-    line.condition = 'Mix'
-    line.spec = 'EEUU'
-    line.quantity = 5
-    proforma.lines.append(line)
+    session.add_all(agent_list)
+    session.add_all(partner_list) 
     
-    line = PurchaseProformaLine()
-    line.proforma = proforma 
-    line.item = item2
-    line.condition = 'A+/B-'
-    line.spec = 'EEUU'
-    line.quantity = 5
-    proforma.lines.append(line)
+    item_list = [item1, item2, item3, item4, item5]
 
-    session.add(proforma) 
+    session.add_all(item_list) 
 
-    pd = PurchaseDocument() 
-    pd.name = 'customs'
-    pd.document = base64Pdf(testpath)
-    pd.proforma = proforma
+    warehouse_list = [Warehouse('Drebno'), Warehouse('Sale'), Warehouse('Trash')]
 
-    from datetime import date
-    pp1 = PurchasePayment(date.today(), 5000, 'Caixa / 33423', proforma) 
-    pp2 = PurchasePayment(date.today() + timedelta(days=2), 200, 'Santander / 23423', proforma) 
+    session.add_all(warehouse_list) 
+
+    courier_list = [Courier('DHL'), Courier('MRV'), Courier('Fedex')]
+    session.add_all(courier_list)
+    
+
+    for i in range(1, 4):
+
+        proforma = PurchaseProforma() 
+        proforma.type = 1
+        proforma.number = i  
+        proforma.date = datetime(2020, 10, 11)
+        from datetime import timedelta
+        proforma.eta = proforma.date + timedelta(days=5) 
+        proforma.partner = random.choice(partner_list)
+        proforma.agent = random.choice(agent_list) 
+        proforma.warehouse = random.choice(warehouse_list)
+        proforma.courier = random.choice(courier_list)
+        proforma.eur_currency = True
+        proforma.incoterm = 'FOB'
+        proforma.we_pay_we_ship = True
+
+        line = PurchaseProformaLine() 
+        line.proforma = proforma
+        line.item = random.choice(item_list)
+        line.condition = random.choice([c.description for c in condition_list])
+        line.spec = random.choice([s.description for s in spec_list])
+        line.quantity = random.choice([i for i in range(1, 15)])
+        line.price = random.uniform(200.0, 400.2)
+        
+        proforma.lines.append(line) 
+
+        line = PurchaseProformaLine()
+        line.proforma = proforma 
+        import models
+        line.description = 'Apple Iphone X Mixed GB Mixed Color'
+        line.condition = random.choice([c.description for c in condition_list])
+        line.spec = random.choice([s.description for s in spec_list]) 
+        line.quantity = random.choice([i for i in range(1, 15)])
+        line.price = random.uniform(200.0, 400.2)
+        proforma.lines.append(line)
+        
+        line = PurchaseProformaLine()
+        line.proforma = proforma 
+        line.item = random.choice(item_list)
+        line.condition = random.choice([c.description for c in condition_list]) 
+        line.spec = 'Mix'
+        line.quantity = random.choice([i for i in range(1, 15)])
+        line.price = random.uniform(200.0, 400.2)
+        proforma.lines.append(line)
+
+        line = PurchaseProformaLine()
+        line.proforma = proforma 
+        line.item = random.choice(item_list)
+        line.condition = 'Mix'
+        line.spec = random.choice([s.description for s in spec_list])
+        line.quantity = 5
+        line.price = random.uniform(200.0, 400.2)
+        proforma.lines.append(line)
+
+
+        session.add(proforma) 
+
+        pd = PurchaseDocument() 
+        pd.name = 'customs'
+        pd.document = base64Pdf(testpath)
+        pd.proforma = proforma
+
+    # from datetime import date
+    # pp1 = PurchasePayment(date.today(), 5000, 'Caixa / 33423', proforma) 
+    # pp2 = PurchasePayment(date.today() + timedelta(days=2), 200, 'Santander / 23423', proforma) 
 
     session.commit() 
 
@@ -919,7 +985,6 @@ def create_sale(type):
     
     proforma.number = 1 if not number else number + 1 
     proforma.date = datetime(2020, 10, 11)
-    proforma.warranty = 100
     from datetime import timedelta
     proforma.eta = proforma.date + timedelta(days=5) 
     proforma.partner = session.query(Partner).first() 
@@ -988,7 +1053,7 @@ def create_imeis():
 
 # from exceptions import NotExistingStockOutput
 
-@event.listens_for(MixedSerie, 'after_insert')
+@event.listens_for(ReceptionSerie, 'after_insert')
 def insert_imei_after_mixed_purchase(mapper, connection, target):
     stmt = insert(Imei).values(
         imei = target.serie, 
@@ -999,32 +1064,34 @@ def insert_imei_after_mixed_purchase(mapper, connection, target):
     )
     connection.execute(stmt) 
 
-@event.listens_for(MixedSerie, 'after_delete')
+@event.listens_for(ReceptionSerie, 'after_delete')
 def delete_imei_after_mixed_purchase(mapper, connection, target):
     # Delete after delete purchase
     pass 
 
-@event.listens_for(ReceptionSerie, 'after_insert')
-def insert_imei_after_purchase(mapper, connection, target):
-    stmt = insert(Imei).values(
-        imei = target.serie, 
-        item_id = target.line.item_id, 
-        condition = target.line.condition, 
-        spec = target.line.spec, 
-        warehouse_id = target.line.reception.proforma.warehouse.id
-    )
-    connection.execute(stmt)
 
 
-@event.listens_for(ReceptionSerie, 'after_delete')
-def delete_imei_after_purchase(mapper, connection, target):
-    condition = target.line.condition 
-    spec = target.line.spec 
-    stmt = delete(Imei).where(Imei.imei == target.serie).where(Imei.condition == condition).\
-        where(Imei.spec == spec)
-    result = connection.execute(stmt) 
-    if not result.rowcount:
-        raise NotExistingStockOutput
+# @event.listens_for(ReceptionSerie, 'after_insert')
+# def insert_imei_after_purchase(mapper, connection, target):
+#     stmt = insert(Imei).values(
+#         imei = target.serie, 
+#         item_id = target.line.item_id, 
+#         condition = target.line.condition, 
+#         spec = target.line.spec, 
+#         warehouse_id = target.line.reception.proforma.warehouse.id
+#     )
+#     connection.execute(stmt)
+
+
+# @event.listens_for(ReceptionSerie, 'after_delete')
+# def delete_imei_after_purchase(mapper, connection, target):
+#     condition = target.line.condition 
+#     spec = target.line.spec 
+#     stmt = delete(Imei).where(Imei.imei == target.serie).where(Imei.condition == condition).\
+#         where(Imei.spec == spec)
+#     result = connection.execute(stmt) 
+#     if not result.rowcount:
+#         raise NotExistingStockOutput
     
 
 @event.listens_for(ExpeditionSerie, 'after_insert')
@@ -1033,7 +1100,6 @@ def delete_imei_after_sale(mapper, connection, target):
     spec = target.line.spec 
     stmt = delete(Imei).where(Imei.imei == target.serie).where(Imei.condition == condition).\
         where(Imei.spec == spec)
-    print(stmt)
     result = connection.execute(stmt) 
     if not result.rowcount:
         raise NotExistingStockOutput
@@ -1090,6 +1156,9 @@ if __name__ == '__main__':
     try:
         if sys.argv[1] == 'empty':
             Base.metadata.create_all(engine) 
+            session.add_all([item1, item2, item3, item4, item5])
+            session.commit()
+
     except IndexError:
         create_and_populate() 
 

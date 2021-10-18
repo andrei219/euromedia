@@ -83,9 +83,9 @@ class PaymentForm(Ui_PaymentsForm, QDialog):
         self.partner_line_edit.setText(self.proforma.partner.fiscal_name)
         self.document_date_line_edit.setText(self.proforma.date.strftime('%d/%m/%Y'))
 
-        self.total_linedit.setText(str(self.total)) 
+        self.total_linedit.setText(str(float(self.total)))
 
-        self.owing_lineedit.setText(str(self.total - self.paid))
+        self.owing_lineedit.setText(str(float(self.total) - float(self.paid)))
 
     @property
     def total(self):

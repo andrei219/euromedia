@@ -24,13 +24,25 @@ class Form(QDialog, Ui_Form):
         self.reception = reception
         self.total_lines = len(reception.lines) 
         self.current_index = 0 
+        self.rs_model = models.ReceptionSeriesModel(reception) 
         
+
         self.setHandlers()
         self.setCompleters()
         self.populateHeader() 
         self.populate_body()
         
+        self.total_processed.setText(str(len(self.rs_model)))
+
         self.view.setSelectionBehavior(QTableView.SelectRows)
+        self.view.setSelectionMode(QTableView.SingleSelection)
+
+        # self.groupBox_5.setStyleSheet('background-color:"#FF7F7F"')
+
+
+    def set_group_model(self):
+        pass 
+
 
     def setHandlers(self):
         self.next.clicked.connect(self.next_handler)
@@ -50,7 +62,29 @@ class Form(QDialog, Ui_Form):
 
 
     def on_automatic_toggled(self, on):
-        pass
+        if on:
+            self.commit.setEnabled(False)
+            self.sn.textChanged.connect(self.sn_value_changed) 
+        else:
+            self.commit.setEnabled(True)
+            try:
+                self.sn.disconnect() 
+            except TypeError:
+                pass 
+
+    def sn_value_changed(self, text):
+        lenght = self.lenght.value()
+        if len(text) == lenght:
+            self.commit_handler() 
+    
+    def set_overflow(self, overflow=False):
+        if not overflow:
+            self.groupBox_5.setStyleSheet('')
+            self.overflow.setText('')
+        else:
+            self.groupBox_5.setStyleSheet('background-color:"#FF7F7F"')
+            self.overflow.setText('OVERFLOW')
+
 
     def populateHeader(self):
         self.reception_number.setText(str(self.reception.id).zfill(6))
@@ -63,11 +97,11 @@ class Form(QDialog, Ui_Form):
     def populate_body(self):
         
         line = self.reception.lines[self.current_index]
-        if self.current_line_is_mixed():
+        if line.description is not None:
             self.description.setText(line.description) 
         else:
             self.description.setText(str(line.item))
-
+            
         self.line_total.setText(str(line.quantity))
         self.condition.setText(line.condition)
         self.spec.setText(line.spec)
@@ -75,8 +109,27 @@ class Form(QDialog, Ui_Form):
             str(self.total_lines)])
         self.line_number.setText(line_number)
 
-    def set_series_model(self):
-        self.series_model = models.ReceptionSeriesModel
+        if line.item is None:
+            self.actual_item.clear() 
+        else:
+            self.actual_item.setText(str(line.item))
+
+        if line.condition == 'Mix':
+            self.actual_condition.clear()
+        else: 
+            self.actual_condition.setText(line.condition)
+
+        if line.spec == 'Mix':
+            self.actual_spec.clear()
+        else:
+            self.actual_spec.setText(line.spec)
+
+        self.update_group_model()
+        self.update_overflow_condition()
+
+    def processed_in_line(self):
+        line = self.reception.lines[self.current_index]
+        return self.rs_model.processed_in(line)
 
     def _total(self):
         return sum([line.quantity for line in self.reception.lines])
@@ -95,43 +148,128 @@ class Form(QDialog, Ui_Form):
             self.current_index += 1
         self.populate_body()
 
-    def commit_handler(self):
-        pass 
+    def commit_handler(self):    
+        if not self.sn.text(): 
+            QMessageBox.critical(self, 'Error', 'Empty SN/IMEI')
+            return 
+        try:
+            self.rs_model.add(
+                self.reception.lines[self.current_index], 
+                self.sn.text(), 
+                self.actual_item.text(), 
+                self.actual_condition.text(), 
+                self.actual_spec.text(), 
+            )
+        except ValueError as ex:
+            QMessageBox.critical(self, 'Error', str(ex))
+        else:      
+            self.update_group_model()
+            self.update_overflow_condition() 
+            self.total_processed.setText(str(len(self.rs_model)))
+
+        self.sn.clear()
+        self.sn.setFocus()
+
+    def update_group_model(self):
+        group_model = models.GroupModel(
+            self.rs_model, 
+            self.reception.lines[self.current_index]    
+        )
+        self.view.setModel(group_model)
+        self.view.selectionModel().selectionChanged.\
+            connect(self.group_selection_changed)
+    
+    def group_selection_changed(self):
+        try:
+            description, condition, spec, quantity = \
+                self.get_selected_group()
+            self.update_series_model(description, condition, spec)
+        except ValueError:
+            return 
+    
+    def get_selected_group(self):
+        rows = {i.row() for i in self.view.selectedIndexes()}
+        if not rows:return
+        row = rows.pop()
+        group = self.view.model().groups[row]
+        return group.description, group.condition, \
+            group.spec, group.quantity
+
+    def update_series_model(self, description, condition, spec):
+        series_model = models.DefinedSeriesModel(
+            self.rs_model, 
+            self.reception.lines[self.current_index], 
+            description, condition, spec 
+        )
+        self.snlist.setModel(series_model) 
+
+
+    def is_mixed_line(self, line):
+        if any((
+            line.condition == 'Mix', 
+            line.spec == 'Mix'
+        )): return True 
+        if line.item_id is None and \
+            line.description in models.descriptions:
+                return True 
+        return False
 
     def delete_handler(self):
-        ixs = self.snlist.selectedIndexes()
-        if not ixs:
-           return
-        row = {i.row() for i in ixs}
-        
-    
-    def search_handler(self):
-        pass 
-    
-    def current_line_is_mixed(self):
+        if self.all.isChecked():
+            try:
+                self.rs_model.bulk_delete(
+                    self.snlist.model().series 
+                )
+            except:
+                raise 
+        else:
+            ixs = {i.row() for i in self.snlist.selectedIndexes()}
+            if not ixs: return
+            index = ixs.pop()
+            serie = self.snlist.model().series[index]
+            try:
+                self.rs_model.delete(serie)
+            except:
+                raise 
+
+        try:
+            description, condition, spec, _ = self.get_selected_group()
+            self.last_description, self.last_condition, self.last_spec = \
+                description, condition, spec 
+        except TypeError:
+            description, condition, spec = self.last_description, \
+                self.last_condition, self.last_spec
+
+        self.update_overflow_condition()
+        self.update_series_model(description, condition, spec)
+        self.update_group_model()
+        self.total_processed.setText(str(len(self.rs_model)))
+
+
+    def update_overflow_condition(self):
+        processed_in_line = self.processed_in_line()
         line = self.reception.lines[self.current_index]
-        return line.description is not None or \
-            line.condition == 'Mix' or line.spec == 'Mix'
-    
- 
+        self.processed.setText(str(processed_in_line))
+        self.set_overflow(
+            processed_in_line > line.quantity
+        )
 
 
 
+    def search_handler(self):
+        serie = self.search_line_edit.text() 
+        try:
+            if serie and serie in self.snlist.model():
+                index = self.snlist.model().index_of(serie)
+                index = self.snlist.model().index(index, 0)
+                self.snlist.selectionModel().setCurrentIndex(index, \
+                    QItemSelectionModel.SelectCurrent)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+            else:
+                self.snlist.selectionModel().clearSelection()
+        except AttributeError: raise  
+        except TypeError: raise    
+        # If search does not work we dont care
 
 
 

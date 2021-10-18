@@ -62,7 +62,7 @@
 font: 8pt &quot;Verdana&quot;;</string>
     </property>
     <property name="currentIndex">
-     <number>4</number>
+     <number>2</number>
     </property>
     <property name="iconSize">
      <size>
@@ -813,7 +813,7 @@ font: 8pt &quot;Verdana&quot;;</string>
          <property name="geometry">
           <rect>
            <x>0</x>
-           <y>480</y>
+           <y>510</y>
            <width>201</width>
            <height>20</height>
           </rect>
@@ -856,7 +856,7 @@ font: 8pt &quot;Verdana&quot;;</string>
          <property name="geometry">
           <rect>
            <x>40</x>
-           <y>520</y>
+           <y>550</y>
            <width>111</width>
            <height>20</height>
           </rect>
@@ -869,7 +869,7 @@ font: 8pt &quot;Verdana&quot;;</string>
          <property name="geometry">
           <rect>
            <x>40</x>
-           <y>550</y>
+           <y>580</y>
            <width>111</width>
            <height>20</height>
           </rect>
@@ -911,6 +911,19 @@ font: 8pt &quot;Verdana&quot;;</string>
          </property>
          <property name="autoRaise">
           <bool>true</bool>
+         </property>
+        </widget>
+        <widget class="QCheckBox" name="proforma_purchase_overflowed">
+         <property name="geometry">
+          <rect>
+           <x>40</x>
+           <y>470</y>
+           <width>101</width>
+           <height>20</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Overflowed</string>
          </property>
         </widget>
        </widget>
@@ -1334,22 +1347,6 @@ font: 8pt &quot;Verdana&quot;;</string>
           <bool>true</bool>
          </property>
         </widget>
-        <widget class="QPushButton" name="regenerate">
-         <property name="geometry">
-          <rect>
-           <x>1000</x>
-           <y>30</y>
-           <width>93</width>
-           <height>28</height>
-          </rect>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">background-color:lightgray; </string>
-         </property>
-         <property name="text">
-          <string>REGENERATE</string>
-         </property>
-        </widget>
        </widget>
        <widget class="QTableView" name="proforma_purchases_view">
         <property name="geometry">
@@ -1701,7 +1698,7 @@ font: 8pt &quot;Verdana&quot;;</string>
          <property name="geometry">
           <rect>
            <x>0</x>
-           <y>480</y>
+           <y>510</y>
            <width>201</width>
            <height>20</height>
           </rect>
@@ -1744,7 +1741,7 @@ font: 8pt &quot;Verdana&quot;;</string>
          <property name="geometry">
           <rect>
            <x>40</x>
-           <y>520</y>
+           <y>550</y>
            <width>53</width>
            <height>20</height>
           </rect>
@@ -1757,7 +1754,7 @@ font: 8pt &quot;Verdana&quot;;</string>
          <property name="geometry">
           <rect>
            <x>40</x>
-           <y>550</y>
+           <y>580</y>
            <width>91</width>
            <height>20</height>
           </rect>
@@ -1825,6 +1822,19 @@ font: 8pt &quot;Verdana&quot;;</string>
          </property>
          <property name="text">
           <string>Empty</string>
+         </property>
+        </widget>
+        <widget class="QCheckBox" name="proforma_sale_overflowed">
+         <property name="geometry">
+          <rect>
+           <x>40</x>
+           <y>470</y>
+           <width>101</width>
+           <height>20</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Overflowed</string>
          </property>
         </widget>
        </widget>
@@ -2290,7 +2300,7 @@ font: 8pt &quot;Verdana&quot;;</string>
        </rect>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <property name="iconSize">
        <size>
@@ -2666,7 +2676,7 @@ font: 8pt &quot;Verdana&quot;;</string>
          <property name="geometry">
           <rect>
            <x>0</x>
-           <y>490</y>
+           <y>520</y>
            <width>201</width>
            <height>20</height>
           </rect>
@@ -2709,7 +2719,7 @@ font: 8pt &quot;Verdana&quot;;</string>
          <property name="geometry">
           <rect>
            <x>40</x>
-           <y>530</y>
+           <y>560</y>
            <width>111</width>
            <height>20</height>
           </rect>
@@ -2722,7 +2732,7 @@ font: 8pt &quot;Verdana&quot;;</string>
          <property name="geometry">
           <rect>
            <x>40</x>
-           <y>560</y>
+           <y>590</y>
            <width>111</width>
            <height>20</height>
           </rect>
@@ -2764,6 +2774,19 @@ font: 8pt &quot;Verdana&quot;;</string>
          </property>
          <property name="text">
           <string>Cancelled</string>
+         </property>
+        </widget>
+        <widget class="QCheckBox" name="invoice_purchase_overflowed">
+         <property name="geometry">
+          <rect>
+           <x>40</x>
+           <y>470</y>
+           <width>101</width>
+           <height>20</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Overflowed</string>
          </property>
         </widget>
        </widget>
@@ -3391,7 +3414,7 @@ font: 8pt &quot;Verdana&quot;;</string>
          <property name="geometry">
           <rect>
            <x>40</x>
-           <y>400</y>
+           <y>410</y>
            <width>141</width>
            <height>20</height>
           </rect>
@@ -3404,7 +3427,7 @@ font: 8pt &quot;Verdana&quot;;</string>
          <property name="geometry">
           <rect>
            <x>40</x>
-           <y>430</y>
+           <y>440</y>
            <width>131</width>
            <height>20</height>
           </rect>
@@ -3417,7 +3440,7 @@ font: 8pt &quot;Verdana&quot;;</string>
          <property name="geometry">
           <rect>
            <x>0</x>
-           <y>480</y>
+           <y>520</y>
            <width>201</width>
            <height>20</height>
           </rect>
@@ -3460,7 +3483,7 @@ font: 8pt &quot;Verdana&quot;;</string>
          <property name="geometry">
           <rect>
            <x>40</x>
-           <y>520</y>
+           <y>560</y>
            <width>53</width>
            <height>20</height>
           </rect>
@@ -3473,7 +3496,7 @@ font: 8pt &quot;Verdana&quot;;</string>
          <property name="geometry">
           <rect>
            <x>40</x>
-           <y>550</y>
+           <y>590</y>
            <width>111</width>
            <height>20</height>
           </rect>
@@ -3508,7 +3531,7 @@ font: 8pt &quot;Verdana&quot;;</string>
          <property name="geometry">
           <rect>
            <x>40</x>
-           <y>370</y>
+           <y>380</y>
            <width>73</width>
            <height>20</height>
           </rect>
@@ -3528,6 +3551,19 @@ font: 8pt &quot;Verdana&quot;;</string>
          </property>
          <property name="text">
           <string>Cancelled</string>
+         </property>
+        </widget>
+        <widget class="QCheckBox" name="invoice_sale_overflowed">
+         <property name="geometry">
+          <rect>
+           <x>40</x>
+           <y>470</y>
+           <width>111</width>
+           <height>20</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Overflowed</string>
          </property>
         </widget>
        </widget>
@@ -4082,6 +4118,19 @@ font: 8pt &quot;Verdana&quot;;</string>
           <bool>true</bool>
          </property>
         </widget>
+        <widget class="QCheckBox" name="reception_overflowed">
+         <property name="geometry">
+          <rect>
+           <x>30</x>
+           <y>220</y>
+           <width>111</width>
+           <height>20</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Overflowed</string>
+         </property>
+        </widget>
        </widget>
        <widget class="QFrame" name="frame_7">
         <property name="geometry">
@@ -4388,6 +4437,19 @@ font: 8pt &quot;Verdana&quot;;</string>
          </property>
          <property name="text">
           <string>Cancelled</string>
+         </property>
+        </widget>
+        <widget class="QCheckBox" name="expedition_overflowed">
+         <property name="geometry">
+          <rect>
+           <x>30</x>
+           <y>220</y>
+           <width>141</width>
+           <height>20</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Overflowed</string>
          </property>
         </widget>
        </widget>

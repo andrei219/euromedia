@@ -100,6 +100,8 @@ class Form(Ui_PurchaseProformaForm, QWidget):
         agent, warranty, euro, they_pay_they_ship, we_pay_they_ship, we_pay_we_ship, days = \
             result
 
+        
+
         self.agent_combobox.setCurrentText(agent)
         self.warranty_spinbox.setValue(warranty) 
         self.eur_radio_button.setChecked(euro) 
@@ -192,10 +194,14 @@ class Form(Ui_PurchaseProformaForm, QWidget):
             condition not in models.conditions and spec not in models.specs:
                 QMessageBox.critical(self, 'Error', 'You cant add a device without condition and spec')
                 return 
-
-        self.lines_model.add(self.description_line_edit.text(), \
-            self.condition_line_edit.text(), self.spec_line_edit.text(), self.quantity_spinbox.value(),\
-                self.price_spinbox.value(), int(self.tax_combobox.currentText()))
+        try:
+            self.lines_model.add(self.description_line_edit.text(), \
+                self.condition_line_edit.text(), self.spec_line_edit.text(), self.quantity_spinbox.value(),\
+                    self.price_spinbox.value(), int(self.tax_combobox.currentText()))
+        except ValueError as ex:
+            QMessageBox.critical(self, 'Error', str(ex))
+            return         
+        
         self._updateTotals() 
         self._clearLineFields()
 
@@ -209,6 +215,9 @@ class Form(Ui_PurchaseProformaForm, QWidget):
 
     def saveHandler(self):
         if not self._validHeader():
+            return 
+        if not self.lines_model:
+            QMessageBox.critical(self, 'Error', "You cant let an empty proforma")
             return 
         proforma = self._formToProforma() 
         try:
@@ -233,15 +242,24 @@ class EditableForm(Form):
         self.title = 'Line - Error'
         self.model = view.model() 
         
+        self.set_warehouse_combo_enabled_if_no_items_processed()
         
         self.lines_model = models.PurchaseProformaLineModel(proforma.lines,\
             delete_allowed = proforma.reception is None)
         
+        self._updateTotals()
         self.lines_view.setModel(self.lines_model) 
 
         self.setUp()
         self.proforma_to_form()
 
+
+    def set_warehouse_combo_enabled_if_no_items_processed(self):
+        try:
+            if sum(1 for line in self.proforma.reception.lines for serie in line.series):
+                self.warehouse_combobox.setEnabled(False)
+        except AttributeError:
+            return 0 
 
     def setHandlers(self):
         self.deleteButton.clicked.connect(self.deleteHandler)
@@ -288,6 +306,10 @@ class EditableForm(Form):
     def saveHandler(self):
         if not super()._validHeader():
             return
+        if not self.lines_model:
+            QMessageBox.critical(self, 'Error', "You cant let an empty proforma")
+            return 
+
         self._formToProforma(input_proforma=self.proforma)
         try:
             db.session.commit()
@@ -300,6 +322,6 @@ class EditableForm(Form):
             except:
                 raise 
             else:
-                QMessageBox.information(self, "Information", \
-                    "Proforma saved and Reception order updated successfully")
+                proforma_message = "Proforma saved successfully. "
+                QMessageBox.information(self, "Information", proforma_message) 
                 self.close() 

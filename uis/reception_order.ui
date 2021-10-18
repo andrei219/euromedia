@@ -48,6 +48,9 @@
       <height>22</height>
      </rect>
     </property>
+    <property name="readOnly">
+     <bool>false</bool>
+    </property>
    </widget>
    <widget class="QLineEdit" name="actual_condition">
     <property name="geometry">
@@ -764,6 +767,22 @@
     </property>
     <property name="text">
      <string>Nº</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="overflow">
+    <property name="geometry">
+     <rect>
+      <x>520</x>
+      <y>50</y>
+      <width>141</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">font-weight:&quot;bold&quot;</string>
+    </property>
+    <property name="text">
+     <string/>
     </property>
    </widget>
   </widget>

@@ -779,8 +779,6 @@ class MainGui(Ui_MainGui, QMainWindow):
             self.pp = purchase_proforma_form.Form(self, self.proforma_purchases_view) 
             self.pp.show() 
 
-    def regenerateHandler(self):
-        print('regenerate')
 
     def _getOnePurchaseProforma(self, s=None):
         rows = { index.row() for index in self.proforma_purchases_view.selectedIndexes()}
@@ -1154,7 +1152,6 @@ class MainGui(Ui_MainGui, QMainWindow):
         self.proforma_purchase_invoice_button.clicked.connect(self.purchaseProformaToInvoiceButtonHandler)  
         self.proforma_purchase_ship_button.clicked.connect(self.purchaseProformaShippedHandler) 
         self.proforma_purchase_warehouse_button.clicked.connect(self.purchaseProformaToWarehouseHandler)
-        self.regenerate.clicked.connect(self.regenerateHandler)
 
 
     def setUpSalesProformasHandler(self):

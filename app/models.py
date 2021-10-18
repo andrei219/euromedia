@@ -10,6 +10,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy import select, func
 
 import db 
+
 import operator
 
 from copy import deepcopy
@@ -17,6 +18,15 @@ from copy import deepcopy
 from exceptions import DuplicateLine, SeriePresentError, LineCompletedError
 
 from bidict import bidict
+
+from utils import parse_date
+
+# COLORS:
+# RED FOR CANCELLED
+# GREEN FOR COMPLETED
+# ORANGE FOR EMPTY OR PARTIAL
+# YELLOW FOR OVERFLOW
+RED, GREEN, YELLOW, ORANGE = '#FF0000', '#00FF00', '#FFFF00', '#FFA500'
 
 class BaseTable:
 
@@ -660,9 +670,11 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
 				if 'partially prepared' in filters['logistic']:
 					self.proformas = filter(lambda p:not p.cancelled and 0 < self._totalProcessed(p) < self._totalQuantity(p),\
 						self.proformas) 
-				
 				if 'completed' in filters['logistic']:
 					self.proformas = filter(lambda p:not p.cancelled and self._totalProcessed(p) == self._totalQuantity(p), \
+						self.proformas)
+				if 'overflowed' in filters['logistic']:
+					self.proformas = filter(lambda p:not p.cancelled and self._totalProcessed(p) > self._totalQuantity(p), \
 						self.proformas)
 
 			if 'shipment' in filters:
@@ -677,7 +689,7 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
 			self.proformas = query.all() 
 
 	def _totalDebt(self, proforma):
-		return sum([line.quantity * float(line.price) for line in proforma.lines]) 
+		return sum([line.quantity * line.price for line in proforma.lines]) 
 	
 	def _paid(self, proforma):
 		return sum([payment.amount for payment in proforma.payments])
@@ -743,6 +755,7 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
 						return 'Paid'
 					elif paid > total_debt:
 						return 'They Owe'
+						
 
 			elif col == PurchaseProformaModel.LOGISTIC:
 				
@@ -752,25 +765,31 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
 					return "Partially Received"
 				elif processed_quantity == total_quantity:
 					return 'Fully Received'
+				elif processed_quantity > total_quantity:
+					return 'Overflowed'
 			
 			elif col == PurchaseProformaModel.SENT:
 				return "Sent" if proforma.sent else "Not Sent"
 			elif col == PurchaseProformaModel.OWING:
 				sign = ' -€' if proforma.eur_currency else ' $'
-				return str(float(total_debt) - float(paid)) + sign       
+				return str(round(total_debt - paid, 2)) + sign       
 			elif col == PurchaseProformaModel.TOTAL:
 				sign = ' -€' if proforma.eur_currency else ' $'
-				return str(total_debt) + sign
+				return str(round(total_debt, 2)) + sign
 
 		elif role == Qt.DecorationRole:
 			if col == PurchaseProformaModel.FINANCIAL:
 				if proforma.cancelled:
-					return QtGui.QIcon(':\cross')
+					return QtGui.QColor(RED)
 				else:
 					if total_debt == paid:
-						return QtGui.QIcon(':\greentick')
-					elif paid == 0 or (0 < paid < total_debt) or (paid > total_debt) :
-						return QtGui.QIcon(':\cross')
+						return QtGui.QColor(GREEN)
+					elif paid == 0:
+						return QtGui.QColor(YELLOW)
+					elif  0 < paid < total_debt:
+						return QtGui.QColor(ORANGE)
+					elif  paid > total_debt:
+						return QtGui.QColor(YELLOW)
 			elif col == PurchaseProformaModel.DATE or col == PurchaseProformaModel.ETA:
 				return QtGui.QIcon(':\calendar')
 			elif col == PurchaseProformaModel.PARTNER:
@@ -778,14 +797,16 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
 			elif col == PurchaseProformaModel.AGENT:
 				return QtGui.QIcon(':\\agents')
 			elif col == PurchaseProformaModel.SENT:
-				return QtGui.QIcon(':\greentick') if proforma.sent else QtGui.QIcon(':\cross')
+				return QtGui.QColor(GREEN) if proforma.sent else QtGui.QColor(RED)
 			elif col == PurchaseProformaModel.LOGISTIC:
 				if processed_quantity == 0:
-					return QtGui.QIcon(':\cross')
+					return QtGui.QColor(ORANGE)
 				elif processed_quantity == total_quantity:
-					return QtGui.QIcon(':\greentick')
+					return QtGui.QColor(GREEN)
 				elif 0 < processed_quantity < total_quantity:
-					return QtGui.QIcon(':\cross')
+					return QtGui.QColor(ORANGE)
+				elif processed_quantity > total_quantity:
+					return QtGui.QColor(YELLOW)
 
 	def sort(self, section, order):
 		reverse = True if order == Qt.AscendingOrder else False
@@ -887,22 +908,45 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
 					reception_line.reception = reception 
 		# reception is attached to session, will cascade-commit the lines.
 
-	def updateWarehouse(self, proforma):
-		# Add new lines to warehouse, I presume order is kept.2
-		# Compute index differences. 
-		last_index = len(proforma.lines) 
-		first_index = len(proforma.reception.lines)
-		reception = proforma.reception
 
-		for index in range(first_index, last_index):
-			line = proforma.lines[index] # Should not raise IndexError
-			self.buildReceptionLine(line, reception) 
+
+	def updateWarehouse(self, proforma):
+		
+		warehouse_modified = False
+		# Special case for proforma not having warehouse order:
+		if proforma.reception is None:
+			return False
+
+		warehouse_lines = set(proforma.reception.lines)
+		proforma_lines = set(proforma.lines)
+		
+		for line in warehouse_lines.difference(proforma_lines):
+			if not warehouse_modified:
+				warehouse_modified = True 
+			line.quantity = 0 
+			if sum(1 for serie in line.series) == 0:
+				db.session.delete(line) 
+		
+
+		for line in proforma_lines.difference(warehouse_lines):
+			if line.item_id or line.description in descriptions:
+				if not warehouse_modified:warehouse_modified = True 
+				self.buildReceptionLine(line, proforma.reception)
+		
+		for proforma_line in proforma_lines:
+			for reception_line in proforma.reception.lines:
+				if reception_line == proforma_line:
+					if not warehouse_modified:
+						warehouse_modified = True 
+					reception_line.quantity = proforma_line.quantity
 		
 		try:
 			db.session.commit()
 		except:
 			db.session.rollback()
 			raise 
+		else: 
+			return warehouse_modified
 
 class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 	
@@ -961,7 +1005,7 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 			self.proformas = query.all() 
 	
 	def _totalDebt(self, proforma):
-		return sum([line.quantity * float(line.price) for line in proforma.lines])
+		return sum([line.quantity * line.price for line in proforma.lines])
 	
 	def _paid(self, proforma):
 		return sum([payment.amount for payment in proforma.payments])
@@ -1033,10 +1077,10 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 				return "Sent" if proforma.sent else "Not Sent"
 			elif col == SaleProformaModel.OWING:
 				sign = ' -€' if proforma.eur_currency else ' $'
-				return str(total_debt - paid) + sign       
+				return str(round(total_debt - paid, 2)) + sign       
 			elif col == SaleProformaModel.TOTAL:
 				sign = ' -€' if proforma.eur_currency else ' $'
-				return str(total_debt) + sign
+				return str(round(total_debt)) + sign
 
 		elif role == Qt.DecorationRole:
 			if col == SaleProformaModel.FINANCIAL:
@@ -1221,21 +1265,21 @@ class SaleProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 				return self._return_complex_line(line, col) 
 
 	def _return_simple_line(self, line, col):
-		total = str((line.quantity * float(line.price)) * (1 + line.tax/100))
-		subtotal = str(line.quantity * float(line.price)) 
+		total = round((line.quantity * line.price) * (1 + line.tax/100), 2)
+		subtotal = round(line.quantity * line.price, 2)
 		ignore_spec = 'Yes' if line.ignore_spec else 'No'
 		showing_condition = line.showing_condition or line.condition
 		return {
 			SaleProformaLineModel.DESCRIPTION:str(line.item), 
 			SaleProformaLineModel.CONDITION:line.condition,
 			SaleProformaLineModel.SHOWING_CONDITION:showing_condition, 
-			SaleProformaLineModel.SPEC:str(line.spec), 
+			SaleProformaLineModel.SPEC:line.spec, 
 			SaleProformaLineModel.IGNORING_SPEC:ignore_spec, 
-			SaleProformaLineModel.SUBTOTAL:subtotal,
-			SaleProformaLineModel.PRICE:str(line.price), 
-			SaleProformaLineModel.QUANTITY:(line.quantity),
+			SaleProformaLineModel.SUBTOTAL:str(subtotal),
+			SaleProformaLineModel.PRICE:str(round(line.price, 2)), 
+			SaleProformaLineModel.QUANTITY:str(line.quantity),
 			SaleProformaLineModel.TAX:str(line.tax), 
-			SaleProformaLineModel.TOTAL: total 
+			SaleProformaLineModel.TOTAL: str(total)
 		}.get(col) 
 		
 	def _return_complex_line(self, lines, col):
@@ -1266,7 +1310,7 @@ class SaleProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 		ignore = 'Yes' if lines[0].ignore_spec else 'No' 
 		price = lines[0].price
 		quantity = sum([line.quantity for line in lines])
-		subtotal = float(price * quantity)
+		subtotal = price * quantity
 		tax = lines[0].tax
 		total = subtotal * ( 1 + tax / 100)
 		return {
@@ -1294,7 +1338,7 @@ class SaleProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 		return total_tax
 		
 	def _tax_from_line(self, line):
-		return line.quantity * float(line.price) * line.tax / 100
+		return line.quantity * line.price * line.tax / 100
 		
 		# return sum([line.quantity * line.price * line.tax / 100 for line in self.lines])
 
@@ -1310,7 +1354,7 @@ class SaleProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 		return total
 
 	def _subtotal_from_line(self, line):
-		return float(line.price) * line.quantity
+		return line.price * line.quantity
 
 	@property
 	def total(self):
@@ -1481,21 +1525,15 @@ class ProductModel(BaseTable, QtCore.QAbstractTableModel):
 
 class PurchaseProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 
+	DESCRIPTION, CONDITION, SPEC, QUANTITY, PRICE, SUBTOTAL, \
+		TAX, TOTAL = 0, 1, 2, 3, 4, 5, 6, 7
+
 	def __init__(self, lines=None, delete_allowed=True):
 		super().__init__()
 		self._headerData = ['Description', 'Condition', 'Spec', 'Qty.', \
 			'Price', 'Subtotal', 'Tax', 'Total']
 		self.name = 'lines'
 		self.lines = lines or [] 
-		if not delete_allowed and lines:
-			self.relevant_stock_indexes = self.get_relevant_stock_indexes() 
-			print(self.relevant_stock_indexes)
-	def get_relevant_stock_indexes(self):
-		indexes = set()
-		for index, line in enumerate(self.lines):
-			if self.is_stock_relevant(line):
-				indexes.add(index) 
-		return indexes 
 
 	def data(self, index, role = Qt.DisplayRole):
 		if not index.isValid():
@@ -1508,8 +1546,8 @@ class PurchaseProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 		line = self.lines[row]
 		col = index.column() 
 		if role == Qt.DisplayRole:
-			total = (line.quantity * float(line.price)) * (1 + line.tax/100)
-			subtoal = line.quantity * float(line.price) 
+			total = round((line.quantity * line.price) * (1 + line.tax/100), 2) 
+			subtotal = round(line.quantity * line.price) 
 			# Allowing mixed and precised lines:
 			if col == 0:
 				if line.description is not None:
@@ -1517,29 +1555,72 @@ class PurchaseProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 				else:
 					return description_id_map.inverse[line.item_id]
 			return {
-				1:line.condition,
-				2:line.spec, 
-				3:str(line.quantity), 
-				4:str(float(line.price)), 
-				5:str(subtoal), 
-				6:str(line.tax), 
-				7:str(total)
+				self.__class__.CONDITION:line.condition,
+				self.__class__.SPEC:line.spec, 
+				self.__class__.QUANTITY:str(line.quantity), 
+				self.__class__.PRICE:str(line.price), 
+				self.__class__.SUBTOTAL:str(subtotal), 
+				self.__class__.TAX:str(line.tax), 
+				self.__class__.TOTAL:str(total)
 			}.get(col) 
-		elif role == Qt.BackgroundRole:
-			if row in self.relevant_stock_indexes: 
-				return QtGui.QColor('#F0A3A3')
 
+
+	def setData(self, index, value, role=Qt.EditRole):
+		if not index.isValid():return False
+		row, column = index.row(), index.column()
+		# if not self.editable_column(column):return False
+		line = self.lines[row]
+		if column == self.__class__.PRICE:
+			try:
+				value = float(value)
+			except: return False
+			else:
+				line.price = value 
+				return False 
+		elif column == self.__class__.QUANTITY:
+			try:
+				value = int(value)
+			except: return False 
+			else:
+				line.quantity = value 
+				return True 
+		elif column == self.__class__.TAX:
+			try:
+				value = int(value)
+				if value not in (0, 4, 10, 21):
+					return False 
+			except:return False 
+			else:
+				line.tax = value
+				return True 
+		else: 
+			return False 
+			
+
+	def editable_column(self, col):
+		return col in (
+			self.__class__.PRICE,
+			self.__class__.QUANTITY, 
+			self.__class__.TAX
+		)
+
+	def flags(self, index):
+		if not index.isValid(): return 
+		if self.editable_column(index.column()):
+			return Qt.ItemFlags(super().flags(index) | Qt.ItemIsEditable)
+		else:
+			return Qt.ItemFlags(~Qt.ItemIsEditable)
 
 	def is_stock_relevant(self, line):
 		return line.item_id or line.description in descriptions
 
 	@property
 	def tax(self):
-		return sum([line.quantity * float(line.price) * line.tax / 100 for line in self.lines])
-
+		return round(sum([line.quantity * line.price * line.tax / 100 for line in self.lines]), 2)
+	
 	@property
 	def subtotal(self):
-		return sum([line.quantity * float(line.price) for line in self.lines])
+		return round(sum([line.quantity * line.price for line in self.lines]), 2)
 	
 	@property
 	def total(self):
@@ -1557,23 +1638,33 @@ class PurchaseProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 		line.tax = tax
 		line.price = price 
 
-		self.lines.append(line) 
-		
-		if self.is_stock_relevant(line):
-			index = len(self.lines) - 1
-			self.relevant_stock_indexes.add(index) 
+		if not self.line_exists(line):
+			self.lines.append(line) 
+			self.layoutChanged.emit()
+		else:
+			raise ValueError("I can't process duplicate lines") 
 
-		self.layoutChanged.emit() 
+	def line_exists(self, new_line):
+		# First check not stock relevant lines:
+		description = new_line.description
+		if description not in descriptions and \
+			new_line.item_id is None:
+				return description in \
+					[line.description for line in self.lines]
+
+		for line in self.lines:
+			if all((
+				new_line.condition == line.condition, 
+				new_line.item_id == line.item_id, 
+				new_line.description == line.description, 
+				new_line.spec == line.spec 
+			)):
+				return True 
+		return False
+
 
 	def delete(self, indexes):
 		rows = { index.row() for index in indexes}
-
-		self.delete_if_not_stock_relevant(rows) 
-
-		if hasattr(self, 'last_index'):
-			if rows.intersection({i for i in range(self.last_index)}):
-				return 
-		
 		for row in sorted(rows, reverse=True):
 			try:
 				del self.lines[row]
@@ -1603,297 +1694,13 @@ class PurchaseProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 		except:
 			db.session.rollback() 
 			raise 
-
-
-from collections import namedtuple
-
-Line = namedtuple('Line', 'item condition spec quantity price tax')
-class FullEditablePurchaseProformaModel(QtCore.QAbstractTableModel):
 	
-	def __init__(self, proforma):
-		super().__init__() 
-		self._headerData = ['Description', 'Condition', 'Spec', 'Qty.', \
-			'Price', 'Subtotal', 'Tax', 'Total']
-		self.proforma = proforma
-		self.old_ids = set() 
-		self.initial_lines = [] 
-		for line in db.session.query(db.PurchaseProformaLine).\
-			where(db.PurchaseProformaLine.proforma_id == proforma.id):
-			self.old_ids.add(line.id)
-			self.initial_lines.append(Line(str(line.item), line.condition, line.spec, \
-				line.quantity, float(line.price), line.tax))
-		self.current_lines = deepcopy(self.initial_lines) 
-
-
-	def rowCount(self, index=QModelIndex()):
-		return len(self.current_lines) 
-
-	def columnCount(self, index=Qt.DisplayRole):
-		return len(self._headerData) 
-
-	def headerData(self, section, orientation, role = Qt.DisplayRole):
-		if role == Qt.TextAlignmentRole:
-			if orientation == Qt.Horizontal:
-				return Qt.AlignLeft | Qt.AlignVCenter
-			return Qt.AlignRight | Qt.AlignVCenter
-		if role != Qt.DisplayRole:
-			return 
-		if orientation == Qt.Horizontal:
-			return self._headerData[section]
-
-	def data(self, index, role=Qt.DisplayRole):
-		if not index.isValid():
-			return
-		row, column = index.row(), index.column() 
-		if role == Qt.DisplayRole:
-			line = self.current_lines[row]
-			total = (line.quantity * float(line.price)) * (1 + line.tax/100)
-			subtotal = line.quantity * float(line.price) 
-			return {
-				0:str(line.item), 
-				1:line.condition,
-				2:line.spec, 
-				3:str(line.quantity), 
-				4:str(line.price), 
-				5:str(subtotal), 
-				6:str(line.tax), 
-				7:str(total)
-			}.get(column) 
-
-
-	@property
-	def tax(self):
-		return sum([line.quantity * float(line.price) * line.tax / 100 for line in self.current_lines])
-
-	@property
-	def subtotal(self):
-		return sum([line.quantity * float(line.price) for line in self.current_lines])
-	
-	@property
-	def total(self):
-		return self.tax + self.subtotal
-
-	def delete(self, indexes):
-		rows = {index.row() for index in indexes}
-		for row in sorted(rows, reverse=True):
-			try:
-				del self.current_lines[row]
-			except:pass 
-		self.layoutChanged.emit() 
-
-	def add(self, item, condition, spec, quantity, price, tax):
-		# str(item) here allows me to reuse method of the PurchaseProformaForm super class 
-		# I know this is fucking messy but I cant re-write 
-		# I need to finish this shit once forever
-		line = Line(str(item), condition, spec, quantity, price, tax)
-		if line in self.current_lines:
-			raise DuplicateLine
-
-		self.current_lines.append(line)
-		self.layoutChanged.emit() 
-	
-	def changed(self):
-		return self.initial_lines != self.current_lines
-	
-	def save(self):
-		
-
-		return 
-
-		if self.changed():
-			# delete initial
-			# add new objects 
-			sql_statement = db.PurchaseProformaLine.__table__.delete().\
-				where(db.PurchaseProformaLine.id.in_(self.old_ids)) 
-
-			db.session.execute(sql_statement)
-			try:
-				db.session.commit()
-			except:
-				db.session.rollback()
-				raise 
-		
-			for line in self.current_lines:
-				db.session.add(
-					db.PurchaseProformaLine(items[line.item], line.condition, line.spec, \
-						line.price, line.quantity, line.tax) 
-				)
-			try:
-				db.session.commit() 
-			except:
-				db.session.rollback()
-				raise 
-
-
 	def __bool__(self):
-		return bool(self.current_lines) 
-		
+		return bool(len(self.lines))
 
-class SemiEditablePurchaseProformaModel(QtCore.QAbstractTableModel):
-	
-	def __init__(self, proforma):
-		super().__init__()  
-		self._headerData = ['Description', 'Condition', 'Spec', 'Qty.', \
-			'Price', 'Subtotal', 'Tax', 'Total']
-		self.proforma = proforma
-		self.frozen_lines = db.session.query(db.PurchaseProformaLine).\
-			where(db.PurchaseProformaLine.proforma_id == proforma.id).all() 
-		self.new_lines = [] 
-
-	def headerData(self, section, orientation, role = Qt.DisplayRole):
-		if role == Qt.TextAlignmentRole:
-			if orientation == Qt.Horizontal:
-				return Qt.AlignLeft | Qt.AlignVCenter
-			return Qt.AlignRight | Qt.AlignVCenter
-		if role != Qt.DisplayRole:
-			return 
-		if orientation == Qt.Horizontal:
-			return self._headerData[section]
-
-	def rowCount(self, index=QModelIndex()):
-		return len(self.frozen_lines) 
-		
-	def columnCount(self, index=QModelIndex()):
-		return len(self.header)
-
-	def data(self, index, role=Qt.DisplayRole):
-		if not index.isValid():
-			return
-		row, column = index.row(), index.column() 
-
-		if role == Qt.DisplayRole:
-			if 0 <= row < len(self.frozen_lines):
-				line = self.frozen_lines[row]
-				return self._get_data(row, self.frozen_lines) 
-			elif len(self.frozen_lines) <= row < len(self.frozen_lines) +len(self.new_lines):
-				row = row - len(self.frozen_lines)
-				return self._get_data(row - len(self.frozen_lines), self.new_lines)
-
-		elif role == Qt.DisplayRole:
-			if row < len(self.frozen_lines):
-				return QtGui.QColor('#F0A3A3')
-
-	def _get_data(self, row, lines):
-		return 'A'
-
-class SemiEditablePurchaseLineModel(QtCore.QAbstractTableModel):
-
-	def __init__(self, proforma):
-		super().__init__() 
-		self._headerData = ['Description', 'Condition', 'Spec', 'Qty.', \
-			'Price', 'Subtotal', 'Tax', 'Total']
-		self.proforma = proforma 
-		self.frozen_lines = db.session.query(db.MixedPurchaseLine).\
-			where(db.MixedPurchaseLine.proforma_id == proforma.id).all() 
-		self.new_lines = []
-
-	def headerData(self, section, orientation, role = Qt.DisplayRole):
-		if role == Qt.TextAlignmentRole:
-			if orientation == Qt.Horizontal:
-				return Qt.AlignLeft | Qt.AlignVCenter
-			return Qt.AlignRight | Qt.AlignVCenter
-		if role != Qt.DisplayRole:
-			return 
-		if orientation == Qt.Horizontal:
-			return self._headerData[section]
-	
-	def rowCount(self, index=QModelIndex()):
-		return len(self.frozen_lines) 
-
-	def columnCount(self, index=QModelIndex()):
-		return len(self._headerData)
-
-	def data(self, index, role=Qt.DisplayRole):
-		if not index.isValid():
-			return
-		row, column = index.row(), index.column() 
-		if role == Qt.DisplayRole:
-			if 0 <= row < len(self.frozen_lines):
-				pass 
-
-			elif len(self.frozen_lines) <= row < len(self.frozen_lines) + len(self.new_lines):
-				pass 
-		
-		elif role == Qt.BackgroundRole:
-			if row < len(self.frozen_lines):
-				return QtGui.QColor('#F0A3A3') 
-	
-		
-	def add(self, description, condition, spec, quantity, price, tax):
-		line = db.MixedPurchaseLine(description, condition, spec, \
-			quantity, price, tax) 
-
-		if line in self.frozen_lines + self.new_lines:
-			raise DuplicateLine
-
-		self.new_lines.append(line)
-		self.layoutChanged() 
-
-	def delete(self, indexes):
-		rows = {index.row() for index in indexes}
-		frozen_rows = {i for i in range(len(self.frozen_lines))}
-		if rows.intersection(frozen_rows):
-			raise ValueError 
-		else:
-			for row in sorted(rows, reverse=True):
-				try: 
-					del self.new_lines[row]
-				except:pass 
-			self.layoutChanged() 
-	
-	def save(self):
-		for line in self.new_lines:
-			line.proforma = self.proforma
-			db.session.add(line)
-		try:
-			db.session.commit()
-		except:
-			db.session.rollback() 
-			raise 
-
-class FullEditableMixedPurchaseLineModel(QtCore.QAbstractTableModel):
-	
-	def __init__(self, proforma):
-		super().__init__()
-		self._headerData = ['Description', 'Condition', 'Spec', 'Qty.', \
-			'Price', 'Subtotal', 'Tax', 'Total']
-		self.proforma = proforma
-		self.initial_lines = []
-		self.old_ids = set()
-		for line in db.session.query(db.MixedPurchaseProformaLine).\
-			where(db.MixedPurchaseProformaLine.proforma_id==proforma.id):
-			self.old_ids.add(line.id)
-			self.initial_lines.append(Line((str.item), line.condition, line.spec, \
-				line.quantity, line.price, line.tax))
-			self.current_lines = deepcopy(self.initial_lines)
-
-
-	def headerData(self, section, orientation, role = Qt.DisplayRole):
-		if role == Qt.TextAlignmentRole:
-			if orientation == Qt.Horizontal:
-				return Qt.AlignLeft | Qt.AlignVCenter
-			return Qt.AlignRight | Qt.AlignVCenter
-		if role != Qt.DisplayRole:
-			return 
-		if orientation == Qt.Horizontal:
-			return self._headerData[section]
-
-	def rowCount(self, index=QModelIndex()):
-		return len(self.current_lines)
-	
-	def columnCount(self, index=QModelIndex()):
-		return len(self._headerData)
-
-	
-	def data(self, index, role=Qt.DisplayRole):
-		if not index.isValid():
-			return
-		row, column = index.row(), index.colum() 
-
-	def __bool__(self):
-		return bool(self.current_lines) 
-	
 class PaymentModel(BaseTable, QtCore.QAbstractTableModel):
+
+	DATE, AMOUNT, NOTE = 0, 1, 2
 
 	def __init__(self, proforma, sale):
 		super().__init__()
@@ -1915,17 +1722,48 @@ class PaymentModel(BaseTable, QtCore.QAbstractTableModel):
 		column = index.column() 
 
 		if role == Qt.DisplayRole:
-			if column == 0:
+			if column == self.__class__.DATE:
 				return payment.date.strftime('%d/%m/%Y')
 			elif column == 1:
 				return str(payment.amount) 
-			elif column == 2:
+			elif column == self.__class__.AMOUNT:
 				return payment.note
 		elif role == Qt.DecorationRole:
-			if column == 0:
+			if column == self.__class__.DATE:
 				return QtGui.QIcon(':\calendar') 
 		else:
 			return            
+
+	def setData(self, index, value, role = Qt.EditRole):
+		if not index.isValid(): return False
+		row, column = index.row(), index.column()
+		payment = self.payments[row]
+		if role == Qt.EditRole:
+			if column == self.__class__.DATE:
+				try:
+					d = parse_date(value)
+					payment.date = d
+					return True 
+				except ValueError:
+					return False
+			elif column == self.__class__.AMOUNT:
+				try:
+					v = float(value)
+					payment.amount = v
+					return True 
+				except ValueError:
+					return False
+				
+			elif column == self.__class__.NOTE:
+				payment.note = value[0:255]
+				return True 
+		return False
+
+
+	def flags(self, index):
+		if not index.isValid():
+			return Qt.ItemIsEnabled
+		return Qt.ItemFlags(super().flags(index) | Qt.ItemIsEditable)	
 
 	def add(self, date, amount, note):
 		payment = self.Payment(date, amount, note, self.proforma)
@@ -2022,13 +1860,14 @@ class SerieModel(QtCore.QAbstractListModel):
 
 	def __init__(self, line, expedition):
 		super().__init__() 
-		
 		self.series = db.session.query(self.ExpeditionSerie).join(self.ExpeditionLine).\
 			where(self.ExpeditionSerie.line_id == line.id).all()
 
 		self.series_at_expedition_level  = {r[0] for r in db.session.query(self.ExpeditionSerie.serie)\
 			.join(self.ExpeditionLine).join(self.Expedition).where(db.Expedition.id == expedition.id)}
 
+
+		
 	def add(self, line, _serie):
 
 		if self._seriePresent(_serie):
@@ -2189,8 +2028,9 @@ class ReceptionModel(BaseTable, QtCore.QAbstractTableModel):
 		self._headerData = ['Reception ID', 'Warehouse', 'Total', 'Processed', 'Status','Partner', 'Agent', \
 			'Warning', 'From Proforma']
 		self.name = 'receptions' 
-		query = db.session.query(db.Reception).join(db.PurchaseProforma).join(db.Agent).\
-			join(db.Partner).join(db.Warehouse) 
+		query = db.session.query(db.Reception)
+		# .join(db.PurchaseProforma).join(db.Agent).\
+			# join(db.Partner).join(db.Warehouse) 
 
 		if search_key:
 			clause = or_(
@@ -2207,12 +2047,14 @@ class ReceptionModel(BaseTable, QtCore.QAbstractTableModel):
 			if 'empty' in filters:
 				self.receptions = filter(lambda o :not o.cancelled and not self._processed(o), self.receptions)
 			if 'completed' in filters:
-				self.receptions = filter(lambda o: not o.cancelled and self._processed(o) == self._tota(o), self.receptions)
+				self.receptions = filter(lambda o: not o.cancelled and self._processed(o) == self._total(o), self.receptions)
+			if "overflowed" in filters:
+				self.receptions = filter(lambda o: not o.cancelled and self._processed(o) > self._total(o), self.receptions) 
 
 			if isinstance(self.receptions, filter):
 				self.receptions = list(self.receptions)
 		else:
-			self.receptions = query.all() 
+			self.receptions = query.all()
 
 	def data(self, index, role=Qt.DisplayRole):
 		if not index.isValid():
@@ -2240,12 +2082,12 @@ class ReceptionModel(BaseTable, QtCore.QAbstractTableModel):
 					if total == processed:
 						return 'Completed'
 					elif 0 < processed < total:
-						if self.sale:
-							return 'Partially Prepared'
-						else:
-							return 'Partially Received'
+						return 'Partially Received'
 					elif processed == 0:
 						return 'Empty'
+					elif processed > total:
+						return "Overflowed"
+
 			elif column == ReceptionModel.AGENT:
 				return reception.proforma.agent.fiscal_name 
 			elif column == ReceptionModel.WARNING:
@@ -2260,34 +2102,28 @@ class ReceptionModel(BaseTable, QtCore.QAbstractTableModel):
 				return QtGui.QIcon(':\partners')
 			elif column == ReceptionModel.STATUS:
 				if reception.proforma.cancelled:
-					return QtGui.QIcon(':\cancel')
+					return QtGui.QColor(RED)
 				else:
 					total = self._total(reception) 
 					processed = self._processed(reception) 
 					if total == processed:
-						return QtGui.QIcon(':\greentick')
+						return QtGui.QColor(GREEN)
 					elif 0 < processed < total:
-						return QtGui.QIcon(':\cross')
+						return QtGui.QColor(ORANGE)
 					elif processed == 0:
-						return QtGui.QIcon(':\cross')
+						return QtGui.QColor(ORANGE)
+					elif processed > total:
+						return QtGui.QColor(YELLOW)
 
 	def _total(self, reception):
 		return sum([line.quantity for line in reception.proforma.lines \
 			if line.item_id or line.description in descriptions])  
 
 	def _processed(self, reception):
-		processed = 0
 		try:
-			for line in reception.lines:
-				for serie in line.series:
-					processed += 1 
-		except AttributeError: pass 
-		try:
-			for line in reception.lines:
-				for serie in line.series:
-					processed += 1
-		except AttributeError: pass 
-		return processed
+			return sum(1 for line in reception.lines for serie in line.series)
+		except AttributeError:
+			return 0
 
 
 from db import Warehouse, Item
@@ -2869,56 +2705,155 @@ class SpecListModel(QtCore.QAbstractListModel):
 			raise 
 
 
-class ReceptionSerieModel(QtCore.QAbstractListModel):
-	
-	def __init__(self, reception, line):
-		self.series = db.session.query(db.ReceptionSerie).\
-			join(db.Reception).join(db.ReceptionLie).\
-				where(db.Reception == reception.id).\
-					where(db.ReceptionLine.id == line.id)
+class ReceptionSeriesModel:
 
-	def data(self, index, role=Qt.DisplayRole):
-		if not index.isValid():
-			return
-	
-	def add(self, line, serie):
-		if serie in self.series:
-			return 
-		reception_serie = db.ReceptionSerie(line, serie)
+	def __init__(self, reception):
+		self.reception = reception
+		self.reception_series = db.session.query(db.ReceptionSerie).\
+			join(db.ReceptionLine).join(db.Reception).\
+				where(db.Reception.id == reception.id).all() 
+
+		
+	def add(self, line, serie, description, condition, spec):
+		if serie.lower() in [o.serie.lower() for o in self.reception_series]:
+			print('seie exists')
+			
+			raise ValueError('Serie already processed in this reception order')
+		
+		if any((
+			description not in description_id_map.keys(), 
+			condition not in conditions.difference({'Mix'}), 
+			spec not in specs.difference({'Mix'})
+		)): raise ValueError('Invalid description, condition or spec')
+
+		reception_serie = db.ReceptionSerie(
+			description_id_map[description], 
+			line, serie, condition, spec
+		)
 		db.session.add(reception_serie)
 		try:
-			db.session.commit() 
-			self.series.append(reception_serie) 
-			self.layoutChanged.emit() 
+			db.session.commit()
+			print('dd_model.after commit')
+			self.reception_series.append(reception_serie)
 		except:
 			db.session.rollback()
 			raise 
 
-
-class MixedSerieModel(QtCore.QAbstractListModel):
-
-	def __init__(self, line, reception, description, condition, spec):
-		pass 
-
-	def data(self, index, role=Qt.DisplayRole):
-		pass 
-
-	def add(self, description, condition, spec, serie):
-		pass
+		print('len(self.reception_series)=', len(self.reception_series))
 
 	def delete(self, serie):
-		pass 
-	
-	
+		for index, object in enumerate(self.reception_series):
+			if serie == object.serie:
+				break 
+		
+		object = self.reception_series[index]
+		try:
+			db.session.delete(object)
+			del self.reception_series[index]
+		except:
+			db.session.rollback()
+			raise 
 
-class DefinedDevicesModel(QtCore.QAbstractTableModel):
+	def bulk_delete(self, series):
+		delete_targets = [r for r in self.reception_series \
+			if r.serie in series]
 
-	def __init__(self, mixed_series_model):
-		pass 
+		for t in delete_targets:
+			db.session.delete(t)
+		try:
+			db.session.commit()
+			for t in delete_targets:
+				self.reception_series.remove(t)
+		except:
+			db.session.rollack()
+			raise 
 
 	
+	def processed_in(self, line):
+		return len([
+			o for o in self.reception_series if o.line_id == line.id
+		])
+
+	def __len__(self):
+		return len(self.reception_series)
+
+
+class DefinedSeriesModel(QtCore.QAbstractListModel):
+
+	def __init__(self, rs_model, \
+		line, description, condition, spec):
+		super().__init__()
+		self.rs_model = rs_model
+
+		self.series = [r.serie for r in rs_model.reception_series \
+			if all((
+				r.line_id == line.id, 
+				r.item_id == description_id_map[description], 
+				r.condition == condition, 
+				r.spec == spec
+			))]
+
+	def rowCount(self, index):
+		return len(self.series) 
+
+	def data(self, index, role=Qt.DisplayRole):
+		if not index.isValid(): return 
+		if role == Qt.DisplayRole:
+			return self.series[index.row()]
+
+	def index_of(self, key):
+		for index, serie in enumerate(self.series):	
+			if key in serie:
+				return index 
+
+	def __contains__(self, key):
+		for serie in self.series:
+			if key in serie: 
+				return True
+		return False 	
+
+
+from operator import attrgetter
+Group = namedtuple('Group', 'description condition spec quantity')
+class GroupModel(BaseTable, QtCore.QAbstractTableModel):
+
+	DESCRIPTION, CONDITION, SPEC, QUANTITY = 0, 1, 2, 3
+
+	def __init__(self, rs_model, line):
+		super().__init__() 
+		self._headerData = ['Description', 'Condition', 'Spec', \
+			'Quantity']
+		self.name = 'groups'
+		key = attrgetter('item_id', 'condition', 'spec')
+
+		series = rs_model.reception_series
+		_filter = lambda o:o.line_id == line.id
+		series = list(filter(_filter, series))
+		series = sorted(series, key=key)
+		from itertools import groupby
+		self.groups = [] 
+		for key, group in groupby(iterable=series, key=key):
+			item_id, condition, spec = key
+			self.groups.append(
+				Group(description_id_map.inverse[item_id], 
+					condition, spec, len(list(group)))
+			)
+
+	def data(self, index, role=Qt.DisplayRole):
+		if not index.isValid(): return
+		row, col = index.row(), index.column()
+		group = self.groups[row]
+		if role == Qt.DisplayRole:
+			return {
+				self.__class__.DESCRIPTION:group.description, 
+				self.__class__.CONDITION:group.condition,
+				self.__class__.SPEC:group.spec, 
+				self.__class__.QUANTITY:group.quantity 
+			}.get(col)
+
+
 
 if __name__ == '__main__':
-
+	
 	for d in descriptions:
 		print(d)
