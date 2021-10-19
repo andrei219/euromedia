@@ -30,7 +30,7 @@
     <normaloff>:/document</normaloff>:/document</iconset>
   </property>
   <property name="styleSheet">
-   <string notr="true">background:white;</string>
+   <string notr="true"/>
   </property>
   <widget class="QToolButton" name="add_button">
    <property name="geometry">

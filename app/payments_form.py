@@ -22,11 +22,7 @@ class PaymentForm(Ui_PaymentsForm, QDialog):
         self.delete_payment_tool_button.pressed.connect(self.deleteHandler)
 
         self.view.setSelectionBehavior(QTableView.SelectRows)
-
         self.populate()
-
-        if self.proforma.cancelled:
-            self.setEnabled(False) 
 
     def addHandler(self):
         try:

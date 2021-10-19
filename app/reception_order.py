@@ -203,7 +203,6 @@ class Form(QDialog, Ui_Form):
         )
         self.snlist.setModel(series_model) 
 
-
     def is_mixed_line(self, line):
         if any((
             line.condition == 'Mix', 
@@ -255,7 +254,6 @@ class Form(QDialog, Ui_Form):
         )
 
 
-
     def search_handler(self):
         serie = self.search_line_edit.text() 
         try:
@@ -272,61 +270,14 @@ class Form(QDialog, Ui_Form):
         # If search does not work we dont care
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# class EditableForm(Form):
-
-#     def __init__(self, parent, order):
-#         super(QDialog, MixedReceptionForm).__init__(self)
-#         self.setupUi(self) 
-#         self.processed_store = ProcessedDevicesStore(order, editable=True)
-        
-
-#         self.desc_to_item_id_holder = {str(item):item.id for item in db.session.query(db.Item)}
-
-#         self.specs = {r[0] for r in db.session.query(db.PurchaseProformaLine.specification)}.\
-#             union({r[0] for r in db.session.query(db.SpecificationChange.after)})
-
-#         self.conditions = {r[0] for r in db.session.query(db.PurchaseProformaLine.condition)}.\
-#             union({r[0] for r in db.session.query(db.ConditionChange.after)})
-
-
-#         self.order = order
-#         self.total_lines = len(order.mixed_lines)
-#         self.current_index = 0 
-#         self._set_defined_devices_model() 
-#         self.next.clicked.connect(self.next_handler)
-#         self.prev.clicked.connect(self.prev_handler)
-#         self.search.clicked.connect(self.search_handler)
-
-#         self.populateHeader() 
-#         self.populateBody() 
-
-#         self.view.setSelectionBehavior(QTableView.SelectRows)
-
-#         self.configure_buttons_and_fields() 
-
-#     def configure_buttons_and_fields(self):
-#         self.delete_buttton.setDisabled(True)
-#         self.commit.setDisabled(True)
-#         self.finish.setDisabled(True)
-#         self.all.setDisabled(True)
-#         self.exit.clicked.connect(lambda : self.close())
-#         self.sn.setDisabled(True)
-#         self.actual_condition.setDisabled(True)
-#         self.actual_spec.setDisabled(True)
-#         self.actual_item.setDisabled(True)
-#         self.chance_label.setText('')
+    def closeEvent(self, event):
+        import db 
+        for line in self.reception.lines:
+            if line.quantity == len(line.series) == 0:
+                db.session.delete(line)
+        try:
+            db.session.commit() 
+        except:
+            db.session.rollback() 
+            raise 
+        super().closeEvent(event) 

@@ -6,8 +6,8 @@ from PyQt5 import QtCore
 
 from ui_maingui import Ui_MainGui
 
-import models
-
+import models 
+  
 import agentgui, partner_form, product_form, purchase_proforma_form, payments_form, expenses_form, \
     document_form, expedition_form, sale_proforma_form, inventory_form, spec_change_form, condition_change_form, \
         warehouse_change_form, reception_order
@@ -20,6 +20,39 @@ from db import PurchaseProforma, PurchaseDocument, SaleDocument, SaleProforma
 
 PASSWORD = '0010'
 
+PREFIXES = [
+    'agents_', 
+    'partners_', 
+    'proformas_purchases_', 
+    'proformas_sales_', 
+    'invoices_purchases_', 
+    'invoices_sales_', 
+    'warehouse_expeditions_', 
+    'warehouse_receptions_'
+]
+
+ACTIONS = [
+    'apply', 
+    'new', 
+    'edit', 
+    'delete', 
+    'cancel', 
+    'print', 
+    'pdf', 
+    'payments', 
+    'expenses', 
+    'docs', 
+    'toinv', 
+    'towh', 
+    'ship', 
+    'newadv', 
+    'mail', 
+    'options', 
+    'process', 
+    'double_click', 
+    'search'
+]
+
 class MainGui(Ui_MainGui, QMainWindow):
     
     def __init__(self, parent=None):
@@ -29,52 +62,81 @@ class MainGui(Ui_MainGui, QMainWindow):
 
         # For closing 
         self.opened_windows_instances = set() 
-        
         # Prevent creating multiple
         self.opened_windows_classes = set() 
-
-
-        # Agents setup 
-        self.setUpAgentsModelAndView() 
-        self.setUpAgentsHandlers() 
         
-        # Partners setup
-        self.setUpPartnersModelAndView() 
-        self.setUpPartnersHandlers() 
+        self.set_handlers()
         
+        self.init_models() 
+        # self.main_tab.currentChanged.connect(self.tabChanged)
+
+
+    def init_models(self):
+        for prefix in PREFIXES:
+            self.set_mv(prefix)
+
+    def set_mv(self, prefix, search_key=None, filters=None):
+        from utils import setCommonViewConfig
+        if prefix == 'proformas_purchases_':
+            self.proformas_purchases_model = \
+                models.PurchaseProformaModel(filters=filters, search_key=search_key)
+            self.proformas_purchases_view.setModel(
+                self.proformas_purchases_model
+            )
+            self.proformas_purchases_view.setSelectionBehavior(QTableView.SelectRows)
+
+        elif prefix == 'proformas_sales_':
+            self.proformas_sales_model = \
+                models.SaleProformaModel(filters=filters, search_key=search_key)
         
-        # Invoices setup:
-        self.setUpPurchaseInvoicesModelAndView()
-        self.setUpSaleInvoicesModelAndView() 
-        self.setUpSaleInvoicesHandler() 
-        self.setUpPurchaseInvoicesHandler() 
+        elif prefix == 'agents_':
+            self.agents_model = models.AgentModel(search_key=search_key)
+            self.agents_view.setModel(self.agents_model) 
+            setCommonViewConfig(self.agents_view)
+        
 
+    def set_handlers(self):
+        for prefix in PREFIXES:
+            for action in ACTIONS:
+                try:
+                    widget_name = prefix + action
+                    self.attach_handler(prefix, action)
+                except AttributeError:
+                    continue 
 
-        # Proformas setup:
-        self.setUpPurchaseProformasModelAndView() 
-        self.setUpPurchaseProformaHandlers() 
-        self.setUpSaleProformasModelAndView() 
-        self.setUpSalesProformasHandler() 
-
-
-        # Warehouse setup:
-        self.setUpReceptionMV() 
-        self.setUpExpeditionMV() 
-        self.setUpReceptionHandlers() 
-        self.setUpExpeditionHandlers() 
-
-        # Tools setup:
-        self.setupToolsHandlers() 
-        self.main_tab.currentChanged.connect(self.tabChanged)
+    def attach_handler(self, prefix, action):
+        try:
+            handler = getattr(self, prefix + action + '_handler') 
+            if action == 'double_click':
+                widget = getattr(self, prefix + 'view')
+                widget.doubleClicked.connect(handler) 
+            elif action == 'search':
+                widget = getattr(self, prefix + action)
+                widget.returnPressed.connect(handler)
+            else:
+                widget = getattr(self, prefix + action)
+                widget.clicked.connect(handler) 
+        except AttributeError:
+            raise         
 
     def get_filters(self,*, prefix):
-        return {
-            group_name : getattr(self, group_name)(prefix=prefix) 
-            for group_name in [
-                'types', 'financial', 
-                'shipment', 'logistic'
-            ]
-        }
+        filters = {}
+        for name in [
+            'types', 'financial', 'shipment', 
+            'logistic', 'cancelled'
+        ]:
+            try:
+                filters[name] = getattr(self, name)(prefix=prefix)
+            except AttributeError:
+                continue
+        return filters
+
+    def cancelled(self, prefix):
+        return [
+            name for name in (
+                'cancelled', 'notcancelled'
+            ) if getattr(self, prefix + name).isChecked()
+        ]
 
     def types(self, *, prefix):
         return [
@@ -85,8 +147,7 @@ class MainGui(Ui_MainGui, QMainWindow):
     def financial(self, *, prefix):
         return [
             name for name in (
-                'notpaid', 'partiallypaid', 
-                'fullypaid', 'cancelled'
+                'notpaid', 'partiallypaid', 'fullypaid'
             ) if getattr(self, prefix + name).isChecked() 
         ]
 
@@ -105,20 +166,20 @@ class MainGui(Ui_MainGui, QMainWindow):
         ]
 
 
-    # Agent Handlers:
-    def agentDoubleClickedHandler(self, index):
-        self.launchAgentGui(index) 
+    # Agents Handlers:
+    def agents_double_click_handler(self, index):
+        self.launch_agent_form(index) 
         
-    def agentNewButtonHandler(self):
-        self.launchAgentGui() 
+    def agents_new_handler(self):
+        self.launch_agent_form() 
 
-    def agentEditButtonHandler(self):
+    def agents_edit_handler(self):
         indexes = self.agents_view.selectedIndexes() 
         if indexes:
             index = indexes[0]
-            self.launchAgentGui(index)
+            self.launch_agent_form(index)
 
-    def launchAgentGui(self, index=None):
+    def launch_agent_form(self, index=None):
         if agentgui.AgentGui not in self.opened_windows_classes:
             self.a = agentgui.AgentGui(self, self.agents_view, index) 
             self.a.show() 
@@ -126,11 +187,11 @@ class MainGui(Ui_MainGui, QMainWindow):
             self.opened_windows_instances.add(self.a)
             self.opened_windows_classes.add(agentgui.AgentGui) 
 
-    def agentSearchHandler(self):
+    def agents_search_handler(self):
         key = self.agent_search_line_edit.text() 
         self.setUpAgentsModelAndView(search_key=key)
 
-    def agentDeleteHandler(self):
+    def agents_delete_handler(self):
         indexes = self.agents_view.selectedIndexes() 
         if indexes:
             index = indexes[0]
@@ -139,22 +200,23 @@ class MainGui(Ui_MainGui, QMainWindow):
                 self.agents_view.clearSelection() 
             except IntegrityError as e:
                 if e.orig.args[0] == 1451:
-                    QMessageBox.critical(self, 'Error - Delete', "Could not delete Agent with data associated. Deactivate it.") 
+                    QMessageBox.critical(self, 'Error - Delete', \
+                        "Could not delete Agent with data associated. Deactivate it.") 
 
-    # Partner Handlers:
-    def partnerDoubleClickedHandler(self, index):
-        self.launchPartnerGui(index) 
+    # Partners Handlers:
+    def partners_double_click_handler(self, index):
+        self.launch_partners_form(index) 
 
-    def partnerNewButtonHandler(self):
-        self.launchPartnerGui() 
+    def partners_new_handler(self):
+        self.launch_partners_form() 
 
-    def partnerEditButtonHandler(self):
+    def partners_edit_handler(self):
         indexes = self.partners_view.selectedIndexes()
         if indexes:
             index = indexes[0]
-            self.launchPartnerGui(index)
+            self.launch_partners_form(index)
 
-    def partnerDeleteHandler(self):
+    def partners_delete_handler(self):
         indexes = self.partners_view.selectedIndexes()
         if indexes:
             index = indexes[0]
@@ -164,11 +226,11 @@ class MainGui(Ui_MainGui, QMainWindow):
             except IntegrityError as e:
                 QMessageBox.critical(self, "Error - Delete", "Could not delete Partner with data associated. Deactivate it.")
 
-    def partnerSearchHandler(self):
+    def partners_search_handler(self):
         key = self.partner_search_line_edit.text() 
         self.setUpPartnersModelAndView(search_key=key)
 
-    def launchPartnerGui(self, index=None):
+    def launch_partners_form(self, index=None):
         if partner_form.PartnerForm not in self.opened_windows_classes:
             self.p = partner_form.PartnerForm(self, self.partners_view, index)
             self.p.show()
@@ -176,37 +238,40 @@ class MainGui(Ui_MainGui, QMainWindow):
             self.opened_windows_instances.add(self.p)
             self.opened_windows_classes.add(partner_form.PartnerForm)
 
-    # PURCHASE PROFORMA HANDLERS:
-    def purchaseProformaSearchHandler(self):
-        filters = self.proformap
+    # Proformas purchases handlers:
+    def proformas_purchases_search_handler(self):
+        print('search connected')
 
-    def purchaseProformaDoubleClickedHandler(self, index):
-        self.launchPurchaseProformaForm(index)
+    def proformas_purchases_double_click_handler(self, index):
+        print('double click')
+        self.proformas_purchases_launch_form(index)
 
-    def purchaseProformaNewButtonHandler(self):
-        self.launchPurchaseProformaForm() 
+    def proformas_purchases_new_handler(self):
+        print('new attached')
+        # self.proformas_purchases_launch_form() 
     
-    def purchaseProformaCancelHandler(self):
-        indexes = self.proforma_purchases_view.selectedIndexes() 
-        if not indexes:
-            return
-        try:
-            if QMessageBox.question(self, 'Proformas - Cancel', 'Cancel proforma/s ?',\
-                 QMessageBox.Yes | QMessageBox.No) == QMessageBox.No:
-                    return
+    def proformas_purchases_cancel_handler(self):
+        print('cancel attached')
+        # indexes = self.proforma_purchases_view.selectedIndexes() 
+        # if not indexes:
+        #     return
+        # try:
+        #     if QMessageBox.question(self, 'Proformas - Cancel', 'Cancel proforma/s ?',\
+        #          QMessageBox.Yes | QMessageBox.No) == QMessageBox.No:
+        #             return
 
-            self.purchaseProformaModel.cancel(indexes)
-        except:
-            raise 
-            QMessageBox.critical(self, 'Update Error', 'Error updating proformas')
+        #     self.purchaseProformaModel.cancel(indexes)
+        # except:
+        #     raise 
+        #     QMessageBox.critical(self, 'Update Error', 'Error updating proformas')
 
-    def purchaseProformaPrintButtonHandler(self):
+    def proformas_purchases_print_handler(self):
         pass 
 
-    def purchaseProformaPdfButtonHandler(self):
+    def proformas_purchases_pdf_handler(self):
         pass 
 
-    def purchaseProformaPaymentsHandler(self, invoice=None):
+    def proformas_purchases_payments_handler(self, invoice=None):
         if invoice:
             proforma = invoice            
         else:
@@ -214,7 +279,7 @@ class MainGui(Ui_MainGui, QMainWindow):
         if proforma:
             payments_form.PaymentForm(self, proforma).exec_() 
 
-    def purchaseProformaExpenseButtonHandler(self, invoice=None):
+    def proformas_purchases_expenses_handler(self, invoice=None):
         if invoice:
             proforma = invoice 
         else:
@@ -222,7 +287,7 @@ class MainGui(Ui_MainGui, QMainWindow):
         if proforma:
             expenses_form.ExpenseForm(self, proforma).exec_() 
 
-    def purchaseProformaDocsButtonHandler(self, invoice=None):
+    def proformas_purchases_docs_handler(self, invoice=None):
         if invoice:
             proforma = invoice 
         else:
@@ -231,7 +296,7 @@ class MainGui(Ui_MainGui, QMainWindow):
             document_form.DocumentForm(self, 'proforma_id', \
                 proforma.id , PurchaseProforma, PurchaseDocument).exec_() 
 
-    def purchaseProformaToInvoiceButtonHandler(self):
+    def proformas_purchases_toinv_handler(self):
         proforma = self._getOnePurchaseProforma('Invoice') 
         if proforma:
             if proforma.cancelled:
@@ -255,7 +320,7 @@ class MainGui(Ui_MainGui, QMainWindow):
                     QMessageBox.critical(self, 'Update - Error', \
                         'Could not build Invoice From Proforma')
 
-    def purchaseProformaToWarehouseHandler(self, invoice=None):
+    def proformas_purchases_towh_handler(self, invoice=None):
         if invoice:
             proforma = invoice
         else:
@@ -275,7 +340,7 @@ class MainGui(Ui_MainGui, QMainWindow):
                 QMessageBox.critical(self, 'Update - Error', \
                     f'Warehouse reception for this {d} already exists')
 
-    def purchaseProformaShippedHandler(self, invoice=None):
+    def proformas_purchases_ship_handler(self, invoice=None):
         if invoice:
             proforma = invoice
         else:
@@ -293,32 +358,32 @@ class MainGui(Ui_MainGui, QMainWindow):
             QMessageBox.critical(self, 'Update - Error', \
                 'Could not update tracking number')
 
-    def purchaseProformaSelectionChanged(self):
-        rows = {index.row() for index in self.proforma_purchases_view.selectedIndexes()}
-        # ship 
-        if len(rows) != 1:
-            self.proforma_purchase_ship_button.setEnabled(False)
-        else:
-            row = rows.pop() 
-            if not self.purchaseProformaModel.proformas[row].sent:
-                self.proforma_purchase_ship_button.setEnabled(True)
-            else:
-                self.proforma_purchase_ship_button.setEnabled(False)
+    # def purchaseProformaSelectionChanged(self):
+    #     rows = {index.row() for index in self.proforma_purchases_view.selectedIndexes()}
+    #     # ship 
+    #     if len(rows) != 1:
+    #         self.proforma_purchase_ship_button.setEnabled(False)
+    #     else:
+    #         row = rows.pop() 
+    #         if not self.purchaseProformaModel.proformas[row].sent:
+    #             self.proforma_purchase_ship_button.setEnabled(True)
+    #         else:
+    #             self.proforma_purchase_ship_button.setEnabled(False)
 
-        rows = {index.row() for index in self.proforma_purchases_view.selectedIndexes()}
+    #     rows = {index.row() for index in self.proforma_purchases_view.selectedIndexes()}
         
-        if len(rows) == 1:
-            try:
-                self.purchaseProformaModel.proformas[row].receptions.lines
-                self.proforma_purchase_warehouse_button.setEnabled(False)
-            except AttributeError:
-                self.proforma_purchase_warehouse_button.setEnabled(True)
-        elif not rows:
-            self.proforma_purchase_warehouse_button.setEnabled(True)
-        else:
-            self.proforma_purchase_warehouse_button.setEnabled(False)
+    #     if len(rows) == 1:
+    #         try:
+    #             self.purchaseProformaModel.proformas[row].receptions.lines
+    #             self.proforma_purchase_warehouse_button.setEnabled(False)
+    #         except AttributeError:
+    #             self.proforma_purchase_warehouse_button.setEnabled(True)
+    #     elif not rows:
+    #         self.proforma_purchase_warehouse_button.setEnabled(True)
+    #     else:
+    #         self.proforma_purchase_warehouse_button.setEnabled(False)
 
-    def launchPurchaseProformaForm(self, index=None):
+    def proformas_purchases_launch_form(self, index=None):
         if index:
             proforma = self.purchaseProformaModel.proformas[index.row()]
             self.epp = purchase_proforma_form.EditableForm(self,\
@@ -629,144 +694,15 @@ class MainGui(Ui_MainGui, QMainWindow):
         from spec import Form
         Form(self).exec_() 
 
-    def setUpAgentsModelAndView(self, search_key=None):
-        self.agentModel = models.AgentModel(search_key) 
-        self.agents_view.setModel(self.agentModel)
-        setCommonViewConfig(self.agents_view)
-
-    def setUpPartnersModelAndView(self, search_key=None):
-        self.partnerModel = models.PartnerModel(search_key)
-        self.partners_view.setModel(self.partnerModel)
-        setCommonViewConfig(self.partners_view)
-    
-    def setUpPurchaseProformasModelAndView(self, search_key=None, filters=None):
-        self.purchaseProformaModel = models.PurchaseProformaModel(filters, search_key) 
-        self.proforma_purchases_view.setModel(self.purchaseProformaModel) 
-        self.proforma_purchases_view.setSelectionBehavior(QTableView.SelectRows)
-        self.proforma_purchases_view.setSortingEnabled(True)
-        self.proforma_purchases_view.setAlternatingRowColors(True)
-        self.proforma_purchases_view.setEditTriggers(QTableView.NoEditTriggers)
-        
-    def setUpSaleProformasModelAndView(self, search_key=None, filters=None):
-        self.saleProformaModel = models.SaleProformaModel(search_key, filters) 
-        self.proforma_sales_view.setModel(self.saleProformaModel) 
-        self.proforma_sales_view.setSelectionBehavior(QTableView.SelectRows)
-        self.proforma_sales_view.setSortingEnabled(True)
-        self.proforma_sales_view.setAlternatingRowColors(True)
-        self.proforma_sales_view.setEditTriggers(QTableView.NoEditTriggers)
-        
-    def setUpPurchaseInvoicesModelAndView(self, search_key=None, filters=None):
-        self.purchaseInvoiceModel = models.InvoiceModel(search_key, filters) 
-        self.invoices_purchases_view.setModel(self.purchaseInvoiceModel)
-        setCommonViewConfig(self.invoices_purchases_view)
-
-    def setUpSaleInvoicesModelAndView(self, search_key=None, filters=None):
-        self.saleinvoiceModel = models.InvoiceModel(search_key=search_key, filters=filters, sale=True) 
-        self.sales_invoices_view.setModel(self.saleinvoiceModel) 
-        setCommonViewConfig(self.sales_invoices_view) 
-
-    def setUpExpeditionMV(self, search_key=None, filters=None):
-        self.expeditionModel = models.ExpeditionModel(search_key=search_key, filters=filters)
-        self.warehouse_expedition_view.setModel(self.expeditionModel)
-        setCommonViewConfig(self.warehouse_expedition_view)
-
-    def setUpReceptionMV(self, search_key=None, filters=None):
-        self.receptionModel = models.ReceptionModel(search_key=search_key, filters=filters) 
-        self.warehouse_reception_view.setModel(self.receptionModel) 
-        setCommonViewConfig(self.warehouse_reception_view) 
-
-    def setUpAgentsHandlers(self):
-        self.agents_view.doubleClicked.connect(self.agentDoubleClickedHandler) 
-        self.agent_new_button.pressed.connect(self.agentNewButtonHandler)
-        self.agent_edit_button.pressed.connect(self.agentEditButtonHandler)
-        self.agent_search_line_edit.returnPressed.connect(self.agentSearchHandler) 
-        self.agent_delete_button.pressed.connect(self.agentDeleteHandler)
-
-    def setUpPartnersHandlers(self):
-        self.partners_view.doubleClicked.connect(self.partnerDoubleClickedHandler)
-        self.partner_new_button.pressed.connect(self.partnerNewButtonHandler)
-        self.partner_edit_button.pressed.connect(self.partnerEditButtonHandler)
-        self.delete_partner_button.pressed.connect(self.partnerDeleteHandler)
-        self.partner_search_line_edit.returnPressed.connect(self.partnerSearchHandler) 
-
-    def setUpPurchaseProformaHandlers(self):
-        self.proforma_purchases_view.selectionModel().selectionChanged.connect(self.purchaseProformaSelectionChanged)
-        self.proforma_purchases_view.doubleClicked.connect(self.purchaseProformaDoubleClickedHandler)
-        self.proforma_purchase_new_button.clicked.connect(self.purchaseProformaNewButtonHandler) 
-        self.proforma_purchase_payment_button.clicked.connect(self.purchaseProformaPaymentsHandler)
-        self.proforma_purchase_cancel_button.clicked.connect(self.purchaseProformaCancelHandler)
-        self.proforma_purchase_search.returnPressed.connect(self.purchaseProformaSearchHandler)
-        self.proforma_purchase_expense_button.clicked.connect(self.purchaseProformaExpenseButtonHandler)
-        self.proforma_purchase_documents_button.clicked.connect(self.purchaseProformaDocsButtonHandler) 
-        self.proforma_purchase_invoice_button.clicked.connect(self.purchaseProformaToInvoiceButtonHandler)  
-        self.proforma_purchase_ship_button.clicked.connect(self.purchaseProformaShippedHandler) 
-        self.proforma_purchase_warehouse_button.clicked.connect(self.purchaseProformaToWarehouseHandler)
-        self.proforma_purchase_apply.clicked.connect(self.apply_handler)
-
-
     def apply_handler(self):
         object_name = self.sender().objectName()
-        if 'proforma_purchase_' in object_name:
-            filters = self.get_filters(prefix='proforma_purchase_')
-            print(filters)
-        elif 'proforma_sale_' in object_name:
-            filters = self.get_filters(prefix='proforma_sale_')
-            print(filters)
-
-    def setUpSalesProformasHandler(self):
-        self.proforma_sale_new_button.clicked.connect(self.saleProformaNewButtonHandler)
-        self.sales_proformas_cancel_button.clicked.connect(self.saleProformaCancelHandler) 
-        self.proforma_sale_print_button.clicked.connect(self.saleProformaPrintButtonHandler) 
-        self.proforma_sale_pdf_button.clicked.connect(self.saleProformaPdfButtonHandler)
-        self.proforma_sale_mail_button.clicked.connect(self.saleProformaMailButtonHandler)
-        self.proforma_sale_payment_button.clicked.connect(self.saleProformaPaymentsHandler)
-        self.proforma_sale_expense_button.clicked.connect(self.saleProformaExpenseButtonHandler) 
-        self.proforma_sale_documents_button.clicked.connect(self.saleProformaDocsButtonHandler)
-        self.proforma_sale_invoice_button.clicked.connect(self.saleProformaToInvoiceButtonHandler)
-        self.proforma_sale_warehouse_button.clicked.connect(self.saleProformaToWarehouseHandler)
-        self.proforma_sale_ship_button.clicked.connect(self.saleProformaShippedHandler)
-        self.proforma_sale_apply.clicked.connect(self.apply_handler)
-
-
-    def setUpSaleInvoicesHandler(self):
-        self.invoice_sale_print_button.clicked.connect(self.saleInvoicePrintHandler)
-        self.invoice_sale_ship_button.clicked.connect(self.saleInvoiceShippedHandler)
-        self.invoice_sale_warehouse_button.clicked.connect(self.saleInvoiceToWarehouseHandler) 
-        self.invoice_sale_expense_button.clicked.connect(self.saleInvoiceExpenseButtonHandler)
-        self.invoice_sale_payment_button.clicked.connect(self.saleInvoicePaymentHandler)
-        self.invoice_sale_pdf_button.clicked.connect(self.saleInvoicePdfHandler)
-        self.invoice_sale_mail_button.clicked.connect(self.saleInvoiceMailHandler)
-        self.invoice_sale_docs_button.clicked.connect(self.saleInvoiceDocsHandler) 
-
-    def setUpPurchaseInvoicesHandler(self):
-        self.invoice_purchase_payment_button.clicked.connect(self.purchaseInvoicePaymentHandler)
-        self.invoice_purchase_ship_button.clicked.connect(self.purchaseInvoiceShippedHandler)
-        self.invoice_purchase_warehouse_button.clicked.connect(self.purchaseInvoiceToWarehouseHandler)
-        self.invoice_purchase_expense_button.clicked.connect(self.purchaseInvoiceExpenseButtonHandler) 
-        self.invoice_purchase_docs_button.clicked.connect(self.purchaseInvoiceDocsHandler) 
-        self.invoice_purchase_pdf_button.clicked.connect(self.purchaseInvoicePdfHandler) 
-        self.invoice_purchase_print_button.clicked.connect(self.purchaseInvoicePrintHandler)
-
-    def setUpReceptionHandlers(self):
-        self.reception_process.clicked.connect(self.processReception) 
-        self.warehouse_reception_view.doubleClicked.connect(self.receptionDoubleClicked)
-        self.reception_delete.clicked.connect(self.receptionDeleteHandler)
-
-    def setUpExpeditionHandlers(self):
-        self.expedition_process.clicked.connect(self.processExpedition) 
-        self.warehouse_expedition_view.doubleClicked.connect(self.expeditionDoublecClicked)
-        self.expedition_delete.clicked.connect(self.expeditionDeleteHandler)
-
-    def setupToolsHandlers(self):
-        self.create_product_button.clicked.connect(self.createProductHandler)
-        self.check_inventory.clicked.connect(self.showInventoryHandler)
-        self.change_spec.clicked.connect(self.changeSpecHandler)
-        self.change_condition.clicked.connect(self.changeCondtionHandler)
-        self.change_warehouse.clicked.connect(self.changeWarehouseHandler)
-        self.create_warehouse.clicked.connect(self.createWarehouseHandler)
-        self.create_spec.clicked.connect(self.createSpecHandler)
-        self.create_condition.clicked.connect(self.createConditionHandler) 
-
+        if object_name.count('_') == 2:
+            prefix = object_name[0:object_name.rfind('_') + 1]
+            filters = self.get_filters(prefix=prefix)
+        elif object_name.count('_') == 1:
+            prefix = object_name[0:object_name.index('_')+1]
+            filters = self.get_filters(prefix=prefix)
+        self.set_mv(prefix, filters) 
 
     def tabChanged(self, index):
         # Clean up the filters also 

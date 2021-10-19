@@ -895,12 +895,12 @@
    <slot>close()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>979</x>
-     <y>82</y>
+     <x>993</x>
+     <y>113</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1072</x>
-     <y>236</y>
+     <x>990</x>
+     <y>190</y>
     </hint>
    </hints>
   </connection>
