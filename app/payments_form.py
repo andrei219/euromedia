@@ -15,7 +15,7 @@ class PaymentForm(Ui_PaymentsForm, QDialog):
         super().__init__(parent) 
         self.setupUi(self) 
         self.proforma = proforma
-        self.model = PaymentModel(proforma, sale) 
+        self.model = PaymentModel(proforma, sale, self) 
         self.view.setModel(self.model) 
 
         self.add_payment_tool_button.pressed.connect(self.addHandler) 
@@ -58,8 +58,8 @@ class PaymentForm(Ui_PaymentsForm, QDialog):
             QMessageBox.critical(self, 'Error - Update', 'Could not delete payments')
 
     def updateOwing(self):
-        self.owing = self.total - self.paid
-        self.owing_lineedit.setText(str(self.owing))
+        self.owing = round(self.total - self.paid, 2) 
+        self.owing_lineedit.setText(str(round(self.owing, 2)))
 
     def clearFields(self):
         self.date_line_edit.setText('')
@@ -79,9 +79,9 @@ class PaymentForm(Ui_PaymentsForm, QDialog):
         self.partner_line_edit.setText(self.proforma.partner.fiscal_name)
         self.document_date_line_edit.setText(self.proforma.date.strftime('%d/%m/%Y'))
 
-        self.total_linedit.setText(str(float(self.total)))
+        self.total_linedit.setText(str(round(float(self.total), 2)))
 
-        self.owing_lineedit.setText(str(float(self.total) - float(self.paid)))
+        self.owing_lineedit.setText(str(round(float(self.total) - float(self.paid), 2)))
 
 
     def closeEvent(self, event):

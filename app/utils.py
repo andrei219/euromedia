@@ -104,8 +104,7 @@ def getPassword(parent):
 def getTracking(parent, proforma):
     type_num = str(proforma.type) + '-' + str(proforma.number).zfill(6)
     text, ok = QInputDialog.getText(parent, 'Tracking', f'Enter tracking number for {type_num}:')
-    if text and ok:
-        return text 
+    return text, ok
 
 def getNote(parent, proforma):
     type_num = str(proforma.type) + '-' + str(proforma.number).zfill(6)

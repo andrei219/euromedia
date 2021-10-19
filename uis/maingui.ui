@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1909</width>
-    <height>956</height>
+    <width>1985</width>
+    <height>912</height>
    </rect>
   </property>
   <property name="font">
@@ -23,8 +23,7 @@
     <normaloff>:/euromedia</normaloff>:/euromedia</iconset>
   </property>
   <property name="styleSheet">
-   <string notr="true">background:white; 
-font: 10pt &quot;MS Shell Dlg 2&quot;;</string>
+   <string notr="true">font: 10pt &quot;MS Shell Dlg 2&quot;;</string>
   </property>
   <property name="animated">
    <bool>false</bool>
@@ -36,9 +35,9 @@ font: 10pt &quot;MS Shell Dlg 2&quot;;</string>
    <widget class="QTabWidget" name="main_tab">
     <property name="geometry">
      <rect>
-      <x>80</x>
-      <y>30</y>
-      <width>1701</width>
+      <x>20</x>
+      <y>10</y>
+      <width>1821</width>
       <height>871</height>
      </rect>
     </property>
@@ -52,7 +51,7 @@ font: 10pt &quot;MS Shell Dlg 2&quot;;</string>
      <number>0</number>
     </property>
     <property name="currentIndex">
-     <number>2</number>
+     <number>4</number>
     </property>
     <property name="iconSize">
      <size>
@@ -457,7 +456,7 @@ font: 10pt &quot;MS Shell Dlg 2&quot;;</string>
        <rect>
         <x>5</x>
         <y>0</y>
-        <width>1671</width>
+        <width>1811</width>
         <height>771</height>
        </rect>
       </property>
@@ -1044,7 +1043,7 @@ font: 10pt &quot;MS Shell Dlg 2&quot;;</string>
          <rect>
           <x>220</x>
           <y>640</y>
-          <width>1451</width>
+          <width>1591</width>
           <height>81</height>
          </rect>
         </property>
@@ -1176,7 +1175,7 @@ font: 10pt &quot;MS Shell Dlg 2&quot;;</string>
           <bool>true</bool>
          </property>
         </widget>
-        <widget class="QToolButton" name="proformas_purchases_payment">
+        <widget class="QToolButton" name="proformas_purchases_payments">
          <property name="geometry">
           <rect>
            <x>390</x>
@@ -1430,7 +1429,7 @@ font: 10pt &quot;MS Shell Dlg 2&quot;;</string>
          <rect>
           <x>220</x>
           <y>40</y>
-          <width>1451</width>
+          <width>1591</width>
           <height>601</height>
          </rect>
         </property>
@@ -1996,7 +1995,7 @@ font: 10pt &quot;MS Shell Dlg 2&quot;;</string>
          <rect>
           <x>220</x>
           <y>640</y>
-          <width>1451</width>
+          <width>1581</width>
           <height>81</height>
          </rect>
         </property>
@@ -2419,12 +2418,12 @@ font: 10pt &quot;MS Shell Dlg 2&quot;;</string>
          </property>
         </widget>
        </widget>
-       <widget class="QTableView" name="proforma_sales_view">
+       <widget class="QTableView" name="proformas_sales_view">
         <property name="geometry">
          <rect>
           <x>220</x>
           <y>40</y>
-          <width>1451</width>
+          <width>1591</width>
           <height>601</height>
          </rect>
         </property>
@@ -2448,7 +2447,7 @@ font: 10pt &quot;MS Shell Dlg 2&quot;;</string>
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>1711</width>
+        <width>1851</width>
         <height>771</height>
        </rect>
       </property>
@@ -3034,7 +3033,7 @@ font: 10pt &quot;MS Shell Dlg 2&quot;;</string>
          <rect>
           <x>220</x>
           <y>640</y>
-          <width>1481</width>
+          <width>1601</width>
           <height>81</height>
          </rect>
         </property>
@@ -3076,7 +3075,7 @@ font: 10pt &quot;MS Shell Dlg 2&quot;;</string>
         <widget class="QToolButton" name="invoices_purchases_options">
          <property name="geometry">
           <rect>
-           <x>1380</x>
+           <x>630</x>
            <y>10</y>
            <width>51</width>
            <height>61</height>
@@ -3321,7 +3320,7 @@ font: 10pt &quot;MS Shell Dlg 2&quot;;</string>
          <rect>
           <x>220</x>
           <y>40</y>
-          <width>1471</width>
+          <width>1601</width>
           <height>601</height>
          </rect>
         </property>
@@ -3896,7 +3895,7 @@ font: 10pt &quot;MS Shell Dlg 2&quot;;</string>
          <rect>
           <x>220</x>
           <y>640</y>
-          <width>1451</width>
+          <width>1601</width>
           <height>81</height>
          </rect>
         </property>
@@ -4209,7 +4208,7 @@ font: 10pt &quot;MS Shell Dlg 2&quot;;</string>
          <rect>
           <x>220</x>
           <y>40</y>
-          <width>1451</width>
+          <width>1601</width>
           <height>601</height>
          </rect>
         </property>
@@ -4233,12 +4232,12 @@ font: 10pt &quot;MS Shell Dlg 2&quot;;</string>
        <rect>
         <x>-10</x>
         <y>0</y>
-        <width>1721</width>
+        <width>1831</width>
         <height>771</height>
        </rect>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <property name="iconSize">
        <size>
@@ -4527,7 +4526,7 @@ font: 10pt &quot;MS Shell Dlg 2&quot;;</string>
          <rect>
           <x>220</x>
           <y>640</y>
-          <width>1491</width>
+          <width>1601</width>
           <height>81</height>
          </rect>
         </property>
@@ -4630,7 +4629,7 @@ font: 10pt &quot;MS Shell Dlg 2&quot;;</string>
          <rect>
           <x>220</x>
           <y>40</y>
-          <width>1491</width>
+          <width>1611</width>
           <height>601</height>
          </rect>
         </property>
@@ -4914,7 +4913,7 @@ font: 10pt &quot;MS Shell Dlg 2&quot;;</string>
          <rect>
           <x>220</x>
           <y>640</y>
-          <width>1451</width>
+          <width>1611</width>
           <height>81</height>
          </rect>
         </property>
@@ -5017,7 +5016,7 @@ font: 10pt &quot;MS Shell Dlg 2&quot;;</string>
          <rect>
           <x>220</x>
           <y>40</y>
-          <width>1451</width>
+          <width>1611</width>
           <height>601</height>
          </rect>
         </property>

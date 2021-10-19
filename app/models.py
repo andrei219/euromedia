@@ -128,6 +128,8 @@ def computeCreditAvailable(partner_id):
 
 
 # Proformas utils::
+
+import math 
 def get_actual_object(object):
 	if isinstance(object, db.Reception):
 		return object.proforma
@@ -179,13 +181,13 @@ def overflowed(proforma):
 		return False 
 
 def not_paid(proforma):
-	return total_paid(proforma) == 0
+	return math.isclose(total_paid(proforma), 0)
 
 def partially_paid(proforma):
 	return 0 < total_paid(proforma) < total_debt(proforma)
 
 def fully_paid(proforma):
-	return total_paid(proforma) == total_debt(proforma)
+	return math.isclose(total_paid(proforma), total_debt(proforma))
 
 def overpaid(proforma):
 	return total_paid(proforma) > total_debt(proforma) 
@@ -712,23 +714,56 @@ class InvoiceModel(BaseTable, QtCore.QAbstractTableModel):
 	
 	def sort(self, section, order):
 		pass 
+
+
+class PurchaseInvoiceModel(QtCore.QAbstractTableModel):
 	
+	def __init__(self, filters=None, search_key=None):
+		super().__init__()
+		self.parent_model = PurchaseProformaModel(
+			filters = filters, 
+			search_key=search_key, 
+			proxy = True
+		)
+
+	def rowCount(self, index=QModelIndex()):
+		return self.parent_model.rowCount(index) 
+
+	def columnCount(self, index=QModelIndex()):
+		return self.parent_model.columnCount(index)
+
+	def headerCount(self, index=QModelIndex()):
+		return self.parent_model.headerCount(index)
+	
+	def headerData(self, section, orientation, role=Qt.DisplayRole):
+		return self.parent_model.headerData(section, orientation, role)
+
+	def data(self, index, role=Qt.DisplayRole):
+		return self.parent_model.data(index, role)
+
+	def __getattr__(self, name):
+		if name == 'invoices':
+			return self.parent_model.proformas 
+		 
+
 class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
 	
 	TYPE_NUM , DATE, ETA, PARTNER, AGENT, FINANCIAL, LOGISTIC, SENT, CANCELLED, \
 		OWING, TOTAL = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10
 
-	def __init__(self, filters=None, search_key=None):  
+	def __init__(self, filters=None, search_key=None, proxy=False):  
 		super().__init__() 
 		self._headerData = ['Type & Num', 'Date', 'ETA', 'Partner', 'Agent', \
 			'Financial', 'Logistic', 'Sent', 'Cancelled','Owing', 'Total']
 		self.name = 'proformas'
-		query = db.session.query(db.PurchaseProforma).join(db.PurchasePayment).\
-			join(db.PurchaseProformaLine).join(db.Reception) 
+		query = db.session.query(db.PurchaseProforma).join(db.Agent).\
+			join(db.Partner) 
+
+		if proxy:
+			self._headerData.append('Proforma')
+			query = query.where(db.PurchaseProforma.invoice != None)
 
 		if search_key:
-			# Rememeber to check here
-			# query = query.join(db.Partner).join(db.Agent)
 			predicate = or_(db.Agent.fiscal_name.contains(search_key), \
 				db.Partner.fiscal_name.contains(search_key)) 
 			query = query.where(predicate)
@@ -749,14 +784,15 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
 					self.proformas = filter(lambda p:partially_paid(p) ,self.proformas)
 			
 			if filters['logistic']:
+				if 'overflowed' in filters['logistic']:
+					self.proformas = filter(lambda p:overflowed(p), self.proformas)
 				if 'empty' in filters['logistic']:
 					self.proformas = filter(lambda p:empty(p), self.proformas)
 				if 'partially_processed' in filters['logistic']:
 					self.proformas = filter(lambda p:partially_processed(p), self.proformas) 
 				if 'completed' in filters['logistic']:
 					self.proformas = filter(lambda p:completed(p), self.proformas)
-				if 'overflowed' in filters['logistic']:
-					self.proformas = filter(lambda p:overflowed(p), self.proformas)
+				
 
 			if filters['shipment']:
 				if 'sent' in filters['shipment']:
@@ -796,10 +832,10 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
 			elif col == PurchaseProformaModel.FINANCIAL:
 				if not_paid(proforma):
 					return "Not Paid"
-				elif partially_paid(proforma):
-					return "Partially Paid"
 				elif fully_paid(proforma):
 					return "Paid"
+				elif partially_paid(proforma):
+					return "Partially Paid"
 				elif overpaid(proforma):
 					return "They owe"
 
@@ -831,10 +867,11 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
 			if col == PurchaseProformaModel.FINANCIAL:
 				if not_paid(proforma):
 					return QtGui.QColor(YELLOW)
-				elif partially_paid(proforma):
-					return QtGui.QColor(ORANGE)
 				elif fully_paid(proforma):
 					return QtGui.QColor(GREEN)
+				elif partially_paid(proforma):
+					return QtGui.QColor(ORANGE)
+				
 				elif overpaid(proforma):
 					return QtGui.QColor(RED) 
 			elif col == PurchaseProformaModel.DATE or col == PurchaseProformaModel.ETA:
@@ -856,9 +893,8 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
 				return QtGui.QColor(RED) if proforma.cancelled else\
 					QtGui.QColor(GREEN)
 			elif col == PurchaseProformaModel.SENT:
-				return QtGui.QColor(RED) if proforma.sent else\
-					QtGui.QColor(GREEN)
-
+				return QtGui.QColor(GREEN) if proforma.sent else\
+					QtGui.QColor(RED)
 
 	def sort(self, section, order):
 		reverse = True if order == Qt.AscendingOrder else False
@@ -926,7 +962,7 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
 
 	def ship(self, proforma, tracking=None):
 		if tracking:
-			proforma.tracking = Tracking
+			proforma.tracking = tracking
 		proforma.sent = True
 		try:
 			db.session.commit()
@@ -1743,11 +1779,12 @@ class PaymentModel(BaseTable, QtCore.QAbstractTableModel):
 
 	DATE, AMOUNT, NOTE = 0, 1, 2
 
-	def __init__(self, proforma, sale):
+	def __init__(self, proforma, sale, form):
 		super().__init__()
 		self.proforma = proforma 
 		self._headerData = ['Date', 'Amount', 'Info']
 		self.name = 'payments'
+		self.form = form
 		if sale:
 			self.Payment = db.SalePayment
 		else:
@@ -1789,8 +1826,9 @@ class PaymentModel(BaseTable, QtCore.QAbstractTableModel):
 					return False
 			elif column == self.__class__.AMOUNT:
 				try:
-					v = float(value)
+					v = float(value.replace(',', '.'))
 					payment.amount = v
+					self.form.updateOwing() 
 					return True 
 				except ValueError:
 					return False
@@ -2088,14 +2126,14 @@ class ReceptionModel(BaseTable, QtCore.QAbstractTableModel):
 		if filters:
 			self.receptions = query.all() 
 			if filters['logistic']:
-				if 'reception_empty' in filters['logistic']:
+				if 'empty' in filters['logistic']:
 					self.receptions = filter(lambda r :empty(r), self.receptions)
-				elif 'reception_partially' in filters['reception']:
+				elif 'partially_processed' in filters['logistic']:
 					self.receptions = filter(lambda r:partially_processed(r), self.receptions)
-				if 'reception_completed' in filters:
-					self.receptions = filter(lambda r:completed(r), self.receptions)
-				if "reception_overflowed" in filters:
-					self.receptions = filter(lambda r:overflowed(r), self.receptions) 
+				if 'overflowed' in filters['logistic']:
+					self.receptions = filter(lambda r:overflowed(r), self.receptions)
+				if "completed" in filters['logistic']:
+					self.receptions = filter(lambda r:completed(r), self.receptions) 
 		
 			if filters['cancelled']:
 				if 'cancelled' in filters['cancelled']:
@@ -2133,7 +2171,7 @@ class ReceptionModel(BaseTable, QtCore.QAbstractTableModel):
 				elif partially_processed(reception):
 					return 'Partially Received'
 				elif completed(reception):
-					return "Overflowed"
+					return "Completed"
 			elif column == ReceptionModel.CANCELLED:
 				return "Yes" if reception.proforma.cancelled else "No"
 			elif column == ReceptionModel.AGENT:
