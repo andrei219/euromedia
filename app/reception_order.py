@@ -2,7 +2,7 @@ from itertools import chain
 
 from PyQt5.QtWidgets import QDialog, QMessageBox, QCompleter, QTableView
 from PyQt5.QtCore import QStringListModel, Qt, QItemSelectionModel
-
+from PyQt5.QtWidgets import QAbstractItemView
 from ui_reception_order import Ui_Form
 
 import models 
@@ -26,22 +26,25 @@ class Form(QDialog, Ui_Form):
         self.current_index = 0 
         self.rs_model = models.ReceptionSeriesModel(reception) 
         
+        self.snlist.setSelectionMode(QAbstractItemView.ExtendedSelection)
 
         self.setHandlers()
         self.setCompleters()
         self.populateHeader() 
         self.populate_body()
         
+        self.disable_if_cancelled()
+
         self.total_processed.setText(str(len(self.rs_model)))
 
         self.view.setSelectionBehavior(QTableView.SelectRows)
         self.view.setSelectionMode(QTableView.SingleSelection)
 
-        # self.groupBox_5.setStyleSheet('background-color:"#FF7F7F"')
 
-
-    def set_group_model(self):
-        pass 
+    def disable_if_cancelled(self):
+        if self.reception.proforma.cancelled:
+            self.commit.setDisabled(True)
+            self.automatic.setDisabled(True)
 
 
     def setHandlers(self):
@@ -79,10 +82,10 @@ class Form(QDialog, Ui_Form):
     
     def set_overflow(self, overflow=False):
         if not overflow:
-            self.groupBox_5.setStyleSheet('')
+            self.lines_group.setStyleSheet('')
             self.overflow.setText('')
         else:
-            self.groupBox_5.setStyleSheet('background-color:"#FF7F7F"')
+            self.lines_group.setStyleSheet('background-color:"#FF7F7F"')
             self.overflow.setText('OVERFLOW')
 
 
@@ -214,22 +217,22 @@ class Form(QDialog, Ui_Form):
         return False
 
     def delete_handler(self):
-        if self.all.isChecked():
-            try:
-                self.rs_model.bulk_delete(
-                    self.snlist.model().series 
+        try:
+            if self.all.isChecked():
+                    self.rs_model.delete(
+                        self.snlist.model().series 
+                    )
+            else:
+                indexes = self.snlist.selectedIndexes()
+                if not indexes: return
+                self.rs_model.delete(
+                    [
+                        self.snlist.model().series[index.row()]
+                        for index in indexes
+                    ]
                 )
-            except:
-                raise 
-        else:
-            ixs = {i.row() for i in self.snlist.selectedIndexes()}
-            if not ixs: return
-            index = ixs.pop()
-            serie = self.snlist.model().series[index]
-            try:
-                self.rs_model.delete(serie)
-            except:
-                raise 
+        except:
+            raise 
 
         try:
             description, condition, spec, _ = self.get_selected_group()
@@ -243,7 +246,7 @@ class Form(QDialog, Ui_Form):
         self.update_series_model(description, condition, spec)
         self.update_group_model()
         self.total_processed.setText(str(len(self.rs_model)))
-
+        self.all.setChecked(False)
 
     def update_overflow_condition(self):
         processed_in_line = self.processed_in_line()

@@ -462,7 +462,7 @@
     </property>
    </widget>
   </widget>
-  <widget class="QGroupBox" name="groupBox_5">
+  <widget class="QGroupBox" name="lines_group">
    <property name="geometry">
     <rect>
      <x>80</x>

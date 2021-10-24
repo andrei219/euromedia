@@ -16,6 +16,19 @@ from exceptions import DuplicateLine
 from db import Partner, PurchaseProformaLine, PurchaseProforma, \
     PurchasePayment, func, Agent
 
+
+from PyQt5.QtWidgets import (
+	QItemDelegate, 
+	QLineEdit
+) 
+
+class Delegate(QItemDelegate):
+	def createEditor(self, parent, option, index):
+		if index.row() == 0:
+			line = QLineEdit(parent) 
+			setCompleter(line, models.descriptions)
+			return line 
+
   
 class Form(Ui_PurchaseProformaForm, QWidget):
     
@@ -24,8 +37,8 @@ class Form(Ui_PurchaseProformaForm, QWidget):
         self.setupUi(self)
         self.parent = parent 
         self.model = view.model() 
-        self.view = view 
         self.lines_model = models.PurchaseProformaLineModel() 
+        self.lines_view.setItemDelegate(Delegate())
         self.lines_view.setModel(self.lines_model)
         self.title = 'Line - Error'
         self.lines_view.setSelectionBehavior(QTableView.SelectRows)
@@ -242,6 +255,12 @@ class EditableForm(Form):
         self.title = 'Line - Error'
         self.model = view.model() 
         
+        try:
+            proforma.invoice
+            self.setWindowTitle('Proforma / Invoice Edit')
+        except AttributeError:
+            self.setWindowTitle('Proforma Edit ')
+
         self.set_warehouse_combo_enabled_if_no_items_processed()
         
         self.lines_model = models.PurchaseProformaLineModel(proforma.lines,\

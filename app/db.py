@@ -115,21 +115,9 @@ class Item(Base):
         self.capacity = capacity
         self.color = color 
     
-    def __eq__(self, other):
-        if id(self) == id(other):
-            return True
-        if self.manufacturer == other.manufacturer and self.category == other.category \
-            and self.model == other.model and self.capacity == other.capacity and self.color == other.color:
-                return True
-        return False
-
-    def __hash__(self):
-        return hash(''.join(str(v) for v in self.__dict__.values()))
-    
     def __str__(self):
         return self.manufacturer + ' ' + self.category + ' ' + self.model + ' ' + str(self.capacity) +\
             ' GB ' + self.color 
-
     
 # Agents:
 class Agent(Base):
@@ -460,14 +448,12 @@ class SaleProforma(Base):
     they_pay_we_ship = Column(Boolean, default=False, nullable=False)
     we_pay_we_ship = Column(Boolean, default=False, nullable=False)
 
-
     partner_id = Column(Integer, ForeignKey('partners.id'))
     courier_id = Column(Integer, ForeignKey('couriers.id'))
     warehouse_id = Column(Integer, ForeignKey('warehouses.id'))
     agent_id = Column(Integer, ForeignKey('agents.id'))
     sale_invoice_id = Column(Integer, ForeignKey('sale_invoices.id'))
 
-    
     credit_amount = Column(Numeric(10, 2, asdecimal=False), nullable=False, default=0)
     credit_days = Column(Integer, nullable=False, default=0)
     tracking = Column(String(50))
@@ -480,11 +466,9 @@ class SaleProforma(Base):
     invoice = relationship('SaleInvoice', uselist=False)
     expedition = relationship('Expedition', uselist=False, back_populates='proforma')
 
-
     incoterm = Column(String(3), nullable=False) 
 
     __table_args__ = (
-
         UniqueConstraint('type', 'number'), 
     )
 
@@ -569,47 +553,57 @@ class SaleProformaLine(Base):
 
     item_id = Column(Integer, ForeignKey('items.id'), nullable=True)
     mixed_group_id = Column(Integer, nullable=True)
-    
+    description = Column(String(100), nullable=True)
+
     condition = Column(String(50), nullable=False)
     showing_condition = Column(String(50), nullable=True)
     spec = Column(String(50), nullable=False)
-    ignore_spec = Column(Boolean, nullable=False) 
-    quantity = Column(Integer, nullable=False)
-    price = Column(Numeric(10, 2, asdecimal=False), nullable=False)
-    tax = Column(Integer, nullable=False)
-
-    item = relationship('Item', uselist=False)
-    proforma = relationship('SaleProforma', backref=backref('lines'))
-    
-
+    ignore_spec = Column(Boolean, nullable=False, default=False) 
+    quantity = Column(Integer, nullable=False, default=1)
+    price = Column(Numeric(10, 2, asdecimal=False), nullable=False, default=1.0)
+    tax = Column(Integer, nullable=False, default=0)
     eta = Column(Date, nullable=True) 
 
+    item = relationship('Item', uselist=False)
+    proforma = relationship(
+        'SaleProforma', 
+        backref=backref(
+            'lines', 
+            cascade = 'delete-orphan, delete, save-update'
+        )
+    )
+    
     __table_args__ = (
         UniqueConstraint('id', 'proforma_id'), 
     )
 
+    # This __eq__ method is a callback
+    # For the set difference between expedition lines 
+    # and proforma sale lines, in order to update the
+    # expeditions when they are already created and user 
+    # wants the update proforma. 
 
-    def __init__(self, item, condition, spec,
-        ignore, price, quantity, tax, showing_condition=None, eta=None):
-        self.quantity = quantity
-        self.price = price 
-        self.item = item 
-        self.condition = condition
-        self.tax = tax 
-        self.spec = spec
-        self.eta = eta
-        self.ignore_spec = ignore
-        self.showing_condition = showing_condition
+    # Test the properties relevant to both:
+    # Warehouse and sale proforma
+    def __eq__(self, other):
+        return all((
+            other.item_id == self.item_id, 
+            other.condition == self.condition, 
+            other.spec == self.spec
+        ))
+    
+    # Rewrite following fluent python
+    def __hash__(self):
+        return hash(
+            ''.join(
+                map(str,[
+                    self.item_id, 
+                    self.condition, 
+                    self.spec 
+                ])
+            )
+        )
 
-
-    # An alternative constructor: 
-    @classmethod
-    def from_stock(cls, ser, ignore, price, tax):
-        # ser stands for StockEntryRequest, is a pair relating 
-        # a stock entry with a quantity requested . Defined as a named tuple
-        
-        return cls(ser.item_object, ser.stock_entry.condition, \
-            ser.stock_entry.spec , ignore, price, ser.requested_quantity, tax)
 
 class Expedition(Base):
     
@@ -651,6 +645,27 @@ class ExpeditionLine(Base):
         self.condition = condition
         self.spec = spec
         self.quantity = quantity
+
+
+    # Remember ooperation with sale proforma line:
+    def __eq__(self, other):
+        return all((
+            other.item_id == self.item_id, 
+            other.condition == self.condition, 
+            other.spec == self.spec
+        ))
+
+    
+    def hash(self):
+        return hash(
+            ''.join(
+                map(str, [
+                    self.item_id,
+                    self.condition, 
+                    self.spec
+                ])
+            )
+        )
 
     __table_args__ = (
         UniqueConstraint('id', 'expedition_id'), 
@@ -989,69 +1004,16 @@ def create_sale(type):
     proforma.eta = proforma.date + timedelta(days=5) 
     proforma.partner = session.query(Partner).first() 
     proforma.agent = session.query(Agent).first() 
-    proforma.warehouse = session.query(Warehouse).where(Warehouse.id == 4).one() 
+    proforma.warehouse = session.query(Warehouse).where(Warehouse.id == 1).one() 
     proforma.courier = session.query(Courier).first()
     proforma.eur_currency = True
     proforma.incoterm = 'FOB'
-
     proforma.sent = False
     proforma.cancelled = False
-
-    proforma.lines = [
-        SaleProformaLine(session.query(Item)[-1] , 'USED', 'FRANCE', 100.0, 1, 21, datetime(2020, 10, 11) + timedelta(days=5)), 
-        # SaleProformaLine(session.query(Item).first(), 'A+', 'JAPAN', 500, 5, 21, datetime(2020, 10, 11) + timedelta(days=5))
-    ]
-    
     session.add(proforma)
-
     session.commit() 
 
-def create_imeis():
-    
-    item1 = session.query(Item)[0]
-    item2 = session.query(Item)[-1]
-
-    w = session.query(Warehouse).where(Warehouse.description == 'Free Sale').one() 
-
-    imei = Imei() 
-    imei.condition = 'NEW'
-    imei.spec = 'EEUU'
-    imei.warehouse = w
-    imei.item = item1
-    imei.imei = '234551234512ZXC DFSSCD5'
-
-    session.add(imei) 
-
-    imei = Imei() 
-    imei.condition = 'NEW'
-    imei.spec = 'EEUU'
-    imei.warehouse = w
-    imei.item = item2
-    imei.imei = '2345562345DFVCZ 45'
-
-    session.add(imei) 
-
-    imei = Imei() 
-    imei.condition = 'NEW'
-    imei.spec = 'FRANCE'
-    imei.warehouse = w
-    imei.item = item1
-    imei.imei = '23455623XCZXDs2345'
-
-    session.add(imei)
-
-    imei = Imei() 
-    imei.condition = 'USED'
-    imei.spec = 'EEUU'
-    imei.warehouse = w
-    imei.item = item2
-    imei.imei = '2345562CVFpl2345'
-
-    session.add(imei) 
-
-    session.commit()
-
-# from exceptions import NotExistingStockOutput
+from exceptions import NotExistingStockOutput
 
 @event.listens_for(ReceptionSerie, 'after_insert')
 def insert_imei_after_mixed_purchase(mapper, connection, target):
@@ -1066,10 +1028,10 @@ def insert_imei_after_mixed_purchase(mapper, connection, target):
 
 @event.listens_for(ReceptionSerie, 'after_delete')
 def delete_imei_after_mixed_purchase(mapper, connection, target):
-    # Delete after delete purchase
-    pass 
-
-
+    stmt = delete(Imei).where(Imei.imei == target.serie)
+    result = connection.execute(stmt)
+    # Ignoramos lo que pase, nos da igual
+    # Esa mercancia ya se vendio y no esta en inventario
 
 # @event.listens_for(ReceptionSerie, 'after_insert')
 # def insert_imei_after_purchase(mapper, connection, target):
@@ -1149,17 +1111,30 @@ class ConditionChange(Base):
     created_on = Column(DateTime, default=datetime.now) 
 
 
-# Patch to ser objects 
-# Bad practice, no time for better solution 
+def create_line():
+
+    line = SaleProformaLine()
+    line.proforma_id = 1
+    line.item_id = 1
+    line.spec = 'SPAIN'
+    line.condition = 'A+'
+    line.quantity = 3 
+    line.price = 145.2
+    
+    session.add(line)
+    session.commit()
+
+
 if __name__ == '__main__':
-    import sys 
-    try:
-        if sys.argv[1] == 'empty':
-            Base.metadata.create_all(engine) 
-            session.add_all([item1, item2, item3, item4, item5])
-            session.commit()
+    # import sys 
+    # try:
+    #     if sys.argv[1] == 'empty':
+    #         Base.metadata.create_all(engine) 
+    #         session.add_all([item1, item2, item3, item4, item5])
+    #         session.commit()
 
-    except IndexError:
-        create_and_populate() 
+    # except IndexError:
+    #     create_and_populate() 
 
+    create_line()
 

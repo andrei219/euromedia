@@ -11,17 +11,19 @@ from models import PaymentModel
 
 class PaymentForm(Ui_PaymentsForm, QDialog):
 
-    def __init__(self, parent, proforma, sale=False):
+    def __init__(self, parent, proforma, sale=False, proforma_or_invoice=True):
         super().__init__(parent) 
         self.setupUi(self) 
         self.proforma = proforma
         self.model = PaymentModel(proforma, sale, self) 
+        self.proforma_or_invoice = proforma_or_invoice
         self.view.setModel(self.model) 
 
         self.add_payment_tool_button.pressed.connect(self.addHandler) 
         self.delete_payment_tool_button.pressed.connect(self.deleteHandler)
 
         self.view.setSelectionBehavior(QTableView.SelectRows)
+        self.view.setSortingEnabled(True)
         self.populate()
 
     def addHandler(self):
@@ -31,7 +33,13 @@ class PaymentForm(Ui_PaymentsForm, QDialog):
             QMessageBox.critical(self, 'Erro - Update', 'Date must be: ddmmyyyy')
             return 
         
-        amount = self.amount_spin_box.value() 
+        try:
+            amount = self.amount.text().replace(',', '.') 
+        except ValueError:
+            QMessageBox.critical(self, 'Error - Update', \
+                'Error amount format. Enter a valid decimal number')
+            return 
+
         info = self.info_lineedit.text() 
 
         try:
@@ -62,9 +70,9 @@ class PaymentForm(Ui_PaymentsForm, QDialog):
         self.owing_lineedit.setText(str(round(self.owing, 2)))
 
     def clearFields(self):
-        self.date_line_edit.setText('')
-        self.amount_spin_box.setValue(0)
-        self.info_lineedit.setText('')
+        self.date_line_edit.clear() 
+        self.amount.clear()
+        self.info_lineedit.clear() 
 
     def keyPressEvent(self, event):
         if self.add_payment_tool_button.hasFocus():
@@ -74,23 +82,38 @@ class PaymentForm(Ui_PaymentsForm, QDialog):
             super().keyPressEvent(event) 
 
     def populate(self):
-        document_number = str(self.proforma.type) + '-' + str(self.proforma.number).zfill(6)
+        try:
+            type = str(self.proforma.invoice.type) 
+            number = str(self.proforma.invoice.number).zfill(6)
+        except AttributeError:
+            type = str(self.proforma.type)
+            number = str(self.proforma.number).zfill(6)
+
+        document_number = type + '-' + number
         self.document_line_edit.setText(document_number)
+        
         self.partner_line_edit.setText(self.proforma.partner.fiscal_name)
         self.document_date_line_edit.setText(self.proforma.date.strftime('%d/%m/%Y'))
 
         self.total_linedit.setText(str(round(float(self.total), 2)))
-
         self.owing_lineedit.setText(str(round(float(self.total) - float(self.paid), 2)))
 
 
+
     def closeEvent(self, event):
+        # Es importante hacer esto porque si  no
+        # los cambios solo seran guardados en la base 
+        # cuando se ejecute un proximo commit 
+        # Queremos que esten alli lo antes posible
+        # Por si otra persona quiere consultar pagos.
+        import db
         try:
-            self.model.save()
+            db.session.commit()
         except:
-            raise 
-        else:
-            super().closeEvent(event)
+            db.session.rollback()  
+            raise
+        super().closeEvent(event)
+
 
     @property
     def total(self):

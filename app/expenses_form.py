@@ -9,18 +9,17 @@ from utils import parse_date
 from models import ExpenseModel
 
 class ExpenseForm(Ui_ExpenseForm, QDialog):
-
-    def __init__(self, parent, proforma,  sale=False):
+    def __init__(self, parent, proforma, sale=False):
         super().__init__(parent)
         self.setupUi(self)
         self.proforma = proforma
         self.model = ExpenseModel(proforma, sale)
         self.view.setModel(self.model) 
-
         self.add_button.pressed.connect(self.addExpense)
         self.delete_button.pressed.connect(self.deleteExpenses) 
 
         self.view.setSelectionBehavior(QTableView.SelectRows)  
+        self.view.setSortingEnabled(True)
 
         self.populate()     
     
@@ -31,7 +30,13 @@ class ExpenseForm(Ui_ExpenseForm, QDialog):
             QMessageBox.critical(self, 'Erro - Update', 'Date must be: ddmmyyyy')
             return
         
-        amount = self.amount_spin_box.value()
+        try:
+            amount = self.amount.text().replace(',', '.')
+        except ValueError:
+            QMessageBox.critical(self, 'Error - Update', \
+                'Error amount format. Enter a valid decimal number')
+            return 
+        
         info = self.info_lineedit.text() 
         
         try:
@@ -65,13 +70,28 @@ class ExpenseForm(Ui_ExpenseForm, QDialog):
             super().keyPressEvent(event)
 
     def clearFields(self):
-        self.date_line_edit.setText('')
-        self.amount_spin_box.setValue(0)
-        self.info_lineedit.setText('')
+        self.date_line_edit.clear()
+        self.amount.clear() 
+        self.info_lineedit.clear()
 
     def populate(self):
-        doc_number = str(self.proforma.type) + '-' + str(self.proforma.type).zfill(6)
+        try:
+            type = self.proforma.invoice.type 
+            number = self.proforma.invoice.number
+        except AttributeError:
+            type = self.proforma.type
+            number = self.proforma.number
+        
+        doc_number = str(type) + '-' + str(number).zfill(6)
         self.document_line_edit.setText(doc_number)
         self.document_date_line_edit.setText(self.proforma.date.strftime('%d/%m/%Y'))
         self.partner_line_edit.setText(self.proforma.partner.fiscal_name)
         self.updateSpent() 
+
+    def closeEvent(self, event):
+        import db
+        try:
+            db.session.commit()
+        except:
+            db.session.rollback()
+            raise 

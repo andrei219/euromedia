@@ -28,7 +28,8 @@ PREFIXES = [
     'invoices_purchases_', 
     'invoices_sales_', 
     'warehouse_expeditions_', 
-    'warehouse_receptions_'
+    'warehouse_receptions_', 
+    'tools_'
 ]
 
 ACTIONS = [
@@ -50,7 +51,15 @@ ACTIONS = [
     'options', 
     'process', 
     'double_click', 
-    'search'
+    'search', 
+    'create_warehouse', 
+    'change_warehouse', 
+    'create_spec', 
+    'change_spec',
+    'create_condition', 
+    'change_condition', 
+    'check_inventory', 
+    'create_product'
 ]
 
 class MainGui(Ui_MainGui, QMainWindow):
@@ -107,6 +116,15 @@ class MainGui(Ui_MainGui, QMainWindow):
             self.invoices_purchases_view.setSortingEnabled(True)
             self.invoices_purchases_view.setAlternatingRowColors(True)
 
+        elif prefix == 'invoices_sales_':
+            self.invoices_sales_model = \
+                models.SaleInvoiceModel(filters=filters, search_key=search_key)
+            self.invoices_sales_view.setModel(self.invoices_sales_model)
+            self.invoices_sales_view.setSelectionBehavior(QTableView.SelectRows)
+            self.invoices_sales_view.setSortingEnabled(True)
+            self.invoices_sales_view.setAlternatingRowColors(True)
+
+
         elif prefix == 'proformas_sales_':
             self.proformas_sales_model = \
                 models.SaleProformaModel(filters=filters, search_key=search_key)
@@ -142,7 +160,7 @@ class MainGui(Ui_MainGui, QMainWindow):
                     widget_name = prefix + action
                     self.attach_handler(prefix, action)
                 except AttributeError:
-                    pass  
+                    continue  
 
     def attach_handler(self, prefix, action):
         try:
@@ -213,11 +231,10 @@ class MainGui(Ui_MainGui, QMainWindow):
 
 
     def apply_handler(self):
+        print('apply_handler')
         object_name = self.sender().objectName()
         prefix = object_name[0:object_name.rfind('_') + 1]
-        print('prefix=', prefix, 'object_name=', object_name) 
         filters = self.get_filters(prefix=prefix)
-        print(filters) 
         self.set_mv(prefix,filters=filters)
     
     def search_handler(self):
@@ -330,7 +347,7 @@ class MainGui(Ui_MainGui, QMainWindow):
         if invoice:
             proforma = invoice            
         else:
-            proforma = self.get_proforma_purchase('Payments')
+            proforma = self.get_proforma_purchase()
         if proforma:
             payments_form.PaymentForm(self, proforma).exec_() 
 
@@ -338,7 +355,7 @@ class MainGui(Ui_MainGui, QMainWindow):
         if invoice:
             proforma = invoice 
         else:
-            proforma = self.get_proforma_purchase('Expenses')
+            proforma = self.get_proforma_purchase()
         if proforma:
             expenses_form.ExpenseForm(self, proforma).exec_() 
 
@@ -346,13 +363,18 @@ class MainGui(Ui_MainGui, QMainWindow):
         if invoice:
             proforma = invoice 
         else:
-            proforma = self.get_proforma_purchase('Documents')
+            proforma = self.get_proforma_purchase()
         if proforma:
-            document_form.DocumentForm(self, 'proforma_id', \
-                proforma.id , PurchaseProforma, PurchaseDocument).exec_() 
+            document_form.DocumentForm(
+                self, 
+                'proforma_id', 
+                proforma.id , 
+                PurchaseProforma, 
+                PurchaseDocument
+            ).exec_() 
 
     def proformas_purchases_toinv_handler(self):
-        proforma = self.get_proforma_purchase('Invoice') 
+        proforma = self.get_proforma_purchase() 
         if proforma:
             if proforma.cancelled:
                 QMessageBox.information(self, 'Information', \
@@ -379,123 +401,144 @@ class MainGui(Ui_MainGui, QMainWindow):
         if invoice:
             proforma = invoice
         else:
-            proforma = self.get_proforma_purchase('Warehouse')
-        if not proforma:
-            return 
-        try:
-            ok, note = getNote(self, proforma)
-            if not ok:
-                return 
-            self.proformas_purchases_model.toWarehouse(proforma, note)
-            QMessageBox.information(self, 'Information', \
-                'Successfully created warehouse reception')            
-        except IntegrityError as ex:
-            if ex.orig.args[0] == 1048:
-                d = 'Invoice' if invoice else 'Proforma'
-                QMessageBox.critical(self, 'Update - Error', \
-                    f'Warehouse reception for this {d} already exists')
+            proforma = self.get_proforma_purchase()
+        if proforma:
+            try:
+                ok, note = getNote(self, proforma)
+                if ok:
+                    self.proformas_purchases_model.toWarehouse(proforma, note)
+                    QMessageBox.information(self, 'Information', \
+                        'Successfully created warehouse reception')            
+            except IntegrityError as ex:
+                if ex.orig.args[0] == 1048:
+                    d = 'Invoice' if invoice else 'Proforma'
+                    QMessageBox.critical(self, 'Update - Error', \
+                        f'Warehouse reception for this {d} already exists')
 
     def proformas_purchases_ship_handler(self, invoice=None):
         if invoice:
             proforma = invoice
         else:
-            proforma = self.get_proforma_purchase('Shipment')
-        if not proforma:
-            return 
-        try:
-            tracking, ok = getTracking(self, proforma) 
-            if ok:
-                self.proformas_purchases_model.ship(proforma, tracking)
-            QMessageBox.information(self, 'Information', \
-                'Proforma updated successfully')
-        except:
-            raise 
-            QMessageBox.critical(self, 'Update - Error', \
-                'Error updating proforma')
+            proforma = self.get_proforma_purchase()
+        if proforma:
+            try:
+                tracking, ok = getTracking(self, proforma) 
+                if ok:
+                    print(ok, tracking)
+                    self.proformas_purchases_model.ship(proforma, tracking)
+                    mss = 'Updated successfully'
+                    if invoice:
+                        mss = 'Invoice/Proforma ' + mss 
+                    QMessageBox.information(self, 'Information', mss)
+            except:
+                QMessageBox.critical(self, 'Update - Error', \
+                    'Error updating proforma')
+                raise 
 
-
-    def proformas_purchases_launch_form(self, index=None):
-        if index:
+    def proformas_purchases_launch_form(self, index=None, proforma=None):
+        if proforma:
+            self.epp = purchase_proforma_form.EditableForm(
+                self, 
+                self.proformas_purchases_view,
+                proforma
+            )
+            self.epp.show()
+        elif index:
             proforma = self.proformas_purchases_model.proformas[index.row()]
-            self.epp = purchase_proforma_form.EditableForm(self,\
-                self.proformas_purchases_view, proforma) 
+            self.epp = purchase_proforma_form.EditableForm(
+                self,
+                self.proformas_purchases_view,
+                proforma
+            ) 
             self.epp.show() 
         else:
-            self.pp = purchase_proforma_form.Form(self, self.proformas_purchases_view) 
+            self.pp = purchase_proforma_form.Form(
+                self, 
+                self.proformas_purchases_view
+            ) 
             self.pp.show() 
 
 
-    def get_proforma_purchase(self, s=None):
-        rows = { index.row() for index in self.proformas_purchases_view.selectedIndexes()}
-        if len(rows) == 0:
-            return 
-        elif len(rows) > 1: 
-            QMessageBox.information(self, 'Information', f'{s} for one proforma at a time')
-        else:
+    def get_proforma_purchase(self):
+        rows = { index.row() for index in \
+            self.proformas_purchases_view.selectedIndexes()}
+        if len(rows) == 1:
             return self.proformas_purchases_model.proformas[rows.pop()]
     
-    # SALE PROFORMA HANDLERS:
-    def saleProformaNewButtonHandler(self):
-        self.launchSaleProforma() 
-             
-    def purchaseProformaSearchHandler(self):
-        pass 
+    # PROFORMAS SALES HANDLERS
+    def proformas_sales_new_handler(self):
+        self.launch_sale_proforma_form() 
 
-    def saleProformaDoubleClickedHandler(self, index):
-        self.launchSaleProforma(index)
+    def proformas_sales_double_click_handler(self, index):
+        print('note xecte')
+        self.launch_sale_proforma_form(index)
 
-    def saleProformaCancelHandler(self):
-        indexes = self.proforma_sales_view.selectedIndexes() 
+    def proformas_sales_cancel_handler(self):
+        print('cancel')
+        indexes = self.proformas_sales_view.selectedIndexes() 
         if not indexes:
             return
         try:
-            if QMessageBox.question(self, 'Proformas - Cancel', 'Cancel proforma/s ?',\
+            if QMessageBox.question(
+                self, 
+                'Proformas - Cancel', 
+                'Cancel proforma/s ?',
                  QMessageBox.Yes | QMessageBox.No) == QMessageBox.No:
                     return
 
-            self.saleProformaModel.cancel(indexes)
+            self.proformas_sales_model.cancel(indexes)
         except:
             raise 
             QMessageBox.critical(self, 'Update Error', 'Error updating proformas')
 
-    def saleProformaPrintButtonHandler(self):
+    def proformas_sales_print_handler(self):
         print('printing')
 
-    def saleProformaPdfButtonHandler(self):
+    def proformas_sales_pdf_handler(self):
         print('exporting pdfs')
     
-    def saleProformaMailButtonHandler(self):
+    def proformas_sales_mail_handler(self):
         print('sending mails')
 
-    def saleProformaPaymentsHandler(self, invoice=None):
+    def proformas_sales_payments_handler(self, invoice=None):
         if invoice:
             proforma = invoice            
         else:
-            proforma = self._getOneSaleProforma('Payments')
+            proforma = self.get_sale_proforma('Payments')
         if proforma:
             payments_form.PaymentForm(self, proforma, sale=True).exec_() 
 
-    def saleProformaExpenseButtonHandler(self, invoice=None):
+    def proformas_sales_expenses_handler(self, invoice=None):
         if invoice:
             proforma = invoice 
         else:
-            proforma = self._getOneSaleProforma('Expenses')
+            proforma = self.get_sale_proforma('Expenses')
         if proforma:
             expenses_form.ExpenseForm(self, proforma, sale=True).exec_() 
 
-    def saleProformaDocsButtonHandler(self, invoice=None):
+    def proformas_sales_docs_handler(self, invoice=None):
         if invoice:
             proforma = invoice 
         else:
-            proforma = self._getOneSaleProforma('Documents')
+            proforma = self.get_sale_proforma('Documents')
         if proforma:
-            document_form.DocumentForm(self, 'proforma_id', proforma.id , SaleProforma, SaleDocument).exec_() 
+            document_form.DocumentForm(
+                self, 
+                'proforma_id',
+                proforma.id ,
+                SaleProforma,
+                SaleDocument
+            ).exec_() 
 
-    def saleProformaToInvoiceButtonHandler(self):
-        proforma = self._getOneSaleProforma('Invoice') 
+    def proformas_sales_toinv_handler(self):
+        proforma = self.get_sale_proforma('Invoice') 
         if proforma:
             if proforma.cancelled:
-                QMessageBox.information(self, 'Information', "Cannot build invoice from cancelled proforma")
+                QMessageBox.information(
+                self,
+                'Information', 
+                "Cannot build invoice from cancelled proforma"
+            )
                 return 
             try:    
                 proforma.invoice.type
@@ -503,23 +546,24 @@ class MainGui(Ui_MainGui, QMainWindow):
                 QMessageBox.information(self, 'Information', f"Invoice already associated: {type_num}") 
             except AttributeError: 
                 try:                
-                    invoice = self.saleProformaModel.associateInvoice(proforma) 
+                    invoice = self.proformas_sales_model.associateInvoice(proforma) 
                     type_num = str(invoice.type) + '-' + str(invoice.number).zfill(6)
                     QMessageBox.information(self, 'Information', f"Invoice {type_num} created")
                 except:
                     raise 
                     QMessageBox.critical(self, 'Update - Error', 'Could not build Invoice From Proforma')
 
-    def saleProformaToWarehouseHandler(self, invoice=None):
+    def proformas_sales_towh_handler(self, invoice=None):
+        print('aaa')
         if invoice:
             proforma = invoice
         else:
-            proforma = self._getOneSaleProforma('Warehouse') 
+            proforma = self.get_sale_proforma('Warehouse') 
         if not proforma:
             return  
         try:
             # Hay que meter el codigo de la prioridad aqui.
-            if not self.saleProformaModel.\
+            if not self.proformas_sales_model.\
                 physicalStockAvailable(proforma.warehouse_id, proforma.lines):
                 QMessageBox.critical(self, 'Error',\
                     "Can't send to warehouse for preparation. Not enough SN in physical stock.")
@@ -528,7 +572,7 @@ class MainGui(Ui_MainGui, QMainWindow):
             ok, note = getNote(self, proforma)
             if not ok:
                 return
-            self.saleProformaModel.toWarehouse(proforma, note)
+            self.proformas_sales_model.toWarehouse(proforma, note)
             QMessageBox.information(self, 'Information', 'Successfully created warehouse expedition')  
             self.proformas_purchases_view.clearSelection() 
             
@@ -537,110 +581,131 @@ class MainGui(Ui_MainGui, QMainWindow):
                 d = 'Invoice' if invoice else 'Proforma'
                 QMessageBox.critical(self, 'Update - Error', f'Warehouse expedition for this {d} already exists')
 
-    def saleProformaShippedHandler(self, invoice=None):
+    def proformas_sales_ship_handler(self, invoice=None):
         if invoice:
             proforma = invoice
         else:
-            proforma = self._getOneSaleProforma('Shipment')
-        
+            proforma = self.get_sale_proforma('Shipment')
         if not proforma:
             return 
         try:
-            tracking = getTracking(self, proforma) 
-            if not tracking:
-                return 
-            self.saleProformaModel.ship(proforma, tracking)
-            QMessageBox.information(self, 'Information', 'Tracking number updated successfully')
+            ok, tracking = getTracking(self, proforma) 
+            if ok:
+                self.proformas_sales_model.ship(proforma, tracking)
+                mss = 'updated'
+                if invoice:
+                    mss = 'Invoice/Proforma ' + mss 
+                else:
+                    mss = 'Proforma ' + mss 
+                QMessageBox.information(self,'Information', mss)
         except:
             raise 
-            QMessageBox.critical(self, 'Update - Error', 'Could not update tracking number')
 
-    def _getOneSaleProforma(self, s=None):
-        rows = { index.row() for index in self.proforma_sales_view.selectedIndexes()}
-        if len(rows) == 0:
-            return 
-        elif len(rows) > 1: 
-            QMessageBox.information(self, 'Information', f'{s} for one proforma at a time')
+    def get_sale_proforma(self, s=None):
+        rows = { index.row() for index in \
+            self.proformas_sales_view.selectedIndexes()}
+        if len(rows) == 1:
+            return self.proformas_sales_model.proformas[rows.pop()]
+
+    def launch_sale_proforma_form(self, index=None, proforma=None):
+        if proforma:
+            print('if proforma')
+            self.esp = sale_proforma_form.EditableForm(
+                self, 
+                self.proformas_sales_view, 
+                proforma
+            )
+            self.esp.show() 
+        elif index:
+            proforma = self.proformas_sales_model.proformas[index.row()]
+            self.esp = sale_proforma_form.EditableForm(
+                self, 
+                self.proformas_sales_view, 
+                proforma
+            )
+            self.esp.show()
         else:
-            return self.saleProformaModel.proformas[rows.pop()]
-
-    def launchSaleProforma(self, index=None):
-        if index:
-            pass 
-        else:
-            if sale_proforma_form.Form not in self.opened_windows_classes:
-                self.sp = sale_proforma_form.Form(self, self.proforma_sales_view)
-                self.sp.show() 
-
-                self.opened_windows_instances.add(self.sp)
-                self.opened_windows_classes.add(sale_proforma_form.Form)
+            self.sp = sale_proforma_form.Form(
+                self, 
+                self.proformas_sales_view)
+            self.sp.show() 
 
     # PURCHASE INVOICE HANDLERS:
     def invoices_purchases_payments_handler(self):
-        invoice = self.get_invoice(self.invoices_purchases_model, self.invoices_purchases_view, 'Payments')
-        self.purchaseProformaPaymentsHandler(invoice=invoice)
+        invoice = self.get_purchases_invoice() 
+        self.proformas_purchases_payments_handler(invoice=invoice)
     
     def invoices_purchases_ship_handler(self):
-        invoice = self.get_invoice(self.invoices_purchases_model, self.invoices_purchases_view, 'Shipment')
-        self.purchaseProformaShippedHandler(invoice)
+        invoice = self.get_purchases_invoice() 
+        self.proformas_purchases_ship_handler(invoice)
 
     def invoices_purchases_towh_handler(self):
-        invoice = self.get_invoice(self.invoices_purchases_model, self.invoices_purchases_view,'Warehouse')
-        self.purchaseProformaToWarehouseHandler(invoice)
+        invoice = self.get_purchases_invoice()          
+        self.proformas_purchases_towh_handler(invoice)
 
     def invoices_purchases_docs_handler(self):
-        invoice = self.get_invoice(self.invoices_purchases_model, self.invoices_purchases_view, 'Documents')
-        self.purchaseProformaDocsButtonHandler(invoice=invoice)
+        invoice = self.get_purchases_invoice()  
+        self.proformas_purchases_docs_handler(invoice=invoice)
 
     def invoices_purchases_expenses_handler(self):
-        invoice = self.get_invoice(self.invoices_purchases_model, self.invoices_purchases_view, 'Expenses')
-        self.purchaseProformaExpenseButtonHandler(invoice=invoice)
+        invoice = self.get_purchases_invoice()          
+        self.proformas_purchases_expenses_handler(invoice=invoice)
 
+    def invoices_purchases_double_click_handler(self, index):
+        proforma = self.invoices_purchases_model.invoices[index.row()]
+        self.proformas_purchases_launch_form(proforma=proforma)
+    
     def invoices_purchases_pdf_handler(self):
         print('print to pdf')
 
     def invoices_purchases_print_handler(self):
         print('print to printer')
 
+    def get_purchases_invoice(self):
+        return self.get_invoice(
+            self.proformas_purchases_model, 
+            self.proformas_purchases_view
+        )
+
     # SALE INVOICE HANDLER:
-    def saleInvoicePaymentHandler(self):
-        invoice = self.get_invoice(self.invoices_sales_model, self.invoices_sales_view, s='Payments')
-        self.saleProformaPaymentsHandler(invoice=invoice)
-    
-    def saleInvoiceShippedHandler(self):
-        invoice = self.get_invoice(self.invoices_sales_model, self.invoices_sales_view,s='Shipment')
-        self.saleProformaShippedHandler(invoice)
+    def invoices_sales_payments_handler(self):
+        invoice = self.get_sales_invoice() 
+        self.proformas_sales_payments_handler(invoice=invoice)
 
-    def saleInvoiceToWarehouseHandler(self):
-        invoice = self.get_invoice(self.invoices_sales_model, self.invoices_sales_view, s='Warehouse')
-        self.saleProformaToWarehouseHandler(invoice)
+    def invoices_sales_ship_handler(self):
+        invoice = self.get_sales_invoice()
+        self.proformas_sales_ship_handler(invoice) 
 
-    def saleInvoiceDocsHandler(self):
-        invoice = self.get_invoice(self.invoices_sales_model, self.invoices_sales_view,s='Documents')
-        self.saleProformaDocsButtonHandler(invoice=invoice)
+    def invoices_sales_towh_handler(self):
+        invoice = self.get_sales_invoice()
+        self.proformas_sales_towh_handler(invoice=invoice)
 
-    def saleInvoiceExpenseButtonHandler(self):
-        invoice = self.get_invoice(self.invoices_sales_model, self.invoices_sales_view,s='Expenses')
-        self.saleProformaExpenseButtonHandler(invoice=invoice)
+    def invoices_sales_docs_handler(self):
+        invoice = self.get_sales_invoice()
+        self.proformas_sales_docs_handler(invoice=invoice)
 
-    def saleInvoicePdfHandler(self):
+    def invoices_sales_expenses_handler(self):
+        invoice = self.get_sales_invoice()
+        self.proformas_sales_expenses_handler(invoice=invoice)
+
+    def invoices_sales_pdf_handler(self):
         print('print to pdf')
 
-    def saleInvoicePrintHandler(self):
+    def invoices_sales_print_handler(self):
         print('print to printer')
 
-
-    def saleInvoiceMailHandler(self):
+    def invoices_sales_mail_handler(self):
         print('sending mails')
 
+    def get_sales_invoice(self):
+        return self.get_invoice(
+            self.invoices_sales_model, 
+            self.invoices_sales_view
+        )
 
-    def get_invoice(self, model, view, s):
+    def get_invoice(self, model, view):
         rows = { index.row() for index in view.selectedIndexes()}
-        if len(rows) == 0:
-            return 
-        elif len(rows) > 1: 
-            QMessageBox.information(self, 'Information', f'{s} for one Invoice at a time')
-        else:
+        if len(rows) == 1:
             return model.invoices[rows.pop()]
 
     # WAREHOUSE RECEPTION HANDLERS:
@@ -668,69 +733,84 @@ class MainGui(Ui_MainGui, QMainWindow):
 
     def get_reception(self, view, model):
         rows = { index.row() for index in view.selectedIndexes()}
-        if len(rows) == 0:
-            return
-        return model.receptions[rows.pop()]
+        if len(rows) == 1:
+            return model.receptions[rows.pop()]
 
 
     # WAREHOUSE EXPEDITION:
-    def processExpedition(self):
-        expedition = self.getExpedition(self.warehouse_expedition_view, self.expeditionModel) 
-        if not expedition:
-            return 
+    def warehouse_expeditions_process_handler(self):
+        expedition = self.get_expedition(
+            self.warehouse_expedition_view, 
+            self.warehouse_expeditions_model
+        ) 
+        if not expedition:return 
         expedition_form.Form(self, expedition).exec_()
 
-    def expeditionDoublecClicked(self):
-        self.processExpedition() 
+    def warehouse_expeditions_double_click_handler(self, index):
+        expedition = self.warehouse_expeditions_model.expeditions[index.row()]
+        expedition_form.Form(self, expedition).exec_() 
 
-    def expeditionDeleteHandler(self):
-        expedition = self.getExpedition(self.warehouse_expedition_view, self.expeditionModel)
-        if not expedition:
-            return
+    def warehouse_expeditions_delete_handler(self):
+        expedition = self.get_expedition(
+            self.warehouse_expeditions_view,
+            self.warehouse_expeditions_model
+        )
+        if not expedition:return
         
-    def getExpedition(self, view, model):
+        print('delete expedition with ID:', expedition.id)
+
+
+    def get_expedition(self, view, model):
         rows = { index.row() for index in view.selectedIndexes()}
-        if len(rows) == 0:
-            return
-        return model.expeditions[rows.pop()]
+        if len(rows) == 1:
+            return model.expeditions[rows.pop()]
 
     # TOOLS HANDLERS:
-    def createProductHandler(self):
+    def tools_create_product_handler(self):
         d = product_form.ProductForm(self)  
         password = getPassword(self) 
         if password == PASSWORD:
             d.exec_() 
 
-    def showInventoryHandler(self):
+    def tools_check_inventory_handler(self):
         d = inventory_form.InventoryForm(self)
         password = getPassword(self)
         if password == PASSWORD:
             d.exec_() 
 
-    def changeSpecHandler(self):
+    def tools_change_spec_handler(self):
+        if models.stock_gap():
+            QMessageBox.information(self, 'Information', 'Process all sales first.')
+            return 
         d = spec_change_form.SpecChange(self)
         # password = getPassword(self)
         # if password == PASSWORD:
         d.exec_() 
 
-    def changeCondtionHandler(self):
+    def tools_change_condition_handler(self):
+        if models.stock_gap():
+            QMessageBox.information(self, 'Information', 'Process all sales first.')
+            return 
         d = condition_change_form.ConditionChange(self)
         d.exec_() 
     
 
-    def changeWarehouseHandler(self):
+    def tools_change_warehouse_handler(self):
+        if models.stock_gap():
+            QMessageBox.information(self, 'Information', 'Process all sales first.')
+            return 
         d = warehouse_change_form.WarehouseChange(self)
         d.exec_() 
 
-    def createWarehouseHandler(self):
+    def tools_create_warehouse_handler(self):
         from warehouse import Form
         Form(self).exec_() 
     
-    def createConditionHandler(self):
+    def tools_create_condition_handler(self):
         from condition import Form
         Form(self).exec_() 
     
-    def createSpecHandler(self):
+    def tools_create_spec_handler(self):
         from spec import Form
         Form(self).exec_() 
 

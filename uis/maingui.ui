@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1985</width>
+    <width>1887</width>
     <height>912</height>
    </rect>
   </property>
@@ -35,7 +35,7 @@
    <widget class="QTabWidget" name="main_tab">
     <property name="geometry">
      <rect>
-      <x>20</x>
+      <x>10</x>
       <y>10</y>
       <width>1821</width>
       <height>871</height>
@@ -51,7 +51,7 @@
      <number>0</number>
     </property>
     <property name="currentIndex">
-     <number>4</number>
+     <number>2</number>
     </property>
     <property name="iconSize">
      <size>
@@ -454,7 +454,7 @@
      <widget class="QTabWidget" name="proformastab">
       <property name="geometry">
        <rect>
-        <x>5</x>
+        <x>0</x>
         <y>0</y>
         <width>1811</width>
         <height>771</height>
@@ -485,8 +485,8 @@
          <rect>
           <x>0</x>
           <y>10</y>
-          <width>201</width>
-          <height>721</height>
+          <width>211</width>
+          <height>711</height>
          </rect>
         </property>
         <property name="toolTip">
@@ -1114,7 +1114,7 @@
         <widget class="QToolButton" name="proformas_purchases_options">
          <property name="geometry">
           <rect>
-           <x>1360</x>
+           <x>970</x>
            <y>10</y>
            <width>75</width>
            <height>60</height>
@@ -1430,7 +1430,7 @@
           <x>220</x>
           <y>40</y>
           <width>1591</width>
-          <height>601</height>
+          <height>571</height>
          </rect>
         </property>
        </widget>
@@ -2034,7 +2034,7 @@
           <bool>true</bool>
          </property>
         </widget>
-        <widget class="QToolButton" name="proformas_sales_print_button">
+        <widget class="QToolButton" name="proformas_sales_print">
          <property name="geometry">
           <rect>
            <x>460</x>
@@ -2066,7 +2066,7 @@
         <widget class="QToolButton" name="proformas_sales_options">
          <property name="geometry">
           <rect>
-           <x>1360</x>
+           <x>1220</x>
            <y>10</y>
            <width>75</width>
            <height>60</height>
@@ -2098,7 +2098,7 @@
           <bool>true</bool>
          </property>
         </widget>
-        <widget class="QToolButton" name="proformas_sales_pdf_button">
+        <widget class="QToolButton" name="proformas_sales_pdf">
          <property name="geometry">
           <rect>
            <x>545</x>
@@ -2232,7 +2232,7 @@
           <bool>true</bool>
          </property>
         </widget>
-        <widget class="QToolButton" name="proformas_salse_towh">
+        <widget class="QToolButton" name="proformas_sales_towh">
          <property name="geometry">
           <rect>
            <x>1055</x>
@@ -3075,7 +3075,7 @@
         <widget class="QToolButton" name="invoices_purchases_options">
          <property name="geometry">
           <rect>
-           <x>630</x>
+           <x>640</x>
            <y>10</y>
            <width>51</width>
            <height>61</height>
@@ -3110,7 +3110,7 @@
         <widget class="QToolButton" name="invoices_purchases_pdf">
          <property name="geometry">
           <rect>
-           <x>100</x>
+           <x>110</x>
            <y>10</y>
            <width>61</width>
            <height>61</height>
@@ -3139,7 +3139,7 @@
         <widget class="QToolButton" name="invoices_purchases_payments">
          <property name="geometry">
           <rect>
-           <x>170</x>
+           <x>180</x>
            <y>10</y>
            <width>71</width>
            <height>61</height>
@@ -3177,7 +3177,7 @@
         <widget class="QToolButton" name="invoices_purchases_expenses">
          <property name="geometry">
           <rect>
-           <x>260</x>
+           <x>270</x>
            <y>10</y>
            <width>71</width>
            <height>61</height>
@@ -3212,7 +3212,7 @@
         <widget class="QToolButton" name="invoices_purchases_towh">
          <property name="geometry">
           <rect>
-           <x>350</x>
+           <x>360</x>
            <y>10</y>
            <width>91</width>
            <height>61</height>
@@ -3247,7 +3247,7 @@
         <widget class="QToolButton" name="invoices_purchases_ship">
          <property name="geometry">
           <rect>
-           <x>460</x>
+           <x>470</x>
            <y>10</y>
            <width>51</width>
            <height>61</height>
@@ -3282,7 +3282,7 @@
         <widget class="QToolButton" name="invoices_purchases_docs">
          <property name="geometry">
           <rect>
-           <x>530</x>
+           <x>540</x>
            <y>10</y>
            <width>75</width>
            <height>60</height>
@@ -3321,7 +3321,7 @@
           <x>220</x>
           <y>40</y>
           <width>1601</width>
-          <height>601</height>
+          <height>571</height>
          </rect>
         </property>
        </widget>
@@ -3767,7 +3767,7 @@
           <string>Not Sent</string>
          </property>
         </widget>
-        <widget class="QToolButton" name="invoicess_sales_apply">
+        <widget class="QToolButton" name="invoices_sales_apply">
          <property name="geometry">
           <rect>
            <x>50</x>
@@ -4237,7 +4237,7 @@
        </rect>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <property name="iconSize">
        <size>
@@ -5022,6 +5022,121 @@
         </property>
        </widget>
       </widget>
+      <widget class="QWidget" name="warehouse_incoming_rma_tab">
+       <attribute name="icon">
+        <iconset resource="../app/icons.qrc">
+         <normaloff>:/input</normaloff>:/input</iconset>
+       </attribute>
+       <attribute name="title">
+        <string>Incoming RMAs</string>
+       </attribute>
+       <attribute name="toolTip">
+        <string>Physical Check Incoming RMAs. They return to us.</string>
+       </attribute>
+       <widget class="QLineEdit" name="warehouse_incoming_search_edit">
+        <property name="geometry">
+         <rect>
+          <x>1130</x>
+          <y>10</y>
+          <width>271</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="frame">
+         <bool>false</bool>
+        </property>
+        <property name="placeholderText">
+         <string>Search ... </string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_35">
+        <property name="geometry">
+         <rect>
+          <x>1410</x>
+          <y>10</y>
+          <width>21</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="pixmap">
+         <pixmap resource="../app/icons.qrc">:/search</pixmap>
+        </property>
+       </widget>
+       <widget class="QFrame" name="frame_11">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>640</y>
+          <width>1591</width>
+          <height>81</height>
+         </rect>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::Box</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Sunken</enum>
+        </property>
+        <widget class="QToolButton" name="warehouse_incoming_open_button">
+         <property name="geometry">
+          <rect>
+           <x>20</x>
+           <y>10</y>
+           <width>51</width>
+           <height>61</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Open</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../app/icons.qrc">
+           <normaloff>:/open</normaloff>:/open</iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>40</width>
+           <height>40</height>
+          </size>
+         </property>
+         <property name="toolButtonStyle">
+          <enum>Qt::ToolButtonTextUnderIcon</enum>
+         </property>
+         <property name="autoRaise">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </widget>
+       <widget class="QTableView" name="warehouse_incoming_rma_view">
+        <property name="geometry">
+         <rect>
+          <x>210</x>
+          <y>40</y>
+          <width>1391</width>
+          <height>601</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QGroupBox" name="groupBox">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>30</y>
+          <width>120</width>
+          <height>80</height>
+         </rect>
+        </property>
+        <property name="title">
+         <string>FILTERS</string>
+        </property>
+       </widget>
+      </widget>
       <widget class="QWidget" name="warehouse_outgoing_rma_tab">
        <attribute name="icon">
         <iconset resource="../app/icons.qrc">
@@ -5124,108 +5239,6 @@
         </property>
        </widget>
       </widget>
-      <widget class="QWidget" name="warehouse_incoming_rma_tab">
-       <attribute name="icon">
-        <iconset resource="../app/icons.qrc">
-         <normaloff>:/input</normaloff>:/input</iconset>
-       </attribute>
-       <attribute name="title">
-        <string>Incoming RMAs</string>
-       </attribute>
-       <attribute name="toolTip">
-        <string>Physical Check Incoming RMAs. They return to us.</string>
-       </attribute>
-       <widget class="QLineEdit" name="warehouse_incoming_search_edit">
-        <property name="geometry">
-         <rect>
-          <x>1130</x>
-          <y>10</y>
-          <width>271</width>
-          <height>20</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="frame">
-         <bool>false</bool>
-        </property>
-        <property name="placeholderText">
-         <string>Search ... </string>
-        </property>
-       </widget>
-       <widget class="QLabel" name="label_35">
-        <property name="geometry">
-         <rect>
-          <x>1410</x>
-          <y>10</y>
-          <width>21</width>
-          <height>21</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="pixmap">
-         <pixmap resource="../app/icons.qrc">:/search</pixmap>
-        </property>
-       </widget>
-       <widget class="QFrame" name="frame_11">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>640</y>
-          <width>1591</width>
-          <height>81</height>
-         </rect>
-        </property>
-        <property name="frameShape">
-         <enum>QFrame::Box</enum>
-        </property>
-        <property name="frameShadow">
-         <enum>QFrame::Sunken</enum>
-        </property>
-        <widget class="QToolButton" name="warehouse_incoming_open_button">
-         <property name="geometry">
-          <rect>
-           <x>20</x>
-           <y>10</y>
-           <width>51</width>
-           <height>61</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Open</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../app/icons.qrc">
-           <normaloff>:/open</normaloff>:/open</iconset>
-         </property>
-         <property name="iconSize">
-          <size>
-           <width>40</width>
-           <height>40</height>
-          </size>
-         </property>
-         <property name="toolButtonStyle">
-          <enum>Qt::ToolButtonTextUnderIcon</enum>
-         </property>
-         <property name="autoRaise">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </widget>
-       <widget class="QTableView" name="warehouse_incoming_rma_view">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>40</y>
-          <width>1591</width>
-          <height>601</height>
-         </rect>
-        </property>
-       </widget>
-      </widget>
      </widget>
     </widget>
     <widget class="QWidget" name="rmas_tab">
@@ -5239,7 +5252,7 @@
      <attribute name="toolTip">
       <string>Work on RMAs</string>
      </attribute>
-     <widget class="QTabWidget" name="rma">
+     <widget class="QTabWidget" name="rmastab">
       <property name="geometry">
        <rect>
         <x>0</x>
@@ -5249,7 +5262,7 @@
        </rect>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <property name="iconSize">
        <size>
@@ -5260,13 +5273,13 @@
       <property name="documentMode">
        <bool>true</bool>
       </property>
-      <widget class="QWidget" name="rma_outgoing_tab">
+      <widget class="QWidget" name="rmas_outgoing_tab">
        <attribute name="icon">
         <iconset resource="../app/icons.qrc">
          <normaloff>:/output</normaloff>:/output</iconset>
        </attribute>
        <attribute name="title">
-        <string>Outgoing</string>
+        <string>Outgoing RMAs</string>
        </attribute>
        <attribute name="toolTip">
         <string>We are returning to them.</string>
@@ -5290,7 +5303,7 @@
          <string>Search ... </string>
         </property>
        </widget>
-       <widget class="QLabel" name="label_12">
+       <widget class="QLabel" name="rmas_outgoing_search_logo">
         <property name="geometry">
          <rect>
           <x>1410</x>
@@ -5306,7 +5319,7 @@
          <pixmap resource="../app/icons.qrc">:/search</pixmap>
         </property>
        </widget>
-       <widget class="QFrame" name="frame_10">
+       <widget class="QFrame" name="actions">
         <property name="geometry">
          <rect>
           <x>10</x>
@@ -5321,7 +5334,7 @@
         <property name="frameShadow">
          <enum>QFrame::Sunken</enum>
         </property>
-        <widget class="QToolButton" name="rma_outgoing_print_button">
+        <widget class="QToolButton" name="rmas_outgoing_print_button">
          <property name="geometry">
           <rect>
            <x>250</x>
@@ -5391,7 +5404,7 @@
           <bool>true</bool>
          </property>
         </widget>
-        <widget class="QToolButton" name="rma_outgoing_new_button">
+        <widget class="QToolButton" name="rmas_outgoing_new_button">
          <property name="geometry">
           <rect>
            <x>20</x>
@@ -5426,7 +5439,7 @@
           <bool>true</bool>
          </property>
         </widget>
-        <widget class="QToolButton" name="rma_outgoing_open_button">
+        <widget class="QToolButton" name="rmas_outgoing_open_button">
          <property name="geometry">
           <rect>
            <x>90</x>
@@ -5465,9 +5478,9 @@
        <widget class="QTableView" name="rma_outgoing_view">
         <property name="geometry">
          <rect>
-          <x>10</x>
+          <x>220</x>
           <y>40</y>
-          <width>1661</width>
+          <width>1451</width>
           <height>601</height>
          </rect>
         </property>
@@ -5479,7 +5492,7 @@
          <normaloff>:/input</normaloff>:/input</iconset>
        </attribute>
        <attribute name="title">
-        <string>Incoming</string>
+        <string>Incoming RMAs</string>
        </attribute>
        <attribute name="toolTip">
         <string>They are returning to us.</string>
@@ -5713,10 +5726,10 @@
        <widget class="QTableView" name="rma_incoming_view">
         <property name="geometry">
          <rect>
-          <x>10</x>
+          <x>220</x>
           <y>40</y>
-          <width>1661</width>
-          <height>601</height>
+          <width>1451</width>
+          <height>591</height>
          </rect>
         </property>
        </widget>
@@ -5734,7 +5747,7 @@
      <attribute name="toolTip">
       <string>Tools like grading, Changing warehouse, traceability, rebu, importing, etc</string>
      </attribute>
-     <widget class="QPushButton" name="create_product">
+     <widget class="QPushButton" name="tools_create_product">
       <property name="geometry">
        <rect>
         <x>590</x>
@@ -5750,7 +5763,7 @@
        <string>Create Product</string>
       </property>
      </widget>
-     <widget class="QPushButton" name="check_inventory">
+     <widget class="QPushButton" name="tools_check_inventory">
       <property name="geometry">
        <rect>
         <x>590</x>
@@ -5766,7 +5779,7 @@
        <string>Check Inventory</string>
       </property>
      </widget>
-     <widget class="QPushButton" name="change_warehouse">
+     <widget class="QPushButton" name="tools_change_warehouse">
       <property name="geometry">
        <rect>
         <x>850</x>
@@ -5782,7 +5795,7 @@
        <string>Change Warehouse</string>
       </property>
      </widget>
-     <widget class="QPushButton" name="change_condition">
+     <widget class="QPushButton" name="tools_change_condition">
       <property name="geometry">
        <rect>
         <x>850</x>
@@ -5798,7 +5811,7 @@
        <string>Change Condition</string>
       </property>
      </widget>
-     <widget class="QPushButton" name="change_spec">
+     <widget class="QPushButton" name="tools_change_spec">
       <property name="geometry">
        <rect>
         <x>850</x>
@@ -5814,7 +5827,7 @@
        <string>Change Spec</string>
       </property>
      </widget>
-     <widget class="QPushButton" name="create_warehouse">
+     <widget class="QPushButton" name="tools_create_warehouse">
       <property name="geometry">
        <rect>
         <x>590</x>
@@ -5830,7 +5843,7 @@
        <string>Create Warehouse</string>
       </property>
      </widget>
-     <widget class="QPushButton" name="create_spec">
+     <widget class="QPushButton" name="tools_create_spec">
       <property name="geometry">
        <rect>
         <x>590</x>
@@ -5846,7 +5859,7 @@
        <string>Create Spec</string>
       </property>
      </widget>
-     <widget class="QPushButton" name="create_condition">
+     <widget class="QPushButton" name="tools_create_condition">
       <property name="geometry">
        <rect>
         <x>850</x>
