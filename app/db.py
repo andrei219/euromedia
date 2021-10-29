@@ -433,8 +433,6 @@ class SaleProforma(Base):
     number = Column(Integer)
     created_on = Column(DateTime, default=datetime.now)
  
-    normal = Column(Boolean, nullable=False, default=True)
-
     date = Column(Date, nullable=False)
     warranty = Column(Integer, nullable=False, default=0)
 
@@ -553,7 +551,14 @@ class SaleProformaLine(Base):
 
     item_id = Column(Integer, ForeignKey('items.id'), nullable=True)
     mixed_group_id = Column(Integer, nullable=True)
-    description = Column(String(100), nullable=True)
+    origin_id = Column(
+        Integer,
+        ForeignKey('purchase_proformas.id'), 
+        nullable=True
+    )
+    
+    # No stock related line 
+    description = Column(String(100)) 
 
     condition = Column(String(50), nullable=False)
     showing_condition = Column(String(50), nullable=True)
@@ -562,9 +567,10 @@ class SaleProformaLine(Base):
     quantity = Column(Integer, nullable=False, default=1)
     price = Column(Numeric(10, 2, asdecimal=False), nullable=False, default=1.0)
     tax = Column(Integer, nullable=False, default=0)
-    eta = Column(Date, nullable=True) 
+    
 
-    item = relationship('Item', uselist=False)
+    origin = relationship('PurchaseProforma')
+    item = relationship('Item')
     proforma = relationship(
         'SaleProforma', 
         backref=backref(
@@ -592,18 +598,11 @@ class SaleProformaLine(Base):
             other.spec == self.spec
         ))
     
-    # Rewrite following fluent python
-    def __hash__(self):
-        return hash(
-            ''.join(
-                map(str,[
-                    self.item_id, 
-                    self.condition, 
-                    self.spec 
-                ])
-            )
-        )
-
+    def __hash__(self, other):
+        import functools
+        import operator
+        hashes = (hash(x) for x in (self.item_id, self.spec, self.condition))
+        return functools.reduce(operator.xor, hashes, 0)
 
 class Expedition(Base):
     
@@ -655,17 +654,12 @@ class ExpeditionLine(Base):
             other.spec == self.spec
         ))
 
-    
-    def hash(self):
-        return hash(
-            ''.join(
-                map(str, [
-                    self.item_id,
-                    self.condition, 
-                    self.spec
-                ])
-            )
-        )
+    def __hash__(self, other):
+        import functools
+        import operator
+        hashes = (hash(x) for x in (self.item_id, self.spec, self.condition))
+        return functools.reduce(operator.xor, hashes, 0) 
+
 
     __table_args__ = (
         UniqueConstraint('id', 'expedition_id'), 
@@ -786,16 +780,23 @@ class Imei(Base):
     warehouse = relationship('Warehouse', uselist=False) 
 
 
+class ImeiMask(Base): 
 
-item1 = Item('Apple', 'Iphone', 'X', 128, 'Black')
-item2 = Item('Samnsung', 'Galaxy', 'Lite', 256, 'Red')
-item3 = Item('Apple', 'Iphone', 'X', 128, 'Red')
-item4 = Item('Apple', 'Iphone', 'X', 128, 'Yellow')
-item5 = Item('Apple', 'Iphone', 'X', 128, 'Purple')
+    __tablename__ = 'imeis_mask'
+
+    imei = Column(String(50), primary_key=True)
+    item_id = Column(Integer, ForeignKey('items.id'), nullable=False)
+    condition = Column(String(50))
+    spec = Column(String(50))
+    warehouse_id = Column(Integer, ForeignKey('warehouses.id'))
+
+    item = relationship('Item', uselist=False) 
+    warehouse = relationship('Warehouse', uselist=False)
+
 
 def create_and_populate(): 
 
-    import sys, random
+    import sys, random  
 
     if sys.platform == 'win32':
         testpath = r'.\app\SalesInvoice_LWI003703.pdf'
@@ -990,6 +991,7 @@ def create_and_populate():
     # pp1 = PurchasePayment(date.today(), 5000, 'Caixa / 33423', proforma) 
     # pp2 = PurchasePayment(date.today() + timedelta(days=2), 200, 'Santander / 23423', proforma) 
 
+
     session.commit() 
 
 def create_sale(type):
@@ -1116,25 +1118,55 @@ def create_line():
     line = SaleProformaLine()
     line.proforma_id = 1
     line.item_id = 1
-    line.spec = 'SPAIN'
-    line.condition = 'A+'
+    line.spec = 'EEUU'
+    line.condition = 'B+'
     line.quantity = 3 
     line.price = 145.2
     
     session.add(line)
     session.commit()
 
+def create_mask():
+    mask = ImeiMask()
+    mask.item_id = 1
+    mask.imei = 'G'
+    mask.condition = 'B+'
+    mask.spec = 'EEUU'
+    mask.warehouse_id = 1
+
+    session.add(mask)
+    session.commit()
+
+
+item1 = Item('Apple', 'Iphone', 'X', 128, 'Black')
+item2 = Item('Samnsung', 'Galaxy', 'Lite', 256, 'Red')
+item3 = Item('Apple', 'Iphone', 'X', 128, 'Red')
+item4 = Item('Apple', 'Iphone', 'X', 128, 'Yellow')
+item5 = Item('Apple', 'Iphone', 'X', 128, 'Purple')
+
+
+spec1 = Spec('EU')
+spec2 = Spec('USA') 
+spec3 = Spec('JAPAN')
+
+condition1 = Condition('NEW')
+condition2 = Condition('A+')
+condition3 = Condition('A-')
 
 if __name__ == '__main__':
-    # import sys 
-    # try:
-    #     if sys.argv[1] == 'empty':
-    #         Base.metadata.create_all(engine) 
-    #         session.add_all([item1, item2, item3, item4, item5])
-    #         session.commit()
+    import sys 
+    try:
+        if sys.argv[1] == 'empty':
+            Base.metadata.create_all(engine) 
+            session.add_all([item1, item2, item3, item4, item5])
+            session.add_all([spec1, spec2, spec3, condition1, condition2, condition3])
+            session.commit()
 
-    # except IndexError:
-    #     create_and_populate() 
+    except IndexError:
+        create_and_populate() 
+        # create_sale(1)
+        # create_line()
+        # create_mask()
 
-    create_line()
+
 

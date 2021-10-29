@@ -101,7 +101,6 @@ class Form(Ui_SalesProformaForm, QWidget):
 
         self.partner.returnPressed.connect(self._partner_search)
         
-
     def _apply_config_clicked(self):
         proportional = None
         if self.mixed.isChecked():
@@ -111,7 +110,6 @@ class Form(Ui_SalesProformaForm, QWidget):
         self._set_config() 
         self._configure_handlers_fields(normal, fake, proportional) 
         self._disable_config() 
-
 
     def _disable_config(self):
         self.normal_sale.setEnabled(False)

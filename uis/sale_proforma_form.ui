@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1284</width>
-    <height>962</height>
+    <width>1401</width>
+    <height>998</height>
    </rect>
   </property>
   <property name="font">
@@ -27,10 +27,10 @@
   <widget class="QGroupBox" name="groupBox_4">
    <property name="geometry">
     <rect>
-     <x>660</x>
+     <x>710</x>
      <y>520</y>
-     <width>551</width>
-     <height>231</height>
+     <width>491</width>
+     <height>241</height>
     </rect>
    </property>
    <property name="title">
@@ -40,8 +40,8 @@
     <property name="geometry">
      <rect>
       <x>0</x>
-      <y>20</y>
-      <width>551</width>
+      <y>30</y>
+      <width>491</width>
       <height>211</height>
      </rect>
     </property>
@@ -104,8 +104,8 @@
   <widget class="QTextEdit" name="note">
    <property name="geometry">
     <rect>
-     <x>670</x>
-     <y>760</y>
+     <x>710</x>
+     <y>780</y>
      <width>391</width>
      <height>61</height>
     </rect>
@@ -113,145 +113,6 @@
    <property name="placeholderText">
     <string>Proforma Slale Note ... (Max 255 chars)</string>
    </property>
-  </widget>
-  <widget class="QGroupBox" name="mixed">
-   <property name="geometry">
-    <rect>
-     <x>80</x>
-     <y>800</y>
-     <width>561</width>
-     <height>111</height>
-    </rect>
-   </property>
-   <property name="focusPolicy">
-    <enum>Qt::StrongFocus</enum>
-   </property>
-   <property name="title">
-    <string>MIXED</string>
-   </property>
-   <property name="flat">
-    <bool>false</bool>
-   </property>
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="checked">
-    <bool>false</bool>
-   </property>
-   <widget class="QDoubleSpinBox" name="price">
-    <property name="geometry">
-     <rect>
-      <x>40</x>
-      <y>64</y>
-      <width>100</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="decimals">
-     <number>2</number>
-    </property>
-    <property name="minimum">
-     <double>1.000000000000000</double>
-    </property>
-    <property name="maximum">
-     <double>10000000.000000000000000</double>
-    </property>
-   </widget>
-   <widget class="QComboBox" name="tax">
-    <property name="enabled">
-     <bool>false</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>300</x>
-      <y>63</y>
-      <width>51</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="currentText">
-     <string>21</string>
-    </property>
-    <property name="currentIndex">
-     <number>3</number>
-    </property>
-    <item>
-     <property name="text">
-      <string>0</string>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>4</string>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>10</string>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>21</string>
-     </property>
-    </item>
-   </widget>
-   <widget class="QLabel" name="label_30">
-    <property name="geometry">
-     <rect>
-      <x>40</x>
-      <y>42</y>
-      <width>55</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Unit/Price</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_31">
-    <property name="geometry">
-     <rect>
-      <x>310</x>
-      <y>41</y>
-      <width>31</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Tax</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="generate">
-    <property name="geometry">
-     <rect>
-      <x>400</x>
-      <y>54</y>
-      <width>101</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Generate Line</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="ignore">
-    <property name="geometry">
-     <rect>
-      <x>170</x>
-      <y>50</y>
-      <width>101</width>
-      <height>41</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Ignore Spec
- In Invoice</string>
-    </property>
-    <property name="checked">
-     <bool>true</bool>
-    </property>
-   </widget>
   </widget>
   <widget class="QGroupBox" name="groupBox_2">
    <property name="geometry">
@@ -274,7 +135,7 @@
       <x>129</x>
       <y>160</y>
       <width>200</width>
-      <height>24</height>
+      <height>29</height>
      </rect>
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout_6">
@@ -296,7 +157,7 @@
       <x>429</x>
       <y>160</y>
       <width>215</width>
-      <height>24</height>
+      <height>29</height>
      </rect>
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout_7">
@@ -318,7 +179,7 @@
       <x>40</x>
       <y>80</y>
       <width>716</width>
-      <height>24</height>
+      <height>29</height>
      </rect>
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout_8">
@@ -408,7 +269,7 @@
       <x>40</x>
       <y>40</y>
       <width>807</width>
-      <height>24</height>
+      <height>29</height>
      </rect>
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout_9">
@@ -944,7 +805,7 @@
     <rect>
      <x>80</x>
      <y>470</y>
-     <width>561</width>
+     <width>611</width>
      <height>291</height>
     </rect>
    </property>
@@ -956,7 +817,7 @@
      <rect>
       <x>0</x>
       <y>80</y>
-      <width>561</width>
+      <width>611</width>
       <height>211</height>
      </rect>
     </property>
@@ -966,7 +827,7 @@
      <rect>
       <x>0</x>
       <y>20</y>
-      <width>561</width>
+      <width>611</width>
       <height>61</height>
      </rect>
     </property>
@@ -984,6 +845,9 @@
      </property>
      <property name="text">
       <string>SEARCH</string>
+     </property>
+     <property name="autoDefault">
+      <bool>true</bool>
      </property>
      <property name="default">
       <bool>true</bool>
@@ -1058,23 +922,10 @@
     <string>Save</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="delete_all">
-   <property name="geometry">
-    <rect>
-     <x>1110</x>
-     <y>470</y>
-     <width>93</width>
-     <height>28</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Delete All</string>
-   </property>
-  </widget>
   <widget class="QPushButton" name="delete_button">
    <property name="geometry">
     <rect>
-     <x>1000</x>
+     <x>1108</x>
      <y>470</y>
      <width>93</width>
      <height>28</height>
@@ -1116,7 +967,7 @@
   <widget class="QPushButton" name="insert">
    <property name="geometry">
     <rect>
-     <x>882</x>
+     <x>990</x>
      <y>470</y>
      <width>101</width>
      <height>28</height>
@@ -1126,13 +977,13 @@
     <string>Insert Free </string>
    </property>
   </widget>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
-     <x>654</x>
-     <y>831</y>
+     <x>660</x>
+     <y>850</y>
      <width>206</width>
-     <height>111</height>
+     <height>131</height>
     </rect>
    </property>
    <layout class="QFormLayout" name="formLayout">
@@ -1246,6 +1097,146 @@
      </widget>
     </item>
    </layout>
+  </widget>
+  <widget class="QGroupBox" name="groupBox_7">
+   <property name="geometry">
+    <rect>
+     <x>80</x>
+     <y>790</y>
+     <width>551</width>
+     <height>91</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>Create Line</string>
+   </property>
+   <widget class="QComboBox" name="tax">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>260</x>
+      <y>40</y>
+      <width>51</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="currentText">
+     <string>21</string>
+    </property>
+    <property name="currentIndex">
+     <number>3</number>
+    </property>
+    <item>
+     <property name="text">
+      <string>0</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>4</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>10</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>21</string>
+     </property>
+    </item>
+   </widget>
+   <widget class="QLabel" name="label_31">
+    <property name="geometry">
+     <rect>
+      <x>270</x>
+      <y>17</y>
+      <width>31</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Tax</string>
+    </property>
+   </widget>
+   <widget class="QDoubleSpinBox" name="price">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>41</y>
+      <width>100</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="decimals">
+     <number>2</number>
+    </property>
+    <property name="minimum">
+     <double>1.000000000000000</double>
+    </property>
+    <property name="maximum">
+     <double>10000000.000000000000000</double>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="ignore">
+    <property name="geometry">
+     <rect>
+      <x>150</x>
+      <y>27</y>
+      <width>101</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Ignore Spec
+ In Invoice</string>
+    </property>
+    <property name="checked">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="add">
+    <property name="geometry">
+     <rect>
+      <x>490</x>
+      <y>33</y>
+      <width>51</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>ADD</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_30">
+    <property name="geometry">
+     <rect>
+      <x>50</x>
+      <y>19</y>
+      <width>55</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Unit/Price</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="showing_condition">
+    <property name="geometry">
+     <rect>
+      <x>340</x>
+      <y>40</y>
+      <width>131</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="placeholderText">
+     <string>Showing condition...</string>
+    </property>
+   </widget>
   </widget>
  </widget>
  <resources/>

@@ -24,8 +24,8 @@ class ProductForm(Ui_ProductForm, QDialog):
         self.product_view.setModel(self.model)
 
         # connect slots:
-        self.add_product_tool_button.pressed.connect(self.addItemHandler) 
-        self.delete_tool_button.pressed.connect(self.removeItemHandler) 
+        self.add_product_tool_button.clicked.connect(self.addItemHandler) 
+        self.delete_tool_button.clicked.connect(self.removeItemHandler) 
     
         # configure view: 
 
@@ -90,7 +90,6 @@ class ProductForm(Ui_ProductForm, QDialog):
 
     def addItemHandler(self):
         if not self.validProduct():
-            QMessageBox.critical(self, 'Error - Update', 'Invalid Product.')
             return 
         try:
             self.model.addItem(self.manufacturer_line_edit.text(), self.category_line_edit.text(), \
@@ -117,14 +116,19 @@ class ProductForm(Ui_ProductForm, QDialog):
                     QMessageBox.critical(self, 'Error - Update', 'That product has data associated')
 
     def validProduct(self):
-        if not self.manufacturer_line_edit.text():
+        import re 
+        pattern = '^[A-Za-z0-9_-]*$'
+        if not all((
+            re.match(pattern, self.manufacturer_line_edit.text()), 
+            re.match(pattern, self.model_line_edit.text()), 
+            re.match(pattern, self.color_line_edit.text()), 
+            re.match(pattern, self.manufacturer_line_edit.text())
+        )):
+            print('not all')
             return False
-        if not self.model_line_edit.text():
+        try:
+            int(self.capacity_line_edit.text())
+            return True 
+        except ValueError:
             return False
-        if not self.category_line_edit.text():
-            return False
-        if not self.capacity_line_edit.text():
-            return False
-        if not self.color_line_edit.text():
-            return False
-        return True
+        return True 

@@ -542,16 +542,27 @@ class MainGui(Ui_MainGui, QMainWindow):
                 return 
             try:    
                 proforma.invoice.type
-                type_num = str(proforma.invoice.type) + '-' + str(proforma.invoice.number).zfill(6)
-                QMessageBox.information(self, 'Information', f"Invoice already associated: {type_num}") 
+                type_num = str(proforma.invoice.type) + '-' \
+                    + str(proforma.invoice.number).zfill(6)
+                QMessageBox.information(
+                    self, 
+                    'Information', 
+                    f"Invoice already associated: {type_num}") 
             except AttributeError: 
                 try:                
                     invoice = self.proformas_sales_model.associateInvoice(proforma) 
-                    type_num = str(invoice.type) + '-' + str(invoice.number).zfill(6)
-                    QMessageBox.information(self, 'Information', f"Invoice {type_num} created")
+                    type_num = str(invoice.type) + '-' \
+                        + str(invoice.number).zfill(6)
+                    QMessageBox.information(
+                        self, 
+                        'Information', 
+                        f"Invoice {type_num} created")
                 except:
                     raise 
-                    QMessageBox.critical(self, 'Update - Error', 'Could not build Invoice From Proforma')
+                    QMessageBox.critical(
+                        self, 
+                        'Update - Error', 
+                        'Could not build Invoice From Proforma')
 
     def proformas_sales_towh_handler(self, invoice=None):
         print('aaa')
@@ -565,8 +576,11 @@ class MainGui(Ui_MainGui, QMainWindow):
             # Hay que meter el codigo de la prioridad aqui.
             if not self.proformas_sales_model.\
                 physicalStockAvailable(proforma.warehouse_id, proforma.lines):
-                QMessageBox.critical(self, 'Error',\
-                    "Can't send to warehouse for preparation. Not enough SN in physical stock.")
+                QMessageBox.critical(
+                    self, 
+                    'Error',
+                    "Can't send to warehouse for preparation. Not enough SN in physical stock."
+                )
                 return
 
             ok, note = getNote(self, proforma)

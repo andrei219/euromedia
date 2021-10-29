@@ -254,7 +254,7 @@ class EditableForm(Form):
         self.lines_view.setSelectionBehavior(QTableView.SelectRows)
         self.title = 'Line - Error'
         self.model = view.model() 
-        
+           
         try:
             proforma.invoice
             self.setWindowTitle('Proforma / Invoice Edit')
