@@ -68,13 +68,17 @@ class Form(Ui_ExpeditionForm, QDialog):
                         index, 
                         QItemSelectionModel.SelectCurrent
                     )
-            except AttributeError: raise 
-            except TypeError: raise 
+            except AttributeError as ex:
+                print(ex)
+            except TypeError as ex:
+                print(ex)
 
         except IntegrityError as err:
-            raise 
+            print(err)
+
         except NotExistingStockOutput:
             mss = 'This SN with this spec or condition is not in Stock'
+            mss += mss + 'May be it is in overflow?' 
             QMessageBox.critical(
                 self, 'Error', 
                 mss

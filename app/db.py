@@ -22,6 +22,10 @@ from sqlalchemy import (
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, backref
 
+
+import functools
+import operator
+
 Base = declarative_base() 
 
 def refresh_session():
@@ -130,7 +134,9 @@ class Agent(Base):
     phone = Column(String(60))
     active = Column(Boolean, default=True)
     country = Column(String(50), default='Spain')
-    
+    created_on = Column(DateTime, default=datetime.now)
+
+
     # Optional, check when populating form:
     fixed_salary = Column(Numeric(10, 2, asdecimal=False))
     from_profit = Column(Numeric(10, 2, asdecimal=False))
@@ -161,6 +167,7 @@ class AgentDocument(Base):
     name = Column(String(50), unique=True)
     document = Column(LargeBinary(length=(2**32)-1))
 
+
     agent = relationship('Agent', backref=backref('documents'))
     
 # Partners:
@@ -176,6 +183,7 @@ class Partner(Base):
     amount_credit_limit = Column(Numeric(10, 2, asdecimal=False), default=0)
     days_credit_limit = Column(Integer, default=0)
     
+    created_on = Column(DateTime, default=datetime.now)
     agent_id = Column(Integer, ForeignKey('agents.id')) 
 
     they_pay_they_ship = Column(Boolean, default=False, nullable=False)
@@ -224,7 +232,7 @@ class PartnerDocument(Base):
     partner_id = Column(Integer, ForeignKey('partners.id'))
     name = Column(String(50), unique=True)
     document = Column(LargeBinary(length=(2**32)-1))
-
+    created_on = Column(DateTime, default=datetime.now)
     partner = relationship('Partner', backref=backref('documents'))
 
 class PartnerContact(Base):
@@ -237,7 +245,6 @@ class PartnerContact(Base):
     phone = Column(String(50))
     email = Column(String(50))
     note = Column(String(50))
-
     preferred = Column(Boolean, default=True)
  
     partner = relationship('Partner', backref=backref('contacts', cascade='delete-orphan, \
@@ -327,7 +334,7 @@ class PurchaseProformaLine(Base):
         backref=backref(
             'lines', 
             cascade='delete-orphan, delete, save-update'
-        )
+        )  
     ) 
     
     # This __eq__ method is a callback
@@ -344,10 +351,11 @@ class PurchaseProformaLine(Base):
         ))
 
     def __hash__(self):
-        return hash(''.join(map(str, [
-            self.description, self.item_id, 
-            self.condition, self.spec
-        ])))
+        hashes = (hash(x) for x in (
+            self.item_id, self.description, self.spec,
+            self.condition 
+        ))
+        return functools.reduce(operator.xor, hashes, 0)
 
     def __str__(self):
         return f"{self.item_id},{self.description},{self.condition},{self.spec}"
@@ -551,11 +559,7 @@ class SaleProformaLine(Base):
 
     item_id = Column(Integer, ForeignKey('items.id'), nullable=True)
     mixed_group_id = Column(Integer, nullable=True)
-    origin_id = Column(
-        Integer,
-        ForeignKey('purchase_proformas.id'), 
-        nullable=True
-    )
+
     
     # No stock related line 
     description = Column(String(100)) 
@@ -568,8 +572,6 @@ class SaleProformaLine(Base):
     price = Column(Numeric(10, 2, asdecimal=False), nullable=False, default=1.0)
     tax = Column(Integer, nullable=False, default=0)
     
-
-    origin = relationship('PurchaseProforma')
     item = relationship('Item')
     proforma = relationship(
         'SaleProforma', 
@@ -599,10 +601,22 @@ class SaleProformaLine(Base):
         ))
     
     def __hash__(self, other):
-        import functools
-        import operator
         hashes = (hash(x) for x in (self.item_id, self.spec, self.condition))
         return functools.reduce(operator.xor, hashes, 0)
+   
+    def __repr__(self):
+        return repr(self.__dict__)
+
+
+class AdvancedLine(Base):
+
+    __tablename__ = 'advanced_lines'
+
+    id = Column(Integer, primary_key=True) 
+    origin_id = Column(Integer, ForeignKey('purchase_proforma_lines.id'))
+    asked = Column(Integer, nullable=False) 
+
+    origin = relationship('PurchaseProformaLine', backref=backref('advanced_lines'))
 
 class Expedition(Base):
     
@@ -655,8 +669,6 @@ class ExpeditionLine(Base):
         ))
 
     def __hash__(self, other):
-        import functools
-        import operator
         hashes = (hash(x) for x in (self.item_id, self.spec, self.condition))
         return functools.reduce(operator.xor, hashes, 0) 
 
@@ -717,10 +729,11 @@ class ReceptionLine(Base):
         ))
 
     def __hash__(self):
-        return hash(''.join(map(str, [
-            self.description, self.item_id, 
-            self.condition, self.spec
-        ])))
+        hashes = (hash(x) for x in (
+            self.item_id, self.description, self.spec,
+            self.condition 
+        ))
+        return functools.reduce(operator.xor, hashes, 0)
 
     def __str__(self):
         return f"{self.item_id},{self.description},{self.condition},{self.spec}"
@@ -741,6 +754,8 @@ class ReceptionSerie(Base):
     condition = Column(String(50), nullable=False)
     spec = Column(String(50), nullable=False)
 
+    created_on = Column(DateTime, default=datetime.now)
+
     item = relationship('Item', uselist=False)
     line = relationship('ReceptionLine', backref=backref('series'))
 
@@ -759,6 +774,7 @@ class ExpeditionSerie(Base):
     id = Column(Integer, primary_key=True)
     line_id = Column(Integer, ForeignKey('expedition_lines.id'))
     serie = Column(String(50), nullable=False)
+    created_on = Column(DateTime, default=datetime.now)
 
     line = relationship('ExpeditionLine', backref=backref('series')) 
 
@@ -1019,6 +1035,12 @@ from exceptions import NotExistingStockOutput
 
 @event.listens_for(ReceptionSerie, 'after_insert')
 def insert_imei_after_mixed_purchase(mapper, connection, target):
+
+    # from sqlalchemy.sql import exists:
+    # _ex = session.query(exists().where(SaleProformaLine.origin_id == target.line.id)).scalar()
+    # if _ex:
+    # insert values in input mask with the same following statement. 
+
     stmt = insert(Imei).values(
         imei = target.serie, 
         item_id = target.item_id, 
@@ -1035,28 +1057,6 @@ def delete_imei_after_mixed_purchase(mapper, connection, target):
     # Ignoramos lo que pase, nos da igual
     # Esa mercancia ya se vendio y no esta en inventario
 
-# @event.listens_for(ReceptionSerie, 'after_insert')
-# def insert_imei_after_purchase(mapper, connection, target):
-#     stmt = insert(Imei).values(
-#         imei = target.serie, 
-#         item_id = target.line.item_id, 
-#         condition = target.line.condition, 
-#         spec = target.line.spec, 
-#         warehouse_id = target.line.reception.proforma.warehouse.id
-#     )
-#     connection.execute(stmt)
-
-
-# @event.listens_for(ReceptionSerie, 'after_delete')
-# def delete_imei_after_purchase(mapper, connection, target):
-#     condition = target.line.condition 
-#     spec = target.line.spec 
-#     stmt = delete(Imei).where(Imei.imei == target.serie).where(Imei.condition == condition).\
-#         where(Imei.spec == spec)
-#     result = connection.execute(stmt) 
-#     if not result.rowcount:
-#         raise NotExistingStockOutput
-    
 
 @event.listens_for(ExpeditionSerie, 'after_insert')
 def delete_imei_after_sale(mapper, connection, target):

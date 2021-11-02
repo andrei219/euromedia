@@ -22,13 +22,6 @@ from PyQt5.QtWidgets import (
 	QLineEdit
 ) 
 
-class Delegate(QItemDelegate):
-	def createEditor(self, parent, option, index):
-		if index.row() == 0:
-			line = QLineEdit(parent) 
-			setCompleter(line, models.descriptions)
-			return line 
-
   
 class Form(Ui_PurchaseProformaForm, QWidget):
     
@@ -38,7 +31,6 @@ class Form(Ui_PurchaseProformaForm, QWidget):
         self.parent = parent 
         self.model = view.model() 
         self.lines_model = models.PurchaseProformaLineModel() 
-        self.lines_view.setItemDelegate(Delegate())
         self.lines_view.setModel(self.lines_model)
         self.title = 'Line - Error'
         self.lines_view.setSelectionBehavior(QTableView.SelectRows)
@@ -263,8 +255,7 @@ class EditableForm(Form):
 
         self.set_warehouse_combo_enabled_if_no_items_processed()
         
-        self.lines_model = models.PurchaseProformaLineModel(proforma.lines,\
-            delete_allowed = proforma.reception is None)
+        self.lines_model = models.PurchaseProformaLineModel(proforma.lines)
         
         self._updateTotals()
         self.lines_view.setModel(self.lines_model) 
@@ -337,10 +328,15 @@ class EditableForm(Form):
             raise 
         else:
             try:
-                self.model.updateWarehouse(self.proforma) 
+                warehouse_updated = self.model.updateWarehouse(self.proforma) 
+                advance_sale_updated = self.model.updateAdvancedSale(self.proforma) 
             except:
                 raise 
             else:
-                proforma_message = "Proforma saved successfully. "
-                QMessageBox.information(self, "Information", proforma_message) 
+                message = "Proforma saved successfully."
+                if warehouse_updated:
+                    message += 'Warehouse Updated' 
+
+                QMessageBox.information(self, "Information", message) 
                 self.close() 
+

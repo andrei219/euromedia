@@ -41,7 +41,7 @@ class Ui_SalesProformaForm(object):
         self.cancel.setGeometry(QtCore.QRect(1130, 900, 91, 31))
         self.cancel.setObjectName("cancel")
         self.note = QtWidgets.QTextEdit(SalesProformaForm)
-        self.note.setGeometry(QtCore.QRect(710, 780, 391, 61))
+        self.note.setGeometry(QtCore.QRect(710, 780, 341, 61))
         self.note.setObjectName("note")
         self.groupBox_2 = QtWidgets.QGroupBox(SalesProformaForm)
         self.groupBox_2.setGeometry(QtCore.QRect(60, 10, 1131, 221))
@@ -390,6 +390,9 @@ class Ui_SalesProformaForm(object):
         self.showing_condition = QtWidgets.QLineEdit(self.groupBox_7)
         self.showing_condition.setGeometry(QtCore.QRect(340, 40, 131, 22))
         self.showing_condition.setObjectName("showing_condition")
+        self.delete_selected_stock = QtWidgets.QPushButton(SalesProformaForm)
+        self.delete_selected_stock.setGeometry(QtCore.QRect(1110, 770, 91, 31))
+        self.delete_selected_stock.setObjectName("delete_selected_stock")
 
         self.retranslateUi(SalesProformaForm)
         self.tax.setCurrentIndex(3)
@@ -467,3 +470,4 @@ class Ui_SalesProformaForm(object):
         self.add.setText(_translate("SalesProformaForm", "ADD"))
         self.label_30.setText(_translate("SalesProformaForm", "Unit/Price"))
         self.showing_condition.setPlaceholderText(_translate("SalesProformaForm", "Showing condition..."))
+        self.delete_selected_stock.setText(_translate("SalesProformaForm", "Delete"))

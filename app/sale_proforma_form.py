@@ -11,7 +11,7 @@ from utils import parse_date, setCompleter
 from ui_sale_proforma_form import Ui_SalesProformaForm
 
 from models import SaleProformaLineModel, ActualLinesFromMixedModel,\
-    StockModel
+    StockModel, EditableSaleProformaLineModel
 
 import db
 
@@ -38,6 +38,8 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.lines_model = SaleProformaLineModel()
         self.lines_view.setModel(self.lines_model)
         self.stock_view.setSelectionBehavior(QTableView.SelectRows)
+        setCommonViewConfig(self.selected_stock_view)
+    
         
         self.setCombos()
         self.setCompleters()
@@ -58,6 +60,7 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.remove.clicked.connect(self.remove_handler) 
         self.insert.clicked.connect(self.insert_handler) 
         self.type.currentTextChanged.connect(self.typeChanged)
+        self.delete_selected_stock.clicked.connect(self.delete_selected_stock_clicked)
 
     def typeChanged(self, type):
         next_num = self.model.nextNumberOfType(int(type))
@@ -105,7 +108,29 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.we_pay_we_ship.setChecked(we_pay_we_ship) 
 
     def lines_view_clicked_handler(self):
-        print('ee')
+        self.set_selected_stock_mv() 
+
+    def set_selected_stock_mv(self):
+        try:
+            i = {i.row() for i in self.lines_view.selectedIndexes()}.pop()
+        except KeyError:
+            return
+        else:
+            lines = self.lines_model.actual_lines_from_mixed(i)
+            self.selected_stock_view.setModel(
+                ActualLinesFromMixedModel(lines)
+            )
+
+    def delete_selected_stock_clicked(self):
+        try:
+            i = {i.row() for i in self.lines_view.selectedIndexes()}.pop() 
+            j = {i.row() for i in self.selected_stock_view.selectedIndexes()}.pop()
+        except KeyError: 
+            return 
+        else:
+            self.lines_model.delete_tuple(i, j)
+            self.set_selected_stock_mv() 
+            self.set_stock_mv()
 
     def search_handler(self):
         if self.filters_unset():
@@ -148,10 +173,11 @@ class Form(Ui_SalesProformaForm, QWidget):
         pass 
 
     def insert_handler(self):
-        pass     
-
-    def delete_handler(self):
-        pass
+        row = self.lines_view.model().rowCount() 
+        self.lines_view.model().insertRow(row)
+        index = self.lines_view.model().index(row, 0)
+        self.lines_view.setCurrentIndex(index)
+        self.lines_view.edit(index) 
 
     def delete_handler(self):
         indexes = self.lines_view.selectedIndexes()
@@ -163,6 +189,7 @@ class Form(Ui_SalesProformaForm, QWidget):
             raise 
         else:
             self.set_stock_mv()
+            self.set_selected_stock_mv() 
     
     def add_handler(self):
         if not hasattr(self, 'stock_model'):return
@@ -186,7 +213,7 @@ class Form(Ui_SalesProformaForm, QWidget):
                 *requested_stocks
             )
         except ValueError:
-            QMessageBox.critical(self, 'Error', 'I cant process duplicate stocks')
+            QMessageBox.critical(self, 'Error', "I can't process duplicate stocks")
             return 
         else:
             self.set_stock_mv() 
@@ -212,7 +239,7 @@ class Form(Ui_SalesProformaForm, QWidget):
         if not self._valid_header():
             return 
         if not self.lines_model.lines:
-            QMessageBox.critical(self, 'Error', "You cant let an empty proforma")
+            QMessageBox.critical(self, 'Error', "You cant build an empty proforma")
             return 
         
         proforma = self._form_to_proforma()
@@ -316,7 +343,9 @@ class EditableForm(Form):
         except AttributeError:
             self.setWindowTitle('Proforma Edit')
             
-    
+        self.lines_model = EditableSaleProformaLineModel(proforma.lines)
+        self.lines_view.setModel(self.lines_model) 
+
     def set_warehouse_combo_enabled_if_no_items_processed(self):
         pass 
 

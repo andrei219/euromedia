@@ -850,8 +850,7 @@ class MainGui(Ui_MainGui, QMainWindow):
             self.set_mv('warehouse_outgoing_rmas_')
 
     def refresh_session(self):
-        import db
-        db.refresh_session() 
+        models.refresh_session() 
         models.refresh_maps() 
 
     def closeEvent(self, event):
