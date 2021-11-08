@@ -35,15 +35,13 @@ class Form(Ui_ExpeditionForm, QDialog):
         self.view.setSelectionMode(QAbstractItemView.ExtendedSelection)
 
         if expedition.proforma.cancelled:
-            self.imei_line_edit.setEnabled(False)
+            self.imei.setEnabled(False)
             self.automatic_input.setEnabled(False) 
 
         self.set_model(self.expedition.lines[self.current_index])
 
         self.populateHeader() 
         self.populateBody() 
-
-
 
     def input_text_changed(self, text):
         if self.automatic_input.isChecked():
@@ -165,3 +163,16 @@ class Form(Ui_ExpeditionForm, QDialog):
     def set_model(self, line):
         self.model = SerieModel(line, self.expedition) 
         self.view.setModel(self.model) 
+
+    
+    def closeEvent(self, event):
+        import db
+        for line in self.expedition.lines:
+            if line.quantity == len(line.series) == 0:
+                db.session.delete(line)
+        try:
+            db.session.commit() 
+        except:
+            db.session.rollback()
+            raise 
+        super().closeEvent(event)             

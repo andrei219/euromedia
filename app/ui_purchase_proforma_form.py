@@ -153,7 +153,9 @@ class Ui_PurchaseProformaForm(object):
         self.tax_combobox = QtWidgets.QComboBox(self.groupBox)
         self.tax_combobox.setGeometry(QtCore.QRect(820, 50, 41, 22))
         self.tax_combobox.setLayoutDirection(QtCore.Qt.LeftToRight)
+        self.tax_combobox.setAutoFillBackground(True)
         self.tax_combobox.setStyleSheet("font-weight:normal; ")
+        self.tax_combobox.setMinimumContentsLength(1)
         self.tax_combobox.setFrame(False)
         self.tax_combobox.setObjectName("tax_combobox")
         self.tax_combobox.addItem("")
@@ -466,10 +468,10 @@ class Ui_PurchaseProformaForm(object):
 
     def retranslateUi(self, PurchaseProformaForm):
         _translate = QtCore.QCoreApplication.translate
-        PurchaseProformaForm.setWindowTitle(_translate("PurchaseProformaForm", "Purchase Proforma"))
+        PurchaseProformaForm.setWindowTitle(_translate("PurchaseProformaForm", "Purchase Proforma / Invoice"))
         self.label.setText(_translate("PurchaseProformaForm", "Header"))
         self.deleteButton.setText(_translate("PurchaseProformaForm", "Delete "))
-        self.save_button.setText(_translate("PurchaseProformaForm", "Save and Exit"))
+        self.save_button.setText(_translate("PurchaseProformaForm", "SAVE"))
         self.label_28.setText(_translate("PurchaseProformaForm", "External Document Nº:"))
         self.label_29.setText(_translate("PurchaseProformaForm", "Tracking: "))
         self.groupBox.setTitle(_translate("PurchaseProformaForm", "Create Line:"))

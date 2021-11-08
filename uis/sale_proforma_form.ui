@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1401</width>
+    <width>1320</width>
     <height>998</height>
    </rect>
   </property>
@@ -16,7 +16,7 @@
    </font>
   </property>
   <property name="windowTitle">
-   <string>Sale Proforma From Current Stock</string>
+   <string>Sale Proforma / Invoice</string>
   </property>
   <property name="toolTip">
    <string>Press Return Key to see the results </string>
@@ -1241,14 +1241,27 @@
   <widget class="QPushButton" name="delete_selected_stock">
    <property name="geometry">
     <rect>
-     <x>1110</x>
+     <x>1120</x>
      <y>770</y>
-     <width>91</width>
+     <width>81</width>
      <height>31</height>
     </rect>
    </property>
    <property name="text">
     <string>Delete</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="deselect">
+   <property name="geometry">
+    <rect>
+     <x>1210</x>
+     <y>280</y>
+     <width>81</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Deselect</string>
    </property>
   </widget>
  </widget>

@@ -20,6 +20,7 @@ from db import PurchaseProforma, PurchaseDocument, SaleDocument, SaleProforma
 
 PASSWORD = '0010'
 
+
 PREFIXES = [
     'agents_', 
     'partners_', 
@@ -59,7 +60,7 @@ ACTIONS = [
     'create_condition', 
     'change_condition', 
     'check_inventory', 
-    'create_product'
+    'create_product', 
 ]
 
 class MainGui(Ui_MainGui, QMainWindow):
@@ -80,14 +81,42 @@ class MainGui(Ui_MainGui, QMainWindow):
         self.main_tab.currentChanged.connect(self.tab_changed)
 
 
+        self.proformas_purchases_view.selectionModel().\
+            selectionChanged.connect(self.proformas_purchases_selection_changed)
+
+        self.proformas_sales_view.selectionModel().\
+            selectionChanged.connect(self.proformas_sales_selection_changed)
+
+
+        # self.invoices_sales_view.selectionModel().\
+        #     selectionChanged.connect(self.invoices_sales_selection_changed)
+        
+        # self.invoices_purchases_view.selectionModel().\
+        #     selectionChanged.connect(self.invoices_purchases_selection_changed)
+
+    def selection_changed_generic(self, view):
+        rows = {i.row() for i in view.selectedIndexes()}
+        total, paid = 0, 0
+        for row in rows:
+            doc = view.model()[row] 
+            paid += sum(p.amount for p in doc.payments)
+            total += sum(
+                line.price * line.quantity 
+                for line in doc.lines
+            )
+
+        name = view.objectName() 
+        prefix = name[0:name.rfind('_') +  1]
+
+        getattr(self, prefix + 'total').setText('Total: ' + str(total))
+        getattr(self, prefix + 'paid').setText('Paid ' + str(paid))
+
     def init_models(self):
         for prefix in PREFIXES:
             self.set_mv(prefix)
 
     def set_mv(self, prefix, search_key=None, filters=None):
-        
         from utils import setCommonViewConfig
-        
         if prefix == 'agents_':
             self.agents_model = models.AgentModel(search_key=search_key)
             self.agents_view.setModel(self.agents_model) 
@@ -154,6 +183,8 @@ class MainGui(Ui_MainGui, QMainWindow):
             self.warehouse_expeditions_view.setSortingEnabled(True)
 
     def set_handlers(self):
+
+
         for prefix in PREFIXES:
             for action in ACTIONS:
                 try:
@@ -180,6 +211,7 @@ class MainGui(Ui_MainGui, QMainWindow):
                 handler = getattr(self, prefix + action + '_handler')
                 widget = getattr(self, prefix + action)
                 widget.clicked.connect(handler) 
+        
         except AttributeError:
             raise         
 
@@ -231,7 +263,6 @@ class MainGui(Ui_MainGui, QMainWindow):
 
 
     def apply_handler(self):
-        print('apply_handler')
         object_name = self.sender().objectName()
         prefix = object_name[0:object_name.rfind('_') + 1]
         filters = self.get_filters(prefix=prefix)
@@ -318,6 +349,9 @@ class MainGui(Ui_MainGui, QMainWindow):
             self.opened_windows_classes.add(partner_form.PartnerForm)
 
     # Proformas purchases handlers:
+    def proformas_purchases_selection_changed(self, selection_model):
+        self.selection_changed_generic(self.proformas_purchases_view)
+
     def proformas_purchases_double_click_handler(self, index):
         self.proformas_purchases_launch_form(index)
 
@@ -466,15 +500,16 @@ class MainGui(Ui_MainGui, QMainWindow):
             return self.proformas_purchases_model.proformas[rows.pop()]
     
     # PROFORMAS SALES HANDLERS
+    def proformas_sales_selection_changed(self):
+        self.selection_changed_generic(self.proformas_sales_view)
+       
     def proformas_sales_new_handler(self):
         self.launch_sale_proforma_form() 
 
     def proformas_sales_double_click_handler(self, index):
-        print('note xecte')
         self.launch_sale_proforma_form(index)
 
     def proformas_sales_cancel_handler(self):
-        print('cancel')
         indexes = self.proformas_sales_view.selectedIndexes() 
         if not indexes:
             return
@@ -565,7 +600,6 @@ class MainGui(Ui_MainGui, QMainWindow):
                         'Could not build Invoice From Proforma')
 
     def proformas_sales_towh_handler(self, invoice=None):
-        print('aaa')
         if invoice:
             proforma = invoice
         else:
@@ -575,7 +609,7 @@ class MainGui(Ui_MainGui, QMainWindow):
         try:
             # Hay que meter el codigo de la prioridad aqui.
             if not self.proformas_sales_model.\
-                physicalStockAvailable(proforma.warehouse_id, proforma.lines):
+                stock_available(proforma.warehouse_id, proforma.lines):
                 QMessageBox.critical(
                     self, 
                     'Error',
@@ -622,29 +656,21 @@ class MainGui(Ui_MainGui, QMainWindow):
             return self.proformas_sales_model.proformas[rows.pop()]
 
     def launch_sale_proforma_form(self, index=None, proforma=None):
-        if proforma:
-            print('if proforma')
-            self.esp = sale_proforma_form.EditableForm(
-                self, 
-                self.proformas_sales_view, 
-                proforma
-            )
-            self.esp.show() 
-        elif index:
+        try:
             proforma = self.proformas_sales_model.proformas[index.row()]
-            self.esp = sale_proforma_form.EditableForm(
-                self, 
-                self.proformas_sales_view, 
-                proforma
-            )
-            self.esp.show()
-        else:
-            self.sp = sale_proforma_form.Form(
-                self, 
-                self.proformas_sales_view)
-            self.sp.show() 
+        except AttributeError:
+            pass
+        self.sp = sale_proforma_form.get_form(
+            self, 
+            self.proformas_sales_view, 
+            proforma
+        )
+        self.sp.show()
 
     # PURCHASE INVOICE HANDLERS:
+    def invoices_purchases_selection_changed(self):
+        self.selection_changed_generic(self.invoices_purchases_view)
+
     def invoices_purchases_payments_handler(self):
         invoice = self.get_purchases_invoice() 
         self.proformas_purchases_payments_handler(invoice=invoice)
@@ -666,7 +692,7 @@ class MainGui(Ui_MainGui, QMainWindow):
         self.proformas_purchases_expenses_handler(invoice=invoice)
 
     def invoices_purchases_double_click_handler(self, index):
-        proforma = self.invoices_purchases_model.invoices[index.row()]
+        proforma = self.invoices_purchases_model[index.row()]
         self.proformas_purchases_launch_form(proforma=proforma)
     
     def invoices_purchases_pdf_handler(self):
@@ -682,6 +708,9 @@ class MainGui(Ui_MainGui, QMainWindow):
         )
 
     # SALE INVOICE HANDLER:
+    def invoices_sales_selection_changed(self):
+        self.selection_changed_generic(self.invoices_purchases_view)
+
     def invoices_sales_payments_handler(self):
         invoice = self.get_sales_invoice() 
         self.proformas_sales_payments_handler(invoice=invoice)
@@ -791,7 +820,7 @@ class MainGui(Ui_MainGui, QMainWindow):
         password = getPassword(self)
         if password == PASSWORD:
             d.exec_() 
-
+    
     def tools_change_spec_handler(self):
         if models.stock_gap():
             QMessageBox.information(self, 'Information', 'Process all sales first.')
@@ -831,7 +860,7 @@ class MainGui(Ui_MainGui, QMainWindow):
     def tab_changed(self, index):
         # Clean up the filters also 
         # And complete the rest of the models
-        self.refresh_session() 
+        self.refresh_data() 
         
         if index == 0:
            self.set_mv('agents_')
@@ -849,7 +878,7 @@ class MainGui(Ui_MainGui, QMainWindow):
             self.set_mv('warehouse_incoming_rmas_')
             self.set_mv('warehouse_outgoing_rmas_')
 
-    def refresh_session(self):
+    def refresh_data(self):
         models.refresh_session() 
         models.refresh_maps() 
 

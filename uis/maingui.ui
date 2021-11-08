@@ -1434,6 +1434,38 @@
          </rect>
         </property>
        </widget>
+       <widget class="QLabel" name="proformas_purchases_total">
+        <property name="geometry">
+         <rect>
+          <x>900</x>
+          <y>616</y>
+          <width>271</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">font-weight:bold; </string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+       <widget class="QLabel" name="proformas_purchases_paid">
+        <property name="geometry">
+         <rect>
+          <x>1230</x>
+          <y>618</y>
+          <width>261</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">font-weight:bold</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
       </widget>
       <widget class="QWidget" name="proformas_sales_tab">
        <attribute name="icon">
@@ -2424,8 +2456,40 @@
           <x>220</x>
           <y>40</y>
           <width>1591</width>
-          <height>601</height>
+          <height>571</height>
          </rect>
+        </property>
+       </widget>
+       <widget class="QLabel" name="proformas_sales_total">
+        <property name="geometry">
+         <rect>
+          <x>930</x>
+          <y>620</y>
+          <width>281</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">font-weight:bold; </string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+       <widget class="QLabel" name="proformas_sales_paid">
+        <property name="geometry">
+         <rect>
+          <x>1270</x>
+          <y>620</y>
+          <width>271</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">font-weight:bold; </string>
+        </property>
+        <property name="text">
+         <string/>
         </property>
        </widget>
       </widget>
@@ -3325,6 +3389,38 @@
          </rect>
         </property>
        </widget>
+       <widget class="QLabel" name="invoices_purchases_total">
+        <property name="geometry">
+         <rect>
+          <x>900</x>
+          <y>620</y>
+          <width>271</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">font-weight:bold; </string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+       <widget class="QLabel" name="invoices_purchases_paid">
+        <property name="geometry">
+         <rect>
+          <x>1210</x>
+          <y>620</y>
+          <width>371</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">font-weight:bold; </string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
       </widget>
       <widget class="QWidget" name="invoices_sales_tab">
        <attribute name="icon">
@@ -4209,8 +4305,40 @@
           <x>220</x>
           <y>40</y>
           <width>1601</width>
-          <height>601</height>
+          <height>571</height>
          </rect>
+        </property>
+       </widget>
+       <widget class="QLabel" name="invoices_sales_total">
+        <property name="geometry">
+         <rect>
+          <x>950</x>
+          <y>620</y>
+          <width>201</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">font-weight:bold</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+       <widget class="QLabel" name="invoices_sales_paid">
+        <property name="geometry">
+         <rect>
+          <x>1220</x>
+          <y>620</y>
+          <width>251</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">font-weight:bold; </string>
+        </property>
+        <property name="text">
+         <string/>
         </property>
        </widget>
       </widget>

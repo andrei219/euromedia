@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Purchase Proforma</string>
+   <string>Purchase Proforma / Invoice</string>
   </property>
   <property name="windowIcon">
    <iconset resource="../app/icons.qrc">
@@ -98,7 +98,7 @@
     <string notr="true">background:lightgray; </string>
    </property>
    <property name="text">
-    <string>EXIT</string>
+    <string>SAVE</string>
    </property>
    <property name="icon">
     <iconset resource="../app/icons.qrc">

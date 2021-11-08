@@ -558,15 +558,14 @@ class SaleProformaLine(Base):
     proforma_id = Column(Integer, ForeignKey('sale_proformas.id'), nullable=False)
 
     item_id = Column(Integer, ForeignKey('items.id'), nullable=True)
-    mixed_group_id = Column(Integer, nullable=True)
+    mix_id = Column(Integer, nullable=True)
 
-    
     # No stock related line 
     description = Column(String(100)) 
 
-    condition = Column(String(50), nullable=False)
+    condition = Column(String(50), nullable=True)
     showing_condition = Column(String(50), nullable=True)
-    spec = Column(String(50), nullable=False)
+    spec = Column(String(50), nullable=True)
     ignore_spec = Column(Boolean, nullable=False, default=False) 
     quantity = Column(Integer, nullable=False, default=1)
     price = Column(Numeric(10, 2, asdecimal=False), nullable=False, default=1.0)
@@ -577,10 +576,11 @@ class SaleProformaLine(Base):
         'SaleProforma', 
         backref=backref(
             'lines', 
-            cascade = 'delete-orphan, delete, save-update'
+            cascade = 'delete-orphan, delete, save-update', 
+            # lazy = 'joined'
         )
     )
-    
+    # options lazyjoined to the query 
     __table_args__ = (
         UniqueConstraint('id', 'proforma_id'), 
     )
@@ -600,12 +600,16 @@ class SaleProformaLine(Base):
             other.spec == self.spec
         ))
     
-    def __hash__(self, other):
-        hashes = (hash(x) for x in (self.item_id, self.spec, self.condition))
+    def __hash__(self):
+        hashes = (hash(x) for x in (
+            self.item_id, self.spec, self.condition, self.description)
+        )
         return functools.reduce(operator.xor, hashes, 0)
    
     def __repr__(self):
-        return repr(self.__dict__)
+        classname = self.__class__.__name__
+        return f"{classname}(item_id={self.item_id}, condition={self.condition}, spec={self.spec})"
+
 
 
 class AdvancedLine(Base):
@@ -616,7 +620,13 @@ class AdvancedLine(Base):
     origin_id = Column(Integer, ForeignKey('purchase_proforma_lines.id'))
     asked = Column(Integer, nullable=False) 
 
-    origin = relationship('PurchaseProformaLine', backref=backref('advanced_lines'))
+    origin = relationship(
+        'PurchaseProformaLine', 
+        backref=backref(
+            'advanced_lines', 
+            cascade = 'delete-orphan, delete, save-update'
+            )
+        )
 
 class Expedition(Base):
     
@@ -652,15 +662,7 @@ class ExpeditionLine(Base):
     item = relationship('Item', uselist=False)
     expedition = relationship('Expedition', backref=backref('lines'))
 
-    def __init__(self, expedition, item, condition, spec, quantity):
-        self.expedition = expedition
-        self.item = item
-        self.condition = condition
-        self.spec = spec
-        self.quantity = quantity
-
-
-    # Remember ooperation with sale proforma line:
+     # Remember operation with sale proforma line:
     def __eq__(self, other):
         return all((
             other.item_id == self.item_id, 
@@ -668,9 +670,15 @@ class ExpeditionLine(Base):
             other.spec == self.spec
         ))
 
-    def __hash__(self, other):
+    def __hash__(self):
         hashes = (hash(x) for x in (self.item_id, self.spec, self.condition))
         return functools.reduce(operator.xor, hashes, 0) 
+
+    
+    def __repr__(self):
+        classname = self.__class__.__name__
+        return f"{classname}(item_id={self.item_id}, condition={self.condition}, spec={self.spec})"
+
 
 
     __table_args__ = (
@@ -1113,17 +1121,87 @@ class ConditionChange(Base):
     created_on = Column(DateTime, default=datetime.now) 
 
 
-def create_line():
+def create_lines():
 
     line = SaleProformaLine()
     line.proforma_id = 1
+    line.mix_id = 0 
     line.item_id = 1
     line.spec = 'EEUU'
     line.condition = 'B+'
     line.quantity = 3 
     line.price = 145.2
+    session.add(line)     
     
+    line = SaleProformaLine()
+    line.proforma_id = 1
+    line.mix_id = 0
+    line.item_id = 1
+    line.condition = 'NEW'
+    line.spec = 'EEUU'
+    line.quantity = 10
+    line.price = 100
     session.add(line)
+
+    line = SaleProformaLine()
+    line.proforma_id = 1
+    line.mix_id = 0
+    line.item_id = 1
+    line.condition = 'NEW'
+    line.spec = 'FRANCE'
+    line.quantity = 7
+    line.price = 100 
+
+    session.add(line)
+
+    line = SaleProformaLine()
+    line.proforma_id = 1
+    line.mix_id = 0
+    line.item_id = 4 
+    line.condition = 'NEW'
+    line.spec = 'FRANCE'
+    line.quantity = 4 
+    line.price = 100
+    session.add(line) 
+
+    line = SaleProformaLine()
+    line.proforma_id = 1
+    line.item_id = None
+    line.condition = None
+    line.spec = None
+    line.quantity = 10
+    line.description = 'Servicios de transporte'
+
+    session.add(line)     
+
+
+    line = SaleProformaLine() 
+    line.proforma_id = 1
+    line.mix_id = 1
+    line.item_id = 1
+    line.item_id = 4
+    line.spec = 'EEUU'
+    line.condition = 'USED'
+    session.add(line) 
+    
+    line = SaleProformaLine()
+    line.proforma_id = 1
+    line.item_id = 3
+    line.condition = 'NEW'
+    line.spec = 'EEEUU'
+    line.mix_id = 1
+    session.add(line) 
+
+    line = SaleProformaLine()
+    line.proforma_id = 1
+    line.item_id = None
+    line.condition = None
+    line.spec = None
+    line.quantity = 10
+    line.description = 'Servicios de transporte2'
+
+    session.add(line) 
+
     session.commit()
 
 def create_mask():
@@ -1165,8 +1243,8 @@ if __name__ == '__main__':
     except IndexError:
         create_and_populate() 
         # create_sale(1)
-        # create_line()
+        # create_lines()
         # create_mask()
-
+    
 
 

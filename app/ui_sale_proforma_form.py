@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_SalesProformaForm(object):
     def setupUi(self, SalesProformaForm):
         SalesProformaForm.setObjectName("SalesProformaForm")
-        SalesProformaForm.resize(1401, 998)
+        SalesProformaForm.resize(1320, 998)
         font = QtGui.QFont()
         font.setPointSize(10)
         SalesProformaForm.setFont(font)
@@ -391,8 +391,11 @@ class Ui_SalesProformaForm(object):
         self.showing_condition.setGeometry(QtCore.QRect(340, 40, 131, 22))
         self.showing_condition.setObjectName("showing_condition")
         self.delete_selected_stock = QtWidgets.QPushButton(SalesProformaForm)
-        self.delete_selected_stock.setGeometry(QtCore.QRect(1110, 770, 91, 31))
+        self.delete_selected_stock.setGeometry(QtCore.QRect(1120, 770, 81, 31))
         self.delete_selected_stock.setObjectName("delete_selected_stock")
+        self.deselect = QtWidgets.QPushButton(SalesProformaForm)
+        self.deselect.setGeometry(QtCore.QRect(1210, 280, 81, 31))
+        self.deselect.setObjectName("deselect")
 
         self.retranslateUi(SalesProformaForm)
         self.tax.setCurrentIndex(3)
@@ -401,7 +404,7 @@ class Ui_SalesProformaForm(object):
 
     def retranslateUi(self, SalesProformaForm):
         _translate = QtCore.QCoreApplication.translate
-        SalesProformaForm.setWindowTitle(_translate("SalesProformaForm", "Sale Proforma From Current Stock"))
+        SalesProformaForm.setWindowTitle(_translate("SalesProformaForm", "Sale Proforma / Invoice"))
         SalesProformaForm.setToolTip(_translate("SalesProformaForm", "Press Return Key to see the results "))
         self.groupBox_4.setTitle(_translate("SalesProformaForm", "Selected Stock Per Mixed Line:"))
         self.groupBox.setTitle(_translate("SalesProformaForm", "LINES:"))
@@ -471,3 +474,4 @@ class Ui_SalesProformaForm(object):
         self.label_30.setText(_translate("SalesProformaForm", "Unit/Price"))
         self.showing_condition.setPlaceholderText(_translate("SalesProformaForm", "Showing condition..."))
         self.delete_selected_stock.setText(_translate("SalesProformaForm", "Delete"))
+        self.deselect.setText(_translate("SalesProformaForm", "Deselect"))

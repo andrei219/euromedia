@@ -1,5 +1,7 @@
 from collections import namedtuple
 
+from collections.abc import Iterable
+
 from PyQt5 import QtCore
 from PyQt5.QtCore import Qt
 from PyQt5.QtCore import QModelIndex
@@ -21,6 +23,9 @@ from exceptions import DuplicateLine, SeriePresentError, LineCompletedError
 from bidict import bidict
 
 from utils import parse_date
+
+from pipe import traverse
+
 
 # COLORS:
 # RED FOR CANCELLED
@@ -47,7 +52,7 @@ class BaseTable:
 	def rowCount(self, index=QModelIndex()):
 		return len(getattr(self, self.name))
 
-def map(db_class):
+def mymap(db_class):
 	return {o.fiscal_name:o.id for o in db.session.query(db_class.fiscal_name, db_class.id).\
 		where(db_class.active == True)}
 
@@ -76,12 +81,13 @@ specs = {s.description for s in db.session.query(db.Spec)}
 conditions = {c.description for c in db.session.query(db.Condition)}
 
 
-partner_id_map = map(db.Partner)
-agent_id_map = map(db.Agent)
+partner_id_map =mymap(db.Partner)
+agent_id_map =mymap(db.Agent)
 
 courier_id_map = {c.description:c.id for c in db.session.query(db.Courier)}
 warehouse_id_map = {w.description:w.id for w in db.session.query(db.Warehouse)}
 
+print(warehouse_id_map)
 
 def refresh_maps():
 	global descriptions, description_id_map, specs, \
@@ -93,15 +99,20 @@ def refresh_maps():
 	specs = {s.description for s in db.session.query(db.Spec)}
 	conditions = {c.description for c in db.session.query(db.Condition)}
 
-	partner_id_map = map(db.Partner)
-	agent_id_map = map(db.Agent)
+	partner_id_map =mymap(db.Partner)
+	agent_id_map =mymap(db.Agent)
 
 	courier_id_map = {c.description:c.id for c in db.session.query(db.Courier)}
 	warehouse_id_map = {w.description:w.id for w in db.session.query(db.Warehouse)}
 
 def refresh_session():
 	db.refresh_session() 
-	
+
+
+def refresh():
+	refresh_session()
+	refresh_maps() 
+
 def computeCreditAvailable(partner_id):
 
 	max_credit = db.session.query(db.Partner.amount_credit_limit).\
@@ -206,6 +217,8 @@ def stock_gap():
 	return not all(
 		completed(expedition)
 		for expedition in db.session.query(db.Expedition)
+		.join(db.SaleProforma)
+		.where(db.SaleProforma.cancelled == False)
 		.order_by(db.Expedition.id.desc())
 	)
 
@@ -657,6 +670,14 @@ class SaleInvoiceModel(QtCore.QAbstractTableModel):
 	def __getattr__(self, name):
 		if name == 'invoices':
 			return self.parent_model.proformas 
+		else:
+			return getattr(self, name) 
+	
+	def __getitem__(self, index):
+		return self.invoices[index] 
+
+	
+
 
 class PurchaseInvoiceModel(QtCore.QAbstractTableModel):
 	
@@ -726,6 +747,11 @@ class PurchaseInvoiceModel(QtCore.QAbstractTableModel):
 	def __getattr__(self, name):
 		if name == 'invoices':
 			return self.parent_model.proformas 
+		else:
+			return getattr(self, name)
+	
+	def __getitem__(self, index):
+		return self.invoices[index]
 
 class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
 	
@@ -750,11 +776,34 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
 			query = query.where(db.PurchaseProforma.invoice != None)
 
 		if search_key:
-			predicate = or_(
-				db.Agent.fiscal_name.contains(search_key),
-				db.Partner.fiscal_name.contains(search_key)
-			) 
-			query = query.where(predicate)
+			predicates = []
+			predicates.extend(
+				[
+					db.Agent.fiscal_name.contains(search_key),
+					db.Partner.fiscal_name.contains(search_key)
+				]
+			)
+			
+			try:
+				date = parse_date(search_key)
+			except ValueError:
+				pass
+			else:
+				predicates.extend(
+					[
+						db.PurchaseProforma.eta == date, 
+						db.PurchaseProforma.date == date
+					]
+				)
+			
+			try:
+				n = int(search_key)
+			except ValueError:
+				pass 
+			else:
+				predicates.append(db.PurchaseProforma.number == n)
+			
+			query = query.where(or_(*predicates))
 
 		if filters:
 			self.proformas = query.all() 
@@ -797,6 +846,10 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
 				self.proformas = list(self.proformas) 
 		else:
 			self.proformas = query.all() 
+
+
+	def __getitem__(self, index):
+		return self.proformas[index]
 
 	def data(self, index, role=Qt.DisplayRole):
 		if not index.isValid():
@@ -1014,8 +1067,7 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
 			db.session.rollback()
 			raise 
 		
-	def updateAdvancedSale(self, proforma):
-		return True 
+	
 
 class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 	
@@ -1032,18 +1084,38 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 			select_from(db.Agent, db.Partner).\
 				where(
 					db.Agent.id == db.SaleProforma.agent_id, 
-					db.Partner.id == db.SaleProforma.partner_id
+					db.Partner.id == db.SaleProforma.partner_id, 
+					db.Warehouse.id == db.SaleProforma.warehouse_id
 				)
 
 		if proxy:
 			self._headerData.append('From proforma')
 			query = query.where(db.SaleProforma.invoice != None)
 		if search_key:
-			predicate = or_(
-				db.Agent.fiscal_name.contains(search_key), 
-				db.Partner.fiscal_name.contains(search_key)
-			) 
-			query = query.where(predicate)
+			predicates = [] 
+			predicates.extend(
+				[
+					db.Agent.fiscal_name.contains(search_key), 
+					db.Partner.fiscal_name.contains(search_key), 
+					db.Warehouse.description.contains(search_key)
+				]
+			)
+
+			try:
+				date = parse_date(search_key)
+			except ValueError:
+				pass 
+			else:
+				predicates.append(db.SaleProforma.date == date)			
+
+			try:
+				n = int(search_key)
+			except:
+				pass
+			else:
+				predicates.append(db.SaleProforma.number == n)
+
+			query = query.where(or_(*predicates))
 
 		if filters:
 			self.proformas = query.all() 
@@ -1168,6 +1240,9 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 					else QtGui.QColor(RED )
 
 
+	def __getitem__(self, index):
+		return self.proformas[index]
+
 	def sort(self, section, order):
 		reverse = True if order == Qt.AscendingOrder else False
 		if section == SaleProformaModel.TYPE_NUM:
@@ -1247,245 +1322,239 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 		expedition = db.Expedition(proforma, note) 
 		db.session.add(expedition) 
 		for line in proforma.lines:
-			db.session.add(db.ExpeditionLine(expedition, line.item, line.condition,\
-				line.spec, line.quantity))    
+			exp_line = db.ExpeditionLine()
+			exp_line.item_id = line.item_id
+			exp_line.condition = line.condition
+			exp_line.spec = line.spec 
+			exp_line.quantity = line.quantity
+			exp_line.expedition = expedition
 		try:
 			db.session.commit() 
 		except:
 			db.session.rollback() 
 			raise
 
-	
-	def physicalStockAvailable(self, warehouse_id, lines):
-		matches = 0 
-		lines_number = len(lines)
-		
+	def stock_available(self, wh_id, lines):
+
 		for line in lines:
-			for stock in db.session.query(func.count(db.Imei.imei).label('quantity'), db.Imei.item_id, db.Imei.condition, \
-				db.Imei.spec).join(Warehouse).where(Warehouse.id == warehouse_id).\
-					group_by(db.Imei.item_id, db.Imei.spec, db.Imei.condition):
-						if line.item_id == stock.item_id and line.condition == stock.condition and \
-							line.spec == stock.spec:
-								if line.quantity <= stock.quantity:
-									matches += 1 
-		return len(lines) == matches
+			print(line)
+		query = db.session.query(
+			func.count(db.Imei.imei).label('quantity'), 
+			db.Imei.item_id, db.Imei.condition, 
+			db.Imei.spec
+		).join(db.Warehouse).where(
+			db.Warehouse.id == wh_id
+		).group_by(
+			db.Imei.item_id, db.Imei.spec, db.Imei.condition
+		)
+		return any((
+			line.quantity > stock.quantity
+			for line in lines
+			for stock in query 
+		))
 
-class SaleProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 
-	DESCRIPTION, CONDITION, SHOWING_CONDITION, SPEC, IGNORING_SPEC, \
-		QUANTITY, PRICE, SUBTOTAL, TAX, TOTAL = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 
+	def build_expedition_line(self, line, expedition):
+		exp_line = db.ExpeditionLine()
+		exp_line.condition = line.condition
+		exp_line.spec = line.spec 
+		exp_line.item_id = line.item_id 
+		exp_line.quantity = line.quantity
 
-	# Need to change the data structure into a dict like:
-	# {
-	#   0: SaleProformaLine(···), 
-	#   1: [
-	#           SaleProformaLine(···), 
-	#           SaleProformaLine(···), 
-	#           SaleProformaLIne(···)
-	#       ], 
-	#   n : SaleProformaLine(···)
-	# 
-	# }
-	# The data method will be more inteligent exposing 
-	# simply the line like already does or 
-	# building a mixed representation of the lines 
-	# if the value in the dictionary is a list
-	# simple type checking 
+		exp_line.expedition = expedition
 
-	def __init__(self):
-		super().__init__() 
-		self._headerData = ['Description', 'Condition', 'Showing Condt.', 'Spec', \
-			'Ignoring Spec?','Qty.', 'Price', 'Subtotal', 'Tax', 'Total']   
-		self.name = '_lines'
-		self._lines = {} 
+	def updateWarehouse(self, proforma):
+		if proforma.expedition is None:
+			return 
 
+		warehouse_lines = set(proforma.expedition.lines)
+
+		proforma_lines = set(
+			filter(
+				lambda line: line.item_id in description_id_map.values(), 
+				proforma.lines
+			)
+		)
+
+		added_lines = proforma_lines.difference(warehouse_lines)
+		for line in added_lines:
+			self.build_expedition_line(line, proforma.expedition)
+		
+		deleted_lines = warehouse_lines.difference(proforma_lines) 
+		for line in deleted_lines:
+			line.quantity = 0
+			if sum(1 for serie in line.series) == 0:
+				db.session.delete(line) 
+
+		for proforma_line in proforma_lines:
+			for exp_line in proforma.expedition.lines:
+				if exp_line == proforma_line:
+					exp_line.quantity = proforma_line.quantity
+		
+		try:
+			db.session.commit()
+		except:
+			db.session.rollback()
+			raise 
+
+
+from collections.abc import Iterable 
+
+
+def copy_line(line):
+	l = db.SaleProformaLine() 
+	l.item_id = line.item_id
+	l.spec = line.spec
+	l.condition = line.condition
+	l.quantity = line.quantity
+	return l 
+
+
+class OrganizedLines:
+
+	def __init__(self, lines):
+		self.instrumented_lines = lines 
+		self.initial_lines = [copy_line(line) for line in lines]
+		self.organized_lines = self.organize_lines(lines) 
+		self.next_mix = self.get_next_mix()
 
 	@property
 	def lines(self):
-		lines = []
-		for index in self._lines:
-			if type(self._lines[index]) == db.SaleProformaLine:
-				lines.append(self._lines[index])
-			elif type(self._lines[index]) == list:
-				lines.extend(self._lines[index])
-		return lines
+		return self.instrumented_lines
 
-	def data(self, index, role=Qt.DisplayRole):
-		if not index.isValid():
-			return 
-		row = index.row() 
-		line = self._lines[row]
-		col = index.column() 
-		if role == Qt.DisplayRole:
-			if type(line) == db.SaleProformaLine:
-				return self._return_simple_line(line, col) 
-			elif type(line) == list:
-				return self._return_complex_line(line, col) 
+	@property
+	def added_lines(self):
+		return set(self.instrumented_lines).\
+			difference(set(self.initial_lines)) 
 
-	def setData(self, index, value, role=Qt.EditRole):
-		if not index.isValid():return
-		row, column = index.row(), index.column() 
-		line = self.lines[row]
-		if role == Qt.EditRole:
-			if column == self.__class__.DESCRIPTION:
-				line.description = value
-				print(value)
-				return True 
-			elif column == self.__class__.PRICE:
-				try:
-					value = float(value)
-				except: return False
-				else:
-					line.price = value 
-					return False 
-			elif column == self.__class__.QUANTITY:
-				try:
-					value = int(value)
-				except: return False 
-				else:
-					line.quantity = value 
-					return True 
-			elif column == self.__class__.TAX:
-				try:
-					value = int(value)
-					if value not in (0, 4, 10, 21):
-						return False 
-				except:return False 
-				else:
-					line.tax = value
-					return True 
-			else: 
-				return False 
-		return False
+	@property
+	def deleted_lines(self):
+		return set(self.initial_lines).\
+			difference(set(self.instrumented_lines))
 
-	# def flags(self, index):
-	
-	# 	if not index.isValid():return Qt.ItemIsEnabled 
-	# 	row, col = index.row(), index.column() 
-	# 	try:
-	# 		if isinstance(self._lines[row], db.SaleProformaLine):
-	# 			line = self._lines[row]
-	# 			if not self.is_stock_relevant(line) and self.editable_column(col):
-	# 				return Qt.ItemFlags(super().flags(index) | Qt.ItemIsEditable)
-		
-		
-	# 	except KeyError as ex:
-	# 		print('exception:', row, col) 
-	# 	else:
-	# 		return Qt.ItemFlags(~Qt.ItemIsEditable)
-
-
-	def flags(self, index):
-		if not index.isValid(): return Qt.ItemIsEnabled
-		row, col = index.row(), index.column() 
-		if not self.editable_column(col):
-			return Qt.ItemFlags(~Qt.ItemIsEditable)
-		if row >= len(self._lines):
-			return Qt.ItemFlags(~Qt.ItemIsEditable) 
-		if isinstance(self._lines[row], db.SaleProformaLine):
-			line = self._lines[row]
-			if line.item_id is None:
-				return Qt.ItemFlags(super().flags(index) | Qt.ItemIsEditable)
-		return Qt.ItemIsEnabled
-
-	def is_stock_relevant(self, line):
-		return line.item_id in description_id_map.values() \
-			or line.description in descriptions
-
-	def editable_column(self, col):
-		return col in (
-			self.__class__.DESCRIPTION, 
-			self.__class__.QUANTITY, 
-			self.__class__.TAX, 
-			self.__class__.PRICE 
-		)
-
-
-	def insertRows(self, position, rows=1, index=QModelIndex()):
-		self.beginInsertRows(QModelIndex(), position, position + rows - 1)
-		line = db.SaleProformaLine() 
-		line.item_id = None
-		line.description = ''
-		line.mixed_group_id = None
-		line.condition = ''
-		line.spec = ''
-		line.quantity = 1
-		line.price = 1.0
-		line.tax = 0 
-		# next = self._get_next_row_number()
-		self._lines[position] = line
-		self.endInsertRows()
-		return True 
-
-
-	def _return_simple_line(self, line, col):
-		
-		total = round((line.quantity * line.price) * (1 + line.tax/100), 2)
-		subtotal = round(line.quantity * line.price, 2)
-		ignore_spec = 'Yes' if line.ignore_spec else 'No'
-		showing_condition = line.showing_condition or line.condition
-		
-
-		if  col == SaleProformaLineModel.DESCRIPTION:
-			if line.item_id is None:
-				return line.description
-			else:
-				return description_id_map.inverse[line.item_id]
+	def get_next_mix(self):
+		last_mix = db.session.query(func.max(db.SaleProformaLine.mix_id)).scalar()
+		if last_mix is None:
+			last_mix = 0 
 		else:
-			return {
-				# SaleProformaLineModel.DESCRIPTION:description_id_map.inverse[line.item_id], 
-				SaleProformaLineModel.CONDITION:line.condition,
-				SaleProformaLineModel.SHOWING_CONDITION:showing_condition, 
-				SaleProformaLineModel.SPEC:line.spec, 
-				SaleProformaLineModel.IGNORING_SPEC:ignore_spec, 
-				SaleProformaLineModel.SUBTOTAL:str(subtotal),
-				SaleProformaLineModel.PRICE:str(round(line.price, 2)), 
-				SaleProformaLineModel.QUANTITY:str(line.quantity),
-				SaleProformaLineModel.TAX:str(line.tax), 
-				SaleProformaLineModel.TOTAL: str(total)
-			}.get(col) 
+			last_mix += 1
+		return last_mix
+
+	def delete(self, i, j=None):
+		if j is None:
+			lines = self.organized_lines.pop(i)
+			try:
+				for line in lines:
+					self.instrumented_lines.remove(line)
+			except TypeError:
+				self.instrumented_lines.remove(lines) 
+		else:
+			line = self.organized_lines[i].pop(j)
+			try:
+				if len(self.organized_lines[i]) == 1:
+					self.organized_lines[i] = self.organized_lines[i][0]
+				elif not self.organize_lines:
+					del self.organized_lines[i]
+			except IndexError:
+				pass 
 			
-	def _return_complex_line(self, lines, col):
-		diff_items = {line.item_id for line in lines}
-		diff_conditions = {line.condition for line in lines}
-		diff_specs = {line.spec for line in lines}
-		
-		if len(diff_items) == 1:
-			description = description_id_map.inverse[diff_items.pop()]
-		else:
-			description = self._build_description(lines) 
+			self.instrumented_lines.remove(line) 
 
-		if len(diff_conditions) == 1:
-			condition = diff_conditions.pop()
-		else:
-			condition = 'Mix'
-		showing_condition = lines[0].showing_condition
-		
-		if len(diff_specs) == 1:
-			spec = diff_specs.pop()
-		else:
-			spec = 'Mix'
+		self.organized_lines = [
+			e for e in self.organized_lines
+			if e 
+		]
 
-		ignore = 'Yes' if lines[0].ignore_spec else 'No' 
-		price = lines[0].price
-		quantity = sum([line.quantity for line in lines])
-		subtotal = price * quantity
-		tax = lines[0].tax
-		total = subtotal * ( 1 + tax / 100)
-		return {
-			SaleProformaLineModel.DESCRIPTION:description, 
-			SaleProformaLineModel.CONDITION:condition,
-			SaleProformaLineModel.SHOWING_CONDITION:showing_condition, 
-			SaleProformaLineModel.SPEC:spec, 
-			SaleProformaLineModel.IGNORING_SPEC:ignore, 
-			SaleProformaLineModel.SUBTOTAL:str(subtotal), 
-			SaleProformaLineModel.PRICE:str(price), 
-			SaleProformaLineModel.QUANTITY:str(quantity),
-			SaleProformaLineModel.TAX:str(tax), 
-			SaleProformaLineModel.TOTAL: str(total)
-		}.get(col) 
+
+
+	def append(self, price, ignore_spec, tax, showing, *stocks, row=None):
+		if len(stocks) == 0:
+			raise ValueError('At least one stock must be provided')
+		if any((
+			stock == line
+			for line in self.lines
+			for stock in stocks
+		)):
+			raise ValueError("I can't handle duplicate stocks")
+
+		new_lines = [
+			self.build_line(
+				price, ignore_spec, 
+				tax, showing, stock
+			) for stock in stocks
+		]
+
+		if row is not None:
+			group = self.organized_lines[row]
+			if isinstance(group, Iterable):
+				if self.group_conflict(group, *stocks):
+					raise ValueError('You can only mix colors or capacities')
+				mix_id = group[0].mix_id
+				for line in new_lines:
+					line.mix_id = mix_id 
+				group.extend(new_lines) 
+			else:
+				if group.item_id not in description_id_map.values():
+					raise ValueError("You cannot add stocks in this line")
+					if any((
+						self.conflict_check(group)
+						for stock in stocks
+					)):
+						raise ValueError('You can only mix colors or capacities')
+				self.organized_lines[row] = [group] + new_lines
+		else:
+			if len(new_lines) == 1:
+				self.organized_lines.append(new_lines[0])
+			else:
+				if self.group_conflict(stocks, *stocks):
+					raise ValueError('You can only mix colors or capacities')
+				
+				for line in new_lines:
+					line.mix_id = self.next_mix
+				self.organized_lines.append(new_lines) 
+				self.next_mix += 1
 		
-	def _build_description(self, lines):
+		self.instrumented_lines.extend(new_lines) 
+
+	def group_conflict(self, lines, *stocks):
+		return any((
+			self.conflict_check(line, stock)
+			for stock in stocks
+			for line in lines 
+		))
+ 
+	def conflict_check(self, line, stock):
+		line_description = description_id_map.inverse[line.item_id]
+		line_manufacturer, line_category, line_model, *_ = line_description.split() 
+		stock_description = description_id_map.inverse[stock.item_id]
+		stock_manufacturer, stock_category, stock_model , *_ = stock_description.split()
+		return any((
+			line_manufacturer != stock_manufacturer, 
+			line_category != stock_category, 
+			line_model != stock_model
+		))
+
+	def repr(self, row, col):
+		line = self.organized_lines[row]
+		if isinstance(line, Iterable):
+			return self.complex_line_repr(line, col)
+		else:
+			return self.simple_line_repr(line, col)
+	
+	def organize_lines(self, lines):
+		searched, aux = set(), [] 
+		for line in lines:
+			if line.mix_id is None:
+				aux.append(line) 
+			else:
+				if line.mix_id not in searched:
+					aux.append(
+						[l for l in lines if l.mix_id == line.mix_id]
+					)
+					searched.add(line.mix_id)
+		return aux  
+
+	def build_description(self, lines):
 		capacities = set() 
 		for line in lines:
 			for e in description_id_map.inverse[line.item_id].split():
@@ -1516,65 +1585,71 @@ class SaleProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 			capacity, color 
 		])
 
-	@property
-	def tax(self):
-		total_tax = 0
-		for index in self._lines:
-			line_s = self._lines[index]
-			if isinstance(line_s, db.SaleProformaLine):
-				total_tax += self._tax_from_line(line_s) 
-			elif isinstance(line_s, list):
-				total_tax += sum([self._tax_from_line(line) for line in line_s])
-		return total_tax
+	def complex_line_repr(self, lines, col):
+		diff_items = {line.item_id for line in lines}
+		diff_conditions = {line.condition for line in lines}
+		diff_specs = {line.spec for line in lines}
 		
-	def _tax_from_line(self, line):
-		return line.quantity * line.price * line.tax / 100
-
-	@property
-	def subtotal(self):
-		total = 0
-		for index in self._lines:
-			line_s = self._lines[index]
-			if isinstance(line_s, db.SaleProformaLine):
-				total += self._subtotal_from_line(line_s)
-			elif isinstance(line_s, list):
-				total += sum([self._subtotal_from_line(line) for line in line_s])
-		return total
-
-	def _subtotal_from_line(self, line):
-		return line.price * line.quantity
-
-	@property
-	def total(self):
-		return self.tax + self.subtotal
-
-	def add(self, price, ignore, tax, showing, *stocks):
-		if stocks in self:
-			raise ValueError
-
-		next = self._get_next_row_number() 
-		if len(stocks) == 1:
-			stock = stocks[0]
-			self._lines[next] = self._build_line(
-				price, ignore, tax, 
-				showing, stock
-			)
+		if len(diff_items) == 1:
+			description = description_id_map.inverse[diff_items.pop()]
 		else:
-			self._lines[next] = [
-				self._build_line(
-					price, ignore, tax, showing, stock
-				) for stock in stocks
-			] 
-		self.layoutChanged.emit()
+			description = self.build_description(lines) 
 
-	def __contains__(self, stocks):
-		return any((
-			stock == line 
-			for line in self.lines
-			for stock in stocks
-		))
+		if len(diff_conditions) == 1:
+			condition = diff_conditions.pop()
+		else:
+			condition = 'Mix'
+		showing_condition = lines[0].showing_condition
+		
+		if len(diff_specs) == 1:
+			spec = diff_specs.pop()
+		else:
+			spec = 'Mix'
+
+		ignore = 'Yes' if lines[0].ignore_spec else 'No' 
+		price = lines[0].price
+		quantity = sum([line.quantity for line in lines])
+		subtotal = price * quantity
+		tax = lines[0].tax
+		total = subtotal * ( 1 + tax / 100)
+		return {
+			SaleProformaLineModel.DESCRIPTION:description, 
+			SaleProformaLineModel.CONDITION:condition,
+			SaleProformaLineModel.SHOWING_CONDITION:showing_condition, 
+			SaleProformaLineModel.SPEC:spec, 
+			SaleProformaLineModel.IGNORING_SPEC:ignore, 
+			SaleProformaLineModel.SUBTOTAL:str(subtotal), 
+			SaleProformaLineModel.PRICE:str(price), 
+			SaleProformaLineModel.QUANTITY:str(quantity),
+			SaleProformaLineModel.TAX:str(tax), 
+			SaleProformaLineModel.TOTAL: str(total)
+		}.get(col)
 	
-	def _build_line(self, price, ignore, tax, showing, stock):
+	def simple_line_repr(self, line, col):
+		total = round((line.quantity * line.price) * (1 + line.tax/100), 2)
+		subtotal = round(line.quantity * line.price, 2)
+		ignore_spec = 'Yes' if line.ignore_spec else 'No'
+		showing_condition = line.showing_condition or line.condition
+		if  col == SaleProformaLineModel.DESCRIPTION:
+			if line.item_id is None:
+				return line.description
+			else:
+				return description_id_map.inverse[line.item_id]
+		else:
+			return {
+				# SaleProformaLineModel.DESCRIPTION:description_id_map.inverse[line.item_id], 
+				SaleProformaLineModel.CONDITION:line.condition,
+				SaleProformaLineModel.SHOWING_CONDITION:showing_condition, 
+				SaleProformaLineModel.SPEC:line.spec, 
+				SaleProformaLineModel.IGNORING_SPEC:ignore_spec, 
+				SaleProformaLineModel.SUBTOTAL:str(subtotal),
+				SaleProformaLineModel.PRICE:str(round(line.price, 2)), 
+				SaleProformaLineModel.QUANTITY:str(line.quantity),
+				SaleProformaLineModel.TAX:str(line.tax), 
+				SaleProformaLineModel.TOTAL: str(total)
+			}.get(col) 
+
+	def build_line(self, price, ignore, tax, showing, stock, mix_id=None):
 		line = db.SaleProformaLine()
 		line.item_id = stock.item_id
 		line.condition = stock.condition
@@ -1584,105 +1659,101 @@ class SaleProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 		line.quantity = stock.request
 		line.price = price
 		line.tax = tax 
+		line.mix_id = mix_id
 		return line 
 
-	def _get_next_row_number(self):
+
+	def __getitem__(self, index):
 		try:
-			return max(self._lines) + 1
-		except ValueError:
-			return 0
+			return self.organized_lines[index]
+		except IndexError:
+			return None
 
-	def delete(self, indexes):
-		rows = { index.row() for index in indexes}
-		aux_dict = {k:self._lines[k] for k in set(self._lines) - rows}        
-		self._lines = {}
-		for i, v in enumerate(aux_dict.values()):
-			self._lines[i] = v 
-		self.layoutChanged.emit() 
+	def __len__(self):
+		return len(self.organized_lines) 
 
-	def delete_tuple(self, i, j):
-		try:
-			del self._lines[i][j]
-		except KeyError: 
-			return 
-		else:
-			self.correct_lines() 
-			self.layoutChanged.emit() 
+	def __bool__(self):
+		return bool(self.instrumented_lines)
 
-	def correct_lines(self):
-		self._lines = {
-			key:self._lines[key] for key in self._lines
-			if isinstance(self._lines[key], list) and len(self._lines[key]) != 0 
-		}
-
-
-	def save(self, proforma):
-		last_group_number = self._get_last_group_number() 
-		for index in self._lines:
-			line_s = self._lines[index]
-			if isinstance(line_s, db.SaleProformaLine):
-				line_s.proforma = proforma
-				db.session.add(line_s) 
-			elif isinstance(line_s, list):
-				for line in line_s:
-					line.proforma = proforma
-					line.mixed_group_id = last_group_number
-					db.session.add(line) 
-				last_group_number += 1 
-
-		try:
-			db.session.commit() 
-		except:
-			db.session.rollback()
-			raise 	
-
-	def _get_last_group_number(self):
-		last_group_number = db.session.query(func.max(db.SaleProformaLine.mixed_group_id)).scalar()
-		if last_group_number is None:
-			last_group_number = 0 
-		else:
-			last_group_number += 1
-		return last_group_number
-
-	def last_row(self):
-		return len(self._lines) - 1
-
-	def actual_lines_from_mixed(self, index):
-		try:
-			l = self._lines[index]
-		except KeyError:
-			return 
-		else:
-			return l if type(l) == list else None 
-
-class EditableSaleProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
+class SaleProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 	
 	DESCRIPTION, CONDITION, SHOWING_CONDITION, SPEC, IGNORING_SPEC, \
-		QUANTITY, PRICE, SUBTOTAL, TAX, TOTAL = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
+		QUANTITY, PRICE, SUBTOTAL, TAX, TOTAL = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 
 
-	def __init__(self, lines):
-		super().__init__() 
-		self.name = '_lines'
-		self._lines = lines 
+	def __init__(self, proforma):
+		super().__init__()
 		self._headerData = ['Description', 'Condition', 'Showing Condt.', 'Spec', \
 			'Ignoring Spec?','Qty.', 'Price', 'Subtotal', 'Tax', 'Total']
-
+		self.organized_lines = OrganizedLines(proforma.lines)
+		self.name = 'organized_lines'
 
 	def data(self, index, role=Qt.DisplayRole):
-		if not index.isValid(): return
-		row, column = index.row(), index.column()
-		line = self._lines[row]
-		
+		if not index.isValid(): return 
+		row, column = index.row(), index.column() 
 		if role == Qt.DisplayRole:
-			if column == self.__class__.DESCRIPTION:
-				return description_id_map.inverse[line.item_id]
+			return self.organized_lines.repr(row, column) 
+
+	def get_next_mix(self):
+		last_mix = db.session.query(func.max(db.SaleProformaLine.mix_id)).scalar()
+		if last_mix is None:
+			last_mix = 0 
+		else:
+			last_mix += 1
+		return last_mix
+
+	@property 
+	def lines(self):
+		return self.organized_lines.lines 
+
+	@property
+	def tax(self):
+		return sum(map(lambda l:l.tax, self.lines))
+
+	@property
+	def subtotal(self):
+		return sum(
+			line.quantity * line.price * line.tax / 100
+			for line in self.lines 
+		)
+ 
+	@property
+	def total(self):
+		return self.tax + self.subtotal
+
+	@property
+	def deleted_lines(self):
+		return self.organized_lines.deleted_lines
+	
+	@property
+	def added_lines(self):
+		return self.organized_lines.added_lines
+
+	def add(self, price, ignore_spec, tax, showing, *stocks, row=None):
+		self.organized_lines.append(
+			price, 
+			ignore_spec, 
+			tax, showing, 
+			*stocks, 
+			row=row
+		)
+		self.layoutChanged.emit() 
+
+	def delete(self, i, j=None):
+		self.organized_lines.delete(i, j)
+		self.layoutChanged.emit() 
+
+	def actual_lines_from_mixed(self, row):
+		return self.organized_lines[row]
+
+	def __bool__(self):
+		return bool(self.organized_lines)
 
 
 class ActualLinesFromMixedModel(BaseTable, QtCore.QAbstractTableModel):
 
 	DESCRIPTION, CONDITION, SPEC, REQUEST = 0, 1, 2, 3
 
-	def __init__(self, lines):
+	def __init__(self, lines=None):
 		super().__init__() 
 		self._headerData = ['Description', 'Condition', 'spec', 'Requested Quantity']
 		self.name = 'lines'
@@ -2524,7 +2595,8 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
 	DESCRIPTION, CONDITION, SPEC, QUANTITY, REQUEST = \
 		0, 1, 2, 3, 4 
 
-	def __init__(self, warehouse_id, description, condition, spec, lines=None):
+	def __init__(self, warehouse_id, description, condition, spec, 
+	added_lines=None, deleted_lines=None):
 		super().__init__() 
 		self._headerData = ['Description', 'Condition', 'Spec', \
 			'Quantity avail. ', 'Requested quant.']
@@ -2534,10 +2606,12 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
 			description,
 			condition,
 			spec,
-			lines=lines
+			added_lines = added_lines, 
+			deleted_lines = deleted_lines
 		) 
 
-	def computeStock(self, warehouse_id, description, condition, spec, lines=None):
+	def computeStock(self, warehouse_id, description, condition, spec, 
+	added_lines	=None, deleted_lines=None):
 		
 		session = db.Session()
 		
@@ -2668,11 +2742,17 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
 
 		stocks = self.resolve(imeis, imeis_mask, sales, outputs) 
 		
-		if lines:
-			for line in lines:
+		if added_lines:
+			for line in added_lines:
 				for stock in stocks:
 					if stock == line:
 						stock -= line 
+		
+		if deleted_lines:
+			for line in deleted_lines:
+				for stock in stocks:
+					if stock == line:
+						stock += line 
 	
 		return list(filter(lambda stock:stock.quantity > 0, stocks))
 

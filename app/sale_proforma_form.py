@@ -11,7 +11,7 @@ from utils import parse_date, setCompleter
 from ui_sale_proforma_form import Ui_SalesProformaForm
 
 from models import SaleProformaLineModel, ActualLinesFromMixedModel,\
-    StockModel, EditableSaleProformaLineModel
+    StockModel
 
 import db
 
@@ -22,10 +22,6 @@ from db import Agent, Partner, SaleProformaLine, SaleProforma,\
 
 from utils import setCommonViewConfig
 
-from exceptions import DuplicateLine
-
-from quantity_price_form import QuantityPriceForm
-
 
 class Form(Ui_SalesProformaForm, QWidget):
 
@@ -33,18 +29,22 @@ class Form(Ui_SalesProformaForm, QWidget):
         super().__init__() 
         self.setupUi(self) 
         self.model = view.model() 
+        self.init_template() 
         self.parent = parent
-
-        self.lines_model = SaleProformaLineModel()
+        self.lines_model = SaleProformaLineModel(self.proforma)
         self.lines_view.setModel(self.lines_model)
         self.stock_view.setSelectionBehavior(QTableView.SelectRows)
         setCommonViewConfig(self.selected_stock_view)
-    
         
         self.setCombos()
         self.setCompleters()
         self.set_handlers()
 
+
+    def init_template(self):
+        
+        print('init from form')
+        self.proforma = db.SaleProforma() 
         self.date.setText(date.today().strftime('%d%m%Y'))
         self.type.setCurrentText('1')
         self.number.setText(str(self.model.nextNumberOfType(1)).zfill(6))
@@ -61,6 +61,7 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.insert.clicked.connect(self.insert_handler) 
         self.type.currentTextChanged.connect(self.typeChanged)
         self.delete_selected_stock.clicked.connect(self.delete_selected_stock_clicked)
+        self.deselect.clicked.connect(lambda : self.lines_view.clearSelection())
 
     def typeChanged(self, type):
         next_num = self.model.nextNumberOfType(int(type))
@@ -107,6 +108,29 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.they_pay_we_ship.setChecked(they_pay_we_ship) 
         self.we_pay_we_ship.setChecked(we_pay_we_ship) 
 
+    def proforma_to_form(self):
+        p = self.proforma
+        print('proforma to form:', p.warehouse.description)
+
+
+        self.type.setCurrentText(str(p.type))
+        self.number.setText(str(p.number))
+        self.date.setText(p.date.strftime('%d%m%Y'))
+        self.partner.setText(p.partner.fiscal_name)
+        self.agent.setCurrentText(p.agent.fiscal_name)
+        self.warehouse.setCurrentText(p.warehouse.description)
+        self.courier.setCurrentText(p.courier.description)
+        self.incoterms.setCurrentText(p.incoterm)
+        self.warranty.setValue(p.warranty)
+        self.days.setValue(p.credit_days)
+        self.eur.setChecked(p.eur_currency)
+        self.credit.setValue(p.credit_amount)
+        self.external.setText(p.external)
+        self.tracking.setText(p.tracking)
+        self.they_pay_we_ship.setChecked(p.they_pay_we_ship)
+        self.they_pay_they_ship.setChecked(p.they_pay_they_ship)
+        self.we_pay_we_ship.setChecked(p.we_pay_we_ship)
+
     def lines_view_clicked_handler(self):
         self.set_selected_stock_mv() 
 
@@ -117,6 +141,10 @@ class Form(Ui_SalesProformaForm, QWidget):
             return
         else:
             lines = self.lines_model.actual_lines_from_mixed(i)
+     
+            from collections import Iterable
+            if not isinstance(lines, Iterable) or not lines:
+                lines = None
             self.selected_stock_view.setModel(
                 ActualLinesFromMixedModel(lines)
             )
@@ -128,9 +156,10 @@ class Form(Ui_SalesProformaForm, QWidget):
         except KeyError: 
             return 
         else:
-            self.lines_model.delete_tuple(i, j)
+            self.lines_model.delete(i, j)
             self.set_selected_stock_mv() 
             self.set_stock_mv()
+            self.lines_view.clearSelection() 
 
     def search_handler(self):
         if self.filters_unset():
@@ -145,7 +174,9 @@ class Form(Ui_SalesProformaForm, QWidget):
         description = self.description.text()
         condition = self.condition.text()
         spec = self.spec.text() 
-        lines = self.lines_model.lines 
+        deleted_lines = self.lines_model.deleted_lines
+        added_lines = self.lines_model.added_lines 
+
         
         if spec == 'Mix':
             spec = None
@@ -154,7 +185,13 @@ class Form(Ui_SalesProformaForm, QWidget):
             condition = None
         
         self.stock_model = \
-            StockModel(warehouse_id, description, condition, spec, lines) 
+            StockModel(
+                warehouse_id, 
+                description, 
+                condition, spec,
+                deleted_lines = deleted_lines, 
+                added_lines = added_lines
+            ) 
         self.stock_view.setModel(self.stock_model) 
         self.stock_view.resizeColumnsToContents() 
 
@@ -180,24 +217,20 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.lines_view.edit(index) 
 
     def delete_handler(self):
-        indexes = self.lines_view.selectedIndexes()
-        if not indexes:
-            return
         try:
-            self.lines_model.delete(indexes)
-        except:
-            raise 
+            row = {i.row() for i in self.lines_view.selectedIndexes()}.pop()
+        except KeyError:
+            return 
         else:
+            self.lines_model.delete(row)
             self.set_stock_mv()
             self.set_selected_stock_mv() 
+            self.lines_view.clearSelection() 
     
     def add_handler(self):
         if not hasattr(self, 'stock_model'):return
 
         requested_stocks = self.stock_model.requested_stocks
-
-        if not requested_stocks:return 
-        if not self.valid_mix(requested_stocks):return 
 
         price = self.price.value()
         ignore = self.ignore.isChecked()
@@ -205,54 +238,51 @@ class Form(Ui_SalesProformaForm, QWidget):
         showing = self.showing_condition.text() or None
 
         try:
+            row = {i.row() for i in self.lines_view.selectedIndexes()}.pop()
+        except KeyError:
+            row = None
+
+        try:
             self.lines_model.add(
                 price, 
                 ignore, 
                 tax, 
                 showing, 
-                *requested_stocks
+                *requested_stocks, 
+                row=row
             )
-        except ValueError:
-            QMessageBox.critical(self, 'Error', "I can't process duplicate stocks")
-            return 
+        except ValueError as ex:
+            QMessageBox.critical(self, 'Error', str(ex))
+            for stock in requested_stocks:
+                stock.request = 0
         else:
             self.set_stock_mv() 
+            self.set_selected_stock_mv() 
             self.update_total_fields() 
 
-    def valid_mix(self, requested_stocks):
-        s = set() 
-        for stock in requested_stocks:
-            manufacturer, category, model, *_ = \
-                models.description_id_map.inverse[stock.item_id].split() 
-            s.add(''.join((manufacturer, category, model)))
-
-        if len(s) != 1:
-            QMessageBox.critical(
-                self, 
-                'Error', 
-                'You can mix capacity or color'
-            )
-            return False 
-        return True 
 
     def save_handler(self):
-        if not self._valid_header():
+        if not self._valid_header(): return
+        if not self.lines_model:
+            QMessageBox.critical(self, 'Error', 'Cant save empty proforma')
             return 
-        if not self.lines_model.lines:
-            QMessageBox.critical(self, 'Error', "You cant build an empty proforma")
-            return 
-        
-        proforma = self._form_to_proforma()
+        self._form_to_proforma() 
         try:
-            self.model.add(proforma)             
-            self.lines_model.save(proforma) 
+            self.save_template() 
+            db.session.commit() 
         except:
             raise 
         else:
-            QMessageBox.information(self, 'Information',\
-                'Sale saved successfully')
-            self.close()
-    
+            QMessageBox.information(self, 'Success', 'Sale saved successfully')
+            self.close() 
+
+    def save_template(self):
+        self.model.add(self.proforma) 
+
+    def closeEvent(self, event):
+        models.refresh() 
+        self.parent.set_mv('proformas_sales_')
+
     def update_total_fields(self):
         self.proforma_total.setText(str(self.lines_model.total))
         self.proforma_tax.setText(str(self.lines_model.tax))
@@ -271,32 +301,26 @@ class Form(Ui_SalesProformaForm, QWidget):
             return False
         return True
 
-    def _form_to_proforma(self, input_proforma=None):
+    def _form_to_proforma(self):
 
-        if not input_proforma:
-            proforma = db.SaleProforma() 
-        else:
-            proforma = input_proforma
-
-        proforma.type = int(self.type.currentText())
-        proforma.number = int(self.number.text())
-        proforma.date = parse_date(self.date.text())
-        proforma.warranty = self.warranty.value()
-        proforma.they_pay_they_ship = self.they_pay_they_ship.isChecked()
-        proforma.they_pay_we_ship = self.they_pay_we_ship.isChecked() 
-        proforma.we_pay_we_ship = self.we_pay_we_ship.isChecked() 
-        proforma.agent_id = models.agent_id_map[self.agent.currentText()]
-        proforma.partner_id = models.partner_id_map[self.partner.text()]
-        proforma.warehouse_id = models.warehouse_id_map[self.warehouse.currentText()]
-        proforma.courier_id = models.courier_id_map[self.courier.currentText()]
-        proforma.eur_currency = self.eur.isChecked()
-        proforma.credit_amount = self.credit.value()
-        proforma.credit_days = self.days.value() 
-        proforma.incoterm = self.incoterms.currentText() 
-        proforma.external = self.external.text() 
-        proforma.tracking = self.tracking.text() 
-        proforma.note = self.note.toPlainText()[0:255]
-        return proforma
+        self.proforma.type = int(self.type.currentText())
+        self.proforma.number = int(self.number.text())
+        self.proforma.date = parse_date(self.date.text())
+        self.proforma.warranty = self.warranty.value()
+        self.proforma.they_pay_they_ship = self.they_pay_they_ship.isChecked()
+        self.proforma.they_pay_we_ship = self.they_pay_we_ship.isChecked() 
+        self.proforma.we_pay_we_ship = self.we_pay_we_ship.isChecked() 
+        self.proforma.agent_id = models.agent_id_map[self.agent.currentText()]
+        self.proforma.partner_id = models.partner_id_map[self.partner.text()]
+        self.proforma.warehouse_id = models.warehouse_id_map[self.warehouse.currentText()]
+        self.proforma.courier_id = models.courier_id_map[self.courier.currentText()]
+        self.proforma.eur_currency = self.eur.isChecked()
+        self.proforma.credit_amount = self.credit.value()
+        self.proforma.credit_days = self.days.value() 
+        self.proforma.incoterm = self.incoterms.currentText() 
+        self.proforma.external = self.external.text() 
+        self.proforma.tracking = self.tracking.text() 
+        self.proforma.note = self.note.toPlainText()[0:255]
 
     def clear_filters(self):
         self.description.clear()
@@ -304,51 +328,30 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.condition.clear()
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 class EditableForm(Form):
-
-    def __init__(self, parent, view, proforma:db.SaleProforma):
-        super(QWidget, Form).__init__(self) 
-        self.setupUi(self) 
-        self.parent = parent 
-        self.type.setEnabled(False)
-        self.lines_view.setSelectionBehavior(QTableView.SelectRows)
-        self.model = view.model() 
-        try:
-            proforma.invoice
-            self.setWindowTitle('Proforma / Invoice Edit')
-        except AttributeError:
-            self.setWindowTitle('Proforma Edit')
-            
-        self.lines_model = EditableSaleProformaLineModel(proforma.lines)
-        self.lines_view.setModel(self.lines_model) 
-
-    def set_warehouse_combo_enabled_if_no_items_processed(self):
-        pass 
-
     
-    def proforma_to_form(self):
-        p = self.proforma 
+    def __init__(self, parent, view, proforma):
+        self.proforma = proforma
+        super().__init__(parent, view)
+
+    def init_template(self):
+        self.proforma_to_form() 
+        self.disable_warehouse() 
+
+    def save_template(self):
+        self.model.updateWarehouse(self.proforma) 
+    
+
+    def disable_warehouse(self):
+        try:
+            if sum(
+                1 for line in self.proforma.expedition.lines
+                for serie in line.series
+            ): self.warehouse.setEnabled(False) 
+        except AttributeError:
+            pass 
+
+def get_form(parent, view, proforma=None):
+    return EditableForm(parent, view, proforma) \
+        if proforma else Form(parent, view)
+

@@ -114,11 +114,6 @@ class Form(Ui_PurchaseProformaForm, QWidget):
         self.we_pay_they_ship_shipping_radio_button.setChecked(we_pay_they_ship) 
         self.we_pay_we_ship_shipping_radio_button.setChecked(we_pay_we_ship) 
 
-    def closeEvent(self, event):
-        try:
-            self.parent.opened_windows_classes.remove(self.__class__)
-        except KeyError:
-            pass 
 
     def _validHeader(self):
         try:
@@ -235,6 +230,7 @@ class Form(Ui_PurchaseProformaForm, QWidget):
                 'Purchase saved successfully')
             self.close() 
 
+
 class EditableForm(Form):
     
     def __init__(self, parent, view, proforma:db.PurchaseProforma):
@@ -313,6 +309,11 @@ class EditableForm(Form):
             self.lines_model.delete(indexes)
         except: raise 
 
+    def closeEvent(self, event):
+        models.refresh()
+        self.parent.set_mv('proformas_purchases_')
+
+
     def saveHandler(self):
         if not super()._validHeader():
             return
@@ -329,7 +330,7 @@ class EditableForm(Form):
         else:
             try:
                 warehouse_updated = self.model.updateWarehouse(self.proforma) 
-                advance_sale_updated = self.model.updateAdvancedSale(self.proforma) 
+                # advance_sale_updated = self.model.updateAdvancedSale(self.proforma) 
             except:
                 raise 
             else:
