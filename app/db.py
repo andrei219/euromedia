@@ -342,6 +342,9 @@ class PurchaseProformaLine(Base):
     # and proforma purchase lines, in order to update the
     # receptions when they are already created and user 
     # wants the update proforma. 
+
+
+
     def __eq__(self, other):
         return all((
             other.item_id == self.item_id, 
@@ -382,6 +385,8 @@ class PurchaseInvoice(Base):
     id = Column(Integer, primary_key=True)
     type = Column(Integer, nullable=False)
     number = Column(Integer, nullable=False) 
+    date = Column(Date, default=datetime.now)
+    eta = Column(Date, default=datetime.now) 
     
 
     def __init__(self, type, number):
@@ -443,6 +448,7 @@ class SaleProforma(Base):
  
     date = Column(Date, nullable=False)
     warranty = Column(Integer, nullable=False, default=0)
+    eta = Column(Date, default=datetime.now)
 
     cancelled = Column(Boolean, nullable=False, default=False)
     sent = Column(Boolean, nullable=False, default=False)
@@ -538,6 +544,9 @@ class SaleInvoice(Base):
     id = Column(Integer, primary_key=True)
     type = Column(Integer, nullable=False) 
     number = Column(Integer, nullable=False) 
+    date = Column(Date, default=datetime.now)
+    eta = Column(Date, default=datetime.now)
+
 
 
     def __init__(self, type, number):
@@ -594,6 +603,7 @@ class SaleProformaLine(Base):
     # Test the properties relevant to both:
     # Warehouse and sale proforma
     def __eq__(self, other):
+        print('reached')
         return all((
             other.item_id == self.item_id, 
             other.condition == self.condition, 
@@ -880,6 +890,26 @@ def create_and_populate():
     partner1.billing_country = 'Spain'
     partner1.agent = random.choice(agent_list)
 
+
+    partner1.shipping_line1 = 'Shipping line1'
+    partner1.shipping_line2 = 'Shipping line2'
+    partner1.shipping_line3 = 'Shipping line3'
+
+    partner1.shipping_city = 'Shipping city'
+    partner1.shipping_state = 'Shipping state'
+    partner1.shipping_country = 'Spain'
+    partner1.shipping_postcode = 'Shipping postcode'
+
+    
+    partner1.billing_line1 = 'billing line1'
+    partner1.billing_line2 = 'billing line2'
+    partner1.billing_line3 = 'billing line3'
+
+    partner1.billing_city = 'billing city'
+    partner1.billing_state = 'billing state'
+    partner1.billing_country = 'Spain'
+    partner1.billing_postcode = 'billing postcode'
+
     contact1 = PartnerContact('Angel Mirchev', 'CEO', '673567274', \
         'angel.bn@euromediagroup.com', 'Boss of the people')
     
@@ -908,6 +938,25 @@ def create_and_populate():
         'jose@ignacio.com', 'Un idiota')
 
     partner2.contacts.extend([contact1, contact2])
+
+    partner2.shipping_line1 = 'Shipping line1'
+    partner2.shipping_line2 = 'Shipping line2'
+    partner2.shipping_line3 = 'Shipping line3'
+
+    partner2.shipping_city = 'Shipping city'
+    partner2.shipping_state = 'Shipping state'
+    partner2.shipping_country = 'Spain'
+    partner2.shipping_postcode = 'Shipping postcode'
+
+    
+    partner2.billing_line1 = 'billing line1'
+    partner2.billing_line2 = 'billing line2'
+    partner2.billing_line3 = 'billing line3'
+
+    partner2.billing_city = 'billing city'
+    partner2.billing_state = 'billing state'
+    partner2.billing_country = 'Spain'
+    partner2.billing_postcode = 'billing postcode'
 
     partner2.warranty = 9 
     partner2.we_pay_they_ship = True

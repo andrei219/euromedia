@@ -109,7 +109,7 @@ class MainGui(Ui_MainGui, QMainWindow):
         prefix = name[0:name.rfind('_') +  1]
 
         getattr(self, prefix + 'total').setText('Total: ' + str(total))
-        getattr(self, prefix + 'paid').setText('Paid ' + str(paid))
+        getattr(self, prefix + 'paid').setText('Paid: ' + str(paid))
 
     def init_models(self):
         for prefix in PREFIXES:
@@ -607,15 +607,15 @@ class MainGui(Ui_MainGui, QMainWindow):
         if not proforma:
             return  
         try:
-            # Hay que meter el codigo de la prioridad aqui.
-            if not self.proformas_sales_model.\
-                stock_available(proforma.warehouse_id, proforma.lines):
-                QMessageBox.critical(
-                    self, 
-                    'Error',
-                    "Can't send to warehouse for preparation. Not enough SN in physical stock."
-                )
-                return
+            # # Hay que meter el codigo de la prioridad aqui.
+            # if not self.proformas_sales_model.\
+            #     stock_available(proforma.warehouse_id, proforma.lines):
+            #     QMessageBox.critical(
+            #         self, 
+            #         'Error',
+            #         "Can't send to warehouse for preparation. Not enough SN in physical stock."
+            #     )
+            #     return
 
             ok, note = getNote(self, proforma)
             if not ok:
@@ -696,7 +696,18 @@ class MainGui(Ui_MainGui, QMainWindow):
         self.proformas_purchases_launch_form(proforma=proforma)
     
     def invoices_purchases_pdf_handler(self):
-        print('print to pdf')
+        from fpdf import FPDF
+
+        pdf = FPDF()
+        pdf.add_page()
+        pdf.set_font('Arial', 'B', 16)
+        pdf.cell(40, 10, 'Hello World!')
+        pdf.output(r'C:\Users\Andrei\Desktop\projects\euromedia\tuto1.pdf', 'F')
+
+        import os 
+
+        os.startfile(r'C:\Users\Andrei\Desktop\projects\euromedia\tuto1.pdf')
+
 
     def invoices_purchases_print_handler(self):
         print('print to printer')

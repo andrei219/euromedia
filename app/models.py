@@ -77,17 +77,23 @@ def complete_descriptions(descriptions):
 description_id_map = bidict({str(item):item.id for item in db.session.query(db.Item)})
 descriptions = complete_descriptions(description_id_map.keys())
 
-specs = {s.description for s in db.session.query(db.Spec)}
-conditions = {c.description for c in db.session.query(db.Condition)}
+specs = {s.description for s in db.session.query(db.Spec.description)}
+conditions = {c.description for c in db.session.query(db.Condition.description)}
 
 
 partner_id_map =mymap(db.Partner)
 agent_id_map =mymap(db.Agent)
 
-courier_id_map = {c.description:c.id for c in db.session.query(db.Courier)}
-warehouse_id_map = {w.description:w.id for w in db.session.query(db.Warehouse)}
+courier_id_map = {
+	c.description:c.id 
+	for c in db.session.query(db.Courier.id, db.Courier.description)
+}
 
-print(warehouse_id_map)
+warehouse_id_map = {
+	w.description:w.id 
+	for w in db.session.query(db.Warehouse.description, db.Warehouse.id)
+}
+
 
 def refresh_maps():
 	global descriptions, description_id_map, specs, \
@@ -958,6 +964,7 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
 				self.layoutChanged.emit() 
 
 	def add(self, proforma):
+		proforma.number = self.nextNumberOfType(proforma.type)
 		db.session.add(proforma)
 		try:
 			db.session.commit()
@@ -1237,8 +1244,7 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 					else QtGui.QColor(RED)
 			elif col == SaleProformaModel.CANCELLED:
 				return QtGui.QColor(RED) if proforma.cancelled \
-					else QtGui.QColor(RED )
-
+					else QtGui.QColor(GREEN)
 
 	def __getitem__(self, index):
 		return self.proformas[index]
@@ -1264,14 +1270,16 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 				self.layoutChanged.emit() 
 
 	def add(self, proforma):
+		proforma.number = self.nextNumberOfType(proforma.type)
 		db.session.add(proforma)
 		try:
 			db.session.commit()
-			self.proformas.append(proforma) 
-			self.layoutChanged.emit()   
+			self.proformas.append(proforma)
+			self.layoutChanged.emit()
 		except:
 			db.session.rollback()
 			raise 
+		
 	
 	def nextNumberOfType(self, type):
 		current_num = db.session.query(func.max(db.SaleProforma.number)). \
@@ -1336,8 +1344,6 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 
 	def stock_available(self, wh_id, lines):
 
-		for line in lines:
-			print(line)
 		query = db.session.query(
 			func.count(db.Imei.imei).label('quantity'), 
 			db.Imei.item_id, db.Imei.condition, 
@@ -1348,7 +1354,7 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 			db.Imei.item_id, db.Imei.spec, db.Imei.condition
 		)
 		return any((
-			line.quantity > stock.quantity
+			line.quantity > stock.quantity and line == stock
 			for line in lines
 			for stock in query 
 		))
@@ -2589,14 +2595,13 @@ class StockEntry:
 		hashes = (hash(x) for x in (self._item_id, self._spec, self._condition))
 		return functools.reduce(operator.xor, hashes, 0)
 
-
 class StockModel(BaseTable, QtCore.QAbstractTableModel):
 
 	DESCRIPTION, CONDITION, SPEC, QUANTITY, REQUEST = \
 		0, 1, 2, 3, 4 
 
 	def __init__(self, warehouse_id, description, condition, spec, 
-	added_lines=None, deleted_lines=None):
+			added_lines=None, deleted_lines=None):
 		super().__init__() 
 		self._headerData = ['Description', 'Condition', 'Spec', \
 			'Quantity avail. ', 'Requested quant.']
@@ -2611,8 +2616,7 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
 		) 
 
 	def computeStock(self, warehouse_id, description, condition, spec, 
-	added_lines	=None, deleted_lines=None):
-		
+			added_lines	=None, deleted_lines=None):
 		session = db.Session()
 		
 		item_id = description_id_map.get(description)
@@ -2756,6 +2760,19 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
 	
 		return list(filter(lambda stock:stock.quantity > 0, stocks))
 
+	def lines_against_stock(self, warehouse_id, lines):
+		stocks = self.computeStock(
+			warehouse_id, 
+			description = None, condition=None, spec=None, 
+			added_lines = None, deleted_lines = None
+		)
+		return any((
+			line.quantity > stock.quantity 
+			and line == stock
+			for line in lines
+			for stock in stocks
+		))
+		
 	def resolve(self, imeis, imeis_mask, sales, outputs):
 	
 		for imei_mask in imeis_mask:

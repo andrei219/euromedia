@@ -37,7 +37,7 @@
      <rect>
       <x>10</x>
       <y>10</y>
-      <width>1821</width>
+      <width>1831</width>
       <height>871</height>
      </rect>
     </property>
@@ -461,7 +461,7 @@
        </rect>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <property name="iconSize">
        <size>
@@ -1442,6 +1442,16 @@
           <width>271</width>
           <height>20</height>
          </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>MS Shell Dlg 2</family>
+          <pointsize>10</pointsize>
+          <weight>75</weight>
+          <italic>false</italic>
+          <bold>true</bold>
+          <strikeout>false</strikeout>
+         </font>
         </property>
         <property name="styleSheet">
          <string notr="true">font-weight:bold; </string>
@@ -4365,7 +4375,7 @@
        </rect>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>2</number>
       </property>
       <property name="iconSize">
        <size>
@@ -4654,7 +4664,7 @@
          <rect>
           <x>220</x>
           <y>640</y>
-          <width>1601</width>
+          <width>1611</width>
           <height>81</height>
          </rect>
         </property>
@@ -4758,7 +4768,7 @@
           <x>220</x>
           <y>40</y>
           <width>1611</width>
-          <height>601</height>
+          <height>571</height>
          </rect>
         </property>
        </widget>
@@ -5145,7 +5155,7 @@
           <x>220</x>
           <y>40</y>
           <width>1611</width>
-          <height>601</height>
+          <height>571</height>
          </rect>
         </property>
        </widget>
@@ -5199,9 +5209,9 @@
        <widget class="QFrame" name="frame_11">
         <property name="geometry">
          <rect>
-          <x>10</x>
+          <x>210</x>
           <y>640</y>
-          <width>1591</width>
+          <width>1621</width>
           <height>81</height>
          </rect>
         </property>
@@ -5246,8 +5256,8 @@
          <rect>
           <x>210</x>
           <y>40</y>
-          <width>1391</width>
-          <height>601</height>
+          <width>1621</width>
+          <height>571</height>
          </rect>
         </property>
        </widget>
@@ -5255,14 +5265,75 @@
         <property name="geometry">
          <rect>
           <x>20</x>
-          <y>30</y>
-          <width>120</width>
-          <height>80</height>
+          <y>20</y>
+          <width>171</width>
+          <height>701</height>
          </rect>
         </property>
         <property name="title">
          <string>FILTERS</string>
         </property>
+        <widget class="QToolButton" name="warehouse_expeditions_apply_2">
+         <property name="geometry">
+          <rect>
+           <x>30</x>
+           <y>630</y>
+           <width>101</width>
+           <height>31</height>
+          </rect>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background:rgb(153, 209, 143)</string>
+         </property>
+         <property name="text">
+          <string>Apply</string>
+         </property>
+         <property name="shortcut">
+          <string/>
+         </property>
+         <property name="autoRaise">
+          <bool>true</bool>
+         </property>
+        </widget>
+        <widget class="QCheckBox" name="checkBox">
+         <property name="geometry">
+          <rect>
+           <x>20</x>
+           <y>50</y>
+           <width>71</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>new</string>
+         </property>
+        </widget>
+        <widget class="QCheckBox" name="checkBox_3">
+         <property name="geometry">
+          <rect>
+           <x>20</x>
+           <y>80</y>
+           <width>131</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Partially checked</string>
+         </property>
+        </widget>
+        <widget class="QCheckBox" name="checkBox_4">
+         <property name="geometry">
+          <rect>
+           <x>20</x>
+           <y>110</y>
+           <width>111</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Fully checked</string>
+         </property>
+        </widget>
        </widget>
       </widget>
       <widget class="QWidget" name="warehouse_outgoing_rma_tab">
@@ -5314,9 +5385,9 @@
        <widget class="QFrame" name="frame_12">
         <property name="geometry">
          <rect>
-          <x>10</x>
+          <x>210</x>
           <y>640</y>
-          <width>1661</width>
+          <width>1621</width>
           <height>81</height>
          </rect>
         </property>
@@ -5359,12 +5430,86 @@
        <widget class="QTableView" name="warehouse_outgoing_rma_view">
         <property name="geometry">
          <rect>
-          <x>10</x>
+          <x>210</x>
           <y>40</y>
-          <width>1661</width>
-          <height>601</height>
+          <width>1621</width>
+          <height>571</height>
          </rect>
         </property>
+       </widget>
+       <widget class="QGroupBox" name="groupBox_2">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>20</y>
+          <width>171</width>
+          <height>701</height>
+         </rect>
+        </property>
+        <property name="title">
+         <string>FILTERS</string>
+        </property>
+        <widget class="QToolButton" name="warehouse_expeditions_apply_3">
+         <property name="geometry">
+          <rect>
+           <x>30</x>
+           <y>630</y>
+           <width>101</width>
+           <height>31</height>
+          </rect>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background:rgb(153, 209, 143)</string>
+         </property>
+         <property name="text">
+          <string>Apply</string>
+         </property>
+         <property name="shortcut">
+          <string/>
+         </property>
+         <property name="autoRaise">
+          <bool>true</bool>
+         </property>
+        </widget>
+        <widget class="QCheckBox" name="checkBox_6">
+         <property name="geometry">
+          <rect>
+           <x>20</x>
+           <y>110</y>
+           <width>111</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Fully checked</string>
+         </property>
+        </widget>
+        <widget class="QCheckBox" name="checkBox_7">
+         <property name="geometry">
+          <rect>
+           <x>20</x>
+           <y>80</y>
+           <width>131</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Partially checked</string>
+         </property>
+        </widget>
+        <widget class="QCheckBox" name="checkBox_8">
+         <property name="geometry">
+          <rect>
+           <x>20</x>
+           <y>50</y>
+           <width>71</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>new</string>
+         </property>
+        </widget>
        </widget>
       </widget>
      </widget>
@@ -5385,7 +5530,7 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>1681</width>
+        <width>1831</width>
         <height>771</height>
        </rect>
       </property>
@@ -5401,219 +5546,6 @@
       <property name="documentMode">
        <bool>true</bool>
       </property>
-      <widget class="QWidget" name="rmas_outgoing_tab">
-       <attribute name="icon">
-        <iconset resource="../app/icons.qrc">
-         <normaloff>:/output</normaloff>:/output</iconset>
-       </attribute>
-       <attribute name="title">
-        <string>Outgoing RMAs</string>
-       </attribute>
-       <attribute name="toolTip">
-        <string>We are returning to them.</string>
-       </attribute>
-       <widget class="QLineEdit" name="rma_outgoing_search_edit">
-        <property name="geometry">
-         <rect>
-          <x>1130</x>
-          <y>10</y>
-          <width>271</width>
-          <height>22</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="frame">
-         <bool>false</bool>
-        </property>
-        <property name="placeholderText">
-         <string>Search ... </string>
-        </property>
-       </widget>
-       <widget class="QLabel" name="rmas_outgoing_search_logo">
-        <property name="geometry">
-         <rect>
-          <x>1410</x>
-          <y>10</y>
-          <width>21</width>
-          <height>21</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="pixmap">
-         <pixmap resource="../app/icons.qrc">:/search</pixmap>
-        </property>
-       </widget>
-       <widget class="QFrame" name="actions">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>640</y>
-          <width>1661</width>
-          <height>81</height>
-         </rect>
-        </property>
-        <property name="frameShape">
-         <enum>QFrame::Box</enum>
-        </property>
-        <property name="frameShadow">
-         <enum>QFrame::Sunken</enum>
-        </property>
-        <widget class="QToolButton" name="rmas_outgoing_print_button">
-         <property name="geometry">
-          <rect>
-           <x>250</x>
-           <y>10</y>
-           <width>51</width>
-           <height>61</height>
-          </rect>
-         </property>
-         <property name="toolTip">
-          <string>Print RMA Order</string>
-         </property>
-         <property name="statusTip">
-          <string>Print Rma Order</string>
-         </property>
-         <property name="text">
-          <string>Print</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../app/icons.qrc">
-           <normaloff>:/print</normaloff>:/print</iconset>
-         </property>
-         <property name="iconSize">
-          <size>
-           <width>40</width>
-           <height>40</height>
-          </size>
-         </property>
-         <property name="toolButtonStyle">
-          <enum>Qt::ToolButtonTextUnderIcon</enum>
-         </property>
-         <property name="autoRaise">
-          <bool>true</bool>
-         </property>
-        </widget>
-        <widget class="QToolButton" name="rma_outgoing_warehouse_button">
-         <property name="geometry">
-          <rect>
-           <x>150</x>
-           <y>10</y>
-           <width>91</width>
-           <height>61</height>
-          </rect>
-         </property>
-         <property name="toolTip">
-          <string>Send RMA Order To Warehouse For Further Ckecking</string>
-         </property>
-         <property name="statusTip">
-          <string>Send RMA Order To Warehouse For Further Ckecking</string>
-         </property>
-         <property name="text">
-          <string>To Warehouse</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../app/icons.qrc">
-           <normaloff>:/warehouse</normaloff>:/warehouse</iconset>
-         </property>
-         <property name="iconSize">
-          <size>
-           <width>40</width>
-           <height>40</height>
-          </size>
-         </property>
-         <property name="toolButtonStyle">
-          <enum>Qt::ToolButtonTextUnderIcon</enum>
-         </property>
-         <property name="autoRaise">
-          <bool>true</bool>
-         </property>
-        </widget>
-        <widget class="QToolButton" name="rmas_outgoing_new_button">
-         <property name="geometry">
-          <rect>
-           <x>20</x>
-           <y>10</y>
-           <width>51</width>
-           <height>61</height>
-          </rect>
-         </property>
-         <property name="toolTip">
-          <string>Crete New RMA Order</string>
-         </property>
-         <property name="statusTip">
-          <string>Crete New RMA Order</string>
-         </property>
-         <property name="text">
-          <string>New</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../app/icons.qrc">
-           <normaloff>:/new</normaloff>:/new</iconset>
-         </property>
-         <property name="iconSize">
-          <size>
-           <width>40</width>
-           <height>40</height>
-          </size>
-         </property>
-         <property name="toolButtonStyle">
-          <enum>Qt::ToolButtonTextUnderIcon</enum>
-         </property>
-         <property name="autoRaise">
-          <bool>true</bool>
-         </property>
-        </widget>
-        <widget class="QToolButton" name="rmas_outgoing_open_button">
-         <property name="geometry">
-          <rect>
-           <x>90</x>
-           <y>10</y>
-           <width>51</width>
-           <height>61</height>
-          </rect>
-         </property>
-         <property name="toolTip">
-          <string>Open Selected RMA Order</string>
-         </property>
-         <property name="statusTip">
-          <string>Open Selected RMA Order</string>
-         </property>
-         <property name="text">
-          <string>Open</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../app/icons.qrc">
-           <normaloff>:/open</normaloff>:/open</iconset>
-         </property>
-         <property name="iconSize">
-          <size>
-           <width>40</width>
-           <height>40</height>
-          </size>
-         </property>
-         <property name="toolButtonStyle">
-          <enum>Qt::ToolButtonTextUnderIcon</enum>
-         </property>
-         <property name="autoRaise">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </widget>
-       <widget class="QTableView" name="rma_outgoing_view">
-        <property name="geometry">
-         <rect>
-          <x>220</x>
-          <y>40</y>
-          <width>1451</width>
-          <height>601</height>
-         </rect>
-        </property>
-       </widget>
-      </widget>
       <widget class="QWidget" name="rma_incoming_tab">
        <attribute name="icon">
         <iconset resource="../app/icons.qrc">
@@ -5663,9 +5595,9 @@
        <widget class="QFrame" name="frame_9">
         <property name="geometry">
          <rect>
-          <x>10</x>
+          <x>200</x>
           <y>640</y>
-          <width>1661</width>
+          <width>1631</width>
           <height>81</height>
          </rect>
         </property>
@@ -5854,12 +5786,399 @@
        <widget class="QTableView" name="rma_incoming_view">
         <property name="geometry">
          <rect>
-          <x>220</x>
+          <x>200</x>
           <y>40</y>
-          <width>1451</width>
-          <height>591</height>
+          <width>1631</width>
+          <height>571</height>
          </rect>
         </property>
+       </widget>
+       <widget class="QGroupBox" name="groupBox_4">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>20</y>
+          <width>171</width>
+          <height>701</height>
+         </rect>
+        </property>
+        <property name="title">
+         <string>FILTERS</string>
+        </property>
+        <widget class="QToolButton" name="warehouse_expeditions_apply_5">
+         <property name="geometry">
+          <rect>
+           <x>30</x>
+           <y>630</y>
+           <width>101</width>
+           <height>31</height>
+          </rect>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background:rgb(153, 209, 143)</string>
+         </property>
+         <property name="text">
+          <string>Apply</string>
+         </property>
+         <property name="shortcut">
+          <string/>
+         </property>
+         <property name="autoRaise">
+          <bool>true</bool>
+         </property>
+        </widget>
+        <widget class="QCheckBox" name="checkBox_13">
+         <property name="geometry">
+          <rect>
+           <x>30</x>
+           <y>90</y>
+           <width>81</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Rejected</string>
+         </property>
+        </widget>
+        <widget class="QCheckBox" name="checkBox_14">
+         <property name="geometry">
+          <rect>
+           <x>30</x>
+           <y>150</y>
+           <width>111</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Fully accepted</string>
+         </property>
+        </widget>
+        <widget class="QCheckBox" name="checkBox_15">
+         <property name="geometry">
+          <rect>
+           <x>30</x>
+           <y>120</y>
+           <width>131</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Partially accepted</string>
+         </property>
+        </widget>
+        <widget class="QCheckBox" name="checkBox_16">
+         <property name="geometry">
+          <rect>
+           <x>30</x>
+           <y>60</y>
+           <width>71</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>New</string>
+         </property>
+        </widget>
+       </widget>
+      </widget>
+      <widget class="QWidget" name="rmas_outgoing_tab">
+       <attribute name="icon">
+        <iconset resource="../app/icons.qrc">
+         <normaloff>:/output</normaloff>:/output</iconset>
+       </attribute>
+       <attribute name="title">
+        <string>Outgoing RMAs</string>
+       </attribute>
+       <attribute name="toolTip">
+        <string>We are returning to them.</string>
+       </attribute>
+       <widget class="QLineEdit" name="rma_outgoing_search_edit">
+        <property name="geometry">
+         <rect>
+          <x>1130</x>
+          <y>10</y>
+          <width>271</width>
+          <height>22</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="frame">
+         <bool>false</bool>
+        </property>
+        <property name="placeholderText">
+         <string>Search ... </string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="rmas_outgoing_search_logo">
+        <property name="geometry">
+         <rect>
+          <x>1410</x>
+          <y>10</y>
+          <width>21</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="pixmap">
+         <pixmap resource="../app/icons.qrc">:/search</pixmap>
+        </property>
+       </widget>
+       <widget class="QFrame" name="actions">
+        <property name="geometry">
+         <rect>
+          <x>200</x>
+          <y>640</y>
+          <width>1471</width>
+          <height>81</height>
+         </rect>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::Box</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Sunken</enum>
+        </property>
+        <widget class="QToolButton" name="rmas_outgoing_print_button">
+         <property name="geometry">
+          <rect>
+           <x>250</x>
+           <y>10</y>
+           <width>51</width>
+           <height>61</height>
+          </rect>
+         </property>
+         <property name="toolTip">
+          <string>Print RMA Order</string>
+         </property>
+         <property name="statusTip">
+          <string>Print Rma Order</string>
+         </property>
+         <property name="text">
+          <string>Print</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../app/icons.qrc">
+           <normaloff>:/print</normaloff>:/print</iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>40</width>
+           <height>40</height>
+          </size>
+         </property>
+         <property name="toolButtonStyle">
+          <enum>Qt::ToolButtonTextUnderIcon</enum>
+         </property>
+         <property name="autoRaise">
+          <bool>true</bool>
+         </property>
+        </widget>
+        <widget class="QToolButton" name="rma_outgoing_warehouse_button">
+         <property name="geometry">
+          <rect>
+           <x>150</x>
+           <y>10</y>
+           <width>91</width>
+           <height>61</height>
+          </rect>
+         </property>
+         <property name="toolTip">
+          <string>Send RMA Order To Warehouse For Further Ckecking</string>
+         </property>
+         <property name="statusTip">
+          <string>Send RMA Order To Warehouse For Further Ckecking</string>
+         </property>
+         <property name="text">
+          <string>To Warehouse</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../app/icons.qrc">
+           <normaloff>:/warehouse</normaloff>:/warehouse</iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>40</width>
+           <height>40</height>
+          </size>
+         </property>
+         <property name="toolButtonStyle">
+          <enum>Qt::ToolButtonTextUnderIcon</enum>
+         </property>
+         <property name="autoRaise">
+          <bool>true</bool>
+         </property>
+        </widget>
+        <widget class="QToolButton" name="rmas_outgoing_new_button">
+         <property name="geometry">
+          <rect>
+           <x>20</x>
+           <y>10</y>
+           <width>51</width>
+           <height>61</height>
+          </rect>
+         </property>
+         <property name="toolTip">
+          <string>Crete New RMA Order</string>
+         </property>
+         <property name="statusTip">
+          <string>Crete New RMA Order</string>
+         </property>
+         <property name="text">
+          <string>New</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../app/icons.qrc">
+           <normaloff>:/new</normaloff>:/new</iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>40</width>
+           <height>40</height>
+          </size>
+         </property>
+         <property name="toolButtonStyle">
+          <enum>Qt::ToolButtonTextUnderIcon</enum>
+         </property>
+         <property name="autoRaise">
+          <bool>true</bool>
+         </property>
+        </widget>
+        <widget class="QToolButton" name="rmas_outgoing_open_button">
+         <property name="geometry">
+          <rect>
+           <x>90</x>
+           <y>10</y>
+           <width>51</width>
+           <height>61</height>
+          </rect>
+         </property>
+         <property name="toolTip">
+          <string>Open Selected RMA Order</string>
+         </property>
+         <property name="statusTip">
+          <string>Open Selected RMA Order</string>
+         </property>
+         <property name="text">
+          <string>Open</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../app/icons.qrc">
+           <normaloff>:/open</normaloff>:/open</iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>40</width>
+           <height>40</height>
+          </size>
+         </property>
+         <property name="toolButtonStyle">
+          <enum>Qt::ToolButtonTextUnderIcon</enum>
+         </property>
+         <property name="autoRaise">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </widget>
+       <widget class="QTableView" name="rma_outgoing_view">
+        <property name="geometry">
+         <rect>
+          <x>200</x>
+          <y>40</y>
+          <width>1471</width>
+          <height>571</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QGroupBox" name="groupBox_3">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>20</y>
+          <width>171</width>
+          <height>701</height>
+         </rect>
+        </property>
+        <property name="title">
+         <string>FILTERS</string>
+        </property>
+        <widget class="QToolButton" name="warehouse_expeditions_apply_4">
+         <property name="geometry">
+          <rect>
+           <x>30</x>
+           <y>630</y>
+           <width>101</width>
+           <height>31</height>
+          </rect>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background:rgb(153, 209, 143)</string>
+         </property>
+         <property name="text">
+          <string>Apply</string>
+         </property>
+         <property name="shortcut">
+          <string/>
+         </property>
+         <property name="autoRaise">
+          <bool>true</bool>
+         </property>
+        </widget>
+        <widget class="QCheckBox" name="checkBox_9">
+         <property name="geometry">
+          <rect>
+           <x>30</x>
+           <y>90</y>
+           <width>81</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Rejected</string>
+         </property>
+        </widget>
+        <widget class="QCheckBox" name="checkBox_10">
+         <property name="geometry">
+          <rect>
+           <x>30</x>
+           <y>150</y>
+           <width>111</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Fully accepted</string>
+         </property>
+        </widget>
+        <widget class="QCheckBox" name="checkBox_11">
+         <property name="geometry">
+          <rect>
+           <x>30</x>
+           <y>120</y>
+           <width>131</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Partially accepted</string>
+         </property>
+        </widget>
+        <widget class="QCheckBox" name="checkBox_12">
+         <property name="geometry">
+          <rect>
+           <x>30</x>
+           <y>60</y>
+           <width>71</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>New</string>
+         </property>
+        </widget>
        </widget>
       </widget>
      </widget>

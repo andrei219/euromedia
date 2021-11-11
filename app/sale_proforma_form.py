@@ -43,7 +43,6 @@ class Form(Ui_SalesProformaForm, QWidget):
 
     def init_template(self):
         
-        print('init from form')
         self.proforma = db.SaleProforma() 
         self.date.setText(date.today().strftime('%d%m%Y'))
         self.type.setCurrentText('1')
@@ -266,12 +265,19 @@ class Form(Ui_SalesProformaForm, QWidget):
         if not self.lines_model:
             QMessageBox.critical(self, 'Error', 'Cant save empty proforma')
             return 
+        
+        warehouse_id = models.warehouse_id_map.get(self.warehouse.currentText())
+        lines = self.lines_model.lines 
+        if self.stock_model.lines_against_stock(warehouse_id, lines):
+            QMessageBox.critical(self, 'Error', 'Someone took those stocks. Delete lines and start again.')
+            return 
+
         self._form_to_proforma() 
         try:
             self.save_template() 
             db.session.commit() 
         except:
-            raise 
+            db.session.rollback() 
         else:
             QMessageBox.information(self, 'Success', 'Sale saved successfully')
             self.close() 
@@ -282,6 +288,7 @@ class Form(Ui_SalesProformaForm, QWidget):
     def closeEvent(self, event):
         models.refresh() 
         self.parent.set_mv('proformas_sales_')
+        
 
     def update_total_fields(self):
         self.proforma_total.setText(str(self.lines_model.total))
