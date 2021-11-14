@@ -20,11 +20,14 @@ from copy import deepcopy
 
 from exceptions import DuplicateLine, SeriePresentError, LineCompletedError
 
-from bidict import bidict
 
-from utils import parse_date
+from utils import (
+	parse_date, 
+	description_id_map, 
+	descriptions, 
+	build_description
+)
 
-from pipe import traverse
 
 
 # COLORS:
@@ -52,72 +55,7 @@ class BaseTable:
 	def rowCount(self, index=QModelIndex()):
 		return len(getattr(self, self.name))
 
-def mymap(db_class):
-	return {o.fiscal_name:o.id for o in db.session.query(db_class.fiscal_name, db_class.id).\
-		where(db_class.active == True)}
 
-def complete_descriptions(descriptions):
-
-	d = set() 
-	for ds in descriptions:
-		manufacturer, category, model, *_ = ds.split(' ')
-		d.add(' '.join([manufacturer, category, model, \
-			'Mixed GB', 'Mixed Color']))
-	for ds in descriptions:
-		index = ds.index('GB') + 2 
-		ds = ds[0:index] + ' Mixed Color'
-		d.add(ds)
-	
-	for ds in descriptions:
-		manufacturer, category, model, capacity, gb, color = ds.split(' ')
-		d.add(' '.join([manufacturer, category, model, 'Mixed GB', color]))
-	
-	return d.union(descriptions)
-
-description_id_map = bidict({str(item):item.id for item in db.session.query(db.Item)})
-descriptions = complete_descriptions(description_id_map.keys())
-
-specs = {s.description for s in db.session.query(db.Spec.description)}
-conditions = {c.description for c in db.session.query(db.Condition.description)}
-
-
-partner_id_map =mymap(db.Partner)
-agent_id_map =mymap(db.Agent)
-
-courier_id_map = {
-	c.description:c.id 
-	for c in db.session.query(db.Courier.id, db.Courier.description)
-}
-
-warehouse_id_map = {
-	w.description:w.id 
-	for w in db.session.query(db.Warehouse.description, db.Warehouse.id)
-}
-
-
-def refresh_maps():
-	global descriptions, description_id_map, specs, \
-		conditions, partner_id_map, agent_id_map, courier_id_map, warehouse_id_map
-	
-	description_id_map = bidict({str(item):item.id for item in db.session.query(db.Item)})
-	descriptions = complete_descriptions(description_id_map.keys())
-
-	specs = {s.description for s in db.session.query(db.Spec)}
-	conditions = {c.description for c in db.session.query(db.Condition)}
-
-	partner_id_map =mymap(db.Partner)
-	agent_id_map =mymap(db.Agent)
-
-	courier_id_map = {c.description:c.id for c in db.session.query(db.Courier)}
-	warehouse_id_map = {w.description:w.id for w in db.session.query(db.Warehouse)}
-
-def refresh_session():
-	db.refresh_session() 
-
-
-def refresh():
-	refresh_session()
-	refresh_maps() 
 
 def computeCreditAvailable(partner_id):
 
@@ -149,7 +87,6 @@ def computeCreditAvailable(partner_id):
 		credit_taken = 0
 
 	return max_credit + paid - total - credit_taken
-
 
 # Proformas utils::
 
@@ -1406,7 +1343,6 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 
 from collections.abc import Iterable 
 
-
 def copy_line(line):
 	l = db.SaleProformaLine() 
 	l.item_id = line.item_id
@@ -1414,6 +1350,7 @@ def copy_line(line):
 	l.condition = line.condition
 	l.quantity = line.quantity
 	return l 
+
 
 
 class OrganizedLines:
@@ -1560,36 +1497,6 @@ class OrganizedLines:
 					searched.add(line.mix_id)
 		return aux  
 
-	def build_description(self, lines):
-		capacities = set() 
-		for line in lines:
-			for e in description_id_map.inverse[line.item_id].split():
-				if e.isdigit():
-					capacities.add(e)
-					break
-		
-		if len(capacities) == 1:
-			capacity = capacities.pop() + 'GB'
-		else:
-			capacity = 'Mixed GB'
-		
-		colors = set()
-		for line in lines:
-			color = description_id_map.inverse[line.item_id].split()[-1]
-			colors.add(color) 
-
-		if len(colors) == 1:
-			color = colors.pop()
-		else:
-			color = 'Mixed Color'
-		
-		line = lines[0]
-		description = description_id_map.inverse[line.item_id] 
-		manufacturer, category, model , *_ = description.split() 
-		return ' '.join([
-			manufacturer, category, model, 
-			capacity, color 
-		])
 
 	def complex_line_repr(self, lines, col):
 		diff_items = {line.item_id for line in lines}
@@ -1599,7 +1506,7 @@ class OrganizedLines:
 		if len(diff_items) == 1:
 			description = description_id_map.inverse[diff_items.pop()]
 		else:
-			description = self.build_description(lines) 
+			description = build_description(lines) 
 
 		if len(diff_conditions) == 1:
 			condition = diff_conditions.pop()
@@ -1934,7 +1841,7 @@ class PurchaseProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 	
 	@property
 	def subtotal(self):
-		return round(sum([line.quantity * line.price for line in self.lines]), 2)
+		return round(sum(line.quantity * line.price for line in self.lines), 2)
 	
 	@property
 	def total(self):

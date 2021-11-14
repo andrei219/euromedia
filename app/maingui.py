@@ -14,7 +14,12 @@ import agentgui, partner_form, product_form, purchase_proforma_form, payments_fo
 
 from sqlalchemy.exc import IntegrityError
 
-from utils import washDict, setCommonViewConfig, getPassword, getTracking, getNote
+from utils import (
+    setCommonViewConfig, 
+    getPassword, 
+    getTracking, 
+    getNote, 
+    refresh) 
 
 from db import PurchaseProforma, PurchaseDocument, SaleDocument, SaleProforma
 
@@ -871,7 +876,7 @@ class MainGui(Ui_MainGui, QMainWindow):
     def tab_changed(self, index):
         # Clean up the filters also 
         # And complete the rest of the models
-        self.refresh_data() 
+        refresh() 
         
         if index == 0:
            self.set_mv('agents_')
@@ -888,10 +893,6 @@ class MainGui(Ui_MainGui, QMainWindow):
             self.set_mv('warehouse_receptions_')
             self.set_mv('warehouse_incoming_rmas_')
             self.set_mv('warehouse_outgoing_rmas_')
-
-    def refresh_data(self):
-        models.refresh_session() 
-        models.refresh_maps() 
 
     def closeEvent(self, event):
         for w in self.opened_windows_instances:

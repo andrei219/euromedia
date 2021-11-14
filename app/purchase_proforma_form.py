@@ -3,7 +3,19 @@ from PyQt5.QtWidgets import QWidget, QMessageBox, QCompleter, QTableView
 
 from PyQt5.QtCore import QStringListModel, Qt
 
-from utils import parse_date, setCompleter
+from utils import (
+    parse_date, 
+    setCompleter,
+    agent_id_map, 
+    partner_id_map, 
+    courier_id_map, 
+    descriptions, 
+    conditions, 
+    specs, 
+    warehouse_id_map, 
+    description_id_map,
+    refresh
+)
 
 from ui_purchase_proforma_form import Ui_PurchaseProformaForm
 
@@ -16,12 +28,7 @@ from exceptions import DuplicateLine
 from db import Partner, PurchaseProformaLine, PurchaseProforma, \
     PurchasePayment, func, Agent
 
-
-from PyQt5.QtWidgets import (
-	QItemDelegate, 
-	QLineEdit
-) 
-
+import utils
   
 class Form(Ui_PurchaseProformaForm, QWidget):
     
@@ -72,22 +79,22 @@ class Form(Ui_PurchaseProformaForm, QWidget):
     def setCombos(self):
 
         for combo, data in [
-            (self.agent_combobox, models.agent_id_map.keys()), 
-            (self.warehouse_combobox, models.warehouse_id_map.keys()), 
-            (self.courier_combobox, models.courier_id_map.keys())
+            (self.agent_combobox, agent_id_map.keys()), 
+            (self.warehouse_combobox, warehouse_id_map.keys()), 
+            (self.courier_combobox, courier_id_map.keys())
         ]: combo.addItems(data)
 
     def setCompleters(self):
         for field, data in [
-            (self.partner_line_edit, models.partner_id_map.keys()),
-            (self.description_line_edit, models.descriptions), 
-            (self.spec_line_edit, models.specs), 
-            (self.condition_line_edit, models.conditions)]:
+            (self.partner_line_edit, partner_id_map.keys()),
+            (self.description_line_edit, descriptions), 
+            (self.spec_line_edit, specs), 
+            (self.condition_line_edit, conditions)]:
             setCompleter(field, data)
 
 
     def partnerSearch(self):
-        partner_id = models.partner_id_map.get(self.partner_line_edit.text())
+        partner_id = partner_id_map.get(self.partner_line_edit.text())
         if not partner_id:
             return
         try:
@@ -117,7 +124,7 @@ class Form(Ui_PurchaseProformaForm, QWidget):
 
     def _validHeader(self):
         try:
-            models.partner_id_map[self.partner_line_edit.text()]
+            partner_id_map[self.partner_line_edit.text()]
         except KeyError:
             QMessageBox.critical(self, 'Update - Error', 'Invalid Partner')
             return False
@@ -171,10 +178,10 @@ class Form(Ui_PurchaseProformaForm, QWidget):
         proforma.they_pay_they_ship = self.they_pay_they_ship_shipping_radio_button.isChecked() 
         proforma.we_pay_we_ship = self.we_pay_we_ship_shipping_radio_button.isChecked() 
         proforma.we_pay_they_ship = self.we_pay_they_ship_shipping_radio_button.isChecked() 
-        proforma.partner_id = models.partner_id_map[self.partner_line_edit.text()]
-        proforma.agent_id = models.agent_id_map[self.agent_combobox.currentText()]
-        proforma.warehouse_id = models.warehouse_id_map[self.warehouse_combobox.currentText()]
-        proforma.courier_id = models.courier_id_map[self.courier_combobox.currentText()]
+        proforma.partner_id = partner_id_map[self.partner_line_edit.text()]
+        proforma.agent_id = agent_id_map[self.agent_combobox.currentText()]
+        proforma.warehouse_id = warehouse_id_map[self.warehouse_combobox.currentText()]
+        proforma.courier_id = courier_id_map[self.courier_combobox.currentText()]
         proforma.eur_currency = self.eur_radio_button.isChecked()
         proforma.credit_amount = self.with_credit_spinbox.value()
         proforma.credit_days = self.days_credit_spinbox.value()
@@ -190,8 +197,8 @@ class Form(Ui_PurchaseProformaForm, QWidget):
         condition = self.condition_line_edit.text()
         spec = self.spec_line_edit.text()
         if not description: return 
-        if description in models.descriptions and \
-            condition not in models.conditions and spec not in models.specs:
+        if description in descriptions and \
+            condition not in conditions and spec not in specs:
                 QMessageBox.critical(self, 'Error', 'You cant add a device without condition and spec')
                 return 
         try:
@@ -310,7 +317,7 @@ class EditableForm(Form):
         except: raise 
 
     def closeEvent(self, event):
-        models.refresh()
+        refresh()
         self.parent.set_mv('proformas_purchases_')
 
 

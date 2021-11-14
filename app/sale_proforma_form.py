@@ -20,7 +20,20 @@ import models
 from db import Agent, Partner, SaleProformaLine, SaleProforma,\
     SalePayment, func
 
-from utils import setCommonViewConfig
+from utils import (
+    setCommonViewConfig, 
+    parse_date, 
+    setCompleter,
+    agent_id_map, 
+    partner_id_map, 
+    courier_id_map, 
+    descriptions, 
+    conditions, 
+    specs, 
+    warehouse_id_map, 
+    refresh,
+    build_description
+)
 
 
 class Form(Ui_SalesProformaForm, QWidget):
@@ -68,21 +81,21 @@ class Form(Ui_SalesProformaForm, QWidget):
 
     def setCombos(self):
         for combo, data in [
-            (self.agent, models.agent_id_map.keys()), 
-            (self.warehouse, models.warehouse_id_map.keys()), 
-            (self.courier, models.courier_id_map.keys())
+            (self.agent, agent_id_map.keys()), 
+            (self.warehouse, warehouse_id_map.keys()), 
+            (self.courier, courier_id_map.keys())
         ]: combo.addItems(data)
 
     def setCompleters(self):
         for field, data in [
-            (self.partner, models.partner_id_map.keys()), 
-            (self.description, models.descriptions), 
-            (self.spec, models.specs), 
-            (self.condition, models.conditions)
+            (self.partner, partner_id_map.keys()), 
+            (self.description, descriptions), 
+            (self.spec, specs), 
+            (self.condition, conditions)
         ]: setCompleter(field, data)
 
     def partner_search(self):
-        partner_id = models.partner_id_map.get(self.partner.text())
+        partner_id = partner_id_map.get(self.partner.text())
         if not partner_id:
             return
         try:
@@ -167,7 +180,7 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.set_stock_mv()
 
     def set_stock_mv(self):
-        warehouse_id = models.warehouse_id_map.get(
+        warehouse_id = warehouse_id_map.get(
             self.warehouse.currentText()
         )
         description = self.description.text()
@@ -196,9 +209,9 @@ class Form(Ui_SalesProformaForm, QWidget):
 
     def filters_unset(self):
         return any((
-            self.description.text() not in models.descriptions, 
-            self.spec.text() not in models.specs, 
-            self.condition.text() not in models.conditions
+            self.description.text() not in descriptions, 
+            self.spec.text() not in specs, 
+            self.condition.text() not in conditions
         )) 
 
 
@@ -266,11 +279,13 @@ class Form(Ui_SalesProformaForm, QWidget):
             QMessageBox.critical(self, 'Error', 'Cant save empty proforma')
             return 
         
-        warehouse_id = models.warehouse_id_map.get(self.warehouse.currentText())
+        warehouse_id = warehouse_id_map.get(self.warehouse.currentText())
         lines = self.lines_model.lines 
-        if self.stock_model.lines_against_stock(warehouse_id, lines):
-            QMessageBox.critical(self, 'Error', 'Someone took those stocks. Delete lines and start again.')
-            return 
+        
+        if hasattr(self, 'stock_model'):
+            if self.stock_model.lines_against_stock(warehouse_id, lines):
+                QMessageBox.critical(self, 'Error', 'Someone took those stocks. Delete lines and start again.')
+                return 
 
         self._form_to_proforma() 
         try:
@@ -286,7 +301,7 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.model.add(self.proforma) 
 
     def closeEvent(self, event):
-        models.refresh() 
+        refresh() 
         self.parent.set_mv('proformas_sales_')
         
 
@@ -297,7 +312,7 @@ class Form(Ui_SalesProformaForm, QWidget):
 
     def _valid_header(self):
         try:
-            models.partner_id_map[self.partner.text()]
+            partner_id_map[self.partner.text()]
         except KeyError:
             QMessageBox.critical(self, 'Update - Error', 'Invalid Partner')
             return False
@@ -317,10 +332,10 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.proforma.they_pay_they_ship = self.they_pay_they_ship.isChecked()
         self.proforma.they_pay_we_ship = self.they_pay_we_ship.isChecked() 
         self.proforma.we_pay_we_ship = self.we_pay_we_ship.isChecked() 
-        self.proforma.agent_id = models.agent_id_map[self.agent.currentText()]
-        self.proforma.partner_id = models.partner_id_map[self.partner.text()]
-        self.proforma.warehouse_id = models.warehouse_id_map[self.warehouse.currentText()]
-        self.proforma.courier_id = models.courier_id_map[self.courier.currentText()]
+        self.proforma.agent_id = agent_id_map[self.agent.currentText()]
+        self.proforma.partner_id = partner_id_map[self.partner.text()]
+        self.proforma.warehouse_id = warehouse_id_map[self.warehouse.currentText()]
+        self.proforma.courier_id = courier_id_map[self.courier.currentText()]
         self.proforma.eur_currency = self.eur.isChecked()
         self.proforma.credit_amount = self.credit.value()
         self.proforma.credit_days = self.days.value() 

@@ -279,7 +279,7 @@ class PurchaseProforma(Base):
 
     cancelled = Column(Boolean, nullable=False, default=False)
     sent = Column(Boolean, nullable=False, default=False) 
-    note = Column(String(255))
+    note = Column(String(255), default='')
 
     eur_currency = Column(Boolean, nullable=False, default=True)
 
@@ -452,7 +452,7 @@ class SaleProforma(Base):
 
     cancelled = Column(Boolean, nullable=False, default=False)
     sent = Column(Boolean, nullable=False, default=False)
-    note = Column(String(255))
+    note = Column(String(255), default='')
 
     eur_currency = Column(Boolean, nullable=False, default=True)
 
@@ -618,7 +618,7 @@ class SaleProformaLine(Base):
    
     def __repr__(self):
         classname = self.__class__.__name__
-        return f"{classname}(item_id={self.item_id}, condition={self.condition}, spec={self.spec})"
+        return f"{classname}(item_id={self.item_id}, condition={self.condition}, spec={self.spec}, mix_id={self.mix_id})"
 
 
 
@@ -1085,6 +1085,12 @@ def create_sale(type):
     proforma.incoterm = 'FOB'
     proforma.sent = False
     proforma.cancelled = False
+    
+    
+    line = SaleProformaLine()
+
+
+    
     session.add(proforma)
     session.commit() 
 
@@ -1226,9 +1232,8 @@ def create_lines():
 
     line = SaleProformaLine() 
     line.proforma_id = 1
-    line.mix_id = 1
+    line.mix_id = None
     line.item_id = 1
-    line.item_id = 4
     line.spec = 'EEUU'
     line.condition = 'USED'
     session.add(line) 
@@ -1238,7 +1243,7 @@ def create_lines():
     line.item_id = 3
     line.condition = 'NEW'
     line.spec = 'EEEUU'
-    line.mix_id = 1
+    line.mix_id = None
     session.add(line) 
 
     line = SaleProformaLine()
@@ -1247,8 +1252,18 @@ def create_lines():
     line.condition = None
     line.spec = None
     line.quantity = 10
-    line.description = 'Servicios de transporte2'
+    line.description = 'Servicios de transporte'
 
+    session.add(line) 
+
+    line = SaleProformaLine()
+    line.proforma_id = 1
+    line.item_id = 4 
+    line.condition = 'USED'
+    line.showing_condition = 'NEW'
+    line.spec = 'SPAIN'
+    line.quantity = 10
+    
     session.add(line) 
 
     session.commit()
@@ -1291,9 +1306,8 @@ if __name__ == '__main__':
 
     except IndexError:
         create_and_populate() 
-        # create_sale(1)
-        # create_lines()
-        # create_mask()
+        create_sale(1)
+        create_lines()
     
 
 

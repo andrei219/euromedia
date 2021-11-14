@@ -18,9 +18,77 @@ from schwifty import IBAN, BIC
 from sqlalchemy.sql import select, func
 
 
-from db import Item
+import db 
+from bidict import bidict
+
 
 countries = list(dict(countries_for_language("en")).values())
+
+
+def mymap(db_class):
+	return {o.fiscal_name:o.id for o in db.session.query(db_class.fiscal_name, db_class.id).\
+		where(db_class.active == True)}
+
+def complete_descriptions(descriptions):
+
+	d = set() 
+	for ds in descriptions:
+		manufacturer, category, model, *_ = ds.split(' ')
+		d.add(' '.join([manufacturer, category, model, \
+			'Mixed GB', 'Mixed Color']))
+	for ds in descriptions:
+		index = ds.index('GB') + 2 
+		ds = ds[0:index] + ' Mixed Color'
+		d.add(ds)
+	
+	for ds in descriptions:
+		manufacturer, category, model, capacity, gb, color = ds.split(' ')
+		d.add(' '.join([manufacturer, category, model, 'Mixed GB', color]))
+	
+	return d.union(descriptions)
+
+description_id_map = bidict({str(item):item.id for item in db.session.query(db.Item)})
+descriptions = complete_descriptions(description_id_map.keys())
+
+specs = {s.description for s in db.session.query(db.Spec.description)}
+conditions = {c.description for c in db.session.query(db.Condition.description)}
+
+
+partner_id_map =mymap(db.Partner)
+agent_id_map =mymap(db.Agent)
+
+courier_id_map = {
+	c.description:c.id 
+	for c in db.session.query(db.Courier.id, db.Courier.description)
+}
+
+warehouse_id_map = {
+	w.description:w.id 
+	for w in db.session.query(db.Warehouse.description, db.Warehouse.id)
+}
+
+
+def refresh():
+    db.refresh_session()
+
+    global descriptions, description_id_map, specs, \
+        conditions, partner_id_map, agent_id_map, courier_id_map, warehouse_id_map
+
+    description_id_map = bidict({str(item):item.id for item in db.session.query(db.Item)})
+    descriptions = complete_descriptions(description_id_map.keys())
+
+    specs = {s.description for s in db.session.query(db.Spec)}
+    conditions = {c.description for c in db.session.query(db.Condition)}
+
+    partner_id_map =mymap(db.Partner)
+    agent_id_map =mymap(db.Agent)
+
+    courier_id_map = {c.description:c.id for c in db.session.query(db.Courier)}
+    warehouse_id_map = {w.description:w.id for w in db.session.query(db.Warehouse)}
+
+
+
+
 
 def validSwift(bic):
     try:
@@ -116,10 +184,6 @@ def getNote(parent, proforma):
     text, ok = QInputDialog.getText(parent, 'Warehouse', 'Enter a warning for the warehouse order')
     return ok, text
 
-def build_description(item:Item):
-    return ' '.join([item.manufacturer, item.category, item.model, item.capacity, 'GB', \
-        item.color])
-
 
 def parse_date(string):
     if len(string) != 8:
@@ -142,3 +206,36 @@ def setCompleter(field, data):
     completer.setCaseSensitivity(False)
     completer.setModel(model)
     field.setCompleter(completer)
+
+
+
+def build_description(lines):
+    capacities = set() 
+    for line in lines:
+        for e in description_id_map.inverse[line.item_id].split():
+            if e.isdigit():
+                capacities.add(e)
+                break
+    
+    if len(capacities) == 1:
+        capacity = capacities.pop() + 'GB'
+    else:
+        capacity = 'Mixed GB'
+    
+    colors = set()
+    for line in lines:
+        color = description_id_map.inverse[line.item_id].split()[-1]
+        colors.add(color) 
+
+    if len(colors) == 1:
+        color = colors.pop()
+    else:
+        color = 'Mixed Color'
+    
+    line = lines[0]
+    description = description_id_map.inverse[line.item_id] 
+    manufacturer, category, model , *_ = description.split() 
+    return ' '.join([
+        manufacturer, category, model, 
+        capacity, color 
+    ])
