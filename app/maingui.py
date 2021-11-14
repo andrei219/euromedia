@@ -1,6 +1,14 @@
+import os 
 
+from PyQt5.QtWidgets import (
+    QMainWindow, 
+    QTableView, 
+    QMessageBox, 
+    QInputDialog, 
+    QFileDialog,
+    
+)
 
-from PyQt5.QtWidgets import QMainWindow, QTableView, QMessageBox, QInputDialog
 
 from PyQt5 import QtCore
 
@@ -19,7 +27,12 @@ from utils import (
     getPassword, 
     getTracking, 
     getNote, 
-    refresh) 
+    refresh, 
+    get_directory
+) 
+
+
+from pdfbuilder import build_document
 
 from db import PurchaseProforma, PurchaseDocument, SaleDocument, SaleProforma
 
@@ -45,7 +58,7 @@ ACTIONS = [
     'delete', 
     'cancel', 
     'print', 
-    'pdf', 
+    'export', 
     'payments', 
     'expenses', 
     'docs', 
@@ -66,6 +79,7 @@ ACTIONS = [
     'change_condition', 
     'check_inventory', 
     'create_product', 
+    'view_pdf' 
 ]
 
 class MainGui(Ui_MainGui, QMainWindow):
@@ -353,7 +367,59 @@ class MainGui(Ui_MainGui, QMainWindow):
             self.opened_windows_instances.add(self.p)
             self.opened_windows_classes.add(partner_form.PartnerForm)
 
+
+
+    def export_documents(self, view, model, is_invoice=False):
+        ixs = view.selectedIndexes()
+        if not ixs:return  
+        directory = get_directory(self)
+        if not directory:return 
+        rows = {i.row() for i in ixs}
+        try:
+            for row in rows:
+                proforma = model[row]
+                if not is_invoice:
+                    name = str(proforma.type) + '-' + str(proforma.number).zfill(6) + '.pdf'
+                else:
+                    name = str(proforma.invoice.type) + '-' + \
+                        str(proforma.invoice.number).zfill(6) + '.pdf'
+                pdf = build_document(proforma, is_invoice=is_invoice)
+                pdf.output(os.path.join(directory, name))
+        
+        
+        except:
+            QMessageBox.critical(self, 'Error', 'Error exporting documents')
+            raise 
+        else:
+            QMessageBox.information(self, 'Success', 'Document exported successfully')
+
+    def view_documents(self, view, model, is_invoice=False):
+        ixs = view.selectedIndexes()
+        if not ixs:return
+        rows = {i.row() for i in ixs}
+        try:
+            for row in rows:
+                document = model[row]
+                if not is_invoice:
+                    filename = str(document.type) + '-' + str(document.number).zfill(6)
+                else:
+                    filename = str(document.invoice.type) + '-' + str(document.invoice.number).zfill(6)
+                filename += '.pdf'
+                pdf = build_document(document, is_invoice=is_invoice)
+                pdf.output(filename)
+                import subprocess
+                subprocess.Popen((filename, ), shell=True) 
+        except:
+            QMessageBox.critical(self, 'Error', 'Error viewing the file')
+            raise 
+
     # Proformas purchases handlers:
+    def proformas_purchases_view_pdf_handler(self):
+        self.view_documents(
+            self.proformas_purchases_view, 
+            self.proformas_purchases_model
+        )
+
     def proformas_purchases_selection_changed(self, selection_model):
         self.selection_changed_generic(self.proformas_purchases_view)
 
@@ -379,8 +445,12 @@ class MainGui(Ui_MainGui, QMainWindow):
     def proformas_purchases_print_handler(self):
         print('print') 
 
-    def proformas_purchases_pdf_handler(self):
-        print('pdf')
+    def proformas_purchases_export_handler(self):
+        self.export_documents(
+            self.proformas_purchases_view, 
+            self.proformas_purchases_model
+        )
+        
 
     def proformas_purchases_payments_handler(self, invoice=None):
         if invoice:
@@ -505,6 +575,13 @@ class MainGui(Ui_MainGui, QMainWindow):
             return self.proformas_purchases_model.proformas[rows.pop()]
     
     # PROFORMAS SALES HANDLERS
+
+    def proformas_sales_view_pdf_handler(self):
+        self.view_documents(
+            self.proformas_sales_view, 
+            self.proformas_sales_model
+        )
+
     def proformas_sales_selection_changed(self):
         self.selection_changed_generic(self.proformas_sales_view)
        
@@ -534,8 +611,12 @@ class MainGui(Ui_MainGui, QMainWindow):
     def proformas_sales_print_handler(self):
         print('printing')
 
-    def proformas_sales_pdf_handler(self):
-        print('exporting pdfs')
+    def proformas_sales_export_handler(self):
+        self.export_documents(
+            self.proformas_sales_view, 
+            self.proformas_sales_model
+        )
+
     
     def proformas_sales_mail_handler(self):
         print('sending mails')
@@ -673,6 +754,14 @@ class MainGui(Ui_MainGui, QMainWindow):
         self.sp.show()
 
     # PURCHASE INVOICE HANDLERS:
+
+    def invoices_purchases_view_pdf_handler(self):
+        self.view_documents(
+            self.invoices_purchases_view, 
+            self.invoices_purchases_model, 
+            is_invoice=True 
+        )
+
     def invoices_purchases_selection_changed(self):
         self.selection_changed_generic(self.invoices_purchases_view)
 
@@ -700,30 +789,31 @@ class MainGui(Ui_MainGui, QMainWindow):
         proforma = self.invoices_purchases_model[index.row()]
         self.proformas_purchases_launch_form(proforma=proforma)
     
-    def invoices_purchases_pdf_handler(self):
-        from fpdf import FPDF
+    def invoices_purchases_export_handler(self):
+       self.export_documents(
+           self.invoices_purchases_view, 
+           self.invoices_purchases_model, 
+           is_invoice=True 
+       )
 
-        pdf = FPDF()
-        pdf.add_page()
-        pdf.set_font('Arial', 'B', 16)
-        pdf.cell(40, 10, 'Hello World!')
-        pdf.output(r'C:\Users\Andrei\Desktop\projects\euromedia\tuto1.pdf', 'F')
-
-        import os 
-
-        os.startfile(r'C:\Users\Andrei\Desktop\projects\euromedia\tuto1.pdf')
-
-
+    
     def invoices_purchases_print_handler(self):
         print('print to printer')
 
     def get_purchases_invoice(self):
         return self.get_invoice(
-            self.proformas_purchases_model, 
-            self.proformas_purchases_view
+            self.invoices_purchases_model, 
+            self.invoices_purchases_view
         )
 
     # SALE INVOICE HANDLER:
+    def invoices_sales_view_pdf_handler(self):
+        self.view_documents(
+            self.invoices_sales_view, 
+            self.invoices_sales_model, 
+            is_invoice=True
+        )
+
     def invoices_sales_selection_changed(self):
         self.selection_changed_generic(self.invoices_purchases_view)
 
@@ -747,8 +837,13 @@ class MainGui(Ui_MainGui, QMainWindow):
         invoice = self.get_sales_invoice()
         self.proformas_sales_expenses_handler(invoice=invoice)
 
-    def invoices_sales_pdf_handler(self):
-        print('print to pdf')
+    def invoices_sales_export_handler(self):
+        self.export_documents(
+            self.invoices_sales_view, 
+            self.invoices_sales_model, 
+            is_invoice = True
+        )
+        
 
     def invoices_sales_print_handler(self):
         print('print to printer')

@@ -10,6 +10,7 @@ from PyQt5.QtWidgets import QInputDialog
 from PyQt5.QtWidgets import QAbstractItemView
 from PyQt5.QtWidgets import QFileDialog, QLineEdit
 
+
 # Miscelaneous
 from country_list import countries_for_language
 from schwifty import IBAN, BIC
@@ -184,6 +185,9 @@ def getNote(parent, proforma):
     text, ok = QInputDialog.getText(parent, 'Warehouse', 'Enter a warning for the warehouse order')
     return ok, text
 
+
+def get_directory(parent):
+    return QFileDialog.getExistingDirectory(parent, 'Get direcotry', 'Z:')
 
 def parse_date(string):
     if len(string) != 8:

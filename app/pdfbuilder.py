@@ -63,7 +63,7 @@ class PurcahseLinePDFRepr(LinePDFRepr):
         
         self.quantity = line.quantity
         self.price = line.price
-        self.total = line.price * line.quantity
+        self.total = round(line.price * line.quantity, 2)
 
 
 class SaleLinePDFRepr(LinePDFRepr):
@@ -464,8 +464,6 @@ class PDF(FPDF):
             self.set_xy(x_start, self.y_start)  
 
 
-names = ['A', 'B', 'C', 'D']
-
 def build_document(document, *, is_invoice):
     pdf = PDF(document, is_invoice=is_invoice)
     pdf.alias_nb_pages()
@@ -473,10 +471,7 @@ def build_document(document, *, is_invoice):
     pdf.add_page()
     pdf.print_body()
     pdf.print_footer()
-    name = names.pop(0)
-    # name = 'E' 
-    name +=  '.pdf'
-    pdf.output(name, 'F')
+    return pdf 
 
 if __name__ == '__main__':
 
@@ -492,5 +487,3 @@ if __name__ == '__main__':
         [False ,True]
     ):     
         build_document(doc, is_invoice=is_invoice)
-
-    # SaleLinesPDFRepr(sale.lines)

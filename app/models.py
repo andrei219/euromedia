@@ -29,7 +29,6 @@ from utils import (
 )
 
 
-
 # COLORS:
 # RED FOR CANCELLED
 # GREEN FOR COMPLETED

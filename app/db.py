@@ -1297,17 +1297,15 @@ condition3 = Condition('A-')
 
 if __name__ == '__main__':
     import sys 
-    try:
-        if sys.argv[1] == 'empty':
-            Base.metadata.create_all(engine) 
-            session.add_all([item1, item2, item3, item4, item5])
-            session.add_all([spec1, spec2, spec3, condition1, condition2, condition3])
-            session.commit()
 
-    except IndexError:
-        create_and_populate() 
-        create_sale(1)
-        create_lines()
+    create_and_populate() 
+    create_sale(1)
+    create_lines()
+
     
+
+
+
+
 
 
