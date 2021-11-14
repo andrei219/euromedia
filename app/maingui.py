@@ -409,6 +409,7 @@ class MainGui(Ui_MainGui, QMainWindow):
                 pdf.output(filename)
                 import subprocess
                 subprocess.Popen((filename, ), shell=True) 
+                os.remove(filename)
         except:
             QMessageBox.critical(self, 'Error', 'Error viewing the file')
             raise 
