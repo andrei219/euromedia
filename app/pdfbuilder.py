@@ -39,10 +39,12 @@ LEFT_MARGIN = 13.5
 ADDITIONAL_TEXT_TERM_INCREMENT = 10 
 
 
-from utils import description_id_map, build_description
 from collections.abc import Iterable
 from db import SaleProformaLine, PurchaseProformaLine
 
+import utils
+from importlib import reload
+utils = reload(utils)
 
 class LinePDFRepr:
 
@@ -52,7 +54,7 @@ class LinePDFRepr:
 class PurcahseLinePDFRepr(LinePDFRepr):
     
     def __init__(self, line):
-        self.description = description_id_map.inverse.get(line.item_id)
+        self.description = utils.description_id_map.inverse.get(line.item_id)
         if not self.description:
             self.description = line.description
 
@@ -99,7 +101,7 @@ class SaleLinePDFRepr(LinePDFRepr):
                 spec = 'Mix'
         
         # set Spec
-        description = build_description(lines) 
+        description = utils.build_description(lines) 
         description += f', {condition}'
         if spec:
             description += f', {spec} spec'
@@ -110,7 +112,7 @@ class SaleLinePDFRepr(LinePDFRepr):
         self.total = round(self.price * self.quantity, 2)
     
     def set_line_from_line(self, line):
-        description = line.description or description_id_map.inverse[line.item_id]
+        description = line.description or utils.description_id_map.inverse[line.item_id]
         
         condition = line.showing_condition or line.condition or ''
         spec = line.spec if not line.ignore_spec else None

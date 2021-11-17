@@ -3,21 +3,14 @@ from PyQt5.QtWidgets import QWidget, QMessageBox, QCompleter, QTableView
 
 from PyQt5.QtCore import QStringListModel, Qt
 
-from utils import (
-    parse_date, 
-    setCompleter,
-    agent_id_map, 
-    partner_id_map, 
-    courier_id_map, 
-    descriptions, 
-    conditions, 
-    specs, 
-    warehouse_id_map, 
-    description_id_map,
-    refresh
-)
+from importlib import reload
+import utils
+
+from utils import parse_date, setCompleter
 
 from ui_purchase_proforma_form import Ui_PurchaseProformaForm
+
+from decorators import ask_save
 
 import models, db
 
@@ -28,11 +21,17 @@ from exceptions import DuplicateLine
 from db import Partner, PurchaseProformaLine, PurchaseProforma, \
     PurchasePayment, func, Agent
 
-import utils
-  
+
+def reload_utils():
+    from importlib import reload 
+    global utils
+    utils = reload(utils)
+
+
 class Form(Ui_PurchaseProformaForm, QWidget):
     
     def __init__(self, parent, view):
+        reload_utils()
         super().__init__() 
         self.setupUi(self)
         self.parent = parent 
@@ -77,24 +76,23 @@ class Form(Ui_PurchaseProformaForm, QWidget):
         self.save_button.clicked.connect(self.saveHandler) 
 
     def setCombos(self):
-
         for combo, data in [
-            (self.agent_combobox, agent_id_map.keys()), 
-            (self.warehouse_combobox, warehouse_id_map.keys()), 
-            (self.courier_combobox, courier_id_map.keys())
+            (self.agent_combobox, utils.agent_id_map.keys()), 
+            (self.warehouse_combobox, utils.warehouse_id_map.keys()), 
+            (self.courier_combobox, utils.courier_id_map.keys())
         ]: combo.addItems(data)
 
     def setCompleters(self):
         for field, data in [
-            (self.partner_line_edit, partner_id_map.keys()),
-            (self.description_line_edit, descriptions), 
-            (self.spec_line_edit, specs), 
-            (self.condition_line_edit, conditions)]:
+            (self.partner_line_edit, utils.partner_id_map.keys()),
+            (self.description_line_edit, utils.descriptions), 
+            (self.spec_line_edit, utils.specs), 
+            (self.condition_line_edit, utils.conditions)]:
             setCompleter(field, data)
 
 
     def partnerSearch(self):
-        partner_id = partner_id_map.get(self.partner_line_edit.text())
+        partner_id = utils.partner_id_map.get(self.partner_line_edit.text())
         if not partner_id:
             return
         try:
@@ -124,17 +122,17 @@ class Form(Ui_PurchaseProformaForm, QWidget):
 
     def _validHeader(self):
         try:
-            partner_id_map[self.partner_line_edit.text()]
+            utils.partner_id_map[self.partner_line_edit.text()]
         except KeyError:
             QMessageBox.critical(self, 'Update - Error', 'Invalid Partner')
             return False
         try:
-            parse_date(self.date_line_edit.text())
+            utils.parse_date(self.date_line_edit.text())
         except ValueError:
             QMessageBox.critical(self, 'Update - Error', 'Error in date field. Format: ddmmyyyy')
             return False
         try:
-            parse_date(self.eta_line_edit.text())
+            utils.parse_date(self.eta_line_edit.text())
         except ValueError:
             QMessageBox.critical(self, 'Update - Error', 'Error in eta field. Format : ddmmyyyy')
             return False
@@ -172,16 +170,23 @@ class Form(Ui_PurchaseProformaForm, QWidget):
 
         proforma.type = int(self.type_combo_box.currentText())
         proforma.number = int(self.number_line_edit.text())
-        proforma.date = self._dateFromString(self.date_line_edit.text())
+        
+        if self.is_invoice:
+            proforma.invoice.date = self._dateFromString(self.date_line_edit.text())
+            proforma.invoice.eta = self._dateFromString(self.eta_line_edit.text())
+        else:
+            proforma.date = self._dateFromString(self.date_line_edit.text())
+            proforma.eta = self._dateFromString(self.date_line_edit.text())
+        
         proforma.warranty = self.warranty_spinbox.value()
         proforma.eta = self._dateFromString(self.eta_line_edit.text())
         proforma.they_pay_they_ship = self.they_pay_they_ship_shipping_radio_button.isChecked() 
         proforma.we_pay_we_ship = self.we_pay_we_ship_shipping_radio_button.isChecked() 
         proforma.we_pay_they_ship = self.we_pay_they_ship_shipping_radio_button.isChecked() 
-        proforma.partner_id = partner_id_map[self.partner_line_edit.text()]
-        proforma.agent_id = agent_id_map[self.agent_combobox.currentText()]
-        proforma.warehouse_id = warehouse_id_map[self.warehouse_combobox.currentText()]
-        proforma.courier_id = courier_id_map[self.courier_combobox.currentText()]
+        proforma.partner_id = utils.partner_id_map[self.partner_line_edit.text()]
+        proforma.agent_id = utils.agent_id_map[self.agent_combobox.currentText()]
+        proforma.warehouse_id = utils.warehouse_id_map[self.warehouse_combobox.currentText()]
+        proforma.courier_id = utils.courier_id_map[self.courier_combobox.currentText()]
         proforma.eur_currency = self.eur_radio_button.isChecked()
         proforma.credit_amount = self.with_credit_spinbox.value()
         proforma.credit_days = self.days_credit_spinbox.value()
@@ -197,8 +202,8 @@ class Form(Ui_PurchaseProformaForm, QWidget):
         condition = self.condition_line_edit.text()
         spec = self.spec_line_edit.text()
         if not description: return 
-        if description in descriptions and \
-            condition not in conditions and spec not in specs:
+        if description in utils.descriptions and \
+            condition not in utils.conditions and spec not in utils.specs:
                 QMessageBox.critical(self, 'Error', 'You cant add a device without condition and spec')
                 return 
         try:
@@ -235,12 +240,13 @@ class Form(Ui_PurchaseProformaForm, QWidget):
         else:
             QMessageBox.information(self, 'Information',\
                 'Purchase saved successfully')
-            self.close() 
+            # self.close() 
 
 
 class EditableForm(Form):
     
-    def __init__(self, parent, view, proforma:db.PurchaseProforma):
+    def __init__(self, parent, view, proforma:db.PurchaseProforma, is_invoice=False):
+        reload_utils()
         super(QWidget, Form).__init__(self) 
         self.setupUi(self)
         self.parent = parent
@@ -249,11 +255,11 @@ class EditableForm(Form):
         self.lines_view.setSelectionBehavior(QTableView.SelectRows)
         self.title = 'Line - Error'
         self.model = view.model() 
-           
-        try:
-            proforma.invoice
+        self.is_invoice = is_invoice 
+
+        if is_invoice:
             self.setWindowTitle('Proforma / Invoice Edit')
-        except AttributeError:
+        else:
             self.setWindowTitle('Proforma Edit ')
 
         self.set_warehouse_combo_enabled_if_no_items_processed()
@@ -287,8 +293,9 @@ class EditableForm(Form):
         p = self.proforma
         self.type_combo_box.setCurrentText(str(p.type))
         self.number_line_edit.setText(str(p.number))
-        self.date_line_edit.setText(p.date.strftime('%d%m%Y'))
-        self.eta_line_edit.setText(p.eta.strftime('%d%m%Y'))
+        
+        date = p.invoice.date if self.is_invoice else p.date        
+        self.eta_line_edit.setText(date.strftime('%d%m%Y'))
         self.partner_line_edit.setText(p.partner.fiscal_name)
         self.agent_combobox.setCurrentText(p.agent.fiscal_name)
         self.warehouse_combobox.setCurrentText(p.warehouse.description)
@@ -314,12 +321,12 @@ class EditableForm(Form):
             return
         try:
             self.lines_model.delete(indexes)
-        except: raise 
+        except: 
+            raise 
 
+    @ask_save
     def closeEvent(self, event):
-        refresh()
-        self.parent.set_mv('proformas_purchases_')
-
+        self.parent.set_mv('proformas_purchases')
 
     def saveHandler(self):
         if not super()._validHeader():
@@ -346,5 +353,6 @@ class EditableForm(Form):
                     message += 'Warehouse Updated' 
 
                 QMessageBox.information(self, "Information", message) 
-                self.close() 
+
+        self.close()
 

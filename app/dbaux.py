@@ -23,8 +23,9 @@ class Vector:
         self.partner = line.proforma.partner.fiscal_name
         self.item_id = line.item_id
         # self.description = line.description
-        self.asked = sum(line.asked for line in line.advanced_lines)
+        self.asked = sum(line.quantity for line in line.advanced_lines)
         try:
+            # breakpoint()
             self.processed = sum(
                 1 for line in line.proforma.reception.lines
                 for serie in line.series 
@@ -36,15 +37,17 @@ class Vector:
     def __iter__(self):
         return iter(self.__dict__.values())
 
+    # def __repr__(self):
+    #     classname = self.__class__.__name__
+    #     return classname + \
+    #         '(' + ', '.join(map(str, self)) + ')'
+
     def __repr__(self):
-        classname = self.__class__.__name__
-        return classname + \
-            '(' + ', '.join(map(str, self)) + ')'
+        return repr(self.__dict__)
 
 from db import engine
 
 
-print(len(s.all()))
 
 for line in sorted(s.all(), key=lambda o:o.id):
     print(Vector(line)) 

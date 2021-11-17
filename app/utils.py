@@ -58,6 +58,7 @@ conditions = {c.description for c in db.session.query(db.Condition.description)}
 partner_id_map =mymap(db.Partner)
 agent_id_map =mymap(db.Agent)
 
+
 courier_id_map = {
 	c.description:c.id 
 	for c in db.session.query(db.Courier.id, db.Courier.description)
@@ -67,27 +68,6 @@ warehouse_id_map = {
 	w.description:w.id 
 	for w in db.session.query(db.Warehouse.description, db.Warehouse.id)
 }
-
-
-def refresh():
-    db.refresh_session()
-
-    global descriptions, description_id_map, specs, \
-        conditions, partner_id_map, agent_id_map, courier_id_map, warehouse_id_map
-
-    description_id_map = bidict({str(item):item.id for item in db.session.query(db.Item)})
-    descriptions = complete_descriptions(description_id_map.keys())
-
-    specs = {s.description for s in db.session.query(db.Spec)}
-    conditions = {c.description for c in db.session.query(db.Condition)}
-
-    partner_id_map =mymap(db.Partner)
-    agent_id_map =mymap(db.Agent)
-
-    courier_id_map = {c.description:c.id for c in db.session.query(db.Courier)}
-    warehouse_id_map = {w.description:w.id for w in db.session.query(db.Warehouse)}
-
-
 
 
 

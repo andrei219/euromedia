@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_SalesProformaForm(object):
     def setupUi(self, SalesProformaForm):
         SalesProformaForm.setObjectName("SalesProformaForm")
-        SalesProformaForm.resize(1320, 998)
+        SalesProformaForm.resize(1298, 970)
         font = QtGui.QFont()
         font.setPointSize(10)
         SalesProformaForm.setFont(font)
@@ -28,7 +28,7 @@ class Ui_SalesProformaForm(object):
         self.selected_stock_view.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
         self.selected_stock_view.setObjectName("selected_stock_view")
         self.groupBox = QtWidgets.QGroupBox(SalesProformaForm)
-        self.groupBox.setGeometry(QtCore.QRect(80, 250, 1131, 211))
+        self.groupBox.setGeometry(QtCore.QRect(80, 240, 1131, 221))
         self.groupBox.setFlat(True)
         self.groupBox.setObjectName("groupBox")
         self.lines_view = QtWidgets.QTableView(self.groupBox)
@@ -38,7 +38,7 @@ class Ui_SalesProformaForm(object):
         self.lines_view.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
         self.lines_view.setObjectName("lines_view")
         self.cancel = QtWidgets.QPushButton(SalesProformaForm)
-        self.cancel.setGeometry(QtCore.QRect(1130, 900, 91, 31))
+        self.cancel.setGeometry(QtCore.QRect(1140, 900, 91, 31))
         self.cancel.setObjectName("cancel")
         self.note = QtWidgets.QTextEdit(SalesProformaForm)
         self.note.setGeometry(QtCore.QRect(710, 780, 341, 61))

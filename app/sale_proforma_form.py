@@ -6,39 +6,26 @@ from PyQt5.QtWidgets import QWidget, QMessageBox, QCompleter,\
 from PyQt5.QtCore import QStringListModel, Qt
 from PyQt5.QtCore import QAbstractTableModel
 
-from utils import parse_date, setCompleter
-
 from ui_sale_proforma_form import Ui_SalesProformaForm
 
 from models import SaleProformaLineModel, ActualLinesFromMixedModel,\
     StockModel
 
-import db
+import db, models, utils, decorators
 
-import models
 
 from db import Agent, Partner, SaleProformaLine, SaleProforma,\
     SalePayment, func
+    
 
-from utils import (
-    setCommonViewConfig, 
-    parse_date, 
-    setCompleter,
-    agent_id_map, 
-    partner_id_map, 
-    courier_id_map, 
-    descriptions, 
-    conditions, 
-    specs, 
-    warehouse_id_map, 
-    refresh,
-    build_description
-)
-
+import utils 
 
 class Form(Ui_SalesProformaForm, QWidget):
 
     def __init__(self, parent, view):
+        from importlib import reload
+        global utils
+        utils = reload(utils)
         super().__init__() 
         self.setupUi(self) 
         self.model = view.model() 
@@ -47,7 +34,7 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.lines_model = SaleProformaLineModel(self.proforma)
         self.lines_view.setModel(self.lines_model)
         self.stock_view.setSelectionBehavior(QTableView.SelectRows)
-        setCommonViewConfig(self.selected_stock_view)
+        utils.setCommonViewConfig(self.selected_stock_view)
         
         self.setCombos()
         self.setCompleters()
@@ -81,21 +68,21 @@ class Form(Ui_SalesProformaForm, QWidget):
 
     def setCombos(self):
         for combo, data in [
-            (self.agent, agent_id_map.keys()), 
-            (self.warehouse, warehouse_id_map.keys()), 
-            (self.courier, courier_id_map.keys())
+            (self.agent, utils.agent_id_map.keys()), 
+            (self.warehouse, utils.warehouse_id_map.keys()), 
+            (self.courier, utils.courier_id_map.keys())
         ]: combo.addItems(data)
 
     def setCompleters(self):
         for field, data in [
-            (self.partner, partner_id_map.keys()), 
-            (self.description, descriptions), 
-            (self.spec, specs), 
-            (self.condition, conditions)
-        ]: setCompleter(field, data)
+            (self.partner, utils.partner_id_map.keys()), 
+            (self.description, utils.descriptions), 
+            (self.spec, utils.specs), 
+            (self.condition, utils.conditions)
+        ]: utils.setCompleter(field, data)
 
     def partner_search(self):
-        partner_id = partner_id_map.get(self.partner.text())
+        partner_id = utils.partner_id_map.get(self.partner.text())
         if not partner_id:
             return
         try:
@@ -122,7 +109,6 @@ class Form(Ui_SalesProformaForm, QWidget):
 
     def proforma_to_form(self):
         p = self.proforma
-        print('proforma to form:', p.warehouse.description)
 
 
         self.type.setCurrentText(str(p.type))
@@ -180,7 +166,7 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.set_stock_mv()
 
     def set_stock_mv(self):
-        warehouse_id = warehouse_id_map.get(
+        warehouse_id = utils.warehouse_id_map.get(
             self.warehouse.currentText()
         )
         description = self.description.text()
@@ -209,9 +195,9 @@ class Form(Ui_SalesProformaForm, QWidget):
 
     def filters_unset(self):
         return any((
-            self.description.text() not in descriptions, 
-            self.spec.text() not in specs, 
-            self.condition.text() not in conditions
+            self.description.text() not in utils.descriptions, 
+            self.spec.text() not in utils.specs, 
+            self.condition.text() not in utils.conditions
         )) 
 
 
@@ -238,6 +224,7 @@ class Form(Ui_SalesProformaForm, QWidget):
             self.set_stock_mv()
             self.set_selected_stock_mv() 
             self.lines_view.clearSelection() 
+            self.update_total_fields() 
     
     def add_handler(self):
         if not hasattr(self, 'stock_model'):return
@@ -275,35 +262,45 @@ class Form(Ui_SalesProformaForm, QWidget):
 
     def save_handler(self):
         if not self._valid_header(): return
-        if not self.lines_model:
-            QMessageBox.critical(self, 'Error', 'Cant save empty proforma')
-            return 
         
-        warehouse_id = warehouse_id_map.get(self.warehouse.currentText())
+        warehouse_id = utils.warehouse_id_map.get(self.warehouse.currentText())
         lines = self.lines_model.lines 
         
         if hasattr(self, 'stock_model'):
             if self.stock_model.lines_against_stock(warehouse_id, lines):
-                QMessageBox.critical(self, 'Error', 'Someone took those stocks. Delete lines and start again.')
+                QMessageBox.critical(
+                    self, 
+                    'Error', 
+                    'Someone took those stocks. Start again.'
+                )
                 return 
 
         self._form_to_proforma() 
         try:
-            self.save_template() 
-            db.session.commit() 
+            db.session.commit()
         except:
             db.session.rollback() 
         else:
             QMessageBox.information(self, 'Success', 'Sale saved successfully')
-            self.close() 
+        
+        self.close() 
 
     def save_template(self):
         self.model.add(self.proforma) 
 
     def closeEvent(self, event):
-        refresh() 
+        if db.session.dirty:
+            if QMessageBox.question(
+                self,
+                'Save-changes', 
+                'Save changes?'
+            ) == QMessageBox.Yes:
+                db.session.commit()
+                # That method already contains a session.commit() call 
+                # self.model.updateWarehouse(self.proforma) 
+            else:
+                db.session.rollback()         
         self.parent.set_mv('proformas_sales_')
-        
 
     def update_total_fields(self):
         self.proforma_total.setText(str(self.lines_model.total))
@@ -312,12 +309,12 @@ class Form(Ui_SalesProformaForm, QWidget):
 
     def _valid_header(self):
         try:
-            partner_id_map[self.partner.text()]
+            utils.partner_id_map[self.partner.text()]
         except KeyError:
             QMessageBox.critical(self, 'Update - Error', 'Invalid Partner')
             return False
         try:
-            parse_date(self.date.text())
+            utils.parse_date(self.date.text())
         except ValueError:
             QMessageBox.critical(self, 'Update - Error', 'Error in date field. Format: ddmmyyyy')
             return False
@@ -327,15 +324,15 @@ class Form(Ui_SalesProformaForm, QWidget):
 
         self.proforma.type = int(self.type.currentText())
         self.proforma.number = int(self.number.text())
-        self.proforma.date = parse_date(self.date.text())
+        self.proforma.date = utils.parse_date(self.date.text())
         self.proforma.warranty = self.warranty.value()
         self.proforma.they_pay_they_ship = self.they_pay_they_ship.isChecked()
         self.proforma.they_pay_we_ship = self.they_pay_we_ship.isChecked() 
         self.proforma.we_pay_we_ship = self.we_pay_we_ship.isChecked() 
-        self.proforma.agent_id = agent_id_map[self.agent.currentText()]
-        self.proforma.partner_id = partner_id_map[self.partner.text()]
-        self.proforma.warehouse_id = warehouse_id_map[self.warehouse.currentText()]
-        self.proforma.courier_id = courier_id_map[self.courier.currentText()]
+        self.proforma.agent_id = utils.agent_id_map[self.agent.currentText()]
+        self.proforma.partner_id = utils.partner_id_map[self.partner.text()]
+        self.proforma.warehouse_id = utils.warehouse_id_map[self.warehouse.currentText()]
+        self.proforma.courier_id = utils.courier_id_map[self.courier.currentText()]
         self.proforma.eur_currency = self.eur.isChecked()
         self.proforma.credit_amount = self.credit.value()
         self.proforma.credit_days = self.days.value() 
@@ -355,14 +352,23 @@ class EditableForm(Form):
     def __init__(self, parent, view, proforma):
         self.proforma = proforma
         super().__init__(parent, view)
+        self.update_total_fields() 
 
     def init_template(self):
         self.proforma_to_form() 
         self.disable_warehouse() 
-
-    def save_template(self):
-        self.model.updateWarehouse(self.proforma) 
-    
+        
+    def closeEvent(self, event):
+        if db.session.dirty:
+            if QMessageBox.question(
+                self,
+                'Save-changes', 
+                'Save changes?'
+            ) == QMessageBox.Yes:
+                db.session.commit()
+                self.model.updateWarehouse(self.proforma) 
+            else:
+                db.session.rollback() 
 
     def disable_warehouse(self):
         try:

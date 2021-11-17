@@ -5,7 +5,7 @@ from PyQt5.QtCore import Qt
 
 from ui_payments_form import Ui_PaymentsForm
 
-from utils import parse_date
+from utils import parse_date, today_date
 
 from models import PaymentModel
 
@@ -19,12 +19,14 @@ class PaymentForm(Ui_PaymentsForm, QDialog):
         self.proforma_or_invoice = proforma_or_invoice
         self.view.setModel(self.model) 
 
-        self.add_payment_tool_button.pressed.connect(self.addHandler) 
-        self.delete_payment_tool_button.pressed.connect(self.deleteHandler)
+        self.add_payment_tool_button.clicked.connect(self.addHandler) 
+        self.delete_payment_tool_button.clicked.connect(self.deleteHandler)
 
         self.view.setSelectionBehavior(QTableView.SelectRows)
         self.view.setSortingEnabled(True)
         self.populate()
+
+        self.date_line_edit.setText(today_date())
 
     def addHandler(self):
         try:
@@ -35,6 +37,8 @@ class PaymentForm(Ui_PaymentsForm, QDialog):
         
         try:
             amount = self.amount.text().replace(',', '.') 
+
+            float(amount)
         except ValueError:
             QMessageBox.critical(self, 'Error - Update', \
                 'Error amount format. Enter a valid decimal number')
@@ -70,7 +74,7 @@ class PaymentForm(Ui_PaymentsForm, QDialog):
         self.owing_lineedit.setText(str(round(self.owing, 2)))
 
     def clearFields(self):
-        self.date_line_edit.clear() 
+        # self.date_line_edit.clear() 
         self.amount.clear()
         self.info_lineedit.clear() 
 

@@ -25,7 +25,9 @@ from utils import (
 	parse_date, 
 	description_id_map, 
 	descriptions, 
-	build_description
+	build_description, 
+	conditions, 
+	specs
 )
 
 
@@ -550,7 +552,7 @@ class SaleInvoiceModel(QtCore.QAbstractTableModel):
 	 
 	TYPE_NUM, PROFORMA = 0, 10 
 	
-	def __init__(self,search_key=None, filters=None):
+	def __init__(self, search_key=None, filters=None):
 		super().__init__() 
 		self.parent_model = SaleProformaModel(
 			filters = filters, 
@@ -659,6 +661,8 @@ class PurchaseInvoiceModel(QtCore.QAbstractTableModel):
 			else:
 				return self.parent_model.data(index, role) 
 
+
+
 		return self.parent_model.data(index, role)
 
 	def sort(self, section, order):
@@ -705,6 +709,7 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
 		self._headerData = ['Type & Num', 'Date', 'ETA', 'Partner', 'Agent', \
 			'Financial', 'Logistic', 'Sent', 'Cancelled','Owing', 'Total']
 		self.name = 'proformas'
+		self.proxy = proxy 
 
 		query = db.session.query(db.PurchaseProforma).\
 			select_from(db.Agent, db.Partner).\
@@ -789,7 +794,6 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
 		else:
 			self.proformas = query.all() 
 
-
 	def __getitem__(self, index):
 		return self.proformas[index]
 
@@ -804,9 +808,15 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
 				s = str(proforma.type) + '-' + str(proforma.number).zfill(6)
 				return s 
 			elif col == PurchaseProformaModel.DATE:
-				return proforma.date.strftime('%d/%m/%Y')
+				if self.proxy:
+					return proforma.invoice.date.strftime('%d/%m/%Y')
+				else:
+					return proforma.date.strftime('%d/%m/%Y')
 			elif col == PurchaseProformaModel.ETA:
-				return proforma.eta.strftime('%d/%m/%Y')
+				if self.proxy:
+					return proforma.invoice.eta.strftime('%d/%m/%Y')
+				else:
+					return proforma.eta.strftime('%d/%m/%Y')
 			elif col == PurchaseProformaModel.PARTNER:
 				return proforma.partner.fiscal_name 
 			elif col == PurchaseProformaModel.AGENT:
@@ -2663,7 +2673,10 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
 				for stock in stocks:
 					if stock == line:
 						stock += line 
-	
+
+
+		del session 
+
 		return list(filter(lambda stock:stock.quantity > 0, stocks))
 
 	def lines_against_stock(self, warehouse_id, lines):
@@ -2823,154 +2836,191 @@ from db import Reception as r
 from db import ReceptionLine as rl 
 from db import ReceptionSerie as rs 
 
+# class IncomingStockModel(BaseTable, QtCore.QAbstractTableModel):
+
+# 	def __init__(self, warehouse, *, item, condition, spec, lines=None):
+# 		super().__init__() 
+# 		self._headerData = ['Description', 'Condition', 'spec', 'ETA', 'quantity']
+# 		self.name = 'stocks'
+# 		self.stocks = self.computeStock(warehouse, item, condition, spec, lines) 
+
+# 	def computeStock(self, warehouse, item, condition, spec, lines):
+# 		# Logic:
+# 		# not_arrived_yet = asked - processed 
+# 		# incoming = not_arrived_yet + total purchase with no warehouse order
+# 		# Remember the special case:
+# 		#   if not incoming_stock:
+# 		#       incoming_stock = stock_not_arrived_yet
+# 		#   else:
+# 		#       iterate incoming, iterate asked - processed, add up 
+
+# 		session = db.Session() 
+
+
+# 		proformas = {r[0] for r in session.query(pp.id)}
+# 		orders = {r[0] for r in session.query(po.proforma_id)}
+
+# 		relevant = proformas.difference(orders)
+
+# 		processed_query = session.query(Item, pol.condition, pol.spec, pp.eta, func.count(ps.serie).label('processed')).\
+# 			select_from(pp, pol, po, Warehouse, Item, ps).where(pp.id == po.proforma_id).where(pol.order_id == po.id).\
+# 				where(Item.id == pol.item_id).where(ps.line_id == pol.id).where(Warehouse.id == pp.warehouse_id).\
+# 					group_by(Item.id, pp.eta, pol.condition, pol.spec).\
+# 						where(Warehouse.description == warehouse).where(pp.cancelled == False)
+
+# 		# Result: <db.Item object at 0x00000192B77C2610>, 'NEW', 'EEUU', datetime.date(2020, 10, 16), 10)
+# 		# r.Keys():MKeyView(['Item', 'condition', 'spec', 'eta'])
+
+# 		asked_query = session.query(Item, pl.condition, pl.spec, pp.eta, func.sum(pl.quantity).label('quantity')).\
+# 			select_from(pp, pl, Warehouse, Item, po).where(pp.id == pl.proforma_id).where(pp.warehouse_id == Warehouse.id).\
+# 				where(pl.item_id == Item.id).where(Warehouse.description == warehouse).where(pp.cancelled == False).\
+# 					where(po.proforma_id == pp.id).\
+# 					group_by(pp.eta, pl.condition, pl.spec, Item.id)
+
+
+# 		incoming_query = session.query(Item, pp.eta, pl.condition, pl.spec, func.sum(pl.quantity).label('incoming')).\
+# 			select_from(Item, Warehouse, pp, pl).where(pp.id == pl.proforma_id).where(Warehouse.id == pp.warehouse_id).\
+# 				where(pl.item_id == Item.id).where(pp.cancelled == False).where(pp.id.in_(relevant)).\
+# 					where(Warehouse.description == warehouse).\
+# 					group_by(pp.eta, pl.condition, pl.spec, Item.id)
+
+
+# 		sales_query = session.query(Item, sl.eta, sl.condition, sl.spec, func.sum(sl.quantity).label('outgoing')).\
+# 			select_from(Item, Warehouse, sp, sl).where(sp.warehouse_id == Warehouse.id).where(Item.id == sl.item_id).\
+# 				where(sp.id == sl.proforma_id).where(sp.cancelled == False).where(sp.normal == False).\
+# 					where(Warehouse.description == warehouse).\
+# 					group_by(sl.eta, sl.condition, sl.spec, Item.id)
+
+# 		if item:
+# 			asked_query = asked_query.where(Item.id == item.id)
+# 			processed_query = processed_query.where(Item.id == item.id)
+# 			incoming_query = incoming_query.where(Item.id == item.id)
+# 			sales_query = sales_query.where(Item.id == item.id)
+# 		if condition:
+# 			asked_query = asked_query.where(pl.condition == condition)
+# 			processed_query = processed_query.where(pol.condition == condition)
+# 			incoming_query = incoming_query.where(pl.condition == condition)
+# 			sales_query = sales_query.where(sl.condition == condition)
+# 		if spec:
+# 			asked_query = asked_query.where(pl.spec == spec)
+# 			processed_query = processed_query.where(pol.spec == spec) 
+# 			incoming_query = incoming_query.where(pl.spec == spec)
+# 			sales_query = sales_query.where(sl.spec == spec)
+
+# 		processed = {IncomingStockEntry(e.Item, e.spec, e.condition, e.processed, e.eta) for e \
+# 			in processed_query}
+
+# 		asked = {IncomingStockEntry(e.Item, e.spec, e.condition, e.quantity, e.eta) for e \
+# 			in asked_query}
+
+# 		incomings = { IncomingStockEntry(e.Item, e.spec, e.condition, e.incoming, e.eta) for e \
+# 			in incoming_query}
+
+		
+# 		sales = { IncomingStockEntry(e.Item, e.spec, e.condition, e.outgoing, e.eta) for e \
+# 			in sales_query}
+
+# 		for a in asked:
+# 			for p in processed:
+# 				if a == p:
+# 					a.quantity -= p.quantity
+# 					break 
+
+# 		not_arrived_yet = asked 
+		
+# 		if not incomings:
+# 			incomings = not_arrived_yet
+# 		else:
+# 			for i in incomings:
+# 				for n in not_arrived_yet:
+# 					if i == n:
+# 						i.quantity += n.quantity
+# 						break 
+		
+# 		if sales:
+# 			for sale in sales:
+# 				for incoming in incomings:
+# 					if sale == incoming:
+# 						incoming.quantity -= sale.quantity
+# 						break 
+# 			lost_sales = sales.difference(incomings)
+# 			for sale in lost_sales:
+# 				sale.quantity = (-1) * sale.quantity
+
+# 		if lines:
+# 			for line in lines:
+# 				for incoming in incomings:
+# 					if str(line.item) == incoming.item and line.condition == incoming.condition and \
+# 						line.spec == incoming.spec and line.eta == incoming.eta:
+# 							incoming.quantity -= line.quantity
+# 							break 
+
+# 		incomings = list(filter(lambda o : o.quantity != 0, incomings))
+
+# 		if sales:
+# 			incomings += list(lost_sales)
+
+# 		return incomings
+	
+# 	def checkAgainstLinesBeforeSaving(self):
+# 		pass 
+
+# 	def data(self, index, role=Qt.DisplayRole):
+# 		if not index.isValid():
+# 			return
+# 		row, column = index.row(), index.column()
+# 		entry = self.stocks[row]
+# 		if role == Qt.DisplayRole:
+# 			if column == 0:
+# 				return entry.item
+# 			elif column == 1:
+# 				return entry.condition
+# 			elif column == 2:
+# 				return entry.spec
+# 			elif column == 3:
+# 				return entry.eta.strftime('%d/%m/%Y')
+# 			elif column == 4:
+# 				return str(entry.quantity) + ' pcs'
+# 		elif role == Qt.DecorationRole:
+# 			if column == 3:
+# 				return QtGui.QIcon(':\calendar')
+
+
 class IncomingStockModel(BaseTable, QtCore.QAbstractTableModel):
 
-	def __init__(self, warehouse, *, item, condition, spec, lines=None):
+	DOCUMENT, PARTNER, ETA, DESC, CONDITION, SPEC, AVAILABLE =\
+		0, 1, 2, 3, 4, 5, 6
+
+	def __init__(self, warehouse, *, description, item_id, condition, spec):
 		super().__init__() 
-		self._headerData = ['Description', 'Condition', 'spec', 'ETA', 'quantity']
+		self._headerData = ['Document', 'Partner', 'Eta', 'Description', 'Condition', 'Spec.', 'Available']
 		self.name = 'stocks'
-		self.stocks = self.computeStock(warehouse, item, condition, spec, lines) 
-
-	def computeStock(self, warehouse, item, condition, spec, lines):
-		# Logic:
-		# not_arrived_yet = asked - processed 
-		# incoming = not_arrived_yet + total purchase with no warehouse order
-		# Remember the special case:
-		#   if not incoming_stock:
-		#       incoming_stock = stock_not_arrived_yet
-		#   else:
-		#       iterate incoming, iterate asked - processed, add up 
-
-		session = db.Session() 
+		self.stocks = self.computeIncomingStock(
+			warehouse,
+			description=description, 
+			item_id = item_id, 
+			condition = condition, 
+			spec = spec
+		) 
 
 
-		proformas = {r[0] for r in session.query(pp.id)}
-		orders = {r[0] for r in session.query(po.proforma_id)}
-
-		relevant = proformas.difference(orders)
-
-		processed_query = session.query(Item, pol.condition, pol.spec, pp.eta, func.count(ps.serie).label('processed')).\
-			select_from(pp, pol, po, Warehouse, Item, ps).where(pp.id == po.proforma_id).where(pol.order_id == po.id).\
-				where(Item.id == pol.item_id).where(ps.line_id == pol.id).where(Warehouse.id == pp.warehouse_id).\
-					group_by(Item.id, pp.eta, pol.condition, pol.spec).\
-						where(Warehouse.description == warehouse).where(pp.cancelled == False)
-
-		# Result: <db.Item object at 0x00000192B77C2610>, 'NEW', 'EEUU', datetime.date(2020, 10, 16), 10)
-		# r.Keys():MKeyView(['Item', 'condition', 'spec', 'eta'])
-
-		asked_query = session.query(Item, pl.condition, pl.spec, pp.eta, func.sum(pl.quantity).label('quantity')).\
-			select_from(pp, pl, Warehouse, Item, po).where(pp.id == pl.proforma_id).where(pp.warehouse_id == Warehouse.id).\
-				where(pl.item_id == Item.id).where(Warehouse.description == warehouse).where(pp.cancelled == False).\
-					where(po.proforma_id == pp.id).\
-					group_by(pp.eta, pl.condition, pl.spec, Item.id)
+	def computeIncomingStock(self, warehouse, *, description, item_id, condition, spec):
+		return [] 
 
 
-		incoming_query = session.query(Item, pp.eta, pl.condition, pl.spec, func.sum(pl.quantity).label('incoming')).\
-			select_from(Item, Warehouse, pp, pl).where(pp.id == pl.proforma_id).where(Warehouse.id == pp.warehouse_id).\
-				where(pl.item_id == Item.id).where(pp.cancelled == False).where(pp.id.in_(relevant)).\
-					where(Warehouse.description == warehouse).\
-					group_by(pp.eta, pl.condition, pl.spec, Item.id)
+class AdvancedLinesModel(BaseTable, QtCore.QAbstractTableModel):
+
+	DESCRIPTION, CONDITION, SHOWING_CONDITION, SPEC, IGNORING_SPEC, \
+		QUANTITY, PRICE, SUBTOTAL, TAX, TOTAL = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
 
 
-		sales_query = session.query(Item, sl.eta, sl.condition, sl.spec, func.sum(sl.quantity).label('outgoing')).\
-			select_from(Item, Warehouse, sp, sl).where(sp.warehouse_id == Warehouse.id).where(Item.id == sl.item_id).\
-				where(sp.id == sl.proforma_id).where(sp.cancelled == False).where(sp.normal == False).\
-					where(Warehouse.description == warehouse).\
-					group_by(sl.eta, sl.condition, sl.spec, Item.id)
+	def __init__(self, proforma):
+		super().__init__()
+		self._headerData = ['Description', 'Condition', 'Showing Condt.', 'Spec', \
+			'Ignoring Spec?','Qty.', 'Price', 'Subtotal', 'Tax', 'Total']
+		self.lines = []  
+		self.name = 'lines'
 
-		if item:
-			asked_query = asked_query.where(Item.id == item.id)
-			processed_query = processed_query.where(Item.id == item.id)
-			incoming_query = incoming_query.where(Item.id == item.id)
-			sales_query = sales_query.where(Item.id == item.id)
-		if condition:
-			asked_query = asked_query.where(pl.condition == condition)
-			processed_query = processed_query.where(pol.condition == condition)
-			incoming_query = incoming_query.where(pl.condition == condition)
-			sales_query = sales_query.where(sl.condition == condition)
-		if spec:
-			asked_query = asked_query.where(pl.spec == spec)
-			processed_query = processed_query.where(pol.spec == spec) 
-			incoming_query = incoming_query.where(pl.spec == spec)
-			sales_query = sales_query.where(sl.spec == spec)
-
-		processed = {IncomingStockEntry(e.Item, e.spec, e.condition, e.processed, e.eta) for e \
-			in processed_query}
-
-		asked = {IncomingStockEntry(e.Item, e.spec, e.condition, e.quantity, e.eta) for e \
-			in asked_query}
-
-		incomings = { IncomingStockEntry(e.Item, e.spec, e.condition, e.incoming, e.eta) for e \
-			in incoming_query}
-
-		
-		sales = { IncomingStockEntry(e.Item, e.spec, e.condition, e.outgoing, e.eta) for e \
-			in sales_query}
-
-		for a in asked:
-			for p in processed:
-				if a == p:
-					a.quantity -= p.quantity
-					break 
-
-		not_arrived_yet = asked 
-		
-		if not incomings:
-			incomings = not_arrived_yet
-		else:
-			for i in incomings:
-				for n in not_arrived_yet:
-					if i == n:
-						i.quantity += n.quantity
-						break 
-		
-		if sales:
-			for sale in sales:
-				for incoming in incomings:
-					if sale == incoming:
-						incoming.quantity -= sale.quantity
-						break 
-			lost_sales = sales.difference(incomings)
-			for sale in lost_sales:
-				sale.quantity = (-1) * sale.quantity
-
-		if lines:
-			for line in lines:
-				for incoming in incomings:
-					if str(line.item) == incoming.item and line.condition == incoming.condition and \
-						line.spec == incoming.spec and line.eta == incoming.eta:
-							incoming.quantity -= line.quantity
-							break 
-
-		incomings = list(filter(lambda o : o.quantity != 0, incomings))
-
-		if sales:
-			incomings += list(lost_sales)
-
-		return incomings
-	
-	def checkAgainstLinesBeforeSaving(self):
-		pass 
-
-	def data(self, index, role=Qt.DisplayRole):
-		if not index.isValid():
-			return
-		row, column = index.row(), index.column()
-		entry = self.stocks[row]
-		if role == Qt.DisplayRole:
-			if column == 0:
-				return entry.item
-			elif column == 1:
-				return entry.condition
-			elif column == 2:
-				return entry.spec
-			elif column == 3:
-				return entry.eta.strftime('%d/%m/%Y')
-			elif column == 4:
-				return str(entry.quantity) + ' pcs'
-		elif role == Qt.DecorationRole:
-			if column == 3:
-				return QtGui.QIcon(':\calendar')
 
 class InventoryModel(BaseTable, QtCore.QAbstractTableModel):
 	

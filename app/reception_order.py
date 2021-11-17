@@ -6,8 +6,11 @@ from PyQt5.QtWidgets import QAbstractItemView
 from ui_reception_order import Ui_Form
 
 import models 
+import utils 
 
 from utils import setCompleter
+
+from sqlalchemy.exc import IntegrityError
 
 class AlreadyProcessedError(BaseException):
     pass 
@@ -55,10 +58,10 @@ class Form(QDialog, Ui_Form):
         self.search.clicked.connect(self.search_handler) 
 
     def setCompleters(self):
-        conditions = models.conditions.difference({'Mix'})
-        specs = models.specs.difference({'Mix'})
+        conditions = utils.conditions.difference({'Mix'})
+        specs = utils.specs.difference({'Mix'})
         for field, data in [
-            (self.actual_item, models.description_id_map.keys()), 
+            (self.actual_item, utils.description_id_map.keys()), 
             (self.actual_condition, conditions), 
             (self.actual_spec, specs)
         ]: setCompleter(field, data) 
@@ -165,6 +168,8 @@ class Form(QDialog, Ui_Form):
             )
         except ValueError as ex:
             QMessageBox.critical(self, 'Error', str(ex))
+        except IntegrityError:
+            QMessageBox.critical(self, 'Error', 'That Imei/SN already exists')
         else:      
             self.update_group_model()
             self.update_overflow_condition() 
@@ -212,7 +217,7 @@ class Form(QDialog, Ui_Form):
             line.spec == 'Mix'
         )): return True 
         if line.item_id is None and \
-            line.description in models.descriptions:
+            line.description in utils.descriptions:
                 return True 
         return False
 

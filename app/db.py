@@ -28,10 +28,6 @@ import operator
 
 Base = declarative_base() 
 
-def refresh_session():
-    global Session, session 
-    Session = scoped_session(sessionmaker(bind=engine, autoflush=False))
-    session = Session()
 
 class Warehouse(Base):
 
@@ -603,7 +599,6 @@ class SaleProformaLine(Base):
     # Test the properties relevant to both:
     # Warehouse and sale proforma
     def __eq__(self, other):
-        print('reached')
         return all((
             other.item_id == self.item_id, 
             other.condition == self.condition, 
@@ -628,7 +623,11 @@ class AdvancedLine(Base):
 
     id = Column(Integer, primary_key=True) 
     origin_id = Column(Integer, ForeignKey('purchase_proforma_lines.id'))
-    asked = Column(Integer, nullable=False) 
+    proforma_id = Column(Integer, ForeignKey('sale_proformas.id'))
+    quantity = Column(Integer, nullable=False, default=1) 
+    price = Column(Numeric(10, 2, asdecimal=False), nullable=False, default=1.0) 
+    tax = Column(Integer, nullable=False, default=0) 
+    showing_condition = Column(Integer, nullable=True)    
 
     origin = relationship(
         'PurchaseProformaLine', 
@@ -637,6 +636,15 @@ class AdvancedLine(Base):
             cascade = 'delete-orphan, delete, save-update'
             )
         )
+
+    proforma = relationship(
+        'SaleProforma', 
+        backref=backref(
+            'advanced_lines', 
+            cascade = 'delete-orphan, delete, save-update', 
+            # lazy = 'joined'
+        )
+    )
 
 class Expedition(Base):
     
@@ -1113,6 +1121,7 @@ def insert_imei_after_mixed_purchase(mapper, connection, target):
     )
     connection.execute(stmt) 
 
+
 @event.listens_for(ReceptionSerie, 'after_delete')
 def delete_imei_after_mixed_purchase(mapper, connection, target):
     stmt = delete(Imei).where(Imei.imei == target.serie)
@@ -1143,6 +1152,7 @@ def insert_imei_after_sale(mapper, connection, target):
     )
     
     connection.execute(stmt)
+
 
 class SpecChange(Base):
 
@@ -1280,6 +1290,17 @@ def create_mask():
     session.commit()
 
 
+def create_advanced_line():
+
+    line = AdvancedLine()
+    line.origin_id = 1
+    line.quantity = 10
+
+    
+    session.add(line) 
+
+    session.commit() 
+
 item1 = Item('Apple', 'Iphone', 'X', 128, 'Black')
 item2 = Item('Samnsung', 'Galaxy', 'Lite', 256, 'Red')
 item3 = Item('Apple', 'Iphone', 'X', 128, 'Red')
@@ -1302,7 +1323,7 @@ if __name__ == '__main__':
     create_sale(1)
     create_lines()
 
-    
+    create_advanced_line()    
 
 
 

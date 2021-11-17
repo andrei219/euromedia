@@ -9,7 +9,6 @@ from PyQt5.QtWidgets import (
     
 )
 
-
 from PyQt5 import QtCore
 
 from ui_maingui import Ui_MainGui
@@ -18,7 +17,7 @@ import models
   
 import agentgui, partner_form, product_form, purchase_proforma_form, payments_form, expenses_form, \
     document_form, expedition_form, sale_proforma_form, inventory_form, spec_change_form, condition_change_form, \
-        warehouse_change_form, reception_order
+        warehouse_change_form, reception_order, advanced_sale_proforma_form
 
 from sqlalchemy.exc import IntegrityError
 
@@ -27,11 +26,10 @@ from utils import (
     getPassword, 
     getTracking, 
     getNote, 
-    refresh, 
     get_directory
 ) 
 
-
+import db 
 from pdfbuilder import build_document
 
 from db import PurchaseProforma, PurchaseDocument, SaleDocument, SaleProforma
@@ -79,7 +77,8 @@ ACTIONS = [
     'change_condition', 
     'check_inventory', 
     'create_product', 
-    'view_pdf' 
+    'view_pdf', 
+    'newadv'
 ]
 
 class MainGui(Ui_MainGui, QMainWindow):
@@ -119,10 +118,12 @@ class MainGui(Ui_MainGui, QMainWindow):
         for row in rows:
             doc = view.model()[row] 
             paid += sum(p.amount for p in doc.payments)
-            total += sum(
-                line.price * line.quantity 
-                for line in doc.lines
-            )
+            total += round(
+                    sum(
+                    line.price * line.quantity 
+                    for line in doc.lines
+                ), 2
+            ) 
 
         name = view.objectName() 
         prefix = name[0:name.rfind('_') +  1]
@@ -202,15 +203,13 @@ class MainGui(Ui_MainGui, QMainWindow):
             self.warehouse_expeditions_view.setSortingEnabled(True)
 
     def set_handlers(self):
-
-
-        for prefix in PREFIXES:
-            for action in ACTIONS:
-                try:
-                    widget_name = prefix + action
-                    self.attach_handler(prefix, action)
-                except AttributeError:
-                    continue  
+        from itertools import product
+        for prefix, action in product(PREFIXES, ACTIONS):
+            try:
+                widget_name = prefix + action
+                self.attach_handler(prefix, action)
+            except AttributeError:
+                continue  
 
     def attach_handler(self, prefix, action):
         try:
@@ -545,12 +544,13 @@ class MainGui(Ui_MainGui, QMainWindow):
                     'Error updating proforma')
                 raise 
 
-    def proformas_purchases_launch_form(self, index=None, proforma=None):
+    def proformas_purchases_launch_form(self, index=None, proforma=None, is_invoice=False):
         if proforma:
             self.epp = purchase_proforma_form.EditableForm(
                 self, 
                 self.proformas_purchases_view,
-                proforma
+                proforma, 
+                is_invoice=is_invoice
             )
             self.epp.show()
         elif index:
@@ -558,13 +558,14 @@ class MainGui(Ui_MainGui, QMainWindow):
             self.epp = purchase_proforma_form.EditableForm(
                 self,
                 self.proformas_purchases_view,
-                proforma
+                proforma, 
+                is_invoice=is_invoice
             ) 
             self.epp.show() 
         else:
             self.pp = purchase_proforma_form.Form(
                 self, 
-                self.proformas_purchases_view
+                self.proformas_purchases_view, 
             ) 
             self.pp.show() 
 
@@ -576,6 +577,8 @@ class MainGui(Ui_MainGui, QMainWindow):
             return self.proformas_purchases_model.proformas[rows.pop()]
     
     # PROFORMAS SALES HANDLERS
+    def proformas_sales_newadv_handler(self):
+        self.launch_adv_sale_proforma_form()
 
     def proformas_sales_view_pdf_handler(self):
         self.view_documents(
@@ -742,7 +745,24 @@ class MainGui(Ui_MainGui, QMainWindow):
         if len(rows) == 1:
             return self.proformas_sales_model.proformas[rows.pop()]
 
-    def launch_sale_proforma_form(self, index=None, proforma=None):
+
+    def launch_adv_sale_proforma_form(self, index=None):
+        from contextlib import suppress
+        proforma = None 
+        with suppress(AttributeError):
+            proforma = self.proformas_sales_model.proformas[index.row()]
+
+        self.advsp = advanced_sale_proforma_form.get_form(
+            self, 
+            self.proformas_sales_view, 
+            proforma
+        )
+
+        self.advsp.show() 
+
+
+    def launch_sale_proforma_form(self, index=None):
+        proforma = None 
         try:
             proforma = self.proformas_sales_model.proformas[index.row()]
         except AttributeError:
@@ -788,7 +808,7 @@ class MainGui(Ui_MainGui, QMainWindow):
 
     def invoices_purchases_double_click_handler(self, index):
         proforma = self.invoices_purchases_model[index.row()]
-        self.proformas_purchases_launch_form(proforma=proforma)
+        self.proformas_purchases_launch_form(proforma=proforma, is_invoice=True)
     
     def invoices_purchases_export_handler(self):
        self.export_documents(
@@ -972,7 +992,7 @@ class MainGui(Ui_MainGui, QMainWindow):
     def tab_changed(self, index):
         # Clean up the filters also 
         # And complete the rest of the models
-        refresh() 
+        db.session.commit() 
         
         if index == 0:
            self.set_mv('agents_')

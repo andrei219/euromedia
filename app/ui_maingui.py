@@ -1723,9 +1723,9 @@ class Ui_MainGui(object):
 
         self.retranslateUi(MainGui)
         self.main_tab.setCurrentIndex(2)
-        self.proformastab.setCurrentIndex(0)
+        self.proformastab.setCurrentIndex(1)
         self.invoicestab.setCurrentIndex(0)
-        self.warehouse.setCurrentIndex(2)
+        self.warehouse.setCurrentIndex(1)
         self.rmastab.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainGui)
 
