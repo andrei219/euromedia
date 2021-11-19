@@ -4470,146 +4470,6 @@
       </widget>
      </widget>
     </widget>
-    <widget class="QWidget" name="tools_tab">
-     <attribute name="icon">
-      <iconset resource="../app/icons.qrc">
-       <normaloff>:/tools</normaloff>:/tools</iconset>
-     </attribute>
-     <attribute name="title">
-      <string>Tools</string>
-     </attribute>
-     <attribute name="toolTip">
-      <string>Tools like grading, Changing warehouse, traceability, rebu, importing, etc</string>
-     </attribute>
-     <widget class="QPushButton" name="tools_create_product">
-      <property name="geometry">
-       <rect>
-        <x>590</x>
-        <y>200</y>
-        <width>141</width>
-        <height>61</height>
-       </rect>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">background:lightgray; </string>
-      </property>
-      <property name="text">
-       <string>Create Product</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="tools_check_inventory">
-      <property name="geometry">
-       <rect>
-        <x>590</x>
-        <y>300</y>
-        <width>141</width>
-        <height>61</height>
-       </rect>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">background:lightgray; </string>
-      </property>
-      <property name="text">
-       <string>Check Inventory</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="tools_change_warehouse">
-      <property name="geometry">
-       <rect>
-        <x>850</x>
-        <y>200</y>
-        <width>141</width>
-        <height>61</height>
-       </rect>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">background:lightgray; </string>
-      </property>
-      <property name="text">
-       <string>Change Warehouse</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="tools_change_condition">
-      <property name="geometry">
-       <rect>
-        <x>850</x>
-        <y>290</y>
-        <width>141</width>
-        <height>61</height>
-       </rect>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">background:lightgray; </string>
-      </property>
-      <property name="text">
-       <string>Change Condition</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="tools_change_spec">
-      <property name="geometry">
-       <rect>
-        <x>850</x>
-        <y>380</y>
-        <width>141</width>
-        <height>61</height>
-       </rect>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">background:lightgray; </string>
-      </property>
-      <property name="text">
-       <string>Change Spec</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="tools_create_warehouse">
-      <property name="geometry">
-       <rect>
-        <x>590</x>
-        <y>380</y>
-        <width>141</width>
-        <height>61</height>
-       </rect>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">background:lightgray; </string>
-      </property>
-      <property name="text">
-       <string>Create Warehouse</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="tools_create_spec">
-      <property name="geometry">
-       <rect>
-        <x>590</x>
-        <y>470</y>
-        <width>141</width>
-        <height>61</height>
-       </rect>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">background:lightgray; </string>
-      </property>
-      <property name="text">
-       <string>Create Spec</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="tools_create_condition">
-      <property name="geometry">
-       <rect>
-        <x>850</x>
-        <y>470</y>
-        <width>141</width>
-        <height>61</height>
-       </rect>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">background:lightgray; </string>
-      </property>
-      <property name="text">
-       <string>Create Condition</string>
-      </property>
-     </widget>
-    </widget>
     <widget class="QWidget" name="warehouse_tab">
      <attribute name="icon">
       <iconset resource="../app/icons.qrc">
@@ -4631,7 +4491,7 @@
        </rect>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <property name="iconSize">
        <size>
@@ -6437,6 +6297,146 @@
         </widget>
        </widget>
       </widget>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="tools_tab">
+     <attribute name="icon">
+      <iconset resource="../app/icons.qrc">
+       <normaloff>:/tools</normaloff>:/tools</iconset>
+     </attribute>
+     <attribute name="title">
+      <string>Tools</string>
+     </attribute>
+     <attribute name="toolTip">
+      <string>Tools like grading, Changing warehouse, traceability, rebu, importing, etc</string>
+     </attribute>
+     <widget class="QPushButton" name="tools_create_product">
+      <property name="geometry">
+       <rect>
+        <x>590</x>
+        <y>200</y>
+        <width>141</width>
+        <height>61</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background:lightgray; </string>
+      </property>
+      <property name="text">
+       <string>Create Product</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="tools_check_inventory">
+      <property name="geometry">
+       <rect>
+        <x>590</x>
+        <y>300</y>
+        <width>141</width>
+        <height>61</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background:lightgray; </string>
+      </property>
+      <property name="text">
+       <string>Check Inventory</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="tools_change_warehouse">
+      <property name="geometry">
+       <rect>
+        <x>850</x>
+        <y>200</y>
+        <width>141</width>
+        <height>61</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background:lightgray; </string>
+      </property>
+      <property name="text">
+       <string>Change Warehouse</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="tools_change_condition">
+      <property name="geometry">
+       <rect>
+        <x>850</x>
+        <y>290</y>
+        <width>141</width>
+        <height>61</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background:lightgray; </string>
+      </property>
+      <property name="text">
+       <string>Change Condition</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="tools_change_spec">
+      <property name="geometry">
+       <rect>
+        <x>850</x>
+        <y>380</y>
+        <width>141</width>
+        <height>61</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background:lightgray; </string>
+      </property>
+      <property name="text">
+       <string>Change Spec</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="tools_create_warehouse">
+      <property name="geometry">
+       <rect>
+        <x>590</x>
+        <y>380</y>
+        <width>141</width>
+        <height>61</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background:lightgray; </string>
+      </property>
+      <property name="text">
+       <string>Create Warehouse</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="tools_create_spec">
+      <property name="geometry">
+       <rect>
+        <x>590</x>
+        <y>470</y>
+        <width>141</width>
+        <height>61</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background:lightgray; </string>
+      </property>
+      <property name="text">
+       <string>Create Spec</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="tools_create_condition">
+      <property name="geometry">
+       <rect>
+        <x>850</x>
+        <y>470</y>
+        <width>141</width>
+        <height>61</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background:lightgray; </string>
+      </property>
+      <property name="text">
+       <string>Create Condition</string>
+      </property>
      </widget>
     </widget>
     <widget class="QWidget" name="report_tab">

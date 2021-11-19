@@ -1,5 +1,5 @@
 from sqlalchemy import create_engine, event, insert, select, update, delete, and_
-from sqlalchemy.sql import func
+from sqlalchemy.sql import func, exists
 from sqlalchemy.orm import sessionmaker, scoped_session
 
 engine = create_engine('mysql+mysqlconnector://root:hnq#4506@localhost:3306/appdb', echo=False) 
@@ -599,11 +599,16 @@ class SaleProformaLine(Base):
     # Test the properties relevant to both:
     # Warehouse and sale proforma
     def __eq__(self, other):
+        
+        description = False 
+        if hasattr(other, 'description') and hasattr(self, 'description'):
+            description = other.description == self.description
+
         return all((
             other.item_id == self.item_id, 
             other.condition == self.condition, 
-            other.spec == self.spec
-        ))
+            other.spec == self.spec, 
+        )) and description
     
     def __hash__(self):
         hashes = (hash(x) for x in (
@@ -623,17 +628,24 @@ class AdvancedLine(Base):
 
     id = Column(Integer, primary_key=True) 
     origin_id = Column(Integer, ForeignKey('purchase_proforma_lines.id'))
+    type = Column(Integer, nullable=False)
+    number = Column(Integer, nullable=False)
+    
     proforma_id = Column(Integer, ForeignKey('sale_proformas.id'))
+    
+    
+    description = Column(String(50))
     quantity = Column(Integer, nullable=False, default=1) 
     price = Column(Numeric(10, 2, asdecimal=False), nullable=False, default=1.0) 
     tax = Column(Integer, nullable=False, default=0) 
-    showing_condition = Column(Integer, nullable=True)    
+    ignore_spec = Column(Boolean, default=True, nullable=False)
+    showing_condition = Column(String(50), nullable=True)    
 
     origin = relationship(
         'PurchaseProformaLine', 
         backref=backref(
             'advanced_lines', 
-            cascade = 'delete-orphan, delete, save-update'
+            cascade = 'delete-orphan, delete, save-update', 
             )
         )
 
@@ -645,6 +657,21 @@ class AdvancedLine(Base):
             # lazy = 'joined'
         )
     )
+
+    def __eq__(self, other):
+        return all((
+            self.origin_id == other.origin_id,
+            self.type == other.type, 
+            self.number == other.number
+        )) 
+
+    def __hash__(self):
+        hashes = (hash(x) for x in (
+            self.type, self.number, self.origin_id
+        ))
+
+        return functools.reduce(operator.xor, hashes, 0)
+
 
 class Expedition(Base):
     
@@ -1027,7 +1054,7 @@ def create_and_populate():
         line.item = random.choice(item_list)
         line.condition = random.choice([c.description for c in condition_list])
         line.spec = random.choice([s.description for s in spec_list])
-        line.quantity = random.choice([i for i in range(1, 15)])
+        line.quantity = random.choice([i for i in range(5, 15)])
         line.price = random.uniform(200.0, 400.2)
         
         proforma.lines.append(line) 
@@ -1038,7 +1065,7 @@ def create_and_populate():
         line.description = 'Apple Iphone X Mixed GB Mixed Color'
         line.condition = random.choice([c.description for c in condition_list])
         line.spec = random.choice([s.description for s in spec_list]) 
-        line.quantity = random.choice([i for i in range(1, 15)])
+        line.quantity = random.choice([i for i in range(5, 15)])
         line.price = random.uniform(200.0, 400.2)
         proforma.lines.append(line)
         
@@ -1047,7 +1074,7 @@ def create_and_populate():
         line.item = random.choice(item_list)
         line.condition = random.choice([c.description for c in condition_list]) 
         line.spec = 'Mix'
-        line.quantity = random.choice([i for i in range(1, 15)])
+        line.quantity = random.choice([i for i in range(5, 15)])
         line.price = random.uniform(200.0, 400.2)
         proforma.lines.append(line)
 
@@ -1067,10 +1094,6 @@ def create_and_populate():
         pd.name = 'customs'
         pd.document = base64Pdf(testpath)
         pd.proforma = proforma
-
-    # from datetime import date
-    # pp1 = PurchasePayment(date.today(), 5000, 'Caixa / 33423', proforma) 
-    # pp2 = PurchasePayment(date.today() + timedelta(days=2), 200, 'Santander / 23423', proforma) 
 
 
     session.commit() 
@@ -1107,27 +1130,48 @@ from exceptions import NotExistingStockOutput
 @event.listens_for(ReceptionSerie, 'after_insert')
 def insert_imei_after_mixed_purchase(mapper, connection, target):
 
-    # from sqlalchemy.sql import exists:
-    # _ex = session.query(exists().where(SaleProformaLine.origin_id == target.line.id)).scalar()
-    # if _ex:
-    # insert values in input mask with the same following statement. 
+    connection.execute(imei_insert_stmt(Imei, target))    
+    
+    purchase_line_id = get_associated_purchase_line(target) 
 
-    stmt = insert(Imei).values(
+    if purchase_line_id:
+
+        advanced_associated = session.query(
+            exists().where(AdvancedLine.origin_id == purchase_line_id)
+        ).scalar()
+
+        if advanced_associated:
+            imei_count = session.query(
+                func.count(ReceptionSerie.id)
+            ).where(
+                ReceptionSerie.line_id == purchase_line_id
+            ).scalar() 
+
+            if imei_count and imei_count <= target.line.quantity:
+                connection.execute(imei_insert_stmt(ImeiMask, target))
+
+def get_associated_purchase_line(reception_serie:ReceptionSerie):
+    line_alias = reception_serie.line 
+    for line in reception_serie.line.reception.proforma.lines:
+        if line == line_alias:
+            return line.id
+
+def imei_insert_stmt(cls, target):
+    return insert(cls).values(
         imei = target.serie, 
         item_id = target.item_id, 
         condition = target.condition, 
         spec = target.spec, 
         warehouse_id = target.line.reception.proforma.warehouse_id
     )
-    connection.execute(stmt) 
-
+    
 
 @event.listens_for(ReceptionSerie, 'after_delete')
 def delete_imei_after_mixed_purchase(mapper, connection, target):
-    stmt = delete(Imei).where(Imei.imei == target.serie)
-    result = connection.execute(stmt)
-    # Ignoramos lo que pase, nos da igual
-    # Esa mercancia ya se vendio y no esta en inventario
+    stmt1 = delete(Imei).where(Imei.imei == target.serie)
+    stmt2 = delete(ImeiMask).where(ImeiMask.imei == target.serie)
+    connection.execute(stmt1)
+    connection.execute(stmt2)
 
 
 @event.listens_for(ExpeditionSerie, 'after_insert')
@@ -1139,6 +1183,10 @@ def delete_imei_after_sale(mapper, connection, target):
     result = connection.execute(stmt) 
     if not result.rowcount:
         raise NotExistingStockOutput
+    else:
+        connection.execute(
+            delete(ImeiMask).where(ImeiMask.imei == target.serie)
+        )
 
 
 @event.listens_for(ExpeditionSerie, 'after_delete')
@@ -1294,8 +1342,7 @@ def create_advanced_line():
 
     line = AdvancedLine()
     line.origin_id = 1
-    line.quantity = 10
-
+    line.quantity = 3
     
     session.add(line) 
 
@@ -1320,11 +1367,13 @@ if __name__ == '__main__':
     import sys 
 
     create_and_populate() 
-    create_sale(1)
-    create_lines()
+    # create_sale(1)
+    # create_lines()
 
-    create_advanced_line()    
+    # create_advanced_line() 
+    # create_advanced_line()    
 
+    
 
 
 

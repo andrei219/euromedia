@@ -1,8 +1,9 @@
 
+from datetime import date 
 
 from ui_advanced_sale_proforma_form import Ui_Form
 
-from PyQt5.QtWidgets import QWidget
+from PyQt5.QtWidgets import QWidget, QMessageBox
 
 from decorators import ask_save
 
@@ -10,51 +11,41 @@ from utils import setCommonViewConfig
 
 from sale_proforma_form import Form
 
-from utils import (
-    setCommonViewConfig, 
-    parse_date, 
-    setCompleter,
-    agent_id_map, 
-    partner_id_map, 
-    courier_id_map, 
-    descriptions, 
-    conditions, 
-    specs, 
-    warehouse_id_map, 
-    build_description, 
-    setCompleter, 
-    parse_date
-)
 
-from models import AdvancedLinesModel, IncomingStockModel
-
-import models 
-import db 
+from models import (
+    AdvancedLinesModel, 
+    IncomingStockModel, 
+    computeCreditAvailable
+) 
 
 
 from db import Agent, Partner, SaleProformaLine, SaleProforma,\
     SalePayment, func
 
 
-import utils 
+import utils, db 
 
+def reload_utils():
+    global utils
+    from importlib import reload
+    utils = reload(utils) 
 
 class Form(Ui_Form, QWidget):
     def __init__(self, parent, view):
-        from importlib import reload
-        global utils
-        utils = reload(utils)
+        # global utils    
+        # from importlib import reload
+        # utils = reload(utils)
         super().__init__()
         self.setupUi(self)
         setCommonViewConfig(self.stock_view) 
         self.model = view.model()
         self.init_template()
         self.parent = parent
-        self.lines_model = AdvancedLinesModel(None) 
-        self.stock_model = IncomingStockModel(None, description=None, item_id=None, condition=None, spec=None)
+        self.lines_model = AdvancedLinesModel(self.proforma) 
+
 
         self.lines_view.setModel(self.lines_model)
-        self.stock_view.setModel(self.stock_model)
+
 
         self.set_combos()
         self.set_completers()
@@ -62,38 +53,157 @@ class Form(Ui_Form, QWidget):
 
 
     def init_template(self):
-        pass 
+        self.proforma = db.SaleProforma() 
+        self.date.setText(date.today().strftime('%d%m%Y'))
+        self.type.setCurrentText('1')
+        self.number.setText(str(self.model.nextNumberOfType(1)).zfill(6))
     
     def set_handlers(self):
         self.partner.returnPressed.connect(self.partner_search)
+        self.delete_.clicked.connect(self.delete_handler)
+        self.add.clicked.connect(self.add_handler) 
+        self.save.clicked.connect(self.save_handler)
+        self.insert.clicked.connect(self.insert_handler) 
+        self.type.currentTextChanged.connect(self.type_changed)
+        self.search.clicked.connect(self.search_handler) 
+        self.warehouse.currentTextChanged.connect(self.warehouse_handler) 
+
 
     def set_combos(self):
         for combo, data in [
-            (self.agent, agent_id_map.keys()), 
-            (self.warehouse, warehouse_id_map.keys()), 
-            (self.courier, courier_id_map.keys())
+            (self.agent, utils.agent_id_map.keys()), 
+            (self.warehouse, utils.warehouse_id_map.keys()), 
+            (self.courier, utils.courier_id_map.keys())
         ]: combo.addItems(data)
 
     def set_completers(self):
         for field, data in [
-            (self.partner, partner_id_map.keys()), 
-            (self.description, descriptions), 
-            (self.spec, specs), 
-            (self.condition, conditions)
-        ]: setCompleter(field, data)
+            (self.partner, utils.partner_id_map.keys()), 
+            (self.description, utils.descriptions), 
+            (self.spec, utils.specs), 
+            (self.condition, utils.conditions)
+        ]: utils.setCompleter(field, data)
 
+
+    def proforma_to_form(self):
+        p = self.proforma
+
+        self.type.setCurrentText(str(p.type))
+        self.number.setText(str(p.number))
+        self.date.setText(p.date.strftime('%d%m%Y'))
+        self.partner.setText(p.partner.fiscal_name)
+        self.agent.setCurrentText(p.agent.fiscal_name)
+        self.warehouse.setCurrentText(p.warehouse.description)
+        self.courier.setCurrentText(p.courier.description)
+        self.incoterms.setCurrentText(p.incoterm)
+        self.warranty.setValue(p.warranty)
+        self.days.setValue(p.credit_days)
+        self.eur.setChecked(p.eur_currency)
+        self.credit.setValue(p.credit_amount)
+        self.external.setText(p.external)
+        self.tracking.setText(p.tracking)
+        self.they_pay_we_ship.setChecked(p.they_pay_we_ship)
+        self.they_pay_they_ship.setChecked(p.they_pay_they_ship)
+        self.we_pay_we_ship.setChecked(p.we_pay_we_ship)
+
+    def set_stock_mv(self):
+        warehouse_id = utils.warehouse_id_map.get(
+            self.warehouse.currentText()
+        )
+
+        description = self.description.text()
+        condition = self.condition.text()
+        spec = self.spec.text()
+        deleted_lines = self.lines_model.deleted_lines()
+        added_lines = self.lines_model.added_lines() 
+
+        if spec == 'Mix':
+            spec = None 
+        if condition == 'Mix':
+            condition = None
+
+        self.stock_model = IncomingStockModel(
+            warehouse_id, 
+            description=description,
+            condition = condition, 
+            spec = spec, 
+            added_lines = added_lines, 
+            deleted_lines = deleted_lines 
+        )
+
+        self.stock_view.setModel(self.stock_model) 
+
+    def filters_unset(self):
+        return any((
+            self.description.text() not in utils.descriptions, 
+            self.spec.text() not in utils.specs, 
+            self.condition.text() not in utils.conditions
+        )) 
 
     def search_handler(self):
-        pass 
+        if self.filters_unset():
+            QMessageBox.critical(self, 'Error - Search', 'Set filters.')
+            return 
+        self.set_stock_mv()
+
+    def warehouse_handler(self):
+        if hasattr(self, 'stock_model'):
+            self.stock_model.reset()
+
+        if hasattr(self, 'lines_model'):
+            self.lines_model.reset()  
+
+        self.update_totals() 
+    
+    def update_totals(self):
+        
+        self.subtotal.setText(str(self.lines_model.subtotal))
+        self.sale_tax.setText(str(self.lines_model.tax))
+        self.total.setText(str(self.lines_model.total))
 
     def delete_handler(self):
-        pass 
+        indexes = self.lines_view.selectedIndexes()
+        if not indexes:return 
+        rows = {index.row() for index in indexes}
+        self.lines_model.delete(rows)
+        self.lines_view.clearSelection() 
+
+        self.set_stock_mv()
+        self.update_totals() 
 
     def add_handler(self):
-        pass 
+        if not hasattr(self, 'stock_model'):return 
+        indexes = self.stock_view.selectedIndexes()
+        if not indexes: return 
+        row = {i.row() for i in indexes}.pop()
+        vector = self.stock_model[row]
+
+        quantity = self.quantity.value() 
+        if quantity > vector.available:
+            QMessageBox.critical(
+                self, 
+                'Error', 
+                'quantity must be less than available'
+            )
+            return 
+
+        price = self.price.value()
+        ignore = self.ignore.isChecked()
+        tax = int(self.tax.currentText())
+        showing_condition = self.showing_condition.text() 
+        
+        try:
+            self.lines_model.add(quantity, price, ignore, tax,
+            showing_condition, vector.origin, vector.type, vector.number)
+        except ValueError as ex:
+            QMessageBox.critical(self, 'Error', str(ex))
+
+        else:
+            self.update_totals()
+            self.set_stock_mv()
 
     def partner_search(self):
-        partner_id = partner_id_map.get(self.partner.text())
+        partner_id = utils.partner_id_map.get(self.partner.text())
         if not partner_id:
             return
         try:
@@ -119,15 +229,106 @@ class Form(Ui_Form, QWidget):
         self.we_pay_we_ship.setChecked(we_pay_we_ship) 
 
     def insert_handler(self):
-        pass 
+        from free_line_form import Dialog
+        dialog = Dialog(self)
+        if dialog.exec_():
+            try:
+                description = dialog.description.text()
+                if not description:
+                    return 
 
-    def type_changed(self):
-        pass 
+                self.lines_model.insert_free(
+                    description,
+                    dialog.quantity.value(),
+                    dialog.price.value() ,
+                    int(dialog.tax.currentText())
+                )
+            except:
+                raise 
+                QMessageBox.critical(
+                    self, 
+                    'Error', 
+                    'Error adding free line'
+                )
 
+    def type_changed(self, type):
+        next_num = self.model.nextNumberOfType(int(type))
+        self.number.setText(str(next_num).zfill(6))
+
+    def save_handler(self):
+        if not self._valid_header(): return
+        
+        warehouse_id = utils.warehouse_id_map.get(self.warehouse.currentText())
+        lines = self.lines_model.lines 
+        
+        if hasattr(self, 'stock_model'):
+            if self.stock_model.lines_against_stock(warehouse_id, lines):
+                QMessageBox.critical(
+                    self, 
+                    'Error', 
+                    'Someone took those stocks. Start again.'
+                )
+                return 
+
+        self._form_to_proforma() 
+        try:
+            self.save_template()
+            db.session.commit()
+            # self.parent.set_mv('proformas_sales_')
+        except:
+            db.session.rollback() 
+        else:
+            QMessageBox.information(self, 'Success', 'Sale saved successfully')
+        
+        self.close() 
+
+    def save_template(self):
+        self.model.add(self.proforma) 
+
+
+    def _valid_header(self):
+        try:
+            utils.partner_id_map[self.partner.text()]
+        except KeyError:
+            QMessageBox.critical(self, 'Update - Error', 'Invalid Partner')
+            return False
+        try:
+            utils.parse_date(self.date.text())
+        except ValueError:
+            QMessageBox.critical(self, 'Update - Error', 'Error in date field. Format: ddmmyyyy')
+            return False
+        return True
+
+    def _form_to_proforma(self):
+
+        self.proforma.type = int(self.type.currentText())
+        self.proforma.number = int(self.number.text())
+        self.proforma.date = utils.parse_date(self.date.text())
+        self.proforma.warranty = self.warranty.value()
+        self.proforma.they_pay_they_ship = self.they_pay_they_ship.isChecked()
+        self.proforma.they_pay_we_ship = self.they_pay_we_ship.isChecked() 
+        self.proforma.we_pay_we_ship = self.we_pay_we_ship.isChecked() 
+        self.proforma.agent_id = utils.agent_id_map[self.agent.currentText()]
+        self.proforma.partner_id = utils.partner_id_map[self.partner.text()]
+        self.proforma.warehouse_id = utils.warehouse_id_map[self.warehouse.currentText()]
+        self.proforma.courier_id = utils.courier_id_map[self.courier.currentText()]
+        self.proforma.eur_currency = self.eur.isChecked()
+        self.proforma.credit_amount = self.credit.value()
+        self.proforma.credit_days = self.days.value() 
+        self.proforma.incoterm = self.incoterms.currentText() 
+        self.proforma.external = self.external.text() 
+        self.proforma.tracking = self.tracking.text() 
+        self.proforma.note = self.note.toPlainText()[0:255]
+
+    def clear_filters(self):
+        self.description.clear()
+        self.spec.clear()
+        self.condition.clear()
 
 class EditableForm(Form):
     
     def __init__(self, parent, view, proforma):
+        reload_utils()
         self.proforma = proforma 
         super().__init__(parent, view)
 

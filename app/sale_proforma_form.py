@@ -64,7 +64,7 @@ class Form(Ui_SalesProformaForm, QWidget):
 
     def typeChanged(self, type):
         next_num = self.model.nextNumberOfType(int(type))
-        self.number_line_edit.setText(str(next_num).zfill(6))
+        self.number.setText(str(next_num).zfill(6))
 
     def setCombos(self):
         for combo, data in [
@@ -109,7 +109,6 @@ class Form(Ui_SalesProformaForm, QWidget):
 
     def proforma_to_form(self):
         p = self.proforma
-
 
         self.type.setCurrentText(str(p.type))
         self.number.setText(str(p.number))
@@ -208,11 +207,28 @@ class Form(Ui_SalesProformaForm, QWidget):
         pass 
 
     def insert_handler(self):
-        row = self.lines_view.model().rowCount() 
-        self.lines_view.model().insertRow(row)
-        index = self.lines_view.model().index(row, 0)
-        self.lines_view.setCurrentIndex(index)
-        self.lines_view.edit(index) 
+        from free_line_form import Dialog
+        dialog = Dialog(self)
+        if dialog.exec_():
+            try:
+                description = dialog.description.text()
+                if not description:
+                    return 
+
+                self.lines_model.insert_free(
+                    description,
+                    dialog.quantity.value(),
+                    dialog.price.value() ,
+                    int(dialog.tax.currentText())
+                )
+            except:
+                raise 
+                QMessageBox.critical(
+                    self, 
+                    'Error', 
+                    'Error adding free line'
+                )
+
 
     def delete_handler(self):
         try:
@@ -277,7 +293,9 @@ class Form(Ui_SalesProformaForm, QWidget):
 
         self._form_to_proforma() 
         try:
+            self.save_template()
             db.session.commit()
+            # self.parent.set_mv('proformas_sales_')
         except:
             db.session.rollback() 
         else:
@@ -296,8 +314,6 @@ class Form(Ui_SalesProformaForm, QWidget):
                 'Save changes?'
             ) == QMessageBox.Yes:
                 db.session.commit()
-                # That method already contains a session.commit() call 
-                # self.model.updateWarehouse(self.proforma) 
             else:
                 db.session.rollback()         
         self.parent.set_mv('proformas_sales_')
@@ -354,10 +370,13 @@ class EditableForm(Form):
         super().__init__(parent, view)
         self.update_total_fields() 
 
-    def init_template(self):
+    def init_template(self): 
         self.proforma_to_form() 
         self.disable_warehouse() 
-        
+    
+    def save_template(self):
+        pass 
+
     def closeEvent(self, event):
         if db.session.dirty:
             if QMessageBox.question(
@@ -382,4 +401,3 @@ class EditableForm(Form):
 def get_form(parent, view, proforma=None):
     return EditableForm(parent, view, proforma) \
         if proforma else Form(parent, view)
-

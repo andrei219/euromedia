@@ -582,6 +582,9 @@
        <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
        <property name="placeholderText">
         <string>000000</string>
        </property>
@@ -755,7 +758,7 @@
     <string>Insert Free </string>
    </property>
   </widget>
-  <widget class="QPushButton" name="delete_button">
+  <widget class="QPushButton" name="delete_">
    <property name="geometry">
     <rect>
      <x>1060</x>
@@ -800,7 +803,7 @@
   <widget class="QTextEdit" name="note">
    <property name="geometry">
     <rect>
-     <x>630</x>
+     <x>700</x>
      <y>860</y>
      <width>341</width>
      <height>61</height>
@@ -924,7 +927,7 @@
     <rect>
      <x>30</x>
      <y>850</y>
-     <width>551</width>
+     <width>631</width>
      <height>91</height>
     </rect>
    </property>
@@ -937,7 +940,7 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>260</x>
+      <x>330</x>
       <y>40</y>
       <width>51</width>
       <height>21</height>
@@ -973,7 +976,7 @@
    <widget class="QLabel" name="label_31">
     <property name="geometry">
      <rect>
-      <x>270</x>
+      <x>340</x>
       <y>17</y>
       <width>31</width>
       <height>16</height>
@@ -986,10 +989,10 @@
    <widget class="QDoubleSpinBox" name="price">
     <property name="geometry">
      <rect>
-      <x>40</x>
+      <x>110</x>
       <y>41</y>
       <width>100</width>
-      <height>16</height>
+      <height>21</height>
      </rect>
     </property>
     <property name="decimals">
@@ -1005,7 +1008,7 @@
    <widget class="QCheckBox" name="ignore">
     <property name="geometry">
      <rect>
-      <x>150</x>
+      <x>220</x>
       <y>27</y>
       <width>101</width>
       <height>41</height>
@@ -1022,7 +1025,7 @@
    <widget class="QPushButton" name="add">
     <property name="geometry">
      <rect>
-      <x>490</x>
+      <x>560</x>
       <y>33</y>
       <width>51</width>
       <height>31</height>
@@ -1035,7 +1038,7 @@
    <widget class="QLabel" name="label_30">
     <property name="geometry">
      <rect>
-      <x>50</x>
+      <x>120</x>
       <y>19</y>
       <width>55</width>
       <height>16</height>
@@ -1048,7 +1051,7 @@
    <widget class="QLineEdit" name="showing_condition">
     <property name="geometry">
      <rect>
-      <x>340</x>
+      <x>410</x>
       <y>40</y>
       <width>131</width>
       <height>22</height>
@@ -1056,6 +1059,35 @@
     </property>
     <property name="placeholderText">
      <string>Showing condition...</string>
+    </property>
+   </widget>
+   <widget class="QSpinBox" name="quantity">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>40</y>
+      <width>81</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="minimum">
+     <number>1</number>
+    </property>
+    <property name="maximum">
+     <number>1000000</number>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_32">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>20</y>
+      <width>55</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Quantity</string>
     </property>
    </widget>
   </widget>
@@ -1090,7 +1122,7 @@
      </widget>
     </item>
     <item row="0" column="1">
-     <widget class="QLineEdit" name="subtotal_proforma">
+     <widget class="QLineEdit" name="subtotal">
       <property name="font">
        <font>
         <pointsize>10</pointsize>
@@ -1122,7 +1154,7 @@
      </widget>
     </item>
     <item row="1" column="1">
-     <widget class="QLineEdit" name="proforma_tax">
+     <widget class="QLineEdit" name="sale_tax">
       <property name="layoutDirection">
        <enum>Qt::LeftToRight</enum>
       </property>
@@ -1149,7 +1181,7 @@
      </widget>
     </item>
     <item row="2" column="1">
-     <widget class="QLineEdit" name="proforma_total">
+     <widget class="QLineEdit" name="total">
       <property name="layoutDirection">
        <enum>Qt::LeftToRight</enum>
       </property>

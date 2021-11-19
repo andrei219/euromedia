@@ -405,10 +405,12 @@ class MainGui(Ui_MainGui, QMainWindow):
                     filename = str(document.invoice.type) + '-' + str(document.invoice.number).zfill(6)
                 filename += '.pdf'
                 pdf = build_document(document, is_invoice=is_invoice)
+                from contextlib import suppress
+                with suppress(FileNotFoundError):
+                    os.remove(filename)
                 pdf.output(filename)
                 import subprocess
                 subprocess.Popen((filename, ), shell=True) 
-                os.remove(filename)
         except:
             QMessageBox.critical(self, 'Error', 'Error viewing the file')
             raise 
@@ -892,7 +894,15 @@ class MainGui(Ui_MainGui, QMainWindow):
         if not reception:
             return 
         else:
-            reception_order.Form(self, reception).exec_()
+            try:
+                reception_order.Form(self, reception).exec_()
+            except IndexError:
+                QMessageBox.information(
+                    self, 
+                    'Information', 
+                    'This reception order is empty. I can not open'
+                )
+
 
     def warehouse_receptions_double_click_handler(self, index):
         self.warehouse_receptions_process_handler()

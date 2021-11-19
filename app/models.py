@@ -12,24 +12,13 @@ from sqlalchemy.exc import IntegrityError
 
 from sqlalchemy import select, func
 
-import db 
+import db, utils
 
 import operator
 
 from copy import deepcopy
 
 from exceptions import DuplicateLine, SeriePresentError, LineCompletedError
-
-
-from utils import (
-	parse_date, 
-	description_id_map, 
-	descriptions, 
-	build_description, 
-	conditions, 
-	specs
-)
-
 
 # COLORS:
 # RED FOR CANCELLED
@@ -114,7 +103,7 @@ def total_quantity(proforma):
 		return sum([line.quantity for line in proforma.lines])
 
 	return sum([line.quantity for line in proforma.lines if \
-		line.description in descriptions or line.item_id])
+		line.description in utils.descriptions or line.item_id])
 
 def total_processed(proforma):
 	proforma = get_actual_object(proforma) 
@@ -732,7 +721,7 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
 			)
 			
 			try:
-				date = parse_date(search_key)
+				date = utils.parse_date(search_key)
 			except ValueError:
 				pass
 			else:
@@ -932,11 +921,17 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
 			if not p.cancelled:
 				p.cancelled = True 
 		try:
-			db.session.commit()
+			# Update advanced lines depending on this purchase
+			ids = (line.id for line in p.lines)
+			db.session.query(db.AdvancedLine).\
+				where(db.AdvancedLine.origin_id.in_(ids)).\
+					update({db.AdvancedLine.quantity:0})
+
+			db.session.commit() 
 			self.layoutChanged.emit() 
 		except:
 			db.session.rollback() 
-			raise 
+			raise
 
 	def associateInvoice(self, proforma):
 		current_num = db.session.query(func.max(db.PurchaseInvoice.number)).\
@@ -988,7 +983,7 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
 		reception_line.description = line.description
 		
 		if reception_line.item_id or reception_line.description in \
-				descriptions:
+				utils.descriptions:
 					reception_line.reception = reception 
 		# reception is attached to session, will cascade-commit the lines.
 
@@ -1007,7 +1002,7 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
 		
 
 		for line in proforma_lines.difference(warehouse_lines):
-			if line.item_id or line.description in descriptions:
+			if line.item_id or line.description in utils.descriptions:
 				self.buildReceptionLine(line, proforma.reception)
 		
 		for proforma_line in proforma_lines:
@@ -1055,7 +1050,7 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 			)
 
 			try:
-				date = parse_date(search_key)
+				date = utils.parse_date(search_key)
 			except ValueError:
 				pass 
 			else:
@@ -1323,7 +1318,7 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 
 		proforma_lines = set(
 			filter(
-				lambda line: line.item_id in description_id_map.values(), 
+				lambda line: line.item_id in utils.description_id_map.values(), 
 				proforma.lines
 			)
 		)
@@ -1360,8 +1355,6 @@ def copy_line(line):
 	l.quantity = line.quantity
 	return l 
 
-
-
 class OrganizedLines:
 
 	def __init__(self, lines):
@@ -1376,13 +1369,18 @@ class OrganizedLines:
 
 	@property
 	def added_lines(self):
-		return set(self.instrumented_lines).\
+		k= set(self.instrumented_lines).\
 			difference(set(self.initial_lines)) 
+		print('added lines', k)
+		return k
 
 	@property
 	def deleted_lines(self):
-		return set(self.initial_lines).\
+	
+		k= set(self.initial_lines).\
 			difference(set(self.instrumented_lines))
+		print('deleted_lines:', k)
+		return k 
 
 	def get_next_mix(self):
 		last_mix = db.session.query(func.max(db.SaleProformaLine.mix_id)).scalar()
@@ -1412,11 +1410,7 @@ class OrganizedLines:
 			
 			self.instrumented_lines.remove(line) 
 
-		self.organized_lines = [
-			e for e in self.organized_lines
-			if e 
-		]
-
+		self.organized_lines = [e for e in self.organized_lines if e]
 
 
 	def append(self, price, ignore_spec, tax, showing, *stocks, row=None):
@@ -1446,7 +1440,7 @@ class OrganizedLines:
 					line.mix_id = mix_id 
 				group.extend(new_lines) 
 			else:
-				if group.item_id not in description_id_map.values():
+				if group.item_id not in utils.description_id_map.values():
 					raise ValueError("You cannot add stocks in this line")
 					if any((
 						self.conflict_check(group)
@@ -1468,6 +1462,19 @@ class OrganizedLines:
 		
 		self.instrumented_lines.extend(new_lines) 
 
+
+	def insert_free(self, description, quantity, price, tax):
+		
+		line = db.SaleProformaLine() 
+		line.description = description
+		line.quantity = quantity
+		line.price = price
+		line.tax = tax 
+
+		self.organized_lines.append(line)
+		self.instrumented_lines.append(line) 
+
+
 	def group_conflict(self, lines, *stocks):
 		return any((
 			self.conflict_check(line, stock)
@@ -1476,9 +1483,9 @@ class OrganizedLines:
 		))
  
 	def conflict_check(self, line, stock):
-		line_description = description_id_map.inverse[line.item_id]
+		line_description = utils.description_id_map.inverse[line.item_id]
 		line_manufacturer, line_category, line_model, *_ = line_description.split() 
-		stock_description = description_id_map.inverse[stock.item_id]
+		stock_description = utils.description_id_map.inverse[stock.item_id]
 		stock_manufacturer, stock_category, stock_model , *_ = stock_description.split()
 		return any((
 			line_manufacturer != stock_manufacturer, 
@@ -1513,9 +1520,9 @@ class OrganizedLines:
 		diff_specs = {line.spec for line in lines}
 		
 		if len(diff_items) == 1:
-			description = description_id_map.inverse[diff_items.pop()]
+			description = utils.description_id_map.inverse[diff_items.pop()]
 		else:
-			description = build_description(lines) 
+			description = utils.build_description(lines) 
 
 		if len(diff_conditions) == 1:
 			condition = diff_conditions.pop()
@@ -1556,10 +1563,10 @@ class OrganizedLines:
 			if line.item_id is None:
 				return line.description
 			else:
-				return description_id_map.inverse[line.item_id]
+				return utils.description_id_map.inverse[line.item_id]
 		else:
 			return {
-				# SaleProformaLineModel.DESCRIPTION:description_id_map.inverse[line.item_id], 
+				# SaleProformaLineModel.DESCRIPTION:utils.description_id_map.inverse[line.item_id], 
 				SaleProformaLineModel.CONDITION:line.condition,
 				SaleProformaLineModel.SHOWING_CONDITION:showing_condition, 
 				SaleProformaLineModel.SPEC:line.spec, 
@@ -1660,6 +1667,15 @@ class SaleProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 		)
 		self.layoutChanged.emit() 
 
+	def insert_free(self, description, quantity, price, tax):
+		self.organized_lines.insert_free(
+			description, 
+			quantity, 
+			price, 
+			tax
+		)
+		self.layoutChanged.emit()
+
 	def delete(self, i, j=None):
 		self.organized_lines.delete(i, j)
 		self.layoutChanged.emit() 
@@ -1689,7 +1705,7 @@ class ActualLinesFromMixedModel(BaseTable, QtCore.QAbstractTableModel):
 		line = self.lines[row]
 		if role == Qt.DisplayRole:
 			if column == ActualLinesFromMixedModel.DESCRIPTION:
-				return description_id_map.inverse[line.item_id]
+				return utils.description_id_map.inverse[line.item_id]
 			elif column == ActualLinesFromMixedModel.CONDITION:
 				return line.condition
 			elif column == ActualLinesFromMixedModel.SPEC:
@@ -1784,7 +1800,7 @@ class PurchaseProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 				if line.description is not None:
 					return line.description
 				else:
-					return description_id_map.inverse[line.item_id]
+					return utils.description_id_map.inverse[line.item_id]
 			return {
 				self.__class__.CONDITION:line.condition,
 				self.__class__.SPEC:line.spec, 
@@ -1842,7 +1858,7 @@ class PurchaseProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 			return Qt.ItemFlags(~Qt.ItemIsEditable)
 
 	def is_stock_relevant(self, line):
-		return line.item_id or line.description in descriptions
+		return line.item_id or line.description in utils.descriptions
 
 	@property
 	def tax(self):
@@ -1859,7 +1875,7 @@ class PurchaseProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 	def add(self, description, condition, spec, quantity, price, tax):
 		line = db.PurchaseProformaLine() 
 		try:
-			line.item_id = description_id_map[description]
+			line.item_id = utils.description_id_map[description]
 		except KeyError:
 			line.description = description
 		line.condition = condition or None
@@ -1877,7 +1893,7 @@ class PurchaseProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 	def line_exists(self, new_line):
 		# First check not stock relevant lines:
 		description = new_line.description
-		if description not in descriptions and \
+		if description not in utils.descriptions and \
 			new_line.item_id is None:
 				return description in \
 					[line.description for line in self.lines]
@@ -1972,7 +1988,7 @@ class PaymentModel(BaseTable, QtCore.QAbstractTableModel):
 		if role == Qt.EditRole:
 			if column == self.__class__.DATE:
 				try:
-					d = parse_date(value)
+					d = utils.parse_date(value)
 					payment.date = d
 					return True 
 				except ValueError:
@@ -2083,7 +2099,7 @@ class ExpenseModel(BaseTable, QtCore.QAbstractTableModel):
 		if role == Qt.EditRole:
 			if column == self.__class__.DATE:
 				try:
-					d = parse_date(value)
+					d = utils.parse_date(value)
 					expense.date = d
 					return True 
 				except ValueError:
@@ -2535,7 +2551,7 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
 			added_lines	=None, deleted_lines=None):
 		session = db.Session()
 		
-		item_id = description_id_map.get(description)
+		item_id = utils.description_id_map.get(description)
 		query = session.query(
 			db.Imei.item_id, db.Imei.condition, 
 			db.Imei.spec, func.count(db.Imei.imei).label('quantity')
@@ -2722,7 +2738,7 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
 
 		if role == Qt.DisplayRole:
 			if column == self.__class__.DESCRIPTION:
-				return description_id_map.inverse[stock.item_id]
+				return utils.description_id_map.inverse[stock.item_id]
 			elif column == self.__class__.CONDITION:
 				return stock.condition
 			elif column == self.__class__.SPEC:
@@ -2986,41 +3002,317 @@ from db import ReceptionSerie as rs
 # 				return QtGui.QIcon(':\calendar')
 
 
+from sqlalchemy import inspect
+
+def print_states(line):
+	insp = inspect(line) 
+	for state in [
+		'transient',
+		'pending', 
+		'persistent', 
+		'detached'
+	]:
+		print(state, ':', getattr(insp, state))
+
+class IncomingVector:
+
+	def __init__(self, line):
+		self.origin_id = line.id 
+		self.origin = line 
+		self.type = line.proforma.type
+		self.number = line.proforma.number 
+		self.partner = line.proforma.partner.fiscal_name
+		self.eta = line.proforma.eta.strftime('%d/%m/%Y')
+		self.item_id = line.item_id
+		self.spec = line.spec 
+		self.condition = line.condition
+		
+		if line.description:
+			self.description = line.description
+		else:
+			self.description = utils.description_id_map.inverse[line.item_id]
+
+		quantity = line.quantity
+		
+		# Esto lo hago porque contaba los objetos que han sido
+		# borrados, quedando fuera de la base de datos
+		# y fuera de la session, lo que significa 
+		# transient= True
+		asked = sum(
+			line.quantity for line in line.advanced_lines 
+			if inspect(line).transient != True)
+
+		processed = self.compute_processed(line) 
+
+		if asked == quantity and quantity < processed:
+			self.available = 0
+		elif asked < quantity < processed:
+			self.available = 0
+		elif asked < processed < quantity:
+			self.available = quantity - processed
+		elif processed < asked < quantity:
+			self.available = quantity - asked
+		elif processed < quantity and quantity == asked:
+			self.available = 0 
+		elif asked == processed == 0:
+			self.available = quantity
+
+
+	def compute_processed(self, line):
+		line_alias = line 
+		try:
+			for line in line.proforma.reception.lines:
+				if line_alias == line:
+					return sum(1 for serie in line.series)
+
+		except AttributeError as ex:
+			return 0 
+
+
+	def __eq__(self, other):
+		return all((
+			self.origin_id == other.origin_id, 
+			self.type == other.type, 
+			self.number == other.number
+		))
+
+	def __hash__(self):
+		hashes = (hash(x) for x in (
+			self.origin_id, self.type, self.number
+		))
+		return functools.reduce(operator.xor, hashes, 0)
+
+	def __iter__(self):
+		return iter(self.__dict__.values())
+
+	def __repr__(self):
+		return repr(self.__dict__)
+
+
 class IncomingStockModel(BaseTable, QtCore.QAbstractTableModel):
 
 	DOCUMENT, PARTNER, ETA, DESC, CONDITION, SPEC, AVAILABLE =\
 		0, 1, 2, 3, 4, 5, 6
 
-	def __init__(self, warehouse, *, description, item_id, condition, spec):
+	def __init__(self, warehouse, *, description, condition, spec, \
+		added_lines=None, deleted_lines=None):
 		super().__init__() 
 		self._headerData = ['Document', 'Partner', 'Eta', 'Description', 'Condition', 'Spec.', 'Available']
 		self.name = 'stocks'
 		self.stocks = self.computeIncomingStock(
 			warehouse,
 			description=description, 
-			item_id = item_id, 
 			condition = condition, 
 			spec = spec
 		) 
 
+	def computeIncomingStock(self, warehouse_id, *, description,  \
+		condition, spec, added_lines=None, deleted_lines=None):
 
-	def computeIncomingStock(self, warehouse, *, description, item_id, condition, spec):
-		return [] 
+		query = session.query(db.PurchaseProformaLine).\
+			join(db.PurchaseProforma).join(db.Partner).outerjoin(db.Reception).\
+				join(db.Warehouse).where(db.Warehouse.id == warehouse_id)
+		
+		item_id = utils.description_id_map.get(description) 
 
+		if item_id:
+			query = query.where(db.PurchaseProformaLine.item_id == item_id)
+		
+		if condition:
+			query = query.where(db.PurchaseProformaLine.condition == condition)
+
+		if spec:
+			query = query.where(db.PurchaseProformaLine.spec == spec)
+
+
+		stocks =  [IncomingVector(line) for line in query.all()]
+
+		if added_lines:
+			for line in added_lines:
+				for stock in stocks:
+					if line == stock:
+						stock.available -= line.quantity
+
+		if deleted_lines:
+			for line in deleted_lines:
+				for stock in stocks:
+					if line == stock:
+						stock.available += line.quantity 
+		
+		return list(filter(lambda s:s.available != 0, stocks))
+
+	def lines_against_stock(self, warehouse_id, lines):
+		print('lines against stock')
+		return False 
+
+	def data(self, index, role = Qt.DisplayRole):
+		if not index.isValid(): return 
+
+		row, col = index.row(), index.column() 
+
+		if role == Qt.DisplayRole:
+			vector = self.stocks[row]
+			if col == self.__class__.DOCUMENT:
+				return str(vector.type) + '-' + str(vector.number).zfill(6) 
+			elif col == self.__class__.PARTNER:
+				return vector.partner
+			elif col == self.__class__.ETA:
+				return vector.eta 
+			elif col == self.__class__.DESC:
+				return vector.description
+			elif col == self.__class__.CONDITION:
+				return vector.condition
+			elif col == self.__class__.SPEC:
+				return vector.spec 
+			elif col == self.__class__.AVAILABLE:
+				return str(vector.available)
+
+	def reset(self):
+		self.stocks = []
+		self.layoutChanged.emit() 
+
+	def __getitem__(self, index):
+		return self.stocks[index]
+
+def copy_advanced_line(line):
+	l = db.AdvancedLine()
+	l.origin_id = line.origin_id
+	l.type = line.type
+	l.number = line.number
+	l.quantity = line.quantity
+	return l 
 
 class AdvancedLinesModel(BaseTable, QtCore.QAbstractTableModel):
 
 	DESCRIPTION, CONDITION, SHOWING_CONDITION, SPEC, IGNORING_SPEC, \
 		QUANTITY, PRICE, SUBTOTAL, TAX, TOTAL = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
 
-
 	def __init__(self, proforma):
 		super().__init__()
 		self._headerData = ['Description', 'Condition', 'Showing Condt.', 'Spec', \
 			'Ignoring Spec?','Qty.', 'Price', 'Subtotal', 'Tax', 'Total']
-		self.lines = []  
 		self.name = 'lines'
+		self._lines = proforma.advanced_lines 
+		self.initial_lines = [copy_advanced_line(line) for line in self._lines]
+		
 
+	
+	def data(self, index, role=Qt.DisplayRole):
+		if not index.isValid(): return
+		row, col = index.row(), index.column()
+		if role == Qt.DisplayRole:
+			line = self._lines[row]
+			if col == self.__class__.DESCRIPTION:
+				try:
+					description = line.origin.description
+				except AttributeError:
+					description = line.description
+			
+				if description is None:
+					description = utils.description_id_map.inverse[line.origin.item_id]
+				return description
+			elif col == self.__class__.CONDITION:
+				try:
+					return line.origin.condition
+				except AttributeError:
+					return '' 
+			elif col == self.__class__.SHOWING_CONDITION:
+				return line.showing_condition or '' 
+			elif col == self.__class__.SPEC:
+				try:
+					return line.origin.spec 
+				except AttributeError:
+					return '' 
+			elif col == self.__class__.IGNORING_SPEC:
+				return 'Yes' if line.ignore_spec else 'No'
+			elif col == self.__class__.QUANTITY:
+				return str(line.quantity)
+			elif col == self.__class__.PRICE:
+				return str(line.price)
+			elif col == self.__class__.TAX:
+				return str(line.tax)
+			elif col == self.__class__.SUBTOTAL:
+				return str(round(line.price * line.quantity)) 
+			elif col == self.__class__.TOTAL:
+				total = round((line.quantity * line.price) * (1 + line.tax/100), 2)
+				return str(total) 
+
+	def add(self, quantity, price, ignore, tax, showing_condition, origin, type, number):
+
+		for line in self._lines:
+			if line.origin == origin:
+				raise ValueError('I cannot handle duplicate stocks')		
+
+		line = db.AdvancedLine() 
+		line.quantity = quantity
+		line.price = price
+		line.ignore_spec = ignore
+		line.tax = tax 
+		line.showing_condition = showing_condition 
+		line.origin = origin
+		line.origin_id = origin.id
+		line.type = type
+		line.number = number
+
+		self._lines.append(line)
+		self.layoutChanged.emit() 
+
+	def delete(self, rows):
+		for row in sorted(rows, reverse=True):
+			line = self._lines[row]
+			db.session.expunge(line)
+			del self._lines[row]
+
+		# db.session.commit() 	
+		self.layoutChanged.emit() 
+
+	def reset(self):
+		for line in self._lines:
+			db.session.expunge(line)
+		self.layoutChanged.emit() 
+
+	def insert_free(self, description, quantity, price, tax):
+		
+		line = db.AdvancedLine() 
+		line.description = description
+		line.quantity = quantity
+		line.price = price
+		line.tax = tax 
+		line.ignore_spec = True 
+
+
+		self._lines.append(line) 
+		self.layoutChanged.emit() 
+
+	def deleted_lines(self):
+		return set(self.initial_lines).difference(set(self._lines))
+
+	def added_lines(self):
+		return set(self._lines).difference(set(self.initial_lines))
+
+
+	@property
+	def lines(self):
+		return self._lines 
+
+	@property
+	def tax(self):
+		return sum(
+			line.quantity * line.price * line.tax /100
+			for line in self._lines
+		)
+	
+	@property
+	def total(self):
+		return self.subtotal + self.tax 
+
+	@property
+	def subtotal(self):
+		return sum(
+			line.quantity * line.price for line in self._lines
+		)
+
+	
 
 class InventoryModel(BaseTable, QtCore.QAbstractTableModel):
 	
@@ -3196,13 +3488,13 @@ class ReceptionSeriesModel:
 			raise ValueError('Serie already processed in this reception order')
 		
 		if any((
-			description not in description_id_map.keys(), 
-			condition not in conditions.difference({'Mix'}), 
-			spec not in specs.difference({'Mix'})
+			description not in utils.description_id_map.keys(), 
+			condition not in utils.conditions.difference({'Mix'}), 
+			spec not in utils.specs.difference({'Mix'})
 		)): raise ValueError('Invalid description, condition or spec')
 
 		reception_serie = db.ReceptionSerie(
-			description_id_map[description], 
+			utils.description_id_map[description], 
 			line, serie, condition, spec
 		)
 		db.session.add(reception_serie)
@@ -3247,7 +3539,7 @@ class DefinedSeriesModel(QtCore.QAbstractListModel):
 		self.series = [r.serie for r in rs_model.reception_series \
 			if all((
 				r.line_id == line.id, 
-				r.item_id == description_id_map[description], 
+				r.item_id == utils.description_id_map[description], 
 				r.condition == condition, 
 				r.spec == spec
 			))]
@@ -3293,7 +3585,7 @@ class GroupModel(BaseTable, QtCore.QAbstractTableModel):
 		for key, group in groupby(iterable=series, key=key):
 			item_id, condition, spec = key
 			self.groups.append(
-				Group(description_id_map.inverse[item_id], 
+				Group(utils.description_id_map.inverse[item_id], 
 					condition, spec, len(list(group)))
 			)
 
@@ -3308,26 +3600,3 @@ class GroupModel(BaseTable, QtCore.QAbstractTableModel):
 				self.__class__.SPEC:group.spec, 
 				self.__class__.QUANTITY:group.quantity 
 			}.get(col)
-
-
-if __name__ == '__main__':
-	
-	# lines = []
-	
-	# line = db.SaleProformaLine()
-	# line.proforma_id = 1
-	# line.item_id = 1
-	# line.spec = 'EEUU'
-	# line.condition = 'B+'
-	# line.quantity = 3 
-	# line.price = 145.2
-
-	# lines.append(line)
-
-
-	stock = StockModel(
-		1, 
-		None, 
-		None, 
-		None, 
-	) 

@@ -41,6 +41,7 @@ class Form(Ui_PurchaseProformaForm, QWidget):
         self.title = 'Line - Error'
         self.lines_view.setSelectionBehavior(QTableView.SelectRows)
         self.setUp() 
+        self.is_invoice = False 
 
     def setUp(self):
 
@@ -109,8 +110,6 @@ class Form(Ui_PurchaseProformaForm, QWidget):
 
         agent, warranty, euro, they_pay_they_ship, we_pay_they_ship, we_pay_we_ship, days = \
             result
-
-        
 
         self.agent_combobox.setCurrentText(agent)
         self.warranty_spinbox.setValue(warranty) 
@@ -240,7 +239,7 @@ class Form(Ui_PurchaseProformaForm, QWidget):
         else:
             QMessageBox.information(self, 'Information',\
                 'Purchase saved successfully')
-            # self.close() 
+            self.close() 
 
 
 class EditableForm(Form):

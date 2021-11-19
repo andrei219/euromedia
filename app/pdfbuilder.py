@@ -231,6 +231,9 @@ class TotalsData:
 class PDF(FPDF):
 
     def __init__(self, document, *, is_invoice):
+        global utils 
+        from importlib import reload
+        utils = reload(utils)
         super().__init__()
         self.document = document
         self.resolve_header_and_lines_repr(document, is_invoice) 
