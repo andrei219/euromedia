@@ -74,6 +74,10 @@ class Spec(Base):
         elif type(other) is str:
             return self.description == other
 
+    def __repr__(self):
+        clsname = self.__class__.__name__
+        return f"{clsname}(description='{self.description}')"
+
 
 class Condition(Base):
 
@@ -628,26 +632,20 @@ class AdvancedLine(Base):
 
     id = Column(Integer, primary_key=True) 
     origin_id = Column(Integer, ForeignKey('purchase_proforma_lines.id'))
-    type = Column(Integer, nullable=False)
-    number = Column(Integer, nullable=False)
-    
     proforma_id = Column(Integer, ForeignKey('sale_proformas.id'))
-    
-    
-    description = Column(String(50))
+    item_id = Column(Integer, ForeignKey('items.id'))
+    mixed_description = Column(String(50))
+    free_description = Column(String(50))
+    condition = Column(String(50))
+    spec = Column(String(50))
     quantity = Column(Integer, nullable=False, default=1) 
     price = Column(Numeric(10, 2, asdecimal=False), nullable=False, default=1.0) 
     tax = Column(Integer, nullable=False, default=0) 
     ignore_spec = Column(Boolean, default=True, nullable=False)
     showing_condition = Column(String(50), nullable=True)    
 
-    origin = relationship(
-        'PurchaseProformaLine', 
-        backref=backref(
-            'advanced_lines', 
-            cascade = 'delete-orphan, delete, save-update', 
-            )
-        )
+    def __repr__(self):
+        return repr(self.__dict__)
 
     proforma = relationship(
         'SaleProforma', 
@@ -657,20 +655,6 @@ class AdvancedLine(Base):
             # lazy = 'joined'
         )
     )
-
-    def __eq__(self, other):
-        return all((
-            self.origin_id == other.origin_id,
-            self.type == other.type, 
-            self.number == other.number
-        )) 
-
-    def __hash__(self):
-        hashes = (hash(x) for x in (
-            self.type, self.number, self.origin_id
-        ))
-
-        return functools.reduce(operator.xor, hashes, 0)
 
 
 class Expedition(Base):

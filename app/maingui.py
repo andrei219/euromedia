@@ -17,7 +17,8 @@ import models
   
 import agentgui, partner_form, product_form, purchase_proforma_form, payments_form, expenses_form, \
     document_form, expedition_form, sale_proforma_form, inventory_form, spec_change_form, condition_change_form, \
-        warehouse_change_form, reception_order, advanced_sale_proforma_form
+        warehouse_change_form, reception_order, advanced_sale_proforma_form, \
+            advanced_to_normal_form
 
 from sqlalchemy.exc import IntegrityError
 
@@ -78,7 +79,8 @@ ACTIONS = [
     'check_inventory', 
     'create_product', 
     'view_pdf', 
-    'newadv'
+    'newadv', 
+    'advnorm'
 ]
 
 class MainGui(Ui_MainGui, QMainWindow):
@@ -118,12 +120,16 @@ class MainGui(Ui_MainGui, QMainWindow):
         for row in rows:
             doc = view.model()[row] 
             paid += sum(p.amount for p in doc.payments)
+            try:
+                lines = doc.advanced_lines
+            except AttributeError:
+                lines = doc.lines 
+
             total += round(
-                    sum(
-                    line.price * line.quantity 
-                    for line in doc.lines
-                ), 2
-            ) 
+                sum(
+                line.price * line.quantity 
+                for line in lines
+            ), 2) 
 
         name = view.objectName() 
         prefix = name[0:name.rfind('_') +  1]
@@ -580,7 +586,11 @@ class MainGui(Ui_MainGui, QMainWindow):
     
     # PROFORMAS SALES HANDLERS
     def proformas_sales_newadv_handler(self):
-        self.launch_adv_sale_proforma_form()
+        self.sp = advanced_sale_proforma_form.get_form(
+            self, 
+            self.proformas_sales_view
+        )
+        self.sp.show() 
 
     def proformas_sales_view_pdf_handler(self):
         self.view_documents(
@@ -588,14 +598,58 @@ class MainGui(Ui_MainGui, QMainWindow):
             self.proformas_sales_model
         )
 
+
+
+    def proformas_sales_advnorm_handler(self):
+        indexes = self.proformas_sales_view.selectedIndexes()
+        rows = {i.row() for i in indexes}
+        if len(rows) != 1:return 
+        row = rows.pop() 
+        try:
+            proforma = self.proformas_sales_model[row]
+        except IndexError: return 
+        if not proforma.advanced_lines:
+            return 
+        self.advnorm_form = advanced_to_normal_form.Form(
+            self, 
+            self.proformas_sales_view, 
+            proforma 
+        )
+
+        self.advnorm_form.show() 
+
+
     def proformas_sales_selection_changed(self):
         self.selection_changed_generic(self.proformas_sales_view)
        
     def proformas_sales_new_handler(self):
-        self.launch_sale_proforma_form() 
+        self.sp = sale_proforma_form.get_form(
+            self, 
+            self.proformas_sales_view
+        )
+        self.sp.show() 
 
     def proformas_sales_double_click_handler(self, index):
-        self.launch_sale_proforma_form(index)
+        try:
+            proforma = self.proformas_sales_model[index.row()]
+        except:
+            return 
+        
+        if proforma.advanced_lines:
+            self.sp = advanced_sale_proforma_form.get_form(
+                self, 
+                self.proformas_sales_view, 
+                proforma 
+            )
+        else:
+            self.sp = sale_proforma_form.get_form(
+                self, 
+                self.proformas_sales_view, 
+                proforma
+            )
+        
+        self.sp.show()
+
 
     def proformas_sales_cancel_handler(self):
         indexes = self.proformas_sales_view.selectedIndexes() 
@@ -763,18 +817,45 @@ class MainGui(Ui_MainGui, QMainWindow):
         self.advsp.show() 
 
 
+    # def launch_sale_proforma_form(self, index=None):
+    #     proforma = None 
+    #     try:
+    #         proforma = self.proformas_sales_model.proformas[index.row()]
+    #     except AttributeError:
+    #         pass
+
+    #     if proforma.advanced_lines:
+    #         self.sp = advanced_sale_proforma_form.get_form(
+    #             self, 
+    #             self.proformas_sales_view, 
+    #             proforma
+    #         )
+    #     else:
+    #         self.sp = sale_proforma_form.get_form(
+    #             self, 
+    #             self.proformas_sales_view, 
+    #             proforma
+    #         )
+    #     self.sp.show() 
+
     def launch_sale_proforma_form(self, index=None):
-        proforma = None 
-        try:
+        if index:
             proforma = self.proformas_sales_model.proformas[index.row()]
-        except AttributeError:
-            pass
-        self.sp = sale_proforma_form.get_form(
-            self, 
-            self.proformas_sales_view, 
-            proforma
-        )
-        self.sp.show()
+            if proforma.advanced_lines:
+                self.sp = advanced_sale_proforma_form.get_form(
+                    self, 
+                    self.proformas_sales_view, 
+                    proforma
+                )
+            elif proforma.lines:
+                self.sp = sale_proforma_form.get_form(
+                    self, 
+                    self.proformas_sales_view, 
+                    proforma
+                )
+        else:
+            pass 
+
 
     # PURCHASE INVOICE HANDLERS:
 

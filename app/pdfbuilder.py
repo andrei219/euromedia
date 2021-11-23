@@ -54,9 +54,9 @@ class LinePDFRepr:
 class PurcahseLinePDFRepr(LinePDFRepr):
     
     def __init__(self, line):
-        self.description = utils.description_id_map.inverse.get(line.item_id)
-        if not self.description:
-            self.description = line.description
+
+        self.description = line.description or \
+            utils.description_id_map.inverse.get(line.item_id)
 
         if line.condition:
             self.description += f', {line.condition}'
@@ -129,6 +129,22 @@ class SaleLinePDFRepr(LinePDFRepr):
         self.total = round(line.price * line.quantity, 2)
 
 
+class AdvancedSaleLinePDFRepr(LinePDFRepr):
+    
+    def __init__(self, line):
+        self.description = line.free_description or \
+            line.mixed_description or utils.description_id_map.inverse.get(line.item_id)
+
+        if line.condition:
+            self.description += f', {line.condition}'
+        
+        if line.spec:
+            self.description += f', {line.spec}'
+        
+        self.quantity = line.quantity
+        self.price = line.price
+        self.total = round(line.price * line.quantity, 2)
+
 class LinesPDFRepr:
 
     def __iter__(self):
@@ -156,23 +172,17 @@ class SaleLinesPDFRepr(LinesPDFRepr):
 
     def __iter__(self):
         return iter(self.lines)
-    
-
-
-def generate_test_lines(lines):
-    lines = []
-    for i, line in enumerate(cycle(lines)):
-        lines.append(PurcahseLinePDFRepr(line)) 
-        if i == 50:
-            break
-    return lines 
-
 
 class PurchaseLinesPDFRepr(LinesPDFRepr):
     
     def __init__(self, lines):
         self.lines = list(map(PurcahseLinePDFRepr, lines))
+
+class AdvancedLinesPDFRepr(LinesPDFRepr):
     
+    def __init__(self, lines):
+        self.lines = list(map(AdvancedSaleLinePDFRepr, lines))
+
 
 class We:
     def __init__(self):
@@ -211,12 +221,15 @@ class TableData:
 class TotalsData:
 
     def __init__(self, document):
-        self.Total_excl_VAT = round(sum(line.price * line.quantity for line in document.lines), 2)
+        lines = document.advanced_lines or document.lines
+        self.Total_excl_VAT = round(sum(line.price * line.quantity for line in lines), 2)
+        
+        
         self.Shipping = 0.0 
         self.Total_VAT = round(
             sum(
                 line.quantity * line.price * line.tax / 100
-                for line in document.lines 
+                for line in lines 
             ), 2 
         )
         self.Total = round(float(self.Total_excl_VAT + self.Shipping + self.Total_VAT), 2)
@@ -245,11 +258,15 @@ class PDF(FPDF):
         from db import SaleProforma, PurchaseProforma
         if type(document) == SaleProforma:
             self.we_buy = False
-            self.lines = SaleLinesPDFRepr(document.lines)
+            self.lines = SaleLinesPDFRepr(document.lines) or \
+                AdvancedLinesPDFRepr(document.advanced_lines)
             if not is_invoice :
                 self.doc_header = 'SALE ORDER'
             else:
                 self.doc_header = 'SALE INVOICE'
+        
+        
+        
         elif type(document) == PurchaseProforma:
             self.lines = PurchaseLinesPDFRepr(document.lines) 
             self.we_buy = True

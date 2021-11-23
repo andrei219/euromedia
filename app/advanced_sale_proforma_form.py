@@ -23,7 +23,7 @@ from db import Agent, Partner, SaleProformaLine, SaleProforma,\
     SalePayment, func
 
 
-import utils, db 
+import utils, db
 
 def reload_utils():
     global utils
@@ -32,9 +32,7 @@ def reload_utils():
 
 class Form(Ui_Form, QWidget):
     def __init__(self, parent, view):
-        # global utils    
-        # from importlib import reload
-        # utils = reload(utils)
+        reload_utils()
         super().__init__()
         self.setupUi(self)
         setCommonViewConfig(self.stock_view) 
@@ -114,8 +112,6 @@ class Form(Ui_Form, QWidget):
         description = self.description.text()
         condition = self.condition.text()
         spec = self.spec.text()
-        deleted_lines = self.lines_model.deleted_lines()
-        added_lines = self.lines_model.added_lines() 
 
         if spec == 'Mix':
             spec = None 
@@ -127,8 +123,6 @@ class Form(Ui_Form, QWidget):
             description=description,
             condition = condition, 
             spec = spec, 
-            added_lines = added_lines, 
-            deleted_lines = deleted_lines 
         )
 
         self.stock_view.setModel(self.stock_model) 
@@ -151,9 +145,11 @@ class Form(Ui_Form, QWidget):
             self.stock_model.reset()
 
         if hasattr(self, 'lines_model'):
-            self.lines_model.reset()  
+            self.lines_model.reset()   
 
         self.update_totals() 
+        # removing objects in pending state 
+        db.session.rollback() 
     
     def update_totals(self):
         
@@ -164,8 +160,8 @@ class Form(Ui_Form, QWidget):
     def delete_handler(self):
         indexes = self.lines_view.selectedIndexes()
         if not indexes:return 
-        rows = {index.row() for index in indexes}
-        self.lines_model.delete(rows)
+        row = {index.row() for index in indexes}.pop()
+        self.lines_model.delete(row)
         self.lines_view.clearSelection() 
 
         self.set_stock_mv()
@@ -190,14 +186,13 @@ class Form(Ui_Form, QWidget):
         price = self.price.value()
         ignore = self.ignore.isChecked()
         tax = int(self.tax.currentText())
-        showing_condition = self.showing_condition.text() 
+        showing = self.showing_condition.text() 
         
         try:
-            self.lines_model.add(quantity, price, ignore, tax,
-            showing_condition, vector.origin, vector.type, vector.number)
+            self.lines_model.add(quantity, price, ignore, tax, showing, vector)
         except ValueError as ex:
+            raise 
             QMessageBox.critical(self, 'Error', str(ex))
-
         else:
             self.update_totals()
             self.set_stock_mv()
@@ -207,7 +202,7 @@ class Form(Ui_Form, QWidget):
         if not partner_id:
             return
         try:
-            available_credit = models.computeCreditAvailable(partner_id) 
+            available_credit = computeCreditAvailable(partner_id) 
             self.available_credit.setValue(float(available_credit))
             self.credit.setMaximum(float(available_credit))
         
@@ -274,8 +269,9 @@ class Form(Ui_Form, QWidget):
         try:
             self.save_template()
             db.session.commit()
-            # self.parent.set_mv('proformas_sales_')
+
         except:
+            raise 
             db.session.rollback() 
         else:
             QMessageBox.information(self, 'Success', 'Sale saved successfully')
@@ -284,7 +280,7 @@ class Form(Ui_Form, QWidget):
 
     def save_template(self):
         self.model.add(self.proforma) 
-
+        self.proforma.advanced_lines.extend(self.lines_model.lines)
 
     def _valid_header(self):
         try:
@@ -298,6 +294,10 @@ class Form(Ui_Form, QWidget):
             QMessageBox.critical(self, 'Update - Error', 'Error in date field. Format: ddmmyyyy')
             return False
         return True
+
+
+    def closeEvent(self, event):
+        db.session.rollback() 
 
     def _form_to_proforma(self):
 
@@ -325,19 +325,40 @@ class Form(Ui_Form, QWidget):
         self.spec.clear()
         self.condition.clear()
 
+
 class EditableForm(Form):
     
     def __init__(self, parent, view, proforma):
         reload_utils()
         self.proforma = proforma 
         super().__init__(parent, view)
+        self.update_totals() 
+        self.disable_if_cancelled() 
 
+    def disable_warehouse(self):
+        pass 
 
     def init_template(self):
         self.proforma_to_form() 
 
     def save_template(self):
-        pass 
+        for o in db.session:
+            if type(o) == db.AdvancedLine:
+                print(o)
+
+    
+    def disable_if_cancelled(self):
+        if self.proforma.cancelled:
+            self.delete_.setEnabled(False)
+            self.header.setEnabled(False)
+            self.create_line.setEnabled(False)
+            self.search.setEnabled(False)
+            self.insert.setEnabled(False)
+            self.add.setEnabled(False)
+            self.save.setEnabled(False)             
+
+
+
 
 def get_form(parent, view, proforma=None):
     return EditableForm(parent, view, proforma) if proforma \

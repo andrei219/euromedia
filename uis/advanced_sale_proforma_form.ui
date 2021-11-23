@@ -13,7 +13,7 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <widget class="QGroupBox" name="groupBox_2">
+  <widget class="QGroupBox" name="header">
    <property name="geometry">
     <rect>
      <x>50</x>
@@ -922,7 +922,7 @@
     </widget>
    </widget>
   </widget>
-  <widget class="QGroupBox" name="groupBox_7">
+  <widget class="QGroupBox" name="create_line">
    <property name="geometry">
     <rect>
      <x>30</x>

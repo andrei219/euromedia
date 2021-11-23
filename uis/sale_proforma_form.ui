@@ -114,7 +114,7 @@
     <string>Proforma Slale Note ... (Max 255 chars)</string>
    </property>
   </widget>
-  <widget class="QGroupBox" name="groupBox_2">
+  <widget class="QGroupBox" name="header">
    <property name="geometry">
     <rect>
      <x>60</x>

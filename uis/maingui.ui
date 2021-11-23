@@ -2108,7 +2108,7 @@
         <widget class="QToolButton" name="proformas_sales_print">
          <property name="geometry">
           <rect>
-           <x>300</x>
+           <x>410</x>
            <y>10</y>
            <width>75</width>
            <height>60</height>
@@ -2137,7 +2137,7 @@
         <widget class="QToolButton" name="proformas_sales_options">
          <property name="geometry">
           <rect>
-           <x>1220</x>
+           <x>1330</x>
            <y>10</y>
            <width>75</width>
            <height>60</height>
@@ -2172,7 +2172,7 @@
         <widget class="QToolButton" name="proformas_sales_export">
          <property name="geometry">
           <rect>
-           <x>390</x>
+           <x>500</x>
            <y>10</y>
            <width>75</width>
            <height>60</height>
@@ -2201,7 +2201,7 @@
         <widget class="QToolButton" name="proformas_sales_payments">
          <property name="geometry">
           <rect>
-           <x>700</x>
+           <x>810</x>
            <y>10</y>
            <width>75</width>
            <height>60</height>
@@ -2236,7 +2236,7 @@
         <widget class="QToolButton" name="proformas_sales_expenses">
          <property name="geometry">
           <rect>
-           <x>800</x>
+           <x>910</x>
            <y>10</y>
            <width>75</width>
            <height>60</height>
@@ -2271,7 +2271,7 @@
         <widget class="QToolButton" name="proformas_sales_toinv">
          <property name="geometry">
           <rect>
-           <x>970</x>
+           <x>1080</x>
            <y>10</y>
            <width>75</width>
            <height>60</height>
@@ -2306,7 +2306,7 @@
         <widget class="QToolButton" name="proformas_sales_towh">
          <property name="geometry">
           <rect>
-           <x>1055</x>
+           <x>1165</x>
            <y>10</y>
            <width>75</width>
            <height>60</height>
@@ -2341,7 +2341,7 @@
         <widget class="QToolButton" name="proformas_sales_mail">
          <property name="geometry">
           <rect>
-           <x>600</x>
+           <x>710</x>
            <y>10</y>
            <width>75</width>
            <height>60</height>
@@ -2370,7 +2370,7 @@
         <widget class="QToolButton" name="proformas_sales_ship">
          <property name="geometry">
           <rect>
-           <x>1140</x>
+           <x>1250</x>
            <y>10</y>
            <width>75</width>
            <height>60</height>
@@ -2405,7 +2405,7 @@
         <widget class="QToolButton" name="proformas_sales_cancel">
          <property name="geometry">
           <rect>
-           <x>200</x>
+           <x>310</x>
            <y>10</y>
            <width>75</width>
            <height>60</height>
@@ -2440,7 +2440,7 @@
         <widget class="QToolButton" name="proformas_sales_docs">
          <property name="geometry">
           <rect>
-           <x>885</x>
+           <x>995</x>
            <y>10</y>
            <width>75</width>
            <height>60</height>
@@ -2491,7 +2491,7 @@
         <widget class="QToolButton" name="proformas_sales_view_pdf">
          <property name="geometry">
           <rect>
-           <x>480</x>
+           <x>590</x>
            <y>10</y>
            <width>75</width>
            <height>60</height>
@@ -2515,6 +2515,19 @@
          </property>
          <property name="autoRaise">
           <bool>true</bool>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="proformas_sales_advnorm">
+         <property name="geometry">
+          <rect>
+           <x>190</x>
+           <y>20</y>
+           <width>111</width>
+           <height>31</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>ADV -&gt; NORMAL</string>
          </property>
         </widget>
        </widget>
