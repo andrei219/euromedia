@@ -221,9 +221,12 @@ class TableData:
 class TotalsData:
 
     def __init__(self, document):
-        lines = document.advanced_lines or document.lines
+        try:
+            lines = document.advanced_lines or document.lines
+        except AttributeError:
+            lines = document.lines 
+
         self.Total_excl_VAT = round(sum(line.price * line.quantity for line in lines), 2)
-        
         
         self.Shipping = 0.0 
         self.Total_VAT = round(

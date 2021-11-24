@@ -586,11 +586,11 @@ class MainGui(Ui_MainGui, QMainWindow):
     
     # PROFORMAS SALES HANDLERS
     def proformas_sales_newadv_handler(self):
-        self.sp = advanced_sale_proforma_form.get_form(
+        self.asp = advanced_sale_proforma_form.get_form(
             self, 
             self.proformas_sales_view
         )
-        self.sp.show() 
+        self.asp.show() 
 
     def proformas_sales_view_pdf_handler(self):
         self.view_documents(

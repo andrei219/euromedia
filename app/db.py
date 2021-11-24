@@ -446,19 +446,19 @@ class SaleProforma(Base):
     number = Column(Integer)
     created_on = Column(DateTime, default=datetime.now)
  
-    date = Column(Date, nullable=False)
-    warranty = Column(Integer, nullable=False, default=0)
+    date = Column(DateTime, default=datetime.now)
+    warranty = Column(Integer,  default=0)
     eta = Column(Date, default=datetime.now)
 
-    cancelled = Column(Boolean, nullable=False, default=False)
-    sent = Column(Boolean, nullable=False, default=False)
+    cancelled = Column(Boolean, default=False)
+    sent = Column(Boolean, default=False)
     note = Column(String(255), default='')
 
-    eur_currency = Column(Boolean, nullable=False, default=True)
+    eur_currency = Column(Boolean, default=True)
 
-    they_pay_they_ship = Column(Boolean, default=False, nullable=False)
-    they_pay_we_ship = Column(Boolean, default=False, nullable=False)
-    we_pay_we_ship = Column(Boolean, default=False, nullable=False)
+    they_pay_they_ship = Column(Boolean, default=False )
+    they_pay_we_ship = Column(Boolean, default=False)
+    we_pay_we_ship = Column(Boolean, default=False)
 
     partner_id = Column(Integer, ForeignKey('partners.id'))
     courier_id = Column(Integer, ForeignKey('couriers.id'))
@@ -466,8 +466,8 @@ class SaleProforma(Base):
     agent_id = Column(Integer, ForeignKey('agents.id'))
     sale_invoice_id = Column(Integer, ForeignKey('sale_invoices.id'))
 
-    credit_amount = Column(Numeric(10, 2, asdecimal=False), nullable=False, default=0)
-    credit_days = Column(Integer, nullable=False, default=0)
+    credit_amount = Column(Numeric(10, 2, asdecimal=False), default=0)
+    credit_days = Column(Integer, default=0)
     tracking = Column(String(50))
     external = Column(String(50))
 
@@ -478,7 +478,7 @@ class SaleProforma(Base):
     invoice = relationship('SaleInvoice', uselist=False)
     expedition = relationship('Expedition', uselist=False, back_populates='proforma')
 
-    incoterm = Column(String(3), nullable=False) 
+    incoterm = Column(String(3), default='gbc') 
 
     __table_args__ = (
         UniqueConstraint('type', 'number'), 
@@ -564,7 +564,7 @@ class SaleProformaLine(Base):
     __tablename__ = 'sale_proforma_lines'
 
     id = Column(Integer, primary_key=True) 
-    proforma_id = Column(Integer, ForeignKey('sale_proformas.id'), nullable=False)
+    proforma_id = Column(Integer, ForeignKey('sale_proformas.id'))
 
     item_id = Column(Integer, ForeignKey('items.id'), nullable=True)
     mix_id = Column(Integer, nullable=True)
@@ -572,19 +572,18 @@ class SaleProformaLine(Base):
     # No stock related line 
     description = Column(String(100)) 
 
-    condition = Column(String(50), nullable=True)
-    showing_condition = Column(String(50), nullable=True)
-    spec = Column(String(50), nullable=True)
-    ignore_spec = Column(Boolean, nullable=False, default=False) 
-    quantity = Column(Integer, nullable=False, default=1)
-    price = Column(Numeric(10, 2, asdecimal=False), nullable=False, default=1.0)
-    tax = Column(Integer, nullable=False, default=0)
+    condition = Column(String(50))
+    showing_condition = Column(String(50))
+    spec = Column(String(50))
+    ignore_spec = Column(Boolean, default=False) 
+    quantity = Column(Integer, default=1)
+    price = Column(Numeric(10, 2, asdecimal=False), default=1.0)
+    tax = Column(Integer, default=0)
     
     item = relationship('Item')
     proforma = relationship(
         'SaleProforma', 
-        backref=backref(
-            'lines', 
+        backref=backref('lines', 
             cascade = 'delete-orphan, delete, save-update', 
             # lazy = 'joined'
         )
@@ -594,14 +593,7 @@ class SaleProformaLine(Base):
         UniqueConstraint('id', 'proforma_id'), 
     )
 
-    # This __eq__ method is a callback
-    # For the set difference between expedition lines 
-    # and proforma sale lines, in order to update the
-    # expeditions when they are already created and user 
-    # wants the update proforma. 
-
-    # Test the properties relevant to both:
-    # Warehouse and sale proforma
+    
     def __eq__(self, other):
         
         description = False 
@@ -623,6 +615,73 @@ class SaleProformaLine(Base):
     def __repr__(self):
         classname = self.__class__.__name__
         return f"{classname}(item_id={self.item_id}, condition={self.condition}, spec={self.spec}, mix_id={self.mix_id})"
+
+
+
+def supress(target_cls):
+    def deco(f):
+        def inner(*args, **kwargs):
+            if type(target_cls) == SaleProformaLine:
+                try:
+                    return f(*args, **kwargs)
+                except:
+                    pass
+        return inner
+    return deco
+    
+
+
+@event.listens_for(session, 'transient_to_pending')
+def object_is_pending(session, object):
+    if type(object) in (SaleProforma, SaleProformaLine, AdvancedLine):
+        print('new pending %s' %object)
+
+@event.listens_for(Base, "init", propagate=True)
+def intercept_init(instance, args, kwargs):
+    if type(object) in (SaleProforma, SaleProformaLine, AdvancedLine):
+        print("new transient: %s" % instance)
+
+@event.listens_for(session, "pending_to_persistent")
+def intercept_pending_to_persistent(session, object_):
+    if type(object) in (SaleProforma, SaleProformaLine, AdvancedLine):
+        print("pending to persistent: %s" % object_)
+    
+
+@event.listens_for(session, "pending_to_transient")
+def intercept_pending_to_transient(session, object_):
+    if type(object) in (SaleProforma, SaleProformaLine, AdvancedLine):
+        print("transient to pending: %s" % object_)
+
+@event.listens_for(session, "loaded_as_persistent")
+def intercept_loaded_as_persistent(session, object_):
+    if type(object) in (SaleProforma, SaleProformaLine, AdvancedLine):
+        print("object loaded into persistent state: %s" % object_)
+
+@event.listens_for(session, "persistent_to_deleted")
+def intercept_persistent_to_deleted(session, object_):
+    if type(object) in (SaleProforma, SaleProformaLine, AdvancedLine):
+        print("object was DELETEd, is now in deleted state: %s" % object_)
+
+@event.listens_for(session, "deleted_to_detached")
+def intercept_deleted_to_detached(session, object_):
+    if type(object) in (SaleProforma, SaleProformaLine, AdvancedLine):
+        print("deleted to detached: %s" % object_)
+
+@event.listens_for(session, "persistent_to_detached")
+def intercept_persistent_to_detached(session, object_):
+    if type(object) in (SaleProforma, SaleProformaLine, AdvancedLine):
+        print("object became detached: %s" % object_)
+
+
+@event.listens_for(session, "detached_to_persistent")
+def intercept_detached_to_persistent(session, object_):
+    if type(object) in (SaleProforma, SaleProformaLine, AdvancedLine):
+        print("object became persistent again: %s" % object_)
+
+@event.listens_for(session, "deleted_to_persistent")
+def intercept_deleted_to_persistent(session, object_):
+    if type(object) in (SaleProforma, SaleProformaLine, AdvancedLine):
+        print("deleted to persistent: %s" % object_)
 
 
 
@@ -1017,67 +1076,67 @@ def create_and_populate():
     session.add_all(courier_list)
     
 
-    for i in range(1, 4):
+    # for i in range(1, 4):
 
-        proforma = PurchaseProforma() 
-        proforma.type = 1
-        proforma.number = i  
-        proforma.date = datetime(2020, 10, 11)
-        from datetime import timedelta
-        proforma.eta = proforma.date + timedelta(days=5) 
-        proforma.partner = random.choice(partner_list)
-        proforma.agent = random.choice(agent_list) 
-        proforma.warehouse = random.choice(warehouse_list)
-        proforma.courier = random.choice(courier_list)
-        proforma.eur_currency = True
-        proforma.incoterm = 'FOB'
-        proforma.we_pay_we_ship = True
+    proforma = PurchaseProforma() 
+    proforma.type = 1
+    proforma.number = 1 
+    proforma.date = datetime(2020, 10, 11)
+    from datetime import timedelta
+    proforma.eta = proforma.date + timedelta(days=5) 
+    proforma.partner = random.choice(partner_list)
+    proforma.agent = random.choice(agent_list) 
+    proforma.warehouse = random.choice(warehouse_list)
+    proforma.courier = random.choice(courier_list)
+    proforma.eur_currency = True
+    proforma.incoterm = 'FOB'
+    proforma.we_pay_we_ship = True
 
-        line = PurchaseProformaLine() 
-        line.proforma = proforma
-        line.item = random.choice(item_list)
-        line.condition = random.choice([c.description for c in condition_list])
-        line.spec = random.choice([s.description for s in spec_list])
-        line.quantity = random.choice([i for i in range(5, 15)])
-        line.price = random.uniform(200.0, 400.2)
-        
-        proforma.lines.append(line) 
+    line = PurchaseProformaLine() 
+    line.proforma = proforma
+    line.item = random.choice(item_list)
+    line.condition = random.choice([c.description for c in condition_list])
+    line.spec = random.choice([s.description for s in spec_list])
+    line.quantity = random.choice([i for i in range(5, 15)])
+    line.price = random.uniform(200.0, 400.2)
+    
+    proforma.lines.append(line) 
 
-        line = PurchaseProformaLine()
-        line.proforma = proforma 
-        import models
-        line.description = 'Apple Iphone X Mixed GB Mixed Color'
-        line.condition = random.choice([c.description for c in condition_list])
-        line.spec = random.choice([s.description for s in spec_list]) 
-        line.quantity = random.choice([i for i in range(5, 15)])
-        line.price = random.uniform(200.0, 400.2)
-        proforma.lines.append(line)
-        
-        line = PurchaseProformaLine()
-        line.proforma = proforma 
-        line.item = random.choice(item_list)
-        line.condition = random.choice([c.description for c in condition_list]) 
-        line.spec = 'Mix'
-        line.quantity = random.choice([i for i in range(5, 15)])
-        line.price = random.uniform(200.0, 400.2)
-        proforma.lines.append(line)
+    line = PurchaseProformaLine()
+    line.proforma = proforma 
+    import models
+    line.description = 'Apple Iphone X Mixed GB Mixed Color'
+    line.condition = random.choice([c.description for c in condition_list])
+    line.spec = random.choice([s.description for s in spec_list]) 
+    line.quantity = random.choice([i for i in range(5, 15)])
+    line.price = random.uniform(200.0, 400.2)
+    proforma.lines.append(line)
+    
+    line = PurchaseProformaLine()
+    line.proforma = proforma 
+    line.item = random.choice(item_list)
+    line.condition = random.choice([c.description for c in condition_list]) 
+    line.spec = 'Mix'
+    line.quantity = random.choice([i for i in range(5, 15)])
+    line.price = random.uniform(200.0, 400.2)
+    proforma.lines.append(line)
 
-        line = PurchaseProformaLine()
-        line.proforma = proforma 
-        line.item = random.choice(item_list)
-        line.condition = 'Mix'
-        line.spec = random.choice([s.description for s in spec_list])
-        line.quantity = 5
-        line.price = random.uniform(200.0, 400.2)
-        proforma.lines.append(line)
+    line = PurchaseProformaLine()
+    line.proforma = proforma 
+    line.item = random.choice(item_list)
+    line.condition = 'Mix'
+    line.spec = random.choice([s.description for s in spec_list])
+    line.quantity = 5
+    line.price = random.uniform(200.0, 400.2)
+    proforma.lines.append(line)
 
 
-        session.add(proforma) 
+    session.add(proforma) 
 
-        pd = PurchaseDocument() 
-        pd.name = 'customs'
-        pd.document = base64Pdf(testpath)
-        pd.proforma = proforma
+    pd = PurchaseDocument() 
+    pd.name = 'customs'
+    pd.document = base64Pdf(testpath)
+    pd.proforma = proforma
 
 
     session.commit() 
@@ -1119,19 +1178,26 @@ def insert_imei_after_mixed_purchase(mapper, connection, target):
     purchase_line_id = get_associated_purchase_line(target) 
 
     if purchase_line_id:
-
+        print('purchase_line_id=', purchase_line_id)
         advanced_associated = session.query(
             exists().where(AdvancedLine.origin_id == purchase_line_id)
         ).scalar()
 
         if advanced_associated:
-            imei_count = session.query(
+            print('purcahse_associaged=True')
+            query = session.query(
                 func.count(ReceptionSerie.id)
             ).where(
                 ReceptionSerie.line_id == purchase_line_id
-            ).scalar() 
+            )
+            print(query)
+
+            imei_count = query.scalar()
+
+            print('imei_count = ', imei_count)
 
             if imei_count and imei_count <= target.line.quantity:
+                print('c')
                 connection.execute(imei_insert_stmt(ImeiMask, target))
 
 def get_associated_purchase_line(reception_serie:ReceptionSerie):

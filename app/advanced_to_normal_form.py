@@ -69,6 +69,3 @@ class Form(Ui_Form, QWidget):
     def set_stock_mv(self, line):
         warehouse_id = utils.warehouse_id_map.get(self.warehouse.text())
         condition, spec = line.condition, line.spec 
-        self.stock_model = ManualStockModel(
-            
-        )

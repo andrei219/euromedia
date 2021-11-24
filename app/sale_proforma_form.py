@@ -1,24 +1,18 @@
 
 from datetime import date
 
-from PyQt5.QtWidgets import QWidget, QMessageBox, QCompleter,\
-    QTableView
-from PyQt5.QtCore import QStringListModel, Qt
-from PyQt5.QtCore import QAbstractTableModel
+from PyQt5.QtCore import QAbstractTableModel, QStringListModel, Qt
+from PyQt5.QtWidgets import QCompleter, QMessageBox, QTableView, QWidget
 
+import db
+import decorators
+import models
+import utils
+from db import (Agent, Partner, SalePayment, SaleProforma, SaleProformaLine,
+                func)
+from models import ActualLinesFromMixedModel, SaleProformaLineModel, StockModel
 from ui_sale_proforma_form import Ui_SalesProformaForm
 
-from models import SaleProformaLineModel, ActualLinesFromMixedModel,\
-    StockModel
-
-import db, models, utils, decorators
-
-
-from db import Agent, Partner, SaleProformaLine, SaleProforma,\
-    SalePayment, func
-    
-
-import utils 
 
 class Form(Ui_SalesProformaForm, QWidget):
 
@@ -28,6 +22,8 @@ class Form(Ui_SalesProformaForm, QWidget):
         utils = reload(utils)
         super().__init__() 
         self.setupUi(self) 
+        self.setCombos()
+
         self.model = view.model() 
         self.init_template() 
         self.parent = parent
@@ -36,14 +32,22 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.stock_view.setSelectionBehavior(QTableView.SelectRows)
         utils.setCommonViewConfig(self.selected_stock_view)
         
-        self.setCombos()
         self.setCompleters()
         self.set_handlers()
 
 
     def init_template(self):
-        
         self.proforma = db.SaleProforma() 
+
+        self.proforma.warehouse_id = utils.warehouse_id_map.get(
+            self.warehouse.currentText()
+        )
+        db.session.add(self.proforma)
+        db.session.flush() 
+
+        print('proforma_id:', self.proforma.id)
+        print('warehouse_id:', self.proforma.warehouse_id)
+ 
         self.date.setText(date.today().strftime('%d%m%Y'))
         self.type.setCurrentText('1')
         self.number.setText(str(self.model.nextNumberOfType(1)).zfill(6))
@@ -61,6 +65,22 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.type.currentTextChanged.connect(self.typeChanged)
         self.delete_selected_stock.clicked.connect(self.delete_selected_stock_clicked)
         self.deselect.clicked.connect(lambda : self.lines_view.clearSelection())
+        self.warehouse.currentTextChanged.connect(self.warehouse_changed)
+
+    def warehouse_changed(self, text):
+        warehouse_id = utils.warehouse_id_map.get(text)
+        db.session.rollback() 
+        self.proforma = SaleProforma() 
+        self.proforma.warehouse_id = warehouse_id 
+        self.lines_model = SaleProformaLineModel(self.proforma) 
+        self.lines_view.setModel(self.lines_model)
+
+        if hasattr(self, 'stock_model'):
+            self.stock_model.reset() 
+
+        self.stock_view.setModel(self.stock_model) 
+        db.session.add(self.proforma) 
+
 
     def typeChanged(self, type):
         next_num = self.model.nextNumberOfType(int(type))
@@ -171,9 +191,6 @@ class Form(Ui_SalesProformaForm, QWidget):
         description = self.description.text()
         condition = self.condition.text()
         spec = self.spec.text() 
-        deleted_lines = self.lines_model.deleted_lines
-        added_lines = self.lines_model.added_lines 
-
         
         if spec == 'Mix':
             spec = None
@@ -186,8 +203,6 @@ class Form(Ui_SalesProformaForm, QWidget):
                 warehouse_id, 
                 description, 
                 condition, spec,
-                deleted_lines = deleted_lines, 
-                added_lines = added_lines
             ) 
         self.stock_view.setModel(self.stock_model) 
         self.stock_view.resizeColumnsToContents() 
@@ -307,16 +322,8 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.model.add(self.proforma) 
 
     def closeEvent(self, event):
-        if db.session.dirty:
-            if QMessageBox.question(
-                self,
-                'Save-changes', 
-                'Save changes?'
-            ) == QMessageBox.Yes:
-                db.session.commit()
-            else:
-                db.session.rollback()         
-        self.parent.set_mv('proformas_sales_')
+        db.session.rollback()     
+        # self.parent.set_mv('proformas_sales_')
 
     def update_total_fields(self):
         self.proforma_total.setText(str(self.lines_model.total))
@@ -376,18 +383,6 @@ class EditableForm(Form):
     
     def save_template(self):
         pass 
-
-    def closeEvent(self, event):
-        if db.session.dirty:
-            if QMessageBox.question(
-                self,
-                'Save-changes', 
-                'Save changes?'
-            ) == QMessageBox.Yes:
-                db.session.commit()
-                self.model.updateWarehouse(self.proforma) 
-            else:
-                db.session.rollback() 
 
     def disable_warehouse(self):
         try:

@@ -6,9 +6,6 @@ from sqlalchemy.orm import sessionmaker, scoped_session
 
 engine = create_engine('mysql+mysqlconnector://root:hnq#4506@localhost:3306/appdb', echo=True) 
 
-# pool_size=20, max_overflow=0)
-
-# engine = create_engine('sqlite:///euro.db')
 
 Session = scoped_session(sessionmaker(bind=engine, autoflush=False))
 session = Session() 
@@ -89,7 +86,7 @@ def intercept_pending_to_persistent(session, object_):
 
 @event.listens_for(session, "pending_to_transient")
 def intercept_pending_to_transient(session, object_):
-    print("transient to pending: %s" % object_)
+    print("pending to transient: %s" % object_)
 
 
 @event.listens_for(session, "loaded_as_persistent")
@@ -124,3 +121,14 @@ def intercept_deleted_to_persistent(session, object_):
 
 Base.metadata.create_all(engine) 
 
+if __name__ == '__main__':
+
+    p = Parent('p1')
+
+    p.children.append(Child('c1'))  
+    p.children.append(Child('c2'))
+    p.children.append(Child('c3'))
+
+    session.add(p)
+
+    session.commit() 

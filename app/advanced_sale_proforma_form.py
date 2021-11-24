@@ -40,11 +40,7 @@ class Form(Ui_Form, QWidget):
         self.init_template()
         self.parent = parent
         self.lines_model = AdvancedLinesModel(self.proforma) 
-
-
         self.lines_view.setModel(self.lines_model)
-
-
         self.set_combos()
         self.set_completers()
         self.set_handlers() 
@@ -52,6 +48,8 @@ class Form(Ui_Form, QWidget):
 
     def init_template(self):
         self.proforma = db.SaleProforma() 
+        db.session.add(self.proforma)
+        db.session.flush() 
         self.date.setText(date.today().strftime('%d%m%Y'))
         self.type.setCurrentText('1')
         self.number.setText(str(self.model.nextNumberOfType(1)).zfill(6))
