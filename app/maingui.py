@@ -83,6 +83,19 @@ ACTIONS = [
     'advnorm'
 ]
 
+
+from sqlalchemy.orm import joinedload
+def correct_imeis_mask():
+    for line in db.session.query(db.AdvancedLine).\
+        options(joinedload(db.AdvancedLine.definitions)):
+        if not line.definitions:
+            print('reasched')
+            return 
+    else:
+        db.session.query(db.ImeiMask).delete()
+        db.session.commit() 
+
+
 class MainGui(Ui_MainGui, QMainWindow):
     
     def __init__(self, parent=None):
@@ -586,6 +599,8 @@ class MainGui(Ui_MainGui, QMainWindow):
     
     # PROFORMAS SALES HANDLERS
     def proformas_sales_newadv_handler(self):
+        
+
         self.asp = advanced_sale_proforma_form.get_form(
             self, 
             self.proformas_sales_view
@@ -622,6 +637,10 @@ class MainGui(Ui_MainGui, QMainWindow):
         self.selection_changed_generic(self.proformas_sales_view)
        
     def proformas_sales_new_handler(self):
+
+        correct_imeis_mask()
+
+
         self.sp = sale_proforma_form.get_form(
             self, 
             self.proformas_sales_view
@@ -752,16 +771,6 @@ class MainGui(Ui_MainGui, QMainWindow):
         if not proforma:
             return  
         try:
-            # # Hay que meter el codigo de la prioridad aqui.
-            # if not self.proformas_sales_model.\
-            #     stock_available(proforma.warehouse_id, proforma.lines):
-            #     QMessageBox.critical(
-            #         self, 
-            #         'Error',
-            #         "Can't send to warehouse for preparation. Not enough SN in physical stock."
-            #     )
-            #     return
-
             ok, note = getNote(self, proforma)
             if not ok:
                 return
@@ -773,6 +782,9 @@ class MainGui(Ui_MainGui, QMainWindow):
             if ex.orig.args[0] == 1048:
                 d = 'Invoice' if invoice else 'Proforma'
                 QMessageBox.critical(self, 'Update - Error', f'Warehouse expedition for this {d} already exists')
+
+        except ValueError as ex:
+            QMessageBox.critical(self, 'Error', str(ex))
 
     def proformas_sales_ship_handler(self, invoice=None):
         if invoice:
@@ -1027,16 +1039,32 @@ class MainGui(Ui_MainGui, QMainWindow):
 
     # WAREHOUSE EXPEDITION:
     def warehouse_expeditions_process_handler(self):
+        print('eee')
         expedition = self.get_expedition(
             self.warehouse_expedition_view, 
             self.warehouse_expeditions_model
         ) 
         if not expedition:return 
-        expedition_form.Form(self, expedition).exec_()
+
+        try:
+            expedition_form.Form(self, expedition).exec_()
+        except IndexError:
+            QMessageBox.information(
+                    self, 
+                    'Information', 
+                    'This expedition order is empty. I can not open'
+                )
 
     def warehouse_expeditions_double_click_handler(self, index):
         expedition = self.warehouse_expeditions_model.expeditions[index.row()]
-        expedition_form.Form(self, expedition).exec_() 
+        try:
+            expedition_form.Form(self, expedition).exec_() 
+        except IndexError:
+            QMessageBox.information(
+                    self, 
+                    'Information', 
+                    'This expedition order is empty. I can not open'
+                )
 
     def warehouse_expeditions_delete_handler(self):
         expedition = self.get_expedition(

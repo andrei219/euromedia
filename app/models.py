@@ -47,7 +47,6 @@ class BaseTable:
 		return len(getattr(self, self.name))
 
 
-
 def computeCreditAvailable(partner_id):
 
 	max_credit = db.session.query(db.Partner.amount_credit_limit).\
@@ -109,6 +108,16 @@ def total_quantity(proforma):
 		line.description in utils.descriptions or line.item_id]) or \
 			sum([line.quantity for line in proforma.advanced_lines if \
 				line.mixed_description in utils.descriptions or line.item_id])
+
+# def total_quantity(object):
+
+# 	if isinstance(object, db.PurchaseProforma):
+# 		return sum(line.quantity for line in object.lines if line.item_id or \
+# 			line.description in utils.descriptions)
+# 	elif isinstance(object, db.Reception):
+# 		return sum(line.quantity for line in object.lines)
+# 	elif isinstance(object, t)
+
 
 def total_processed(proforma):
 	proforma = get_actual_object(proforma) 
@@ -544,7 +553,7 @@ class PartnerContactModel(QtCore.QAbstractTableModel):
 
 class SaleInvoiceModel(QtCore.QAbstractTableModel):
 	 
-	TYPE_NUM, PROFORMA = 0, 11 
+	TYPE_NUM, PROFORMA = 0, 12 
 	
 	def __init__(self, search_key=None, filters=None):
 		super().__init__() 
@@ -927,7 +936,8 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
 				p.cancelled = True 
 		try:
 			# Update advanced lines depending on this purchase
-			ids = (line.id for line in p.lines)
+			ids = [line.id for line in p.lines]
+			print(ids)
 			db.session.query(db.AdvancedLine).\
 				where(db.AdvancedLine.origin_id.in_(ids)).\
 					update({db.AdvancedLine.quantity:0})
@@ -1000,6 +1010,8 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
 		warehouse_lines = set(proforma.reception.lines)
 		proforma_lines = set(proforma.lines)
 		
+		
+
 		for line in warehouse_lines.difference(proforma_lines):
 			line.quantity = 0 
 			if sum(1 for serie in line.series) == 0:
@@ -1025,12 +1037,12 @@ import functools
 class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 	
 	TYPE_NUM, DATE, PARTNER, AGENT, FINANCIAL, LOGISTIC, SENT, \
-		CANCELLED, OWING, TOTAL, ADVANCED = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10
+		CANCELLED, OWING, TOTAL, ADVANCED, DEFINED = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11
 
 	def __init__(self, search_key=None, filters=None, proxy=False):
 		super().__init__() 
 		self._headerData = ['Type & Num', 'Date', 'Partner','Agent', \
-			'Financial', 'Logistic','Sent', 'Cancelled', 'Owes', 'Total', 'Advanced']
+			'Financial', 'Logistic','Sent', 'Cancelled', 'Owes', 'Total', 'Advanced', 'Defined']
 		self.proformas = [] 
 		self.name = 'proformas'
 		query = db.session.query(db.SaleProforma).\
@@ -1161,6 +1173,14 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 
 			elif col == SaleProformaModel.ADVANCED:
 				return 'Yes' if proforma.advanced_lines else 'No'
+			
+			elif col == SaleProformaModel.DEFINED:
+				for line in proforma.advanced_lines:
+					for definition in line.definitions:
+						if definition:
+							return 'Yes'
+				else:
+					return 'No'
 
 		elif role == Qt.DecorationRole:
 			if col == SaleProformaModel.FINANCIAL:
@@ -1277,19 +1297,25 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 			raise 
 
 	def toWarehouse(self, proforma, note):
-		expedition = db.Expedition(proforma, note) 
-		db.session.add(expedition) 
 		
 		if proforma.advanced_lines:
-			lines = iter([
+			lines = [
 				definition 
 				for line in proforma.advanced_lines
 				for definition in line.definitions
 				if definition
-			])
+			]
+
+			if not lines:
+				raise ValueError("Cannot send to warehouse undefined advanced sale")
 		else:
-			lines = iter([line for line in proforma.lines])
+			lines = [line for line in proforma.lines]
 		
+		if not lines:return 
+
+		expedition = db.Expedition(proforma, note) 
+		db.session.add(expedition) 
+
 		for line in lines:
 			exp_line = db.ExpeditionLine()
 			exp_line.item_id = line.item_id
@@ -1343,6 +1369,16 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 				proforma.lines
 			)
 		)
+
+		# print('warehouse_lines:')
+		# print('_' * 100)
+		# for line in warehouse_lines:
+		# 	print(line)
+		# print('proforma_lines:')
+		# print('_' * 100)
+		# for line in proforma_lines:
+		# 	print(line) 
+
 
 		added_lines = proforma_lines.difference(warehouse_lines)
 		for line in added_lines:
@@ -2298,6 +2334,8 @@ class ExpeditionModel(BaseTable, QtCore.QAbstractTableModel):
 					return 'Partially Prepared'
 				elif completed(expedition):
 					return 'Completed'
+
+
 			elif column == ExpeditionModel.CANCELLED:
 				return 'Yes' if expedition.proforma.cancelled else 'No'
 			elif column == ExpeditionModel.AGENT:
@@ -2324,7 +2362,12 @@ class ExpeditionModel(BaseTable, QtCore.QAbstractTableModel):
 			elif column == ExpeditionModel.CANCELLED:
 				return QtGui.QColor(RED) if expedition.proforma.cancelled \
 					else QtGui.QColor(GREEN)
-				
+
+
+
+	def completed(self, reception):
+		pass 
+
 class ReceptionModel(BaseTable, QtCore.QAbstractTableModel):
 
 	ID, WAREHOUSE, TOTAL, PROCESSED, LOGISTIC, CANCELLED, PARTNER,\
@@ -2645,6 +2688,40 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
 
 		outputs = {StockEntry(r.item_id, r.condition, r.spec, r.quantity) for r in query}
 
+
+		query = session.query(
+			db.AdvancedLineDefinition.item_id, 
+			db.AdvancedLineDefinition.condition, 
+			db.AdvancedLineDefinition.spec, 
+			func.sum(db.AdvancedLineDefinition.quantity).label('quantity')
+		).join(
+			db.AdvancedLine
+		).join(
+			db.SaleProforma
+		).where(
+			db.SaleProforma.warehouse_id == warehouse_id, 
+			db.SaleProforma.cancelled == False
+		).group_by(
+			db.AdvancedLineDefinition.item_id, 
+			db.AdvancedLineDefinition.condition, 
+			db.AdvancedLineDefinition.spec,
+		)
+
+		defined_sales = {
+			StockEntry(r.item_id, r.condition, r.spec, r.quantity) for r in query
+		}
+
+
+		# combine sales and definitions:
+		r = sales.symmetric_difference(defined_sales)
+
+		for sale in sales:
+			for defined_sale in defined_sales:
+				if sale == defined_sale:
+					sale += defined_sale
+					r.add(sale)
+		sales = r
+
 		stocks = self.resolve(imeis, imeis_mask, sales, outputs) 
 		
 		return list(filter(lambda stock:stock.quantity != 0, stocks))
@@ -2821,7 +2898,8 @@ class IncomingStockModel(BaseTable, QtCore.QAbstractTableModel):
 
 		query = session.query(db.PurchaseProformaLine).\
 			join(db.PurchaseProforma).join(db.Partner).outerjoin(db.Reception).\
-				join(db.Warehouse).where(db.Warehouse.id == warehouse_id)
+				join(db.Warehouse).where(db.Warehouse.id == warehouse_id).\
+					where(db.PurchaseProforma.cancelled==False)
 		
 		item_id = utils.description_id_map.get(description) 
 
@@ -3001,12 +3079,7 @@ class AdvancedLinesModel(BaseTable, QtCore.QAbstractTableModel):
 
 
 	def delete_from_imeis_mask(self):
-		origin_ids = {line.origin_id for line in self._lines}
-
-		from sqlalchemy import text
-
-		statements=[]
-		for id in origin_ids:
+		for id in {line.origin_id for line in self._lines}:
 			for line in self._lines:
 				if line.origin_id == id:
 					try:
@@ -3020,7 +3093,8 @@ class AdvancedLinesModel(BaseTable, QtCore.QAbstractTableModel):
 	def update_count_relevant(self):
 		for line in self._lines:
 			for line_def in line.definitions:
-				line_def.count_relevant = False 
+				line_def.local_count_relevant = False 
+				line_def.global_count_relevant = True 
 
 	def __getitem__(self, index):
 		return self._lines[index]
@@ -3372,7 +3446,7 @@ class AdvancedStockModel(StockModel):
 			db.AdvancedLineDefinition.spec, 
 			func.sum(db.AdvancedLineDefinition.quantity).label('quantity')
 		).where(
-			db.AdvancedLineDefinition.count_relevant == True 
+			db.AdvancedLineDefinition.local_count_relevant == True 
 		).group_by(
 			db.AdvancedLineDefinition.item_id, 
 			db.AdvancedLineDefinition.condition, 

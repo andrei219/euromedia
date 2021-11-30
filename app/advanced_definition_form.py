@@ -44,6 +44,8 @@ class Form(Ui_Form, QWidget):
         self.stock_view.setSelectionMode(QTableView.SingleSelection)
         self.stock_view.setAlternatingRowColors(True)
 
+        self.saved = False
+
     def init_template(self):
         self.init_lines_stock_defined()
 
@@ -102,6 +104,8 @@ class Form(Ui_Form, QWidget):
 
             try:
                 db.session.commit()
+                self.saved = True 
+                self.close() 
             except:
                 raise 
                 db.session.rollback()
@@ -111,14 +115,6 @@ class Form(Ui_Form, QWidget):
                     'Success', 
                     'Advanced sale definition made successfully'
                 ) 
-
-        else:
-            print('aaa')
-
-    def update_count_relevant(self):
-        for line in self.proforma.advanced_lines:
-            for line_def in line.definitions:
-                line_def.count_relevant = False 
 
 
     def delete_handler(self):
@@ -143,13 +139,14 @@ class Form(Ui_Form, QWidget):
 
 
     def closeEvent(self, event):
-        QMessageBox.information(
-            self, 
-            'Information', 
-            'This is an all or None operation, changes will not be saved'
-        )
+        if not self.saved:
+            QMessageBox.information(
+                self, 
+                'Information', 
+                'This is an all or None operation, changes will not be saved'
+            )
 
-        db.session.rollback()
+            db.session.rollback()
 
 
 class EditableForm(Form):

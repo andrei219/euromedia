@@ -383,16 +383,18 @@ class EditableForm(Form):
         self.disable_warehouse() 
     
     def save_template(self):
-        pass 
+        self.model.updateWarehouse(self.proforma)
 
     def disable_warehouse(self):
-        try:
-            if sum(
-                1 for line in self.proforma.expedition.lines
-                for serie in line.series
-            ): self.warehouse.setEnabled(False) 
-        except AttributeError:
-            pass 
+        # try:
+        #     if sum(
+        #         1 for line in self.proforma.expedition.lines
+        #         for serie in line.series
+        #     ): self.warehouse.setEnabled(False) 
+        # except AttributeError:
+        #     pass 
+
+        self.warehouse.setEnabled(False)
 
 def get_form(parent, view, proforma=None):
     return EditableForm(parent, view, proforma) \

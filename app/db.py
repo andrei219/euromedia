@@ -677,7 +677,7 @@ class AdvancedLine(Base):
     __tablename__ = 'advanced_lines'
 
     id = Column(Integer, primary_key=True) 
-    origin_id = Column(Integer, ForeignKey('purchase_proforma_lines.id'))
+    origin_id = Column(Integer, nullable=True)
     proforma_id = Column(Integer, ForeignKey('sale_proformas.id'))
     item_id = Column(Integer, ForeignKey('items.id'))
     mixed_description = Column(String(50))
@@ -740,7 +740,8 @@ class AdvancedLineDefinition(Base):
     spec = Column(String(50), nullable=False)
     quantity = Column(Integer, default=0)
 
-    count_relevant = Column(Boolean, default=True) 
+    local_count_relevant = Column(Boolean, default=True) 
+    global_count_relevant = Column(Boolean, default=False)
 
     def __repr__(self):
         return repr(self.__dict__)
@@ -779,16 +780,19 @@ class ExpeditionLine(Base):
     item = relationship('Item', uselist=False)
     expedition = relationship('Expedition', backref=backref('lines'))
 
+    # Compatible with saleProformaLINE
+    # Enable set operations
+
      # Remember operation with sale proforma line:
     def __eq__(self, other):
         return all((
             other.item_id == self.item_id, 
             other.condition == self.condition, 
-            other.spec == self.spec
+            other.spec == self.spec, 
         ))
 
     def __hash__(self):
-        hashes = (hash(x) for x in (self.item_id, self.spec, self.condition))
+        hashes = (hash(x) for x in (self.item_id, self.spec, self.condition, None))
         return functools.reduce(operator.xor, hashes, 0) 
 
     
@@ -1202,6 +1206,19 @@ def create_sale(type):
     session.commit() 
 
 from exceptions import NotExistingStockOutput
+
+
+@event.listens_for(PurchaseProformaLine, 'after_delete')
+def delete_dependant_advanced_sales(mapper, connection, target):
+
+    origin_id = target.id 
+
+    stmt = update(AdvancedLine).where(
+        AdvancedLine.origin_id == origin_id
+    ).values(quantity = 0)
+
+    connection.execute(stmt)
+
 
 @event.listens_for(ReceptionSerie, 'after_insert')
 def insert_imei_after_mixed_purchase(mapper, connection, target):

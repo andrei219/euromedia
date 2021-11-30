@@ -261,7 +261,7 @@ class EditableForm(Form):
         else:
             self.setWindowTitle('Proforma Edit ')
 
-        self.set_warehouse_combo_enabled_if_no_items_processed()
+        self.disable_things()
         
         self.lines_model = models.PurchaseProformaLineModel(proforma.lines)
         
@@ -272,12 +272,16 @@ class EditableForm(Form):
         self.proforma_to_form()
 
 
-    def set_warehouse_combo_enabled_if_no_items_processed(self):
+    def disable_things(self):
         try:
             if sum(1 for line in self.proforma.reception.lines for serie in line.series):
                 self.warehouse_combobox.setEnabled(False)
         except AttributeError:
-            return 0 
+            pass 
+        
+        self.partner_line_edit.setReadOnly(True)
+        self.eta_line_edit.setReadOnly(True)
+        
 
     def setHandlers(self):
         self.deleteButton.clicked.connect(self.deleteHandler)
