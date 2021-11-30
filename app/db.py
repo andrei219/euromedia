@@ -298,7 +298,7 @@ class PurchaseProforma(Base):
     courier = relationship('Courier', uselist=False)
     warehouse = relationship('Warehouse', uselist=False)
     agent = relationship('Agent', uselist=False)
-    reception = relationship('Reception', uselist=False, back_populates='proforma') 
+    reception = relationship('Reception', uselist=False, backref='proforma') 
 
     tracking = Column(String(50))
     external = Column(String(50))
@@ -614,74 +614,61 @@ class SaleProformaLine(Base):
    
     def __repr__(self):
         classname = self.__class__.__name__
-        return f"{classname}(item_id={self.item_id}, condition={self.condition}, spec={self.spec}, mix_id={self.mix_id})"
+        return f"{classname}(item_id={self.item_id}, condition={self.condition}, spec={self.spec},mix_id={self.mix_id}, quantity={self.quantity})"
 
 
 
-def supress(target_cls):
-    def deco(f):
-        def inner(*args, **kwargs):
-            if type(target_cls) == SaleProformaLine:
-                try:
-                    return f(*args, **kwargs)
-                except:
-                    pass
-        return inner
-    return deco
+# @event.listens_for(session, 'transient_to_pending')
+# def object_is_pending(session, object):
+#     if type(object) in (SaleProforma, SaleProformaLine, AdvancedLine, AdvancedLineDefinition):
+#         print('new pending %s' %object)
+
+# @event.listens_for(Base, "init", propagate=True)
+# def intercept_init(instance, args, kwargs):
+#     if type(object) in (SaleProforma, SaleProformaLine, AdvancedLine, AdvancedLineDefinition):
+#         print("new transient: %s" % instance)
+
+# @event.listens_for(session, "pending_to_persistent")
+# def intercept_pending_to_persistent(session, object_):
+#     if type(object) in (SaleProforma, SaleProformaLine, AdvancedLine, AdvancedLineDefinition):
+#         print("pending to persistent: %s" % object_)
     
 
+# @event.listens_for(session, "pending_to_transient")
+# def intercept_pending_to_transient(session, object_):
+#     if type(object) in (SaleProforma, SaleProformaLine, AdvancedLine, AdvancedLineDefinition):
+#         print("transient to pending: %s" % object_)
 
-@event.listens_for(session, 'transient_to_pending')
-def object_is_pending(session, object):
-    if type(object) in (SaleProforma, SaleProformaLine, AdvancedLine):
-        print('new pending %s' %object)
+# @event.listens_for(session, "loaded_as_persistent")
+# def intercept_loaded_as_persistent(session, object_):
+#     if type(object) in (SaleProforma, SaleProformaLine, AdvancedLine, AdvancedLineDefinition):
+#         print("object loaded into persistent state: %s" % object_)
 
-@event.listens_for(Base, "init", propagate=True)
-def intercept_init(instance, args, kwargs):
-    if type(object) in (SaleProforma, SaleProformaLine, AdvancedLine):
-        print("new transient: %s" % instance)
+# @event.listens_for(session, "persistent_to_deleted")
+# def intercept_persistent_to_deleted(session, object_):
+#     if type(object) in (SaleProforma, SaleProformaLine, AdvancedLine, AdvancedLineDefinition):
+#         print("object was DELETEd, is now in deleted state: %s" % object_)
 
-@event.listens_for(session, "pending_to_persistent")
-def intercept_pending_to_persistent(session, object_):
-    if type(object) in (SaleProforma, SaleProformaLine, AdvancedLine):
-        print("pending to persistent: %s" % object_)
-    
+# @event.listens_for(session, "deleted_to_detached")
+# def intercept_deleted_to_detached(session, object_):
+#     if type(object) in (SaleProforma, SaleProformaLine, AdvancedLine, AdvancedLineDefinition):
+#         print("deleted to detached: %s" % object_)
 
-@event.listens_for(session, "pending_to_transient")
-def intercept_pending_to_transient(session, object_):
-    if type(object) in (SaleProforma, SaleProformaLine, AdvancedLine):
-        print("transient to pending: %s" % object_)
-
-@event.listens_for(session, "loaded_as_persistent")
-def intercept_loaded_as_persistent(session, object_):
-    if type(object) in (SaleProforma, SaleProformaLine, AdvancedLine):
-        print("object loaded into persistent state: %s" % object_)
-
-@event.listens_for(session, "persistent_to_deleted")
-def intercept_persistent_to_deleted(session, object_):
-    if type(object) in (SaleProforma, SaleProformaLine, AdvancedLine):
-        print("object was DELETEd, is now in deleted state: %s" % object_)
-
-@event.listens_for(session, "deleted_to_detached")
-def intercept_deleted_to_detached(session, object_):
-    if type(object) in (SaleProforma, SaleProformaLine, AdvancedLine):
-        print("deleted to detached: %s" % object_)
-
-@event.listens_for(session, "persistent_to_detached")
-def intercept_persistent_to_detached(session, object_):
-    if type(object) in (SaleProforma, SaleProformaLine, AdvancedLine):
-        print("object became detached: %s" % object_)
+# @event.listens_for(session, "persistent_to_detached")
+# def intercept_persistent_to_detached(session, object_):
+#     if type(object) in (SaleProforma, SaleProformaLine, AdvancedLine, AdvancedLineDefinition):
+#         print("object became detached: %s" % object_)
 
 
-@event.listens_for(session, "detached_to_persistent")
-def intercept_detached_to_persistent(session, object_):
-    if type(object) in (SaleProforma, SaleProformaLine, AdvancedLine):
-        print("object became persistent again: %s" % object_)
+# @event.listens_for(session, "detached_to_persistent")
+# def intercept_detached_to_persistent(session, object_):
+#     if type(object) in (SaleProforma, SaleProformaLine, AdvancedLine, AdvancedLineDefinition):
+#         print("object became persistent again: %s" % object_)
 
-@event.listens_for(session, "deleted_to_persistent")
-def intercept_deleted_to_persistent(session, object_):
-    if type(object) in (SaleProforma, SaleProformaLine, AdvancedLine):
-        print("deleted to persistent: %s" % object_)
+# @event.listens_for(session, "deleted_to_persistent")
+# def intercept_deleted_to_persistent(session, object_):
+#     if type(object) in (SaleProforma, SaleProformaLine, AdvancedLine, AdvancedLineDefinition):
+#         print("deleted to persistent: %s" % object_)
 
 
 
@@ -703,8 +690,31 @@ class AdvancedLine(Base):
     ignore_spec = Column(Boolean, default=True, nullable=False)
     showing_condition = Column(String(50), nullable=True)    
 
+
+    def __eq__(self, other):
+        return all((
+            self.mixed_description == other.description, 
+            self.item_id == other.item_id, 
+            self.condition == other.condition, 
+            self.spec == other.spec, 
+            self.origin_id == other.origin_id
+        ))
+
+
+    def __hash__(self):
+        hashes = (hash(x) for x in (
+            self.mixed_description, self.item_id, self.condition, 
+            self.spec, self.origin_id
+        ))
+
+        return functools.reduce(operator.xor, hashes, 0)
+
     def __repr__(self):
-        return repr(self.__dict__)
+        clsname = self.__class__.__name__
+        s = f"{clsname}(origin_id={self.origin_id}, proforma_id={self.proforma_id}, "
+        s += f"item_id={self.item_id}, mixed_description={self.mixed_description}, "
+        s += f"condition={self.condition}, spec={self.spec}, quantity={self.quantity})"
+        return s 
 
     proforma = relationship(
         'SaleProforma', 
@@ -715,6 +725,25 @@ class AdvancedLine(Base):
         )
     )
 
+    definitions = relationship('AdvancedLineDefinition', backref='line', \
+        cascade='delete-orphan, save-update, delete')
+
+
+class AdvancedLineDefinition(Base):
+
+    __tablename__ = 'advanced_lines_definition'
+
+    id =  Column(Integer, primary_key=True)
+    line_id = Column(Integer, ForeignKey('advanced_lines.id'))
+    item_id = Column(Integer, ForeignKey('items.id'), nullable=False)
+    condition = Column(String(50), nullable=False)
+    spec = Column(String(50), nullable=False)
+    quantity = Column(Integer, default=0)
+
+    count_relevant = Column(Boolean, default=True) 
+
+    def __repr__(self):
+        return repr(self.__dict__)
 
 class Expedition(Base):
     
@@ -778,11 +807,11 @@ class Reception(Base):
     __tablename__ = 'receptions'
     
     id = Column(Integer, primary_key=True)
-    proforma_id = Column(Integer, ForeignKey('purchase_proformas.id'), nullable=False)
+    proforma_id = Column(Integer, ForeignKey('purchase_proformas.id'), \
+        nullable=False, unique=True)
     note = Column(String(50))
     created_on = Column(DateTime, default=datetime.now)
 
-    proforma = relationship('PurchaseProforma', back_populates='reception')
 
     def __init__(self, proforma, note ):
         self.proforma = proforma 
@@ -901,6 +930,7 @@ class ImeiMask(Base):
     condition = Column(String(50))
     spec = Column(String(50))
     warehouse_id = Column(Integer, ForeignKey('warehouses.id'))
+    origin_id = Column(Integer, nullable=False) 
 
     item = relationship('Item', uselist=False) 
     warehouse = relationship('Warehouse', uselist=False)
@@ -1075,7 +1105,7 @@ def create_and_populate():
     courier_list = [Courier('DHL'), Courier('MRV'), Courier('Fedex')]
     session.add_all(courier_list)
     
-
+    session.flush()
     # for i in range(1, 4):
 
     proforma = PurchaseProforma() 
@@ -1086,7 +1116,7 @@ def create_and_populate():
     proforma.eta = proforma.date + timedelta(days=5) 
     proforma.partner = random.choice(partner_list)
     proforma.agent = random.choice(agent_list) 
-    proforma.warehouse = random.choice(warehouse_list)
+    proforma.warehouse = session.query(Warehouse).where(Warehouse.description=='Drebno').one()
     proforma.courier = random.choice(courier_list)
     proforma.eur_currency = True
     proforma.incoterm = 'FOB'
@@ -1094,10 +1124,11 @@ def create_and_populate():
 
     line = PurchaseProformaLine() 
     line.proforma = proforma
-    line.item = random.choice(item_list)
+    line.item = random.choice([item for item in item_list if 'ams' not in item.manufacturer])
     line.condition = random.choice([c.description for c in condition_list])
     line.spec = random.choice([s.description for s in spec_list])
-    line.quantity = random.choice([i for i in range(5, 15)])
+    # line.quantity = random.choice([i for i in range(5, 15)])
+    line.quantity = 4
     line.price = random.uniform(200.0, 400.2)
     
     proforma.lines.append(line) 
@@ -1108,7 +1139,8 @@ def create_and_populate():
     line.description = 'Apple Iphone X Mixed GB Mixed Color'
     line.condition = random.choice([c.description for c in condition_list])
     line.spec = random.choice([s.description for s in spec_list]) 
-    line.quantity = random.choice([i for i in range(5, 15)])
+    # line.quantity = random.choice([i for i in range(5, 15)])
+    line.quantity = 4
     line.price = random.uniform(200.0, 400.2)
     proforma.lines.append(line)
     
@@ -1117,7 +1149,8 @@ def create_and_populate():
     line.item = random.choice(item_list)
     line.condition = random.choice([c.description for c in condition_list]) 
     line.spec = 'Mix'
-    line.quantity = random.choice([i for i in range(5, 15)])
+    # line.quantity = random.choice([i for i in range(5, 15)])
+    line.quantity = 4
     line.price = random.uniform(200.0, 400.2)
     proforma.lines.append(line)
 
@@ -1126,7 +1159,7 @@ def create_and_populate():
     line.item = random.choice(item_list)
     line.condition = 'Mix'
     line.spec = random.choice([s.description for s in spec_list])
-    line.quantity = 5
+    line.quantity = 4
     line.price = random.uniform(200.0, 400.2)
     proforma.lines.append(line)
 
@@ -1173,18 +1206,16 @@ from exceptions import NotExistingStockOutput
 @event.listens_for(ReceptionSerie, 'after_insert')
 def insert_imei_after_mixed_purchase(mapper, connection, target):
 
-    connection.execute(imei_insert_stmt(Imei, target))    
+    connection.execute(imei_insert_stmt(target))    
     
     purchase_line_id = get_associated_purchase_line(target) 
 
     if purchase_line_id:
-        print('purchase_line_id=', purchase_line_id)
         advanced_associated = session.query(
             exists().where(AdvancedLine.origin_id == purchase_line_id)
         ).scalar()
 
         if advanced_associated:
-            print('purcahse_associaged=True')
             query = session.query(
                 func.count(ReceptionSerie.id)
             ).where(
@@ -1194,11 +1225,8 @@ def insert_imei_after_mixed_purchase(mapper, connection, target):
 
             imei_count = query.scalar()
 
-            print('imei_count = ', imei_count)
-
             if imei_count and imei_count <= target.line.quantity:
-                print('c')
-                connection.execute(imei_insert_stmt(ImeiMask, target))
+                connection.execute(imei_mask_insert_stmt(target, purchase_line_id))
 
 def get_associated_purchase_line(reception_serie:ReceptionSerie):
     line_alias = reception_serie.line 
@@ -1206,13 +1234,23 @@ def get_associated_purchase_line(reception_serie:ReceptionSerie):
         if line == line_alias:
             return line.id
 
-def imei_insert_stmt(cls, target):
-    return insert(cls).values(
+def imei_insert_stmt(target):
+    return insert(Imei).values(
         imei = target.serie, 
         item_id = target.item_id, 
         condition = target.condition, 
         spec = target.spec, 
         warehouse_id = target.line.reception.proforma.warehouse_id
+    )
+
+def imei_mask_insert_stmt(target, origin_id):
+    return insert(ImeiMask).values(
+        imei = target.serie, 
+        item_id = target.item_id, 
+        condition = target.condition, 
+        spec = target.spec, 
+        warehouse_id = target.line.reception.proforma.warehouse_id, 
+        origin_id = origin_id
     )
     
 

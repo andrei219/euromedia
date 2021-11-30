@@ -1878,7 +1878,7 @@ class Ui_MainGui(object):
         self.proformas_sales_docs.setText(_translate("MainGui", "Docs"))
         self.proformas_sales_newadv.setText(_translate("MainGui", "ADV.SALE"))
         self.proformas_sales_view_pdf.setText(_translate("MainGui", "View"))
-        self.proformas_sales_advnorm.setText(_translate("MainGui", "ADV -> NORMAL"))
+        self.proformas_sales_advnorm.setText(_translate("MainGui", "DEF. ADV.SALE"))
         self.proformastab.setTabText(self.proformastab.indexOf(self.proformas_sales_tab), _translate("MainGui", "Sales "))
         self.main_tab.setTabText(self.main_tab.indexOf(self.proformas_tab), _translate("MainGui", "Proformas"))
         self.main_tab.setTabToolTip(self.main_tab.indexOf(self.proformas_tab), _translate("MainGui", "Work on Proformas"))

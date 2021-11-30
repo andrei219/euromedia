@@ -250,7 +250,10 @@ class Form(Ui_Form, QWidget):
 
     def save_handler(self):
         if not self._valid_header(): return
-        
+        if not self.lines_model:
+            QMessageBox.critical(self, 'Error', "Can't process empty proforma")
+            return 
+
         warehouse_id = utils.warehouse_id_map.get(self.warehouse.currentText())
         lines = self.lines_model.lines 
         
@@ -259,9 +262,10 @@ class Form(Ui_Form, QWidget):
                 QMessageBox.critical(
                     self, 
                     'Error', 
-                    'Someone took those stocks. Start again.'
+                    'Someone took those incoming stocks. Start again.'
                 )
-                return 
+                self.close() 
+                return   
 
         self._form_to_proforma() 
         try:

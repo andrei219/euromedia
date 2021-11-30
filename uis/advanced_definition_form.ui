@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1318</width>
+    <width>1335</width>
     <height>938</height>
    </rect>
   </property>
@@ -132,7 +132,7 @@
      </item>
     </layout>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>960</x>
@@ -150,7 +150,11 @@
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="warehouse"/>
+      <widget class="QLineEdit" name="warehouse">
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
      </item>
     </layout>
    </widget>
@@ -190,7 +194,7 @@
    <property name="title">
     <string>Selected Stock Per Line:</string>
    </property>
-   <widget class="QTableView" name="selected_stock_view">
+   <widget class="QTableView" name="defined_view">
     <property name="geometry">
      <rect>
       <x>0</x>

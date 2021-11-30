@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '.\uis\advanced_to_normal_form.ui'
+# Form implementation generated from reading ui file '.\uis\advanced_definition_form.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.4
 #
@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_Form(object):
     def setupUi(self, Form):
         Form.setObjectName("Form")
-        Form.resize(1318, 938)
+        Form.resize(1335, 938)
         self.groupBox = QtWidgets.QGroupBox(Form)
         self.groupBox.setGeometry(QtCore.QRect(20, 130, 1271, 341))
         self.groupBox.setObjectName("groupBox")
@@ -64,16 +64,17 @@ class Ui_Form(object):
         self.partner.setReadOnly(True)
         self.partner.setObjectName("partner")
         self.horizontalLayout_3.addWidget(self.partner)
-        self.widget = QtWidgets.QWidget(self.groupBox_2)
-        self.widget.setGeometry(QtCore.QRect(960, 40, 200, 22))
-        self.widget.setObjectName("widget")
-        self.horizontalLayout_4 = QtWidgets.QHBoxLayout(self.widget)
+        self.layoutWidget3 = QtWidgets.QWidget(self.groupBox_2)
+        self.layoutWidget3.setGeometry(QtCore.QRect(960, 40, 200, 22))
+        self.layoutWidget3.setObjectName("layoutWidget3")
+        self.horizontalLayout_4 = QtWidgets.QHBoxLayout(self.layoutWidget3)
         self.horizontalLayout_4.setContentsMargins(0, 0, 0, 0)
         self.horizontalLayout_4.setObjectName("horizontalLayout_4")
-        self.label_4 = QtWidgets.QLabel(self.widget)
+        self.label_4 = QtWidgets.QLabel(self.layoutWidget3)
         self.label_4.setObjectName("label_4")
         self.horizontalLayout_4.addWidget(self.label_4)
-        self.warehouse = QtWidgets.QLineEdit(self.widget)
+        self.warehouse = QtWidgets.QLineEdit(self.layoutWidget3)
+        self.warehouse.setReadOnly(True)
         self.warehouse.setObjectName("warehouse")
         self.horizontalLayout_4.addWidget(self.warehouse)
         self.groupBox_3 = QtWidgets.QGroupBox(Form)
@@ -85,9 +86,9 @@ class Ui_Form(object):
         self.groupBox_4 = QtWidgets.QGroupBox(Form)
         self.groupBox_4.setGeometry(QtCore.QRect(660, 480, 631, 311))
         self.groupBox_4.setObjectName("groupBox_4")
-        self.selected_stock_view = QtWidgets.QTableView(self.groupBox_4)
-        self.selected_stock_view.setGeometry(QtCore.QRect(0, 20, 631, 291))
-        self.selected_stock_view.setObjectName("selected_stock_view")
+        self.defined_view = QtWidgets.QTableView(self.groupBox_4)
+        self.defined_view.setGeometry(QtCore.QRect(0, 20, 631, 291))
+        self.defined_view.setObjectName("defined_view")
         self.delete_ = QtWidgets.QPushButton(Form)
         self.delete_.setGeometry(QtCore.QRect(1217, 800, 75, 31))
         self.delete_.setObjectName("delete_")

@@ -31,6 +31,8 @@ class Parent(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String(50), nullable=False)
+    children = relationship('Child', backref='parent', \
+        cascade='delete-orphan, save-update, delete')
 
     def __repr__(self):
         class_name = self.__class__.__name__
@@ -47,14 +49,13 @@ class Child(Base):
     parent_id = Column(Integer, ForeignKey('parents.id'))
     name = Column(String(50), nullable=False)
 
-    parent = relationship('Parent', backref=backref('children'))
 
     def __init__(self, name):
         self.name = name 
 
     def __repr__(self):
         class_name = self.__class__.__name__
-        return f"{class_name}(id={self.id}, parent_id={self.parent_id}, name='{self.name}')"
+        return f"{class_name}(id={self.id}, parent_id = {self.parent_id}, name='{self.name}')"
 
 
 def inspect(object):

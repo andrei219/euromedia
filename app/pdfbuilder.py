@@ -135,10 +135,10 @@ class AdvancedSaleLinePDFRepr(LinePDFRepr):
         self.description = line.free_description or \
             line.mixed_description or utils.description_id_map.inverse.get(line.item_id)
 
-        if line.condition:
-            self.description += f', {line.condition}'
+        if line.condition or line.showing_condition:
+            self.description += f', {line.showing_condition or line.condition}'
         
-        if line.spec:
+        if line.spec and not line.ignore_spec:
             self.description += f', {line.spec}'
         
         self.quantity = line.quantity

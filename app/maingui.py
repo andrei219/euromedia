@@ -18,7 +18,7 @@ import models
 import agentgui, partner_form, product_form, purchase_proforma_form, payments_form, expenses_form, \
     document_form, expedition_form, sale_proforma_form, inventory_form, spec_change_form, condition_change_form, \
         warehouse_change_form, reception_order, advanced_sale_proforma_form, \
-            advanced_to_normal_form
+            advanced_definition_form
 
 from sqlalchemy.exc import IntegrityError
 
@@ -599,7 +599,6 @@ class MainGui(Ui_MainGui, QMainWindow):
         )
 
 
-
     def proformas_sales_advnorm_handler(self):
         indexes = self.proformas_sales_view.selectedIndexes()
         rows = {i.row() for i in indexes}
@@ -610,7 +609,7 @@ class MainGui(Ui_MainGui, QMainWindow):
         except IndexError: return 
         if not proforma.advanced_lines:
             return 
-        self.advnorm_form = advanced_to_normal_form.Form(
+        self.advnorm_form = advanced_definition_form.get_form(
             self, 
             self.proformas_sales_view, 
             proforma 
@@ -940,6 +939,29 @@ class MainGui(Ui_MainGui, QMainWindow):
     def invoices_sales_expenses_handler(self):
         invoice = self.get_sales_invoice()
         self.proformas_sales_expenses_handler(invoice=invoice)
+
+    def invoices_sales_double_click_handler(self, index):
+        try:
+            proforma = self.invoices_sales_model[index.row()]
+        except:
+            return
+
+        if proforma.advanced_lines:
+            self.sp = advanced_sale_proforma_form.get_form(
+                self, 
+                self.proformas_sales_view, 
+                proforma 
+            )
+        else:
+            self.sp = sale_proforma_form.get_form(
+                self, 
+                self.proformas_sales_view, 
+                proforma
+            )
+        
+        self.sp.show()
+
+
 
     def invoices_sales_export_handler(self):
         self.export_documents(

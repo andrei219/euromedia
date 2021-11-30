@@ -44,9 +44,6 @@ class Form(Ui_SalesProformaForm, QWidget):
         )
         db.session.add(self.proforma)
         db.session.flush() 
-
-        print('proforma_id:', self.proforma.id)
-        print('warehouse_id:', self.proforma.warehouse_id)
  
         self.date.setText(date.today().strftime('%d%m%Y'))
         self.type.setCurrentText('1')
@@ -293,10 +290,12 @@ class Form(Ui_SalesProformaForm, QWidget):
 
     def save_handler(self):
         if not self._valid_header(): return
-        
+        if not self.lines_model:
+            QMessageBox.critical(self, 'Error', "Can't process empty proforma")
+            return 
+
         warehouse_id = utils.warehouse_id_map.get(self.warehouse.currentText())
         lines = self.lines_model.lines 
-        
         if hasattr(self, 'stock_model'):
             if self.stock_model.lines_against_stock(warehouse_id, lines):
                 QMessageBox.critical(
@@ -304,6 +303,7 @@ class Form(Ui_SalesProformaForm, QWidget):
                     'Error', 
                     'Someone took those stocks. Start again.'
                 )
+                self.close() 
                 return 
 
         self._form_to_proforma() 
@@ -312,6 +312,7 @@ class Form(Ui_SalesProformaForm, QWidget):
             db.session.commit()
             # self.parent.set_mv('proformas_sales_')
         except:
+            raise 
             db.session.rollback() 
         else:
             QMessageBox.information(self, 'Success', 'Sale saved successfully')
