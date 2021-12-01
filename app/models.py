@@ -1658,25 +1658,20 @@ class SaleProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 			last_mix += 1
 		return last_mix
 
-	@property 
 	def lines(self):
 		return self.organized_lines.lines 
 
-	@property
 	def tax(self):
-		return sum(map(lambda l:l.tax, self.lines))
+		return sum(map(lambda l:l.tax, self.lines()))
 
-	@property
 	def subtotal(self):
 		return sum(
 			line.quantity * line.price * line.tax / 100
-			for line in self.lines 
+			for line in self.lines()
 		)
  
-	@property
 	def total(self):
-		return self.tax + self.subtotal
-
+		return self.tax() + self.subtotal()
 
 	def add(self, price, ignore_spec, tax, showing, *stocks, row=None):
 		self.organized_lines.append(
@@ -1707,6 +1702,10 @@ class SaleProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 	def __bool__(self):
 		return bool(self.organized_lines)
 
+	def reset(self):
+		self.layoutAboutToBeChanged.emit()
+		self.organized_lines = OrganizedLines([])
+		self.layoutChanged.emit()
 
 class ActualLinesFromMixedModel(BaseTable, QtCore.QAbstractTableModel):
 
@@ -1768,7 +1767,7 @@ class ProductModel(BaseTable, QtCore.QAbstractTableModel):
 	def addItem(self, manufacturer, category, model, capacity, color):
 		item = db.Item(manufacturer, category, model, capacity, color) 
 		db.session.add(item)
-
+		import functools
 		try:
 			db.session.commit()
 			self.items.append(item)
@@ -1790,6 +1789,34 @@ class ProductModel(BaseTable, QtCore.QAbstractTableModel):
 		except:
 			db.session.rollback()
 			raise 
+
+
+def update_advanced_line_after_purchase_line_update(newquantity, origin_id):
+	# Not yet purchase line persisted and given an id
+	# remember make a flush not commit 
+	# if the changes will be rolled back or committed 
+
+	if not origin_id:return
+
+	lines = db.session.query(db.AdvancedLine).\
+		where(db.AdvancedLine.origin_id == origin_id).\
+			order_by(db.AdvancedLine.id).all() 
+
+	total, first = 0, True 
+	for i, line in enumerate(lines):
+		if total <= newquantity:
+			print('total <= newquantity')
+			total += line.quantity
+			print('total =', total)
+			if total > newquantity:
+				print('total > newquantity')
+				lines[i].quantity = line.quantity + newquantity - total
+				continue 
+		if total > newquantity:
+			lines[i].quantity = 0
+	
+	db.session.flush() 
+
 
 class PurchaseProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 
@@ -1850,6 +1877,10 @@ class PurchaseProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 					value = int(value)
 				except: return False 
 				else:
+
+					if line.quantity > value:
+						update_advanced_line_after_purchase_line_update(value, line.id)					
+
 					line.quantity = value 
 					return True 
 			elif column == self.__class__.TAX:
@@ -2553,6 +2584,49 @@ class StockEntry:
 		hashes = (hash(x) for x in (self._item_id, self._spec, self._condition, self.description))
 		return functools.reduce(operator.xor, hashes, 0)
 
+
+def get_itemids_sequence_from_mixed_description(description):
+
+	item_ids = [] 
+
+	# Branch order is important in this switch:
+	for map_desc in utils.description_id_map:
+		if description.count('Mixed') == 2:
+			manufacturer, category, model , *_ = description.split()
+			map_desc_manufacturer, map_desc_category, map_desc_model, *_ = map_desc.split()
+			if all((
+				manufacturer == map_desc_manufacturer, 
+				category == map_desc_category, 
+				model == map_desc_model
+			)):
+				item_ids.append(utils.description_id_map[map_desc])
+
+		elif 'Mixed GB' in description:
+			manufacturer, category, model, *_, color = description.split() 
+			map_desc_manufacturer, map_desc_category, map_desc_model, *_, map_desc_color = map_desc.split()
+			if all((
+				manufacturer == map_desc_manufacturer, 
+				category == map_desc_category, 
+				model == map_desc_model, 
+				color == map_desc_color
+			)):
+				item_ids.append(utils.description_id_map[map_desc])
+
+		elif 'Mixed Color' in description:
+			manufacturer, category, model, capacity, *_ = description.split()
+			map_desc_manufacturer, map_desc_category, map_desc_model, map_desc_capacity, *_ = map_desc.split()
+
+			if all((
+				manufacturer == map_desc_manufacturer, 
+				category == map_desc_category, 
+				model == map_desc_model, 
+				capacity == map_desc_capacity
+			)):
+				item_ids.append(utils.description_id_map[map_desc])
+
+	return item_ids 
+
+
 class StockModel(BaseTable, QtCore.QAbstractTableModel):
 
 	DESCRIPTION, CONDITION, SPEC, QUANTITY, REQUEST = \
@@ -2593,6 +2667,9 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
 
 		if item_id:
 			query = query.where(db.Imei.item_id == item_id)
+		else:
+			item_ids = get_itemids_sequence_from_mixed_description(description)
+			query = query.where(db.Imei.item_id.in_(item_ids))
 		
 		if condition:
 			query = query.where(
@@ -2603,7 +2680,6 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
 			query = query.where(
 				db.Imei.spec == spec 
 			)
-			
 
 		imeis = {
 			StockEntry(r.item_id, r.condition, r.spec, r.quantity)
@@ -2826,6 +2902,11 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
 		return list(filter(lambda s:s.request > 0, self.stocks))
 
 
+	def reset(self):
+		self.layoutAboutToBeChanged.emit()
+		self.stocks = []
+		self.layoutChanged.emit() 
+
 class IncomingVector:
 
 	def __init__(self, line, session=db.session):
@@ -2855,6 +2936,9 @@ class IncomingVector:
 
 		if self.available < 0:
 			self.available = 0 
+
+
+		print(line) 
 
 	def compute_processed(self, line):
 		line_alias = line 
@@ -2905,6 +2989,13 @@ class IncomingStockModel(BaseTable, QtCore.QAbstractTableModel):
 
 		if item_id:
 			query = query.where(db.PurchaseProformaLine.item_id == item_id)
+		else:
+			item_ids = get_itemids_sequence_from_mixed_description(description)
+			predicates = (
+				db.PurchaseProformaLine.item_id.in_(item_ids), 
+				db.PurchaseProformaLine.description == description 
+			)
+			query = query.where(or_(*predicates))
 		
 		if condition:
 			query = query.where(db.PurchaseProformaLine.condition == condition)
@@ -3434,6 +3525,11 @@ class AdvancedStockModel(StockModel):
 
 		if line.item_id:
 			query = query.where(db.ImeiMask.item_id == line.item_id)
+		
+		elif line.mixed_description:
+			item_ids = get_itemids_sequence_from_mixed_description(line.mixed_description)
+			query = query.where(db.ImeiMask.item_id.in_(item_ids))
+
 
 		imeis = {
 			StockEntry(r.item_id, r.condition, r.spec, r.quantity)

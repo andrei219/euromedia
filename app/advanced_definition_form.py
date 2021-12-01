@@ -105,7 +105,6 @@ class Form(Ui_Form, QWidget):
             try:
                 db.session.commit()
                 self.saved = True 
-                self.close() 
             except:
                 raise 
                 db.session.rollback()
@@ -114,7 +113,8 @@ class Form(Ui_Form, QWidget):
                     self, 
                     'Success', 
                     'Advanced sale definition made successfully'
-                ) 
+                )
+                self.close() 
 
 
     def delete_handler(self):

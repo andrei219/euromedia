@@ -711,7 +711,7 @@ class AdvancedLine(Base):
 
     def __repr__(self):
         clsname = self.__class__.__name__
-        s = f"{clsname}(origin_id={self.origin_id}, proforma_id={self.proforma_id}, "
+        s = f"{clsname}(id={self.id}, origin_id={self.origin_id}, proforma_id={self.proforma_id}, "
         s += f"item_id={self.item_id}, mixed_description={self.mixed_description}, "
         s += f"condition={self.condition}, spec={self.spec}, quantity={self.quantity})"
         return s 
@@ -1098,7 +1098,7 @@ def create_and_populate():
     session.add_all(agent_list)
     session.add_all(partner_list) 
     
-    item_list = [item1, item2, item3, item4, item5]
+    item_list = [item1, item2, item3, item4, item5, item6, item7, item8, item9]
 
     session.add_all(item_list) 
 
@@ -1458,6 +1458,10 @@ item2 = Item('Samnsung', 'Galaxy', 'Lite', 256, 'Red')
 item3 = Item('Apple', 'Iphone', 'X', 128, 'Red')
 item4 = Item('Apple', 'Iphone', 'X', 128, 'Yellow')
 item5 = Item('Apple', 'Iphone', 'X', 128, 'Purple')
+item6 = Item('Apple', 'Iphone', 'X', 256, 'Yellow')
+item7 = Item('Apple', 'Iphone', 'X', 432, 'Yellow')
+item8 = Item('Apple', 'Iphone', 'X', 543, 'Yellow')
+item9 = Item('Apple', 'Iphone', 'X', 234, 'Yellow')
 
 
 spec1 = Spec('EU')
@@ -1472,11 +1476,8 @@ if __name__ == '__main__':
     import sys 
 
     create_and_populate() 
-    # create_sale(1)
-    # create_lines()
 
-    # create_advanced_line() 
-    # create_advanced_line()    
+
 
     
 

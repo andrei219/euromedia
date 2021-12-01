@@ -65,18 +65,29 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.warehouse.currentTextChanged.connect(self.warehouse_changed)
 
     def warehouse_changed(self, text):
-        warehouse_id = utils.warehouse_id_map.get(text)
-        db.session.rollback() 
-        self.proforma = SaleProforma() 
-        self.proforma.warehouse_id = warehouse_id 
-        self.lines_model = SaleProformaLineModel(self.proforma) 
-        self.lines_view.setModel(self.lines_model)
+        # warehouse_id = utils.warehouse_id_map.get(text)
+        # db.session.rollback() 
+        # self.proforma = SaleProforma() 
+        # self.proforma.warehouse_id = warehouse_id 
+        # self.lines_model = SaleProformaLineModel(self.proforma) 
+        # self.lines_view.setModel(self.lines_model)
+
+        # if hasattr(self, 'stock_model'):
+        #     self.stock_model.reset() 
+
+        # self.stock_view.setModel(self.stock_model) 
+        # db.session.add(self.proforma) 
+
 
         if hasattr(self, 'stock_model'):
-            self.stock_model.reset() 
+            self.stock_model.reset()
 
-        self.stock_view.setModel(self.stock_model) 
-        db.session.add(self.proforma) 
+        if hasattr(self, 'lines_model'):
+            self.lines_model.reset()   
+
+        self.update_totals() 
+        # removing objects in pending state 
+        db.session.rollback() 
 
 
     def typeChanged(self, type):
@@ -252,7 +263,7 @@ class Form(Ui_SalesProformaForm, QWidget):
             self.set_stock_mv()
             self.set_selected_stock_mv() 
             self.lines_view.clearSelection() 
-            self.update_total_fields() 
+            self.update_totals() 
     
     def add_handler(self):
         if not hasattr(self, 'stock_model'):return
@@ -285,7 +296,7 @@ class Form(Ui_SalesProformaForm, QWidget):
         else:
             self.set_stock_mv() 
             self.set_selected_stock_mv() 
-            self.update_total_fields() 
+            self.update_totals() 
 
 
     def save_handler(self):
@@ -326,10 +337,10 @@ class Form(Ui_SalesProformaForm, QWidget):
         db.session.rollback()     
         # self.parent.set_mv('proformas_sales_')
 
-    def update_total_fields(self):
-        self.proforma_total.setText(str(self.lines_model.total))
-        self.proforma_tax.setText(str(self.lines_model.tax))
-        self.subtotal_proforma.setText(str(self.lines_model.subtotal))
+    def update_totals(self):
+        self.proforma_total.setText(str(self.lines_model.total()))
+        self.proforma_tax.setText(str(self.lines_model.tax()))
+        self.subtotal_proforma.setText(str(self.lines_model.subtotal()))
 
     def _valid_header(self):
         try:
@@ -376,7 +387,7 @@ class EditableForm(Form):
     def __init__(self, parent, view, proforma):
         self.proforma = proforma
         super().__init__(parent, view)
-        self.update_total_fields() 
+        self.update_totals() 
 
     def init_template(self): 
         self.proforma_to_form() 

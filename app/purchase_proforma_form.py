@@ -327,9 +327,11 @@ class EditableForm(Form):
         except: 
             raise 
 
-    @ask_save
+    # @ask_save
+
     def closeEvent(self, event):
-        self.parent.set_mv('proformas_purchases')
+        db.session.rollback() 
+        # self.parent.set_mv('proformas_purchases')
 
     def saveHandler(self):
         if not super()._validHeader():

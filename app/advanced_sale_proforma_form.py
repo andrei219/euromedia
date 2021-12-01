@@ -335,13 +335,13 @@ class EditableForm(Form):
         self.proforma = proforma 
         super().__init__(parent, view)
         self.update_totals() 
-        self.disable_if_cancelled() 
 
-    def disable_warehouse(self):
-        pass 
 
     def init_template(self):
         self.proforma_to_form() 
+        self.warehouse.setEnabled(False)
+        self.disable_if_cancelled()
+
 
     def save_template(self):
         for o in db.session:
@@ -357,7 +357,8 @@ class EditableForm(Form):
             self.search.setEnabled(False)
             self.insert.setEnabled(False)
             self.add.setEnabled(False)
-            self.save.setEnabled(False)             
+            self.save.setEnabled(False)      
+
 
 
 
