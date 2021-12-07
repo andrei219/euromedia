@@ -2587,6 +2587,8 @@ class StockEntry:
 
 def get_itemids_sequence_from_mixed_description(description):
 
+	if description is None:return 
+
 	item_ids = [] 
 
 	# Branch order is important in this switch:
@@ -2991,11 +2993,12 @@ class IncomingStockModel(BaseTable, QtCore.QAbstractTableModel):
 			query = query.where(db.PurchaseProformaLine.item_id == item_id)
 		else:
 			item_ids = get_itemids_sequence_from_mixed_description(description)
-			predicates = (
-				db.PurchaseProformaLine.item_id.in_(item_ids), 
-				db.PurchaseProformaLine.description == description 
-			)
-			query = query.where(or_(*predicates))
+			if item_ids:
+				predicates = (
+					db.PurchaseProformaLine.item_id.in_(item_ids), 
+					db.PurchaseProformaLine.description == description 
+				)
+				query = query.where(or_(*predicates))
 		
 		if condition:
 			query = query.where(db.PurchaseProformaLine.condition == condition)
@@ -3591,6 +3594,7 @@ class AdvancedDefinedModel(QtCore.QAbstractTableModel):
 
 
 	def data(self, index, role = Qt.DisplayRole):
+		import keyword
 		if not index.isValid():return 
 		row, column = index.row(), index.column() 
 		if role == Qt.DisplayRole:
@@ -3624,4 +3628,4 @@ class AdvancedDefinedModel(QtCore.QAbstractTableModel):
 		self.layoutChanged.emit() 
 
 
-	
+import functools
