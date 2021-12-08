@@ -2,7 +2,7 @@ from sqlalchemy import create_engine, event, insert, select, update, delete, and
 from sqlalchemy.sql import func, exists
 from sqlalchemy.orm import sessionmaker, scoped_session
 
-engine = create_engine('mysql+mysqlconnector://root:hnq#4506@localhost:3306/appdb', echo=False) 
+engine = create_engine('mysql+mysqlconnector://andrei:hnq#4506@192.168.2.253:3306/appdb', echo=False) 
 
 # pool_size=20, max_overflow=0)
 
@@ -1475,6 +1475,7 @@ condition3 = Condition('A-')
 if __name__ == '__main__':
     import sys 
 
+    # Base.metadata.create_all(engine) 
     create_and_populate() 
 
 

@@ -79,7 +79,6 @@ ACTIONS = [
     'check_inventory', 
     'create_product', 
     'view_pdf', 
-    'newadv', 
     'advnorm'
 ]
 
@@ -89,7 +88,6 @@ def correct_imeis_mask():
     for line in db.session.query(db.AdvancedLine).\
         options(joinedload(db.AdvancedLine.definitions)):
         if not line.definitions:
-            print('reasched')
             return 
     else:
         db.session.query(db.ImeiMask).delete()
@@ -599,7 +597,7 @@ class MainGui(Ui_MainGui, QMainWindow):
     
     # PROFORMAS SALES HANDLERS
     def proformas_sales_newadv_handler(self):
-        
+        print('aaaa')
 
         self.asp = advanced_sale_proforma_form.get_form(
             self, 

@@ -2999,7 +2999,7 @@ class IncomingStockModel(BaseTable, QtCore.QAbstractTableModel):
 					db.PurchaseProformaLine.description == description 
 				)
 				query = query.where(or_(*predicates))
-		
+		  
 		if condition:
 			query = query.where(db.PurchaseProformaLine.condition == condition)
 
