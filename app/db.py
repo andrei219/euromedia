@@ -1475,8 +1475,8 @@ condition3 = Condition('A-')
 if __name__ == '__main__':
     import sys 
 
-    # Base.metadata.create_all(engine) 
-    create_and_populate() 
+    Base.metadata.create_all(engine) 
+    # create_and_populate() 
 
 
 

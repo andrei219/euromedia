@@ -104,7 +104,7 @@ class PartnerForm(Ui_Partner_Form, QWidget):
                 self.enableDocuments() 
                 QMessageBox.information(self, 'Partner - Update', 'Partner Created Successfully')                
             except:
-                # raise 
+                raise 
                 QMessageBox.critical(self, 'Partner - Update', ' Error Updating Partner')
 
     def addContact(self):
@@ -252,9 +252,10 @@ class PartnerForm(Ui_Partner_Form, QWidget):
         #     QMessageBox.critical(self, 'Error - Update', 'You need to provide at least one contact')
         #     event.ignore()
 
-        if not self.partner.contacts:
-            QMessageBox.critical(self, 'Error', 'At least one contact mus be provided')
-            event.ignore()
+        # if not self.partner.contacts:
+        #     QMessageBox.critical(self, 'Error', 'At least one contact mus be provided')
+        #     event.ignore()
+    
         try:
             self.parent.opened_windows_classes.remove(self.__class__)
         except:
