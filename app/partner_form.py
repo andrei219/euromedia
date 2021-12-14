@@ -37,9 +37,6 @@ class PartnerForm(Ui_Partner_Form, QWidget):
 
         self.setUpHandlers() 
 
-        # agent_names = [r[0] for r in engine.execute(select(Agent.fiscal_name).\
-        #     where(Agent.active == True))]
-
         agent_names = [r[0] for r in db.session.query(Agent.fiscal_name).\
             where(Agent.active == True)]
 
@@ -246,7 +243,12 @@ class PartnerForm(Ui_Partner_Form, QWidget):
         self.delete_row_button.clicked.connect(self.removeContact)
         self.docs_button.clicked.connect(self.docsButtonHandler)
         self.save_button.clicked.connect(self.saveButtonHandler)
-        
+        self.bank_button.clicked.connect(self.bank_button_handler) 
+
+    
+    def bank_button_handler(self):
+        import bank_form 
+        bank_form.Dialog(self, self.partner).exec_()
 
     def closeEvent(self, event):
         # if not self.partner.contacts and self.mode == PartnerForm.EDITABLE_MODE:

@@ -3631,8 +3631,82 @@ class AdvancedDefinedModel(QtCore.QAbstractTableModel):
 
 class BankAccountModel(BaseTable, QtCore.QAbstractTableModel):
 	
-	def __init__(self):
-		pass 
+	NAME, IBAN, SWIFT, ADDRESS, POSTCODE, CITY, STATE, COUNTRY, ROUTING=\
+		0, 1, 2, 3, 4, 5, 6, 7, 8
+
+	def __init__(self, partner):
+		super().__init__()
+		self.accounts = partner.accounts 
+		self.name = 'accounts'
+		self._headerData = ['Name', 'Iban', 'Swift', 'Address',\
+			'Post code', 'City', 'State', 'Country', 'Routing']
+	
+	def data(self,index, role=Qt.DisplayRole):
+		if not index.isValid():return 
+		row, col = index.row(), index.column()
+		if role == Qt.DisplayRole:
+			account = self.accounts[row]
+			return {
+				self.__class__.NAME:account.bank_name, 
+				self.__class__.IBAN:account.iban, 
+				self.__class__.SWIFT:account.swift,
+				self.__class__.ADDRESS:account.bank_address, 
+				self.__class__.POSTCODE:account.bank_postcode, 
+				self.__class__.CITY:account.bank_city, 
+				self.__class__.STATE:account.bank_state, 
+				self.__class__.COUNTRY:account.bank_country, 
+				self.__class__.ROUTING:account.bank_routing 
+			}.get(col) 
+
+	
+	def add(self, name, iban, swift, address, postcode, city, state, country, routing):
+		
+		self.layoutAboutToBeChanged.emit()
+
+		account = db.PartnerAccount(name, iban, swift, address, postcode,\
+			city, state, country, routing)
+		
+		self.accounts.append(account)
+
+		self.layoutChanged.emit() 
+
+	def delete(self, row):
+		
+		self.layoutAboutToBeChanged.emit() 
+		
+		del self.accounts[row]
+		
+		self.layoutChanged.emit() 
+
+	def setData(self, index, value, role=Qt.EditRole):
+		if not index.isValid():return False 
+		row, col = index.row(), index.column() 
+		account = self.accounts[row]
+		if role == Qt.EditRole:
+			if col == self.__class__.NAME:
+				account.bank_name = value
+			elif col == self.__class__.IBAN:
+				account.iban = value
+			elif col == self.__class__.ADDRESS:
+				account.bank_address = value
+			elif col == self.__class__.SWIFT:
+				account.swift = value
+			elif col == self.__class__.POSTCODE:
+				account.bank_postcode = value
+			elif col == self.__class__.CITY:
+				account.bank_city = value
+			elif col == self.__class__.STATE:
+				account.bank_state = value 
+			elif col == self.__class__.COUNTRY:
+				account.bank_country = value
+			elif col == self.__class__.ROUTING:
+				account.bank_routing = value 
+			return True 
+		return False 
+		
 
 
-import functools
+	def flags(self, index):
+		if not index.isValid():
+			return Qt.ItemIsEnabled
+		return Qt.ItemFlags(super().flags(index) | Qt.ItemIsEditable)

@@ -20,7 +20,7 @@ class Ui_Partner_Form(object):
         icon.addPixmap(QtGui.QPixmap(":/parnters"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         Partner_Form.setWindowIcon(icon)
         Partner_Form.setToolTip("")
-        Partner_Form.setStyleSheet("background:white;")
+        Partner_Form.setStyleSheet("")
         self.label_2 = QtWidgets.QLabel(Partner_Form)
         self.label_2.setGeometry(QtCore.QRect(40, 70, 129, 16))
         self.label_2.setStyleSheet("font-weight:bold;\n"
@@ -316,7 +316,7 @@ class Ui_Partner_Form(object):
         self.fical_name_line_edit.setObjectName("fical_name_line_edit")
         self.horizontalLayout_3.addWidget(self.fical_name_line_edit)
         self.layoutWidget3 = QtWidgets.QWidget(Partner_Form)
-        self.layoutWidget3.setGeometry(QtCore.QRect(40, 150, 333, 22))
+        self.layoutWidget3.setGeometry(QtCore.QRect(40, 150, 333, 24))
         self.layoutWidget3.setObjectName("layoutWidget3")
         self.horizontalLayout_6 = QtWidgets.QHBoxLayout(self.layoutWidget3)
         self.horizontalLayout_6.setContentsMargins(0, 0, 0, 0)
@@ -329,7 +329,7 @@ class Ui_Partner_Form(object):
         self.associated_agent_combobox.setObjectName("associated_agent_combobox")
         self.horizontalLayout_6.addWidget(self.associated_agent_combobox)
         self.layoutWidget4 = QtWidgets.QWidget(Partner_Form)
-        self.layoutWidget4.setGeometry(QtCore.QRect(420, 150, 159, 22))
+        self.layoutWidget4.setGeometry(QtCore.QRect(420, 150, 159, 24))
         self.layoutWidget4.setObjectName("layoutWidget4")
         self.horizontalLayout_10 = QtWidgets.QHBoxLayout(self.layoutWidget4)
         self.horizontalLayout_10.setContentsMargins(0, 0, 0, 0)
@@ -378,6 +378,7 @@ class Ui_Partner_Form(object):
         self.active_checkbox = QtWidgets.QCheckBox(Partner_Form)
         self.active_checkbox.setGeometry(QtCore.QRect(380, 20, 81, 20))
         self.active_checkbox.setStyleSheet("font:bold; ")
+        self.active_checkbox.setChecked(True)
         self.active_checkbox.setObjectName("active_checkbox")
         self.isp_checkbox = QtWidgets.QCheckBox(Partner_Form)
         self.isp_checkbox.setGeometry(QtCore.QRect(280, 480, 51, 20))
@@ -491,7 +492,7 @@ class Ui_Partner_Form(object):
         self.note_text_edit.setHtml(_translate("Partner_Form", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:9.75pt; font-weight:400; font-style:normal;\">\n"
+"</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:8.25pt; font-weight:400; font-style:normal;\">\n"
 "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:7.8pt;\"><br /></p></body></html>"))
         self.note_text_edit.setPlaceholderText(_translate("Partner_Form", "Max 255 characters"))
         self.save_button.setToolTip(_translate("Partner_Form", "Check Documentd assciated"))

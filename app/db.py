@@ -2,10 +2,10 @@ from sqlalchemy import create_engine, event, insert, select, update, delete, and
 from sqlalchemy.sql import func, exists
 from sqlalchemy.orm import sessionmaker, scoped_session
 
-# engine = create_engine('mysql+mysqlconnector://andrei:hnq#4506@192.168.2.253:3306/appdb', echo=False) 
+engine = create_engine('mysql+mysqlconnector://andrei:hnq#4506@192.168.2.253:3306/appdb', echo=False) 
 
 
-engine = create_engine('mysql+mysqlconnector://root:hnq#4506@localhost:3306/appdb_dev', echo=False) 
+# engine = create_engine('mysql+mysqlconnector://root:hnq#4506@localhost:3306/appdb_dev', echo=False) 
 
 
 # pool_size=20, max_overflow=0)
@@ -239,6 +239,8 @@ class Partner(Base):
 
     agent = relationship('Agent', uselist=False)
 
+    accounts = relationship('PartnerAccount', backref='partner', cascade='delete-orphan, save-update, delete') 
+
     __table_args__ = (
         CheckConstraint('fiscal_name != ""', name='no_empty_partner_fiscal_name'), 
         CheckConstraint('fiscal_number != ""', name='no_empty_partner_fiscal_number'), 
@@ -285,21 +287,36 @@ class PartnerContact(Base):
     )
 
 
-# class PartnerAccount(Base):
+class PartnerAccount(Base):
     
-#     __tablename__ = 'partner_accounts'
+    __tablename__ = 'partner_accounts'
     
-#     id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True)
+    partner_id = Column(Integer, ForeignKey('partners.id'))
+    bank_name = Column(String(50))
+    iban = Column(String(50))
+    swift = Column(String(50))
+    bank_address = Column(String(50))
+    bank_postcode = Column(String(50))
+    bank_city = Column(String(50))
+    bank_state = Column(String(50))
+    bank_country = Column(String(50))
+    bank_routing = Column(String(50))
+
     
-#     bank_name = Column(String(50))
-#     iban = Column(String(50))
-#     swift = Column(String(50))
-#     bank_address = Column(String(50))
-#     bank_postcode = Column(String(50))
-#     bank_city = Column(String(50))
-#     bank_state = Column(String(50))
-#     bank_country = Column(String(50))
-#     bank_routing = Column(String(50))
+
+    def __init__(self, bank_name, iban, swift, bank_address,
+        bank_postcode, bank_city, bank_state, bank_country, bank_routing):
+            
+            self.bank_name = bank_name
+            self.iban = iban
+            self.swift = swift
+            self.bank_address = bank_address
+            self.bank_postcode = bank_postcode
+            self.bank_city = bank_city 
+            self.bank_state = bank_state
+            self.bank_country = bank_country
+            self.bank_routing = bank_routing
 
 
 class PurchaseProforma(Base):

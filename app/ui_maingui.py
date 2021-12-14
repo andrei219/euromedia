@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainGui(object):
     def setupUi(self, MainGui):
         MainGui.setObjectName("MainGui")
-        MainGui.resize(1874, 903)
+        MainGui.resize(1872, 932)
         font = QtGui.QFont()
         font.setPointSize(10)
         MainGui.setFont(font)
@@ -1671,11 +1671,11 @@ class Ui_MainGui(object):
         MainGui.setStatusBar(self.statusBar)
 
         self.retranslateUi(MainGui)
-        self.main_tab.setCurrentIndex(2)
-        self.proformastab.setCurrentIndex(1)
+        self.main_tab.setCurrentIndex(1)
+        self.proformastab.setCurrentIndex(0)
         self.invoicestab.setCurrentIndex(1)
         self.warehouse.setCurrentIndex(3)
-        self.rmastab.setCurrentIndex(0)
+        self.rmastab.setCurrentIndex(1)
         QtCore.QMetaObject.connectSlotsByName(MainGui)
 
     def retranslateUi(self, MainGui):
