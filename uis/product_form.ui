@@ -28,7 +28,7 @@ font: 8pt &quot;Verdana&quot;;</string>
    <property name="geometry">
     <rect>
      <x>31</x>
-     <y>141</y>
+     <y>41</y>
      <width>81</width>
      <height>16</height>
     </rect>
@@ -53,7 +53,7 @@ font: 8pt &quot;Verdana&quot;;</string>
    <property name="geometry">
     <rect>
      <x>31</x>
-     <y>163</y>
+     <y>63</y>
      <width>741</width>
      <height>16</height>
     </rect>
@@ -78,7 +78,7 @@ font: 8pt &quot;Verdana&quot;;</string>
    <property name="geometry">
     <rect>
      <x>41</x>
-     <y>318</y>
+     <y>218</y>
      <width>721</width>
      <height>241</height>
     </rect>
@@ -100,7 +100,7 @@ font: 8pt &quot;Verdana&quot;;</string>
    <property name="geometry">
     <rect>
      <x>31</x>
-     <y>274</y>
+     <y>174</y>
      <width>141</width>
      <height>16</height>
     </rect>
@@ -125,7 +125,7 @@ font: 8pt &quot;Verdana&quot;;</string>
    <property name="geometry">
     <rect>
      <x>31</x>
-     <y>296</y>
+     <y>196</y>
      <width>741</width>
      <height>16</height>
     </rect>
@@ -150,7 +150,7 @@ font: 8pt &quot;Verdana&quot;;</string>
    <property name="geometry">
     <rect>
      <x>50</x>
-     <y>570</y>
+     <y>470</y>
      <width>71</width>
      <height>19</height>
     </rect>
@@ -188,7 +188,7 @@ font: 8pt &quot;Verdana&quot;;</string>
    <property name="geometry">
     <rect>
      <x>690</x>
-     <y>580</y>
+     <y>480</y>
      <width>71</width>
      <height>51</height>
     </rect>
@@ -225,225 +225,11 @@ font: 8pt &quot;Verdana&quot;;</string>
     <bool>true</bool>
    </property>
   </widget>
-  <widget class="QWidget" name="layoutWidget">
-   <property name="geometry">
-    <rect>
-     <x>70</x>
-     <y>188</y>
-     <width>658</width>
-     <height>48</height>
-    </rect>
-   </property>
-   <property name="minimumSize">
-    <size>
-     <width>658</width>
-     <height>48</height>
-    </size>
-   </property>
-   <property name="maximumSize">
-    <size>
-     <width>658</width>
-     <height>48</height>
-    </size>
-   </property>
-   <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="0">
-     <widget class="QLabel" name="label_2">
-      <property name="minimumSize">
-       <size>
-        <width>80</width>
-        <height>20</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>80</width>
-        <height>20</height>
-       </size>
-      </property>
-      <property name="text">
-       <string>Manufacturer:</string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="1">
-     <widget class="QLineEdit" name="manufacturer_line_edit">
-      <property name="minimumSize">
-       <size>
-        <width>150</width>
-        <height>20</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>150</width>
-        <height>20</height>
-       </size>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="2">
-     <widget class="QLabel" name="label_3">
-      <property name="minimumSize">
-       <size>
-        <width>58</width>
-        <height>20</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>58</width>
-        <height>20</height>
-       </size>
-      </property>
-      <property name="text">
-       <string>Category:</string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="3">
-     <widget class="QLineEdit" name="category_line_edit">
-      <property name="minimumSize">
-       <size>
-        <width>150</width>
-        <height>20</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>150</width>
-        <height>20</height>
-       </size>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="4">
-     <widget class="QLabel" name="label_4">
-      <property name="minimumSize">
-       <size>
-        <width>38</width>
-        <height>20</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>38</width>
-        <height>20</height>
-       </size>
-      </property>
-      <property name="text">
-       <string>Model:</string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="5">
-     <widget class="QLineEdit" name="model_line_edit">
-      <property name="minimumSize">
-       <size>
-        <width>150</width>
-        <height>20</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>150</width>
-        <height>20</height>
-       </size>
-      </property>
-     </widget>
-    </item>
-    <item row="1" column="0">
-     <widget class="QLabel" name="label_5">
-      <property name="minimumSize">
-       <size>
-        <width>80</width>
-        <height>20</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>80</width>
-        <height>20</height>
-       </size>
-      </property>
-      <property name="text">
-       <string>Capacity:</string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-      </property>
-     </widget>
-    </item>
-    <item row="1" column="1">
-     <widget class="QLineEdit" name="capacity_line_edit">
-      <property name="minimumSize">
-       <size>
-        <width>150</width>
-        <height>20</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>150</width>
-        <height>20</height>
-       </size>
-      </property>
-     </widget>
-    </item>
-    <item row="1" column="2">
-     <widget class="QLabel" name="label_6">
-      <property name="minimumSize">
-       <size>
-        <width>58</width>
-        <height>20</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>58</width>
-        <height>20</height>
-       </size>
-      </property>
-      <property name="text">
-       <string>Color:</string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-      </property>
-     </widget>
-    </item>
-    <item row="1" column="3">
-     <widget class="QLineEdit" name="color_line_edit">
-      <property name="minimumSize">
-       <size>
-        <width>150</width>
-        <height>20</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>150</width>
-        <height>20</height>
-       </size>
-      </property>
-     </widget>
-    </item>
-   </layout>
-  </widget>
   <widget class="QToolButton" name="add_product_tool_button">
    <property name="geometry">
     <rect>
      <x>620</x>
-     <y>260</y>
+     <y>160</y>
      <width>107</width>
      <height>25</height>
     </rect>
@@ -477,72 +263,291 @@ font: 8pt &quot;Verdana&quot;;</string>
     <bool>true</bool>
    </property>
   </widget>
-  <widget class="QGroupBox" name="groupBox">
+  <widget class="QLabel" name="label_8">
    <property name="geometry">
     <rect>
-     <x>30</x>
-     <y>20</y>
-     <width>781</width>
-     <height>111</height>
+     <x>50</x>
+     <y>90</y>
+     <width>55</width>
+     <height>16</height>
     </rect>
    </property>
-   <property name="styleSheet">
-    <string notr="true">background-color:'#FF7F7F'</string>
+   <property name="text">
+    <string>MPN:</string>
    </property>
-   <property name="title">
-    <string>RULES:</string>
+  </widget>
+  <widget class="QLineEdit" name="mpn">
+   <property name="geometry">
+    <rect>
+     <x>110</x>
+     <y>90</y>
+     <width>141</width>
+     <height>22</height>
+    </rect>
    </property>
-   <widget class="QLabel" name="label_8">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>20</y>
-      <width>721</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Manufacturer, category, model and color must not contain spaces. Use '-' or '_'. These can be removed later when  </string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_9">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>80</y>
-      <width>711</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Capacity must be a natural number. Ex.: 12, 16, 4453, 12341234, 256. Not decimal number.</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_10">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>50</y>
-      <width>611</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>creating invoices. Ex.: Space-gray, midnight-green, light_gold</string>
-    </property>
-   </widget>
+  </widget>
+  <widget class="QLineEdit" name="manufacturer_line_edit">
+   <property name="geometry">
+    <rect>
+     <x>354</x>
+     <y>89</y>
+     <width>150</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>150</width>
+     <height>20</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>150</width>
+     <height>20</height>
+    </size>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_3">
+   <property name="geometry">
+    <rect>
+     <x>49</x>
+     <y>120</y>
+     <width>58</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>58</width>
+     <height>20</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>58</width>
+     <height>20</height>
+    </size>
+   </property>
+   <property name="text">
+    <string>Category:</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="category_line_edit">
+   <property name="geometry">
+    <rect>
+     <x>113</x>
+     <y>120</y>
+     <width>150</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>150</width>
+     <height>20</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>150</width>
+     <height>20</height>
+    </size>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_4">
+   <property name="geometry">
+    <rect>
+     <x>533</x>
+     <y>89</y>
+     <width>38</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>38</width>
+     <height>20</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>38</width>
+     <height>20</height>
+    </size>
+   </property>
+   <property name="text">
+    <string>Model:</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="model_line_edit">
+   <property name="geometry">
+    <rect>
+     <x>577</x>
+     <y>89</y>
+     <width>150</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>150</width>
+     <height>20</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>150</width>
+     <height>20</height>
+    </size>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_5">
+   <property name="geometry">
+    <rect>
+     <x>268</x>
+     <y>120</y>
+     <width>80</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>80</width>
+     <height>20</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>80</width>
+     <height>20</height>
+    </size>
+   </property>
+   <property name="text">
+    <string>Capacity:</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="capacity_line_edit">
+   <property name="geometry">
+    <rect>
+     <x>357</x>
+     <y>120</y>
+     <width>150</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>150</width>
+     <height>20</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>150</width>
+     <height>20</height>
+    </size>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_2">
+   <property name="geometry">
+    <rect>
+     <x>262</x>
+     <y>89</y>
+     <width>80</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>80</width>
+     <height>20</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>80</width>
+     <height>20</height>
+    </size>
+   </property>
+   <property name="text">
+    <string>Manufacturer:</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_6">
+   <property name="geometry">
+    <rect>
+     <x>513</x>
+     <y>120</y>
+     <width>58</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>58</width>
+     <height>20</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>58</width>
+     <height>20</height>
+    </size>
+   </property>
+   <property name="text">
+    <string>Color:</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="color_line_edit">
+   <property name="geometry">
+    <rect>
+     <x>579</x>
+     <y>120</y>
+     <width>150</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>150</width>
+     <height>20</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>150</width>
+     <height>20</height>
+    </size>
+   </property>
   </widget>
  </widget>
  <tabstops>
+  <tabstop>mpn</tabstop>
   <tabstop>manufacturer_line_edit</tabstop>
-  <tabstop>category_line_edit</tabstop>
   <tabstop>model_line_edit</tabstop>
+  <tabstop>category_line_edit</tabstop>
   <tabstop>capacity_line_edit</tabstop>
   <tabstop>color_line_edit</tabstop>
   <tabstop>add_product_tool_button</tabstop>
-  <tabstop>product_view</tabstop>
   <tabstop>delete_tool_button</tabstop>
   <tabstop>cancel_tool_button</tabstop>
+  <tabstop>product_view</tabstop>
  </tabstops>
  <resources>
   <include location="../app/icons.qrc"/>

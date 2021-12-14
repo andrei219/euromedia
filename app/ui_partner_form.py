@@ -385,6 +385,17 @@ class Ui_Partner_Form(object):
         self.re_checkbox = QtWidgets.QCheckBox(Partner_Form)
         self.re_checkbox.setGeometry(QtCore.QRect(340, 480, 51, 20))
         self.re_checkbox.setObjectName("re_checkbox")
+        self.bank_button = QtWidgets.QToolButton(Partner_Form)
+        self.bank_button.setGeometry(QtCore.QRect(1240, 120, 91, 71))
+        self.bank_button.setToolTipDuration(2)
+        icon7 = QtGui.QIcon()
+        icon7.addPixmap(QtGui.QPixmap(":/bank"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.bank_button.setIcon(icon7)
+        self.bank_button.setIconSize(QtCore.QSize(100, 100))
+        self.bank_button.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
+        self.bank_button.setAutoRaise(True)
+        self.bank_button.setArrowType(QtCore.Qt.NoArrow)
+        self.bank_button.setObjectName("bank_button")
 
         self.retranslateUi(Partner_Form)
         self.cancel_button.clicked.connect(Partner_Form.close)
@@ -480,12 +491,14 @@ class Ui_Partner_Form(object):
         self.note_text_edit.setHtml(_translate("Partner_Form", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:7.8pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p></body></html>"))
+"</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:9.75pt; font-weight:400; font-style:normal;\">\n"
+"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:7.8pt;\"><br /></p></body></html>"))
         self.note_text_edit.setPlaceholderText(_translate("Partner_Form", "Max 255 characters"))
         self.save_button.setToolTip(_translate("Partner_Form", "Check Documentd assciated"))
         self.save_button.setText(_translate("Partner_Form", "Save and Cose"))
         self.active_checkbox.setText(_translate("Partner_Form", "Active"))
         self.isp_checkbox.setText(_translate("Partner_Form", "ISP"))
         self.re_checkbox.setText(_translate("Partner_Form", "RE"))
+        self.bank_button.setToolTip(_translate("Partner_Form", "Check Documentd assciated"))
+        self.bank_button.setText(_translate("Partner_Form", "Add bank info"))
 import icons_rc

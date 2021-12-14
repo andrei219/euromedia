@@ -246,6 +246,7 @@ class PartnerForm(Ui_Partner_Form, QWidget):
         self.delete_row_button.clicked.connect(self.removeContact)
         self.docs_button.clicked.connect(self.docsButtonHandler)
         self.save_button.clicked.connect(self.saveButtonHandler)
+        
 
     def closeEvent(self, event):
         # if not self.partner.contacts and self.mode == PartnerForm.EDITABLE_MODE:

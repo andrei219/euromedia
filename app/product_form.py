@@ -35,6 +35,13 @@ class ProductForm(Ui_ProductForm, QDialog):
 
     def setUpCompleters(self):
 
+        from utils import setCompleter
+
+        setCompleter(
+            self.mpn, 
+            [r[0] for r in engine.execute(select(Item.mpn).distinct())]
+        )
+
         manufacturers = [r[0] for r in engine.execute(select(Item.manufacturer).distinct())]
         manufacturerModel = QStringListModel(manufacturers)
         completer = QCompleter()
@@ -73,6 +80,7 @@ class ProductForm(Ui_ProductForm, QDialog):
         self.color_line_edit.setCompleter(completer)
 
     def clearFields(self):
+        self.mpn.clear()
         self.manufacturer_line_edit.setText('')
         self.category_line_edit.setText('')
         self.model_line_edit.setText('')
@@ -92,11 +100,11 @@ class ProductForm(Ui_ProductForm, QDialog):
         if not self.validProduct():
             return 
         try:
-            self.model.addItem(self.manufacturer_line_edit.text(), self.category_line_edit.text(), \
+            self.model.addItem(self.mpn.text(), self.manufacturer_line_edit.text(), self.category_line_edit.text(), \
                 self.model_line_edit.text(), self.capacity_line_edit.text(), \
                     self.color_line_edit.text())
             self.clearFields() 
-            self.product_view.resizeColumnsToContents() 
+            # self.product_view.resizeColumnsToContents() 
         except IntegrityError as e:
             code = e.orig.args[0] 
             if code == 1062:
@@ -109,24 +117,26 @@ class ProductForm(Ui_ProductForm, QDialog):
             try:
                 self.model.removeItem(index)
                 self.product_view.clearSelection()
-                self.product_view.resizeColumnsToContents()  
+                # self.product_view.resizeColumnsToContents()  
             except IntegrityError as e:
                 code = e.orig.args[0]
                 if code == 1451:
                     QMessageBox.critical(self, 'Error - Update', 'That product has data associated')
 
     def validProduct(self):
-        import re 
-        pattern = '^[A-Za-z0-9_-]*$'
         if not all((
-            re.match(pattern, self.manufacturer_line_edit.text()), 
-            re.match(pattern, self.model_line_edit.text()), 
-            re.match(pattern, self.color_line_edit.text()), 
-            re.match(pattern, self.manufacturer_line_edit.text())
+            len(self.mpn.text().split()) in (1, 0),
+            len(self.manufacturer_line_edit.text().split()) in (1, 0), 
+            len(self.model_line_edit.text().split()) in (1, 0),
+            len(self.color_line_edit.text().split()) in (1, 0), 
+            len(self.category_line_edit.text().split()) in (1, 0), 
         )):
-            print('not all')
             return False
         try:
+            
+            if self.capacity_line_edit.text() == '':
+                return True 
+            
             int(self.capacity_line_edit.text())
             return True 
         except ValueError:

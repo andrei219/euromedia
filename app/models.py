@@ -1743,7 +1743,7 @@ class ProductModel(BaseTable, QtCore.QAbstractTableModel):
 	def __init__(self):
 
 		super().__init__() 
-		self._headerData = ['Manufacturer', 'Category', 'Model', 'Capacity', 'Color']
+		self._headerData = ['MPN', 'Manufacturer', 'Category', 'Model', 'Capacity', 'Color']
 		self.name = 'items'
 		self.items = db.session.query(db.Item).all() 
 		
@@ -1757,15 +1757,16 @@ class ProductModel(BaseTable, QtCore.QAbstractTableModel):
 			return
 		else:
 			return {
-				0:item.manufacturer, 
-				1:item.category, 
-				2:item.model, 
-				3:item.capacity, 
-				4:item.color 
+				0:item.mpn, 
+				1:item.manufacturer, 
+				2:item.category, 
+				3:item.model, 
+				4:item.capacity, 
+				5:item.color 
 			}.get(col) 
 
-	def addItem(self, manufacturer, category, model, capacity, color):
-		item = db.Item(manufacturer, category, model, capacity, color) 
+	def addItem(self, mpn, manufacturer, category, model, capacity, color):
+		item = db.Item(mpn, manufacturer, category, model, capacity, color) 
 		db.session.add(item)
 		import functools
 		try:
@@ -3626,6 +3627,12 @@ class AdvancedDefinedModel(QtCore.QAbstractTableModel):
 			self.line.definitions.append(line_def)
 		db.session.flush() 
 		self.layoutChanged.emit() 
+
+
+class BankAccountModel(BaseTable, QtCore.QAbstractTableModel):
+	
+	def __init__(self):
+		pass 
 
 
 import functools

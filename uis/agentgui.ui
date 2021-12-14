@@ -259,7 +259,7 @@ font: 8pt &quot;Verdana&quot;;</string>
     <bool>true</bool>
    </property>
   </widget>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>42</x>
@@ -514,7 +514,7 @@ font: 8pt &quot;Verdana&quot;;</string>
     </item>
    </layout>
   </widget>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>40</x>
@@ -593,7 +593,7 @@ font: 8pt &quot;Verdana&quot;;</string>
        <double>0.010000000000000</double>
       </property>
       <property name="value">
-       <double>1.000000000000000</double>
+       <double>0.000000000000000</double>
       </property>
      </widget>
     </item>

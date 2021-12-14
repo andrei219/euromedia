@@ -2,7 +2,11 @@ from sqlalchemy import create_engine, event, insert, select, update, delete, and
 from sqlalchemy.sql import func, exists
 from sqlalchemy.orm import sessionmaker, scoped_session
 
-engine = create_engine('mysql+mysqlconnector://andrei:hnq#4506@192.168.2.253:3306/appdb', echo=False) 
+# engine = create_engine('mysql+mysqlconnector://andrei:hnq#4506@192.168.2.253:3306/appdb', echo=False) 
+
+
+engine = create_engine('mysql+mysqlconnector://root:hnq#4506@localhost:3306/appdb_dev', echo=False) 
+
 
 # pool_size=20, max_overflow=0)
 
@@ -101,6 +105,7 @@ class Item(Base):
     __tablename__ = 'items'
     
     id = Column(Integer, primary_key=True)
+    mpn = Column(String(50))
     manufacturer = Column(String(50))
     category = Column(String(50))
     model = Column(String(50))
@@ -108,11 +113,12 @@ class Item(Base):
     color = Column(String(50))
 
     __table_args__ = ( 
-        UniqueConstraint('manufacturer', 'category', 'model', 'capacity', 'color', \
+        UniqueConstraint('mpn', 'manufacturer', 'category', 'model', 'capacity', 'color', \
             name='uix_1'), 
     )
 
-    def __init__(self, manufacturer, category, model, capacity, color):
+    def __init__(self, mpn, manufacturer, category, model, capacity, color):
+        self.mpn = mpn 
         self.manufacturer = manufacturer
         self.category = category
         self.model = model
@@ -120,7 +126,21 @@ class Item(Base):
         self.color = color 
     
     def __str__(self):
-        return self.manufacturer + ' ' + self.category + ' ' + self.model + ' ' + str(self.capacity) +\
+        if not self.mpn:
+            return ' '.join([
+                self.manufacturer, self.category, self.model, self.capacity, 'GB', self.color
+            ])
+        
+        if not self.mpn and not self.capacity and not self.color:
+            return ' '.join([self.manufacturer, self.category, self.model])
+        
+        if not all((
+            self.mpn, self.model, self.capacity, self.color
+        )):
+            return self.manufacturer + ' ' + self.category 
+        
+        
+        return self.mpn + self.manufacturer + ' ' + self.category + ' ' + self.model + ' ' + str(self.capacity) +\
             ' GB ' + self.color 
     
 # Agents:
@@ -263,6 +283,23 @@ class PartnerContact(Base):
         CheckConstraint("position != ''", name='no_empty_position'), 
         CheckConstraint("email != ''", name='no_empty_contact_email')
     )
+
+
+# class PartnerAccount(Base):
+    
+#     __tablename__ = 'partner_accounts'
+    
+#     id = Column(Integer, primary_key=True)
+    
+#     bank_name = Column(String(50))
+#     iban = Column(String(50))
+#     swift = Column(String(50))
+#     bank_address = Column(String(50))
+#     bank_postcode = Column(String(50))
+#     bank_city = Column(String(50))
+#     bank_state = Column(String(50))
+#     bank_country = Column(String(50))
+#     bank_routing = Column(String(50))
 
 
 class PurchaseProforma(Base):
@@ -1452,16 +1489,6 @@ def create_advanced_line():
     session.add(line) 
 
     session.commit() 
-
-item1 = Item('Apple', 'Iphone', 'X', 128, 'Black')
-item2 = Item('Samnsung', 'Galaxy', 'Lite', 256, 'Red')
-item3 = Item('Apple', 'Iphone', 'X', 128, 'Red')
-item4 = Item('Apple', 'Iphone', 'X', 128, 'Yellow')
-item5 = Item('Apple', 'Iphone', 'X', 128, 'Purple')
-item6 = Item('Apple', 'Iphone', 'X', 256, 'Yellow')
-item7 = Item('Apple', 'Iphone', 'X', 432, 'Yellow')
-item8 = Item('Apple', 'Iphone', 'X', 543, 'Yellow')
-item9 = Item('Apple', 'Iphone', 'X', 234, 'Yellow')
 
 
 spec1 = Spec('EU')
