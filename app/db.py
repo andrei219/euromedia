@@ -1277,9 +1277,6 @@ def create_sale(type):
 
 from exceptions import NotExistingStockOutput
 
-import sys 
-
-print(sys.path) 
 
 @event.listens_for(PurchaseProformaLine, 'after_delete')
 def delete_dependant_advanced_sales(mapper, connection, target):
