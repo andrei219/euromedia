@@ -119,13 +119,15 @@ class Item(Base):
             name='uix_1'), 
     )
 
-    def __init__(self, mpn, manufacturer, category, model, capacity, color):
+    def __init__(self, mpn, manufacturer, category, model, capacity, color,\
+        has_serie):
         self.mpn = mpn 
         self.manufacturer = manufacturer
         self.category = category
         self.model = model
         self.capacity = capacity
         self.color = color 
+        self.has_serie = has_serie
     
     def __str__(self):
         if not self.mpn:
@@ -1261,8 +1263,11 @@ def create_sale(type):
     session.add(proforma)
     session.commit() 
 
-from .exceptions import NotExistingStockOutput
+from exceptions import NotExistingStockOutput
 
+import sys 
+
+print(sys.path) 
 
 @event.listens_for(PurchaseProformaLine, 'after_delete')
 def delete_dependant_advanced_sales(mapper, connection, target):

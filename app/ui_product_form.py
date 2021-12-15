@@ -142,6 +142,10 @@ class Ui_ProductForm(object):
         self.color_line_edit.setMinimumSize(QtCore.QSize(150, 20))
         self.color_line_edit.setMaximumSize(QtCore.QSize(150, 20))
         self.color_line_edit.setObjectName("color_line_edit")
+        self.has_serie = QtWidgets.QCheckBox(ProductForm)
+        self.has_serie.setGeometry(QtCore.QRect(210, 160, 121, 17))
+        self.has_serie.setChecked(True)
+        self.has_serie.setObjectName("has_serie")
 
         self.retranslateUi(ProductForm)
         self.cancel_tool_button.clicked.connect(ProductForm.close)
@@ -170,4 +174,5 @@ class Ui_ProductForm(object):
         self.label_5.setText(_translate("ProductForm", "Capacity:"))
         self.label_2.setText(_translate("ProductForm", "Manufacturer:"))
         self.label_6.setText(_translate("ProductForm", "Color:"))
+        self.has_serie.setText(_translate("ProductForm", "Has SN/IMEI"))
 import icons_rc

@@ -1743,7 +1743,8 @@ class ProductModel(BaseTable, QtCore.QAbstractTableModel):
 	def __init__(self):
 
 		super().__init__() 
-		self._headerData = ['MPN', 'Manufacturer', 'Category', 'Model', 'Capacity', 'Color']
+		self._headerData = ['MPN', 'Manufacturer', 'Category', 'Model', \
+			'Capacity', 'Color', 'Has Serie']
 		self.name = 'items'
 		self.items = db.session.query(db.Item).all() 
 		
@@ -1762,11 +1763,12 @@ class ProductModel(BaseTable, QtCore.QAbstractTableModel):
 				2:item.category, 
 				3:item.model, 
 				4:item.capacity, 
-				5:item.color 
+				5:item.color, 
+				6:'Yes' if item.has_serie else 'No'
 			}.get(col) 
 
-	def addItem(self, mpn, manufacturer, category, model, capacity, color):
-		item = db.Item(mpn, manufacturer, category, model, capacity, color) 
+	def addItem(self, mpn, manufacturer, category, model, capacity, color, has_serie):
+		item = db.Item(mpn, manufacturer, category, model, capacity, color, has_serie) 
 		db.session.add(item)
 		import functools
 		try:

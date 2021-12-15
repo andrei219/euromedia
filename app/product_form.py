@@ -102,7 +102,7 @@ class ProductForm(Ui_ProductForm, QDialog):
         try:
             self.model.addItem(self.mpn.text(), self.manufacturer_line_edit.text(), self.category_line_edit.text(), \
                 self.model_line_edit.text(), self.capacity_line_edit.text(), \
-                    self.color_line_edit.text())
+                    self.color_line_edit.text(), self.has_serie.isChecked())
             self.clearFields() 
             # self.product_view.resizeColumnsToContents() 
         except IntegrityError as e:
