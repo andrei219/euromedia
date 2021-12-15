@@ -544,14 +544,15 @@ font: 8pt &quot;Verdana&quot;;</string>
  <tabstops>
   <tabstop>mpn</tabstop>
   <tabstop>manufacturer_line_edit</tabstop>
-  <tabstop>model_line_edit</tabstop>
   <tabstop>category_line_edit</tabstop>
+  <tabstop>model_line_edit</tabstop>
   <tabstop>capacity_line_edit</tabstop>
   <tabstop>color_line_edit</tabstop>
+  <tabstop>has_serie</tabstop>
   <tabstop>add_product_tool_button</tabstop>
-  <tabstop>delete_tool_button</tabstop>
   <tabstop>cancel_tool_button</tabstop>
   <tabstop>product_view</tabstop>
+  <tabstop>delete_tool_button</tabstop>
  </tabstops>
  <resources>
   <include location="../app/icons.qrc"/>

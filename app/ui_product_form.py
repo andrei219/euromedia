@@ -149,14 +149,15 @@ class Ui_ProductForm(object):
         self.cancel_tool_button.clicked.connect(ProductForm.close)
         QtCore.QMetaObject.connectSlotsByName(ProductForm)
         ProductForm.setTabOrder(self.mpn, self.manufacturer_line_edit)
-        ProductForm.setTabOrder(self.manufacturer_line_edit, self.model_line_edit)
-        ProductForm.setTabOrder(self.model_line_edit, self.category_line_edit)
-        ProductForm.setTabOrder(self.category_line_edit, self.capacity_line_edit)
+        ProductForm.setTabOrder(self.manufacturer_line_edit, self.category_line_edit)
+        ProductForm.setTabOrder(self.category_line_edit, self.model_line_edit)
+        ProductForm.setTabOrder(self.model_line_edit, self.capacity_line_edit)
         ProductForm.setTabOrder(self.capacity_line_edit, self.color_line_edit)
-        ProductForm.setTabOrder(self.color_line_edit, self.add_product_tool_button)
-        ProductForm.setTabOrder(self.add_product_tool_button, self.delete_tool_button)
-        ProductForm.setTabOrder(self.delete_tool_button, self.cancel_tool_button)
+        ProductForm.setTabOrder(self.color_line_edit, self.has_serie)
+        ProductForm.setTabOrder(self.has_serie, self.add_product_tool_button)
+        ProductForm.setTabOrder(self.add_product_tool_button, self.cancel_tool_button)
         ProductForm.setTabOrder(self.cancel_tool_button, self.product_view)
+        ProductForm.setTabOrder(self.product_view, self.delete_tool_button)
 
     def retranslateUi(self, ProductForm):
         _translate = QtCore.QCoreApplication.translate

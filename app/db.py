@@ -116,7 +116,7 @@ class Item(Base):
 
     __table_args__ = ( 
         UniqueConstraint('mpn', 'manufacturer', 'category', 'model', 'capacity', 'color', \
-            name='uix_1'), 
+            'has_serie', name='uix_1'), 
     )
 
     def __init__(self, mpn, manufacturer, category, model, capacity, color,\
