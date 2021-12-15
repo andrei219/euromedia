@@ -267,9 +267,9 @@ font: 8pt &quot;Verdana&quot;;</string>
   <widget class="QLineEdit" name="mpn">
    <property name="geometry">
     <rect>
-     <x>110</x>
+     <x>100</x>
      <y>90</y>
-     <width>141</width>
+     <width>151</width>
      <height>22</height>
     </rect>
    </property>
@@ -299,8 +299,8 @@ font: 8pt &quot;Verdana&quot;;</string>
   <widget class="QLabel" name="label_3">
    <property name="geometry">
     <rect>
-     <x>49</x>
-     <y>120</y>
+     <x>516</x>
+     <y>90</y>
      <width>58</width>
      <height>20</height>
     </rect>
@@ -327,8 +327,8 @@ font: 8pt &quot;Verdana&quot;;</string>
   <widget class="QLineEdit" name="category_line_edit">
    <property name="geometry">
     <rect>
-     <x>113</x>
-     <y>120</y>
+     <x>580</x>
+     <y>90</y>
      <width>150</width>
      <height>20</height>
     </rect>
@@ -349,8 +349,8 @@ font: 8pt &quot;Verdana&quot;;</string>
   <widget class="QLabel" name="label_4">
    <property name="geometry">
     <rect>
-     <x>533</x>
-     <y>89</y>
+     <x>56</x>
+     <y>120</y>
      <width>38</width>
      <height>20</height>
     </rect>
@@ -377,8 +377,8 @@ font: 8pt &quot;Verdana&quot;;</string>
   <widget class="QLineEdit" name="model_line_edit">
    <property name="geometry">
     <rect>
-     <x>577</x>
-     <y>89</y>
+     <x>100</x>
+     <y>120</y>
      <width>150</width>
      <height>20</height>
     </rect>
@@ -399,7 +399,7 @@ font: 8pt &quot;Verdana&quot;;</string>
   <widget class="QLabel" name="label_5">
    <property name="geometry">
     <rect>
-     <x>268</x>
+     <x>266</x>
      <y>120</y>
      <width>80</width>
      <height>20</height>
@@ -427,7 +427,7 @@ font: 8pt &quot;Verdana&quot;;</string>
   <widget class="QLineEdit" name="capacity_line_edit">
    <property name="geometry">
     <rect>
-     <x>357</x>
+     <x>356</x>
      <y>120</y>
      <width>150</width>
      <height>20</height>
