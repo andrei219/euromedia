@@ -130,23 +130,35 @@ class Item(Base):
         self.has_serie = has_serie
     
     def __str__(self):
-        if not self.mpn:
-            return ' '.join([
-                self.manufacturer, self.category, self.model, self.capacity, 'GB', self.color
-            ])
+        # if not self.mpn:
+        #     return ' '.join([
+        #         self.manufacturer, self.category, self.model, self.capacity, 'GB', self.color
+        #     ])
         
-        if not self.mpn and not self.capacity and not self.color:
-            return ' '.join([self.manufacturer, self.category, self.model])
+        # if not self.mpn and not self.capacity and not self.color:
+        #     return ' '.join([self.manufacturer, self.category, self.model])
         
-        if not all((
-            self.mpn, self.model, self.capacity, self.color
-        )):
-            return self.manufacturer + ' ' + self.category 
+        # if not all((
+        #     self.mpn, self.model, self.capacity, self.color
+        # )):
+        #     return self.manufacturer + ' ' + self.category 
         
         
-        return self.mpn + self.manufacturer + ' ' + self.category + ' ' + self.model + ' ' + str(self.capacity) +\
-            ' GB ' + self.color 
+        # return self.mpn + self.manufacturer + ' ' + self.category + ' ' + self.model + ' ' + str(self.capacity) +\
+        #     ' GB ' + self.color 
     
+        return ' '.join(
+            [
+                self.mpn or '#', 
+                self.manufacturer or '#', 
+                self.category or '#', 
+                self.model or '#', 
+                self.capacity or '#',
+                self.color or '#'
+            ]
+        )
+
+
 # Agents:
 class Agent(Base):
     __tablename__ = 'agents'

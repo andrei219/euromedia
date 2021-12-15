@@ -32,21 +32,23 @@ def mymap(db_class):
 
 def complete_descriptions(descriptions):
 
-	d = set() 
-	for ds in descriptions:
-		manufacturer, category, model, *_ = ds.split(' ')
-		d.add(' '.join([manufacturer, category, model, \
-			'Mixed GB', 'Mixed Color']))
-	for ds in descriptions:
-		index = ds.index('GB') + 2 
-		ds = ds[0:index] + ' Mixed Color'
-		d.add(ds)
-	
-	for ds in descriptions:
-		manufacturer, category, model, capacity, gb, color = ds.split(' ')
-		d.add(' '.join([manufacturer, category, model, 'Mixed GB', color]))
-	
-	return d.union(descriptions)
+    return descriptions 
+
+    # d = set() 
+    # for ds in descriptions:
+    #     manufacturer, category, model, *_ = ds.split(' ')
+    #     d.add(' '.join([manufacturer, category, model, \
+    #         'Mixed GB', 'Mixed Color']))
+    # for ds in descriptions:
+    #     index = ds.index('GB') + 2 
+    #     ds = ds[0:index] + ' Mixed Color'
+    #     d.add(ds)
+    
+    # for ds in descriptions:
+    #     manufacturer, category, model, capacity, gb, color = ds.split(' ')
+    #     d.add(' '.join([manufacturer, category, model, 'Mixed GB', color]))
+    
+    # return d.union(descriptions)
 
 description_id_map = bidict({str(item):item.id for item in db.session.query(db.Item)})
 descriptions = complete_descriptions(description_id_map.keys())
