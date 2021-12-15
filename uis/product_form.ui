@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>860</width>
-    <height>695</height>
+    <width>838</width>
+    <height>846</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -79,21 +79,9 @@ font: 8pt &quot;Verdana&quot;;</string>
     <rect>
      <x>41</x>
      <y>218</y>
-     <width>721</width>
-     <height>241</height>
+     <width>731</width>
+     <height>501</height>
     </rect>
-   </property>
-   <property name="minimumSize">
-    <size>
-     <width>721</width>
-     <height>241</height>
-    </size>
-   </property>
-   <property name="maximumSize">
-    <size>
-     <width>721</width>
-     <height>241</height>
-    </size>
    </property>
   </widget>
   <widget class="QLabel" name="label_7">
@@ -149,8 +137,8 @@ font: 8pt &quot;Verdana&quot;;</string>
   <widget class="QToolButton" name="delete_tool_button">
    <property name="geometry">
     <rect>
-     <x>50</x>
-     <y>470</y>
+     <x>40</x>
+     <y>730</y>
      <width>71</width>
      <height>19</height>
     </rect>
@@ -187,8 +175,8 @@ font: 8pt &quot;Verdana&quot;;</string>
   <widget class="QToolButton" name="cancel_tool_button">
    <property name="geometry">
     <rect>
-     <x>690</x>
-     <y>480</y>
+     <x>710</x>
+     <y>770</y>
      <width>71</width>
      <height>51</height>
     </rect>

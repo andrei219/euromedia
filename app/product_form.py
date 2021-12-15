@@ -125,20 +125,14 @@ class ProductForm(Ui_ProductForm, QDialog):
 
     def validProduct(self):
         if not all((
-            len(self.mpn.text().split()) in (1, 0),
-            len(self.manufacturer_line_edit.text().split()) in (1, 0), 
-            len(self.model_line_edit.text().split()) in (1, 0),
-            len(self.color_line_edit.text().split()) in (1, 0), 
-            len(self.category_line_edit.text().split()) in (1, 0), 
+            self.manufacturer_line_edit.text(), 
+            self.model_line_edit.text(), 
+            self.category_line_edit.text()
         )):
-            return False
-        try:
-            
-            if self.capacity_line_edit.text() == '':
-                return True 
-            
-            int(self.capacity_line_edit.text())
-            return True 
-        except ValueError:
+            QMessageBox.critical(
+                self, 
+                'Error', 
+                'Manufacturer, category, model are mandatory fields'
+            )
             return False
         return True 
