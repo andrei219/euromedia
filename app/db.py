@@ -111,6 +111,8 @@ class Item(Base):
     model = Column(String(50))
     capacity = Column(String(50))
     color = Column(String(50))
+    
+    has_serie = Column(Boolean, default=False) 
 
     __table_args__ = ( 
         UniqueConstraint('mpn', 'manufacturer', 'category', 'model', 'capacity', 'color', \
@@ -1259,7 +1261,7 @@ def create_sale(type):
     session.add(proforma)
     session.commit() 
 
-from exceptions import NotExistingStockOutput
+from .exceptions import NotExistingStockOutput
 
 
 @event.listens_for(PurchaseProformaLine, 'after_delete')
