@@ -1739,6 +1739,9 @@ class ActualLinesFromMixedModel(BaseTable, QtCore.QAbstractTableModel):
 		self.layoutChanged.emit() 
 
 class ProductModel(BaseTable, QtCore.QAbstractTableModel):
+	
+	MPN, MANUFACTURER, CATEGORY, MODEL, CAPACITY, COLOR, HAS_SERIE = \
+		0, 1, 2, 3, 4, 5, 6
 
 	def __init__(self):
 
@@ -1758,13 +1761,13 @@ class ProductModel(BaseTable, QtCore.QAbstractTableModel):
 			return
 		else:
 			return {
-				0:item.mpn, 
-				1:item.manufacturer, 
-				2:item.category, 
-				3:item.model, 
-				4:item.capacity, 
-				5:item.color, 
-				6:'Yes' if item.has_serie else 'No'
+				self.__class__.MPN:item.mpn, 
+				self.__class__.MANUFACTURER:item.manufacturer, 
+				self.__class__.CATEGORY:item.category, 
+				self.__class__.MODEL:item.model, 
+				self.__class__.CAPACITY:item.capacity, 
+				self.__class__.COLOR:item.color, 
+				self.__class__.HAS_SERIE:'Yes' if item.has_serie else 'No'
 			}.get(col) 
 
 	def addItem(self, mpn, manufacturer, category, model, capacity, color, has_serie):
@@ -1792,6 +1795,25 @@ class ProductModel(BaseTable, QtCore.QAbstractTableModel):
 		except:
 			db.session.rollback()
 			raise 
+
+	def sort(self, section, order):
+		attr = {
+			self.__class__.MPN:'mpn', 
+			self.__class__.MANUFACTURER:'manufacturer', 
+			self.__class__.CATEGORY:'category', 
+			self.__class__.MODEL:'model', 
+			self.__class__.CAPACITY:'capacity', 
+			self.__class__.COLOR:'color', 
+			self.__class__.HAS_SERIE: 'has_serie' 
+		}.get(section) 
+		if attr:
+			self.layoutAboutToBeChanged.emit()
+			self.items = sorted(
+				self.items, 
+				key=operator.attrgetter(attr), 
+				reverse = True if order == Qt.DescendingOrder else False
+			)
+			self.layoutChanged.emit() 
 
 
 def update_advanced_line_after_purchase_line_update(newquantity, origin_id):
