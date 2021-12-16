@@ -64,8 +64,8 @@ class AgentGui(QWidget, Ui_AgentGui):
                 QMessageBox.information(self, 'Agent - Create ', 'Agent Created Successfully')
 
             except:
-                raise
-                QMessageBox.critical(self, 'Agent - Update ','Error updating Agent' )  
+                # raise
+                QMessageBox.critical(self, 'Agent - Update ','Fields fiscal name, name and email are mandatory' )  
                 # self.save_button.clearFocus() 
 
         elif self.mode == AgentGui.EDITABLE_MODE:
@@ -74,7 +74,7 @@ class AgentGui(QWidget, Ui_AgentGui):
                 self.model.update(self.agent)
                 QMessageBox.information(self, 'Agent - Update ', 'Agent updated successfully') 
             except:
-                QMessageBox.critical(self, 'Agent - Update', 'Error updating Agent')
+                QMessageBox.critical(self, 'Agent - Update', 'Fields fiscal name, name and email are mandatory')
     
     def formToAgent(self):
             self.agent.fiscal_name = self.fiscal_name_line_edit.text()

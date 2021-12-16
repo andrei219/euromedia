@@ -62,7 +62,7 @@ class Dialog(Ui_Dialog, QDialog):
                 self.swift.text(), self.address.text(), 
                 self.postcode.text(), self.city.text(), 
                 self.state.text(), self.country.currentText(), 
-                self.routing_.text()
+                self.routing_.text(), self.currency.text()
             )
 
             self.clear_fields()

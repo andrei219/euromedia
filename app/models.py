@@ -320,8 +320,6 @@ class AgentModel(QtCore.QAbstractTableModel):
 				reverse = True if order == Qt.DescendingOrder else False)    
 			self.layoutChanged.emit() 
 
-# Example key = 'agent_id' , value=2 
-# Neccesary as arguments for setattr and getattr to build general XDocuemnt SqlAlchemy Objects
 class DocumentModel(QtCore.QAbstractListModel):
 
 	EDITABLE_MODE, NEW_MODE = 0, 1 
@@ -3655,15 +3653,15 @@ class AdvancedDefinedModel(QtCore.QAbstractTableModel):
 
 class BankAccountModel(BaseTable, QtCore.QAbstractTableModel):
 	
-	NAME, IBAN, SWIFT, ADDRESS, POSTCODE, CITY, STATE, COUNTRY, ROUTING=\
-		0, 1, 2, 3, 4, 5, 6, 7, 8
+	NAME, IBAN, SWIFT, ADDRESS, POSTCODE, CITY, STATE, COUNTRY, ROUTING, CURRENCY=\
+		0, 1, 2, 3, 4, 5, 6, 7, 8, 9
 
 	def __init__(self, partner):
 		super().__init__()
 		self.accounts = partner.accounts 
 		self.name = 'accounts'
 		self._headerData = ['Name', 'Iban', 'Swift', 'Address',\
-			'Post code', 'City', 'State', 'Country', 'Routing']
+			'Post code', 'City', 'State', 'Country', 'Routing', 'Currency']
 	
 	def data(self,index, role=Qt.DisplayRole):
 		if not index.isValid():return 
@@ -3679,16 +3677,18 @@ class BankAccountModel(BaseTable, QtCore.QAbstractTableModel):
 				self.__class__.CITY:account.bank_city, 
 				self.__class__.STATE:account.bank_state, 
 				self.__class__.COUNTRY:account.bank_country, 
-				self.__class__.ROUTING:account.bank_routing 
+				self.__class__.ROUTING:account.bank_routing, 
+				self.__class__.CURRENCY:account.currency
 			}.get(col) 
 
 	
-	def add(self, name, iban, swift, address, postcode, city, state, country, routing):
+	def add(self, name, iban, swift, address, postcode, city, state, country, \
+		routing, currency):
 		
 		self.layoutAboutToBeChanged.emit()
 
 		account = db.PartnerAccount(name, iban, swift, address, postcode,\
-			city, state, country, routing)
+			city, state, country, routing, currency)
 		
 		self.accounts.append(account)
 
@@ -3725,6 +3725,8 @@ class BankAccountModel(BaseTable, QtCore.QAbstractTableModel):
 				account.bank_country = value
 			elif col == self.__class__.ROUTING:
 				account.bank_routing = value 
+			elif col == self.__class__.CURRENCY:
+				account.currency = value 
 			return True 
 		return False 
 		

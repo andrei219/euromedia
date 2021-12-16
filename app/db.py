@@ -318,11 +318,12 @@ class PartnerAccount(Base):
     bank_state = Column(String(50))
     bank_country = Column(String(50))
     bank_routing = Column(String(50))
-
+    currency = Column(String(50), default='')
     
 
     def __init__(self, bank_name, iban, swift, bank_address,
-        bank_postcode, bank_city, bank_state, bank_country, bank_routing):
+        bank_postcode, bank_city, bank_state, bank_country,
+        bank_routing, currency):
             
             self.bank_name = bank_name
             self.iban = iban
@@ -333,6 +334,7 @@ class PartnerAccount(Base):
             self.bank_state = bank_state
             self.bank_country = bank_country
             self.bank_routing = bank_routing
+            self.currency = currency 
 
 
 class PurchaseProforma(Base):
