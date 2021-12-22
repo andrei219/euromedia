@@ -53,7 +53,7 @@ class Dialog(Ui_Dialog, QDialog):
             try:
                 getattr(self, field_name).clear()
             except:
-                pass 
+                pass     
 
     def add_handler(self):
         try:

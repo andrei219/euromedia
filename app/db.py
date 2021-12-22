@@ -4,15 +4,9 @@ from sqlalchemy.orm import sessionmaker, scoped_session
 
 engine = create_engine('mysql+mysqlconnector://andrei:hnq#4506@192.168.2.253:3306/appdb', echo=False) 
 
+dev_engine = create_engine('mysql+mysqlconnector://root:hnq#4506@localhost:3306/appdb', echo=False) 
 
-# engine = create_engine('mysql+mysqlconnector://root:hnq#4506@localhost:3306/appdb_dev', echo=False) 
-
-
-# pool_size=20, max_overflow=0)
-
-# engine = create_engine('sqlite:///euro.db')
-
-Session = scoped_session(sessionmaker(bind=engine, autoflush=False))
+Session = scoped_session(sessionmaker(bind=dev_engine, autoflush=False))
 session = Session() 
 
 from datetime import datetime
@@ -111,7 +105,6 @@ class Item(Base):
     model = Column(String(50))
     capacity = Column(String(50))
     color = Column(String(50))
-    
     has_serie = Column(Boolean, default=False) 
 
     __table_args__ = ( 
@@ -130,23 +123,6 @@ class Item(Base):
         self.has_serie = has_serie
     
     def __str__(self):
-        # if not self.mpn:
-        #     return ' '.join([
-        #         self.manufacturer, self.category, self.model, self.capacity, 'GB', self.color
-        #     ])
-        
-        # if not self.mpn and not self.capacity and not self.color:
-        #     return ' '.join([self.manufacturer, self.category, self.model])
-        
-        # if not all((
-        #     self.mpn, self.model, self.capacity, self.color
-        # )):
-        #     return self.manufacturer + ' ' + self.category 
-        
-        
-        # return self.mpn + self.manufacturer + ' ' + self.category + ' ' + self.model + ' ' + str(self.capacity) +\
-        #     ' GB ' + self.color 
-    
         return ' '.join(
             [
                 self.mpn or '#', 
@@ -1533,18 +1509,4 @@ spec3 = Spec('JAPAN')
 condition1 = Condition('NEW')
 condition2 = Condition('A+')
 condition3 = Condition('A-')
-
-if __name__ == '__main__':
-    import sys 
-
-    Base.metadata.create_all(engine) 
-    # create_and_populate() 
-
-
-
-    
-
-
-
-
 
