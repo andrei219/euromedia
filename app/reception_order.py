@@ -44,6 +44,9 @@ class Form(QDialog, Ui_Form):
         self.view.setSelectionMode(QTableView.SingleSelection)
 
 
+        # control var for commit handler
+        self.in_serie_state = False 
+
     def disable_if_cancelled(self):
         if self.reception.proforma.cancelled:
             self.commit.setDisabled(True)
@@ -54,7 +57,7 @@ class Form(QDialog, Ui_Form):
         self.next.clicked.connect(self.next_handler)
         self.prev.clicked.connect(self.prev_handler)
         self.commit.clicked.connect(self.commit_handler)
-        self.delete_buttton.clicked.connect(self.delete_handler)
+        self.delete_button.clicked.connect(self.delete_handler)
         self.search.clicked.connect(self.search_handler) 
 
     def setCompleters(self):
@@ -100,14 +103,45 @@ class Form(QDialog, Ui_Form):
         self.warehouse.setText(self.reception.proforma.warehouse.description)
         self.reception_total.setText(str(self._total()))
     
-    def populate_body(self):
+
+    def block_unblock_widgets(self, has_serie=False):
+        self.processed.setReadOnly(has_serie)
         
+        for name in [
+            'sn', 'actual_item', 'actual_condition', 
+            'actual_spec', 'snlist', 'delete_button', 
+            'all', 'automatic', 'search_line_edit', 
+            'search'
+        ]:
+            try:
+                widget = getattr(self, name)
+                if name in ('search_line_edit', 'sn'):
+                    widget.clear() 
+
+                widget.setReadOnly(not has_serie)
+            except AttributeError:
+                try:
+                    widget.setEnabled(has_serie)
+                except AttributeError:
+                    raise 
+
+
+    def populate_body(self):
+
         line = self.reception.lines[self.current_index]
         if line.description is not None:
-            self.description.setText(line.description) 
+            self.description.setText(line.description)
+            self.block_unblock_widgets(has_serie=True) 
+            self.in_serie_state = True 
         else:
-            self.description.setText(str(line.item))
+            clean_repr = line.item.clean_repr 
+            self.description.setText(clean_repr)
+            has_serie = utils.has_serie(clean_repr)
+            self.in_serie_state = has_serie
+            self.block_unblock_widgets(has_serie)
             
+
+
         self.line_total.setText(str(line.quantity))
         self.condition.setText(line.condition)
         self.spec.setText(line.spec)
@@ -118,17 +152,20 @@ class Form(QDialog, Ui_Form):
         if line.item is None:
             self.actual_item.clear() 
         else:
-            self.actual_item.setText(str(line.item))
+            self.actual_item.setText(line.item.clean_repr)
+            self.actual_item.setReadOnly(True)
 
         if line.condition == 'Mix':
             self.actual_condition.clear()
         else: 
             self.actual_condition.setText(line.condition)
+            self.actual_condition.setReadOnly(True)
 
         if line.spec == 'Mix':
             self.actual_spec.clear()
         else:
             self.actual_spec.setText(line.spec)
+            self.actual_spec.setReadOnly(True)
 
         self.update_group_model()
         self.update_overflow_condition()
@@ -155,28 +192,52 @@ class Form(QDialog, Ui_Form):
         self.populate_body()
 
     def commit_handler(self):    
-        if not self.sn.text(): 
-            QMessageBox.critical(self, 'Error', 'Empty SN/IMEI')
-            return 
-        try:
-            self.rs_model.add(
-                self.reception.lines[self.current_index], 
-                self.sn.text(), 
-                self.actual_item.text(), 
-                self.actual_condition.text(), 
-                self.actual_spec.text(), 
-            )
-        except ValueError as ex:
-            QMessageBox.critical(self, 'Error', str(ex))
-        except IntegrityError:
-            QMessageBox.critical(self, 'Error', 'That Imei/SN already exists')
-        else:      
-            self.update_group_model()
-            self.update_overflow_condition() 
-            self.total_processed.setText(str(len(self.rs_model)))
+        
+        if not self.in_serie_state:
+            print('not in_serie_state')
+            self.invent_series()
+        else:
+            if not self.sn.text(): 
+                QMessageBox.critical(self, 'Error', 'Empty SN/IMEI')
+                return 
+            try:
+                self.rs_model.add(
+                    self.reception.lines[self.current_index], 
+                    self.sn.text(), 
+                    self.actual_item.text(), 
+                    self.actual_condition.text(), 
+                    self.actual_spec.text(), 
+                )
+            except ValueError as ex:
+                QMessageBox.critical(self, 'Error', str(ex))
+            except IntegrityError:
+                QMessageBox.critical(self, 'Error', 'That Imei/SN already exists')
+    
+
+        self.update_group_model()
+        self.update_overflow_condition() 
+        self.total_processed.setText(str(len(self.rs_model)))
 
         self.sn.clear()
         self.sn.setFocus()
+
+
+    def invent_series(self):
+        try:
+            new_processed = int(self.processed.text())
+            old_processed = self.processed_in_line()
+            print(new_processed - old_processed)
+
+            self.rs_model.add_invented(
+                self.reception.lines[self.current_index], 
+                new_processed - old_processed, 
+                self.actual_item.text(), 
+                self.actual_condition.text(), 
+                self.actual_spec.text()
+            )
+
+        except: 
+            raise  
 
     def update_group_model(self):
         group_model = models.GroupModel(
@@ -188,6 +249,7 @@ class Form(QDialog, Ui_Form):
             connect(self.group_selection_changed)
     
     def group_selection_changed(self):
+        if not self.in_serie_state:return 
         try:
             description, condition, spec, quantity = \
                 self.get_selected_group()
@@ -210,16 +272,6 @@ class Form(QDialog, Ui_Form):
             description, condition, spec 
         )
         self.snlist.setModel(series_model) 
-
-    def is_mixed_line(self, line):
-        if any((
-            line.condition == 'Mix', 
-            line.spec == 'Mix'
-        )): return True 
-        if line.item_id is None and \
-            line.description in utils.descriptions:
-                return True 
-        return False
 
     def delete_handler(self):
         try:
@@ -255,6 +307,7 @@ class Form(QDialog, Ui_Form):
 
     def update_overflow_condition(self):
         processed_in_line = self.processed_in_line()
+
         line = self.reception.lines[self.current_index]
         self.processed.setText(str(processed_in_line))
         self.set_overflow(

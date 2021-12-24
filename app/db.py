@@ -6,7 +6,22 @@ engine = create_engine('mysql+mysqlconnector://andrei:hnq#4506@192.168.2.253:330
 
 dev_engine = create_engine('mysql+mysqlconnector://root:hnq#4506@localhost:3306/appdb', echo=False) 
 
-Session = scoped_session(sessionmaker(bind=dev_engine, autoflush=False))
+import sys, os 
+
+try:
+    debug = os.environ['APP_DEBUG'] == 'TRUE'
+    if debug:
+        print('Entering in debug mode')
+    else:
+        print('Entering in production mode')
+    
+except KeyError:
+    print('set environment variable debug')
+    sys.exit() 
+
+# Decide wich engine from enviroment variable 
+
+Session = scoped_session(sessionmaker(bind=dev_engine if debug else engine, autoflush=False))
 session = Session() 
 
 from datetime import datetime
@@ -114,23 +129,31 @@ class Item(Base):
 
     def __init__(self, mpn, manufacturer, category, model, capacity, color,\
         has_serie):
-        self.mpn = mpn 
-        self.manufacturer = manufacturer
-        self.category = category
-        self.model = model
-        self.capacity = capacity
-        self.color = color 
-        self.has_serie = has_serie
+        self.mpn = mpn.strip()
+        self.manufacturer = manufacturer.strip()
+        self.category = category.strip()
+        self.model = model.strip()
+        self.capacity = capacity.strip()
+        self.color = color.strip()
+        self.has_serie = has_serie.strip() 
     
-    def __str__(self):
-        return ' '.join(
+    @property
+    def clean_repr(self):
+        repr = self.dirty_repr[:-1] # remove y or n 
+        return ' '.join(repr.replace('|', ' ').replace('?', '').strip().split()) 
+
+    @property
+    def dirty_repr(self):
+        # A special char ? for absence, and | for separation
+        return '|'.join(
             [
-                self.mpn or '#', 
-                self.manufacturer or '#', 
-                self.category or '#', 
-                self.model or '#', 
-                self.capacity or '#',
-                self.color or '#'
+                self.mpn or '?', 
+                self.manufacturer or '?', 
+                self.category or '?', 
+                self.model or '?', 
+                self.capacity or '?', 
+                self.color or '?', 
+                'y' if self.has_serie else 'n'
             ]
         )
 

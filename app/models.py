@@ -3226,8 +3226,8 @@ class InventoryModel(BaseTable, QtCore.QAbstractTableModel):
 		super().__init__()
 		self._headerData = ['Serie', 'Description', 'Condition', 'spec', 'Warehouse']
 		self.name = 'series'
-		self.series = db.session.query(db.Imei).join(Item).join(Warehouse).all() 
-	
+		# self.series = db.session.query(db.Imei).join(Item).join(Warehouse).all() 
+		self.series = db.session.query(db.Imei).join(db.Warehouse).all() 
 	def data(self, index, role=Qt.DisplayRole):
 		if not index.isValid():
 			return
@@ -3237,7 +3237,7 @@ class InventoryModel(BaseTable, QtCore.QAbstractTableModel):
 			if column == 0:
 				return entry.imei 
 			elif column == 1:
-				return str(entry.item) 
+				return entry.item.clean_repr 
 			elif column == 2:
 				return entry.condition
 			elif column == 3:
@@ -3407,6 +3407,68 @@ class ReceptionSeriesModel:
 		except:
 			db.session.rollback()
 			raise 
+
+
+	def add_invented(self, line, qnt, description, condition, spec):
+		import uuid
+		reception_series = [] 
+		if qnt > 0:
+			for i in range(qnt):
+				reception_series.append(
+					db.ReceptionSerie(
+						utils.description_id_map[description], 
+						line, str(uuid.uuid4()), condition, spec 
+					)
+				)
+			db.session.add_all(reception_series) 
+			try:
+				db.session.commit()
+				self.reception_series.extend(reception_series)
+			except:
+				db.session.rollback()
+				raise 
+
+		elif qnt < 0:
+			qnt = abs(qnt)
+			counter, targets = 0, [] 
+			for serie in self.reception_series:
+				if serie.item_id == line.item_id and \
+					serie.line_id == line.id:
+						counter += 1
+						targets.append(serie)
+						if counter == qnt:
+							break 
+
+			for target in targets:
+				db.session.delete(target) 
+			
+			try:
+				db.session.commit()
+				for t in targets:
+					self.reception_series.remove(t)
+			except:
+				db.session.rollback()
+				raise 
+
+			
+			# reception_series = db.session.query(db.ReceptionSerie).where(
+			# 	db.ReceptionSerie.line_id == line.id, 
+			# 	db.ReceptionSerie.item_id == line.item_id 
+			# )[0:abs(qnt)]
+
+
+
+			# for rs in reception_series:
+			# 	db.session.delete(rs)
+			
+			# try:
+			# 	db.session.commit() 
+			# 	for rs in reception_series:
+			# 		pass 
+
+			# except:
+			# 	db.session.rollback()
+			# 	raise 
 
 
 	def delete(self, series):

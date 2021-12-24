@@ -22,56 +22,54 @@ from sqlalchemy.sql import select, func
 import db 
 from bidict import bidict
 
-
-countries = list(dict(countries_for_language("en")).values())
-
-
 def mymap(db_class):
 	return {o.fiscal_name:o.id for o in db.session.query(db_class.fiscal_name, db_class.id).\
 		where(db_class.active == True)}
 
-def complete_descriptions(descriptions):
 
-    return descriptions 
+def complete_descriptions(clean_map, dirty_map):
+    descriptions = set()
+    descriptions.update(clean_map.keys())
+    for dirty_repr in dirty_map:
+        mpn, man, cat, mod, cap, col, has_serie = \
+            dirty_repr.split('|')
+        
+        if all((
+            man != '?', cat != '?', mod != '?', cap != '?', col != '?', has_serie == 'y'
+        )) and mpn == '?': # Items for mixing 
+            descriptions.update(
+                {
+                    ' '.join((man, cat, mod, 'Mixed GB', col)),
+                    ' '.join((man, cat, mod, 'Mixed GB', 'Mixed Color')), 
+                    ' '.join((man, cat, mod, cap, 'Mixed Color'))
+                }
+            )
+    return descriptions
 
-    # d = set() 
-    # for ds in descriptions:
-    #     manufacturer, category, model, *_ = ds.split(' ')
-    #     d.add(' '.join([manufacturer, category, model, \
-    #         'Mixed GB', 'Mixed Color']))
-    # for ds in descriptions:
-    #     index = ds.index('GB') + 2 
-    #     ds = ds[0:index] + ' Mixed Color'
-    #     d.add(ds)
-    
-    # for ds in descriptions:
-    #     manufacturer, category, model, capacity, gb, color = ds.split(' ')
-    #     d.add(' '.join([manufacturer, category, model, 'Mixed GB', color]))
-    
-    # return d.union(descriptions)
 
-description_id_map = bidict({str(item):item.id for item in db.session.query(db.Item)})
-descriptions = complete_descriptions(description_id_map.keys())
-
+countries = list(dict(countries_for_language("en")).values())
+dirty_map = bidict({item.dirty_repr:item.id for item in db.session.query(db.Item)})
+description_id_map = bidict({item.clean_repr:item.id for item in db.session.query(db.Item)})
 specs = {s.description for s in db.session.query(db.Spec.description)}
 conditions = {c.description for c in db.session.query(db.Condition.description)}
-
-
 partner_id_map =mymap(db.Partner)
 agent_id_map =mymap(db.Agent)
-
-
 courier_id_map = {
 	c.description:c.id 
 	for c in db.session.query(db.Courier.id, db.Courier.description)
 }
-
 warehouse_id_map = {
 	w.description:w.id 
 	for w in db.session.query(db.Warehouse.description, db.Warehouse.id)
 }
 
+descriptions = complete_descriptions(description_id_map, dirty_map)
 
+
+def has_serie(clean_repr):
+    id = description_id_map[clean_repr]
+    dirty_repr = dirty_map.inverse[id]
+    return dirty_repr.endswith('y')
 
 def validSwift(bic):
     try:

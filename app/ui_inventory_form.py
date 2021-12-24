@@ -14,19 +14,24 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_InventoryForm(object):
     def setupUi(self, InventoryForm):
         InventoryForm.setObjectName("InventoryForm")
-        InventoryForm.resize(868, 731)
+        InventoryForm.resize(989, 806)
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(":/warehouse"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         InventoryForm.setWindowIcon(icon)
-        InventoryForm.setStyleSheet("background:white; ")
+        InventoryForm.setStyleSheet("")
         self.view = QtWidgets.QTableView(InventoryForm)
-        self.view.setGeometry(QtCore.QRect(80, 40, 731, 611))
+        self.view.setGeometry(QtCore.QRect(50, 40, 881, 651))
         self.view.setObjectName("view")
+        self.pushButton = QtWidgets.QPushButton(InventoryForm)
+        self.pushButton.setGeometry(QtCore.QRect(840, 742, 91, 31))
+        self.pushButton.setObjectName("pushButton")
 
         self.retranslateUi(InventoryForm)
+        self.pushButton.clicked.connect(InventoryForm.close)
         QtCore.QMetaObject.connectSlotsByName(InventoryForm)
 
     def retranslateUi(self, InventoryForm):
         _translate = QtCore.QCoreApplication.translate
         InventoryForm.setWindowTitle(_translate("InventoryForm", "Inventory"))
+        self.pushButton.setText(_translate("InventoryForm", "Exit"))
 import icons_rc

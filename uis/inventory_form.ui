@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>868</width>
-    <height>731</height>
+    <width>989</width>
+    <height>806</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,21 +18,51 @@
     <normaloff>:/warehouse</normaloff>:/warehouse</iconset>
   </property>
   <property name="styleSheet">
-   <string notr="true">background:white; </string>
+   <string notr="true"/>
   </property>
   <widget class="QTableView" name="view">
    <property name="geometry">
     <rect>
-     <x>80</x>
+     <x>50</x>
      <y>40</y>
-     <width>731</width>
-     <height>611</height>
+     <width>881</width>
+     <height>651</height>
     </rect>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButton">
+   <property name="geometry">
+    <rect>
+     <x>840</x>
+     <y>742</y>
+     <width>91</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Exit</string>
    </property>
   </widget>
  </widget>
  <resources>
   <include location="../app/icons.qrc"/>
  </resources>
- <connections/>
+ <connections>
+  <connection>
+   <sender>pushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>InventoryForm</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>845</x>
+     <y>758</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>724</x>
+     <y>752</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

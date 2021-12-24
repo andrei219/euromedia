@@ -200,7 +200,7 @@ class Form(Ui_PurchaseProformaForm, QWidget):
         description = self.description_line_edit.text()
         condition = self.condition_line_edit.text()
         spec = self.spec_line_edit.text()
-        if not description: return 
+        if not description:return 
         if description in utils.descriptions and \
             condition not in utils.conditions and spec not in utils.specs:
                 QMessageBox.critical(self, 'Error', 'You cant add a device without condition and spec')
