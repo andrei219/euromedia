@@ -135,7 +135,7 @@ class Item(Base):
         self.model = model.strip()
         self.capacity = capacity.strip()
         self.color = color.strip()
-        self.has_serie = has_serie.strip() 
+        self.has_serie = has_serie 
     
     @property
     def clean_repr(self):

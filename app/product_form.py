@@ -135,4 +135,15 @@ class ProductForm(Ui_ProductForm, QDialog):
                 'Manufacturer, category, model are mandatory fields'
             )
             return False
+        
+        text = ''.join((
+            self.manufacturer_line_edit.text(), 
+            self.mpn.text(), self.category_line_edit.text(), 
+            self.model_line_edit.text(), self.capacity_line_edit.text(), 
+            self.color_line_edit.text()
+        ))
+
+        if '|' in text or '?' in text:
+            QMessageBox.critical(self, 'Error', "Fields can't contain ? or | symbols")
+            return False
         return True 
