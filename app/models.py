@@ -1959,19 +1959,26 @@ class PurchaseProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 		line.tax = tax
 		line.price = price 
 
-		if not self.line_exists(line):
-			self.lines.append(line) 
-			self.layoutChanged.emit()
-		else:
-			raise ValueError("I can't process duplicate lines") 
 
-	def line_exists(self, new_line):
-		# First check not stock relevant lines:
-		description = new_line.description
-		if description not in utils.descriptions and \
-			new_line.item_id is None:
-				return description in \
-					[line.description for line in self.lines]
+		# Dont apply mean for non stock relevant lines:
+		if line.description not in utils.descriptions and \
+			line.item_id is None:
+				self.lines.append(line) 
+		else:
+			updated = self.update_if_pre_exists(line)
+			if not updated:
+				self.lines.append(line)
+			self.layoutChanged.emit()
+	
+
+	def update_if_pre_exists(self, new_line):
+		
+		# PQn = p1*q1 + p2*q2 + ··· + pn*qn Recursively
+		# Qn = q1 + q2 + ··· + qn
+		# pn = PQn / Qn
+		# Can be determined recursively, no need to rememeber terms
+		# PQn = pn-1 * qn-1 + qn*pn
+		# Qn = qn-1 + qn 
 
 		for line in self.lines:
 			if all((
@@ -1980,7 +1987,13 @@ class PurchaseProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 				new_line.description == line.description, 
 				new_line.spec == line.spec 
 			)):
+				new_quantity = line.quantity + new_line.quantity
+				new_price = (line.quantity * line.price + new_line.quantity*new_line.price)\
+					/new_quantity
+				line.quantity = new_quantity
+				line.price = new_price
 				return True 
+		
 		return False
 
 
