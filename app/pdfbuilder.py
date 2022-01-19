@@ -207,7 +207,7 @@ class TableData:
         self.Date = str(document.invoice.date) if is_invoice else str(document.date) 
         self.PO = str(document.invoice.type) + '-' + str(document.invoice.number).\
             zfill(6) if is_invoice else str(document.type) + '-' + str(document.number).zfill(6)
-        self.Agent = document.agent.fiscal_name
+        self.Agent = document.agent.fiscal_name.split()[0]
         self.Incoterms = document.incoterm
         self.Delivery_Date = str(document.invoice.eta) if is_invoice \
             else str(document.eta) 
