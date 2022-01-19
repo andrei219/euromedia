@@ -104,7 +104,8 @@ class Form(QDialog, Ui_Form):
         self.reception_total.setText(str(self._total()))
     
 
-    def block_unblock_widgets(self, has_serie=False):
+    def block_unblock_widgets(self, has_serie:bool):
+        
         self.processed.setReadOnly(has_serie)
         
         for name in [
@@ -117,7 +118,6 @@ class Form(QDialog, Ui_Form):
                 widget = getattr(self, name)
                 if name in ('search_line_edit', 'sn'):
                     widget.clear() 
-
                 widget.setReadOnly(not has_serie)
             except AttributeError:
                 try:
@@ -194,7 +194,6 @@ class Form(QDialog, Ui_Form):
     def commit_handler(self):    
         
         if not self.in_serie_state:
-            print('not in_serie_state')
             self.invent_series()
         else:
             if not self.sn.text(): 
@@ -226,7 +225,6 @@ class Form(QDialog, Ui_Form):
         try:
             new_processed = int(self.processed.text())
             old_processed = self.processed_in_line()
-            print(new_processed - old_processed)
 
             self.rs_model.add_invented(
                 self.reception.lines[self.current_index], 

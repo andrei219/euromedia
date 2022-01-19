@@ -1305,7 +1305,7 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 			]
 
 			if not lines:
-				raise ValueError("Cannot send to warehouse undefined advanced sale")
+				raise ValueError("Can't send to warehouse undefined advanced sale")
 		else:
 			lines = [line for line in proforma.lines]
 		
@@ -3586,7 +3586,6 @@ class AdvancedStockModel(StockModel):
 				warehouse_id,
 				line
 			) 
-
 
 	@property
 	def requested_stocks(self):
