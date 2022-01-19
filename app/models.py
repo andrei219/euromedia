@@ -3523,7 +3523,7 @@ class DefinedSeriesModel(QtCore.QAbstractListModel):
 				return index 
 
 	def __contains__(self, key):
-		for serie in self.series:
+		for serie in self.series: 
 			if key in serie: 
 				return True
 		return False 	
