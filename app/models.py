@@ -850,11 +850,11 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
 			elif col == PurchaseProformaModel.OWING:
 				sign = ' -€' if proforma.eur_currency else ' $'
 				owing = total_debt(proforma) - total_paid(proforma) 
-				return str(round(owing, 2)) + sign       
+				return str(owing) + sign       
 			
 			elif col == PurchaseProformaModel.TOTAL:
 				sign = ' -€' if proforma.eur_currency else ' $'
-				return str(round(total_debt(proforma), 2)) + sign
+				return str(total_debt(proforma)) + sign
 		elif role == Qt.DecorationRole:
 			if col == PurchaseProformaModel.FINANCIAL:
 				if not_paid(proforma):
@@ -1164,10 +1164,10 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 			elif col == SaleProformaModel.OWING:
 				sign = ' -€' if proforma.eur_currency else ' $'
 				owes = total_debt(proforma) - total_paid(proforma)
-				return str(round(owes, 2)) + sign       
+				return str(owes) + sign       
 			elif col == SaleProformaModel.TOTAL:
 				sign = ' -€' if proforma.eur_currency else ' $'
-				return str(round(total_debt(proforma), 2)) + sign
+				return str(total_debt(proforma)) + sign
 
 			elif col == SaleProformaModel.ADVANCED:
 				return 'Yes' if proforma.advanced_lines else 'No'
@@ -1586,8 +1586,8 @@ class OrganizedLines:
 		}.get(col)
 	
 	def simple_line_repr(self, line, col):
-		total = round((line.quantity * line.price) * (1 + line.tax/100), 2)
-		subtotal = round(line.quantity * line.price, 2)
+		total = line.quantity * line.price * (1 + line.tax/100)
+		subtotal = line.quantity * line.price
 		ignore_spec = 'Yes' if line.ignore_spec else 'No'
 		showing_condition = line.showing_condition or line.condition
 		return {
@@ -1598,7 +1598,7 @@ class OrganizedLines:
 			SaleProformaLineModel.SPEC:line.spec, 
 			SaleProformaLineModel.IGNORING_SPEC:ignore_spec, 
 			SaleProformaLineModel.SUBTOTAL:str(subtotal),
-			SaleProformaLineModel.PRICE:str(round(line.price, 2)), 
+			SaleProformaLineModel.PRICE:str(line.price), 
 			SaleProformaLineModel.QUANTITY:str(line.quantity),
 			SaleProformaLineModel.TAX:str(line.tax), 
 			SaleProformaLineModel.TOTAL: str(total)
@@ -1864,8 +1864,8 @@ class PurchaseProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 		line = self.lines[row]
 		col = index.column() 
 		if role == Qt.DisplayRole:
-			total = round((line.quantity * line.price) * (1 + line.tax/100), 2) 
-			subtotal = round(line.quantity * line.price) 
+			total = line.quantity * line.price * (1 + line.tax/100)
+			subtotal = line.quantity * line.price 
 			# Allowing mixed and precised lines:
 			if col == 0:
 				if line.description is not None:
@@ -1937,11 +1937,11 @@ class PurchaseProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 
 	@property
 	def tax(self):
-		return round(sum([line.quantity * line.price * line.tax / 100 for line in self.lines]), 2)
+		return sum(line.quantity * line.price * line.tax / 100 for line in self.lines)
 	
 	@property
 	def subtotal(self):
-		return round(sum(line.quantity * line.price for line in self.lines), 2)
+		return sum(line.quantity * line.price for line in self.lines)
 	
 	@property
 	def total(self):
@@ -3129,9 +3129,9 @@ class AdvancedLinesModel(BaseTable, QtCore.QAbstractTableModel):
 			elif col == self.__class__.TAX:
 				return str(line.tax)
 			elif col == self.__class__.SUBTOTAL:
-				return str(round(line.price * line.quantity)) 
+				return str(line.price * line.quantity)
 			elif col == self.__class__.TOTAL:
-				total = round((line.quantity * line.price) * (1 + line.tax/100), 2)
+				total = line.quantity * line.price * (1 + line.tax/100)
 				return str(total) 
 
 	def add(self, quantity, price, ignore, tax, showing, vector):

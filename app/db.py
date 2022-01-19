@@ -396,7 +396,7 @@ class PurchaseProformaLine(Base):
     spec = Column(String(50), nullable=True)
 
     quantity = Column(Integer, nullable=False)
-    price = Column(Numeric(10, 2, asdecimal=False), nullable=False, default=1.0)
+    price = Column(Numeric(10, 6, asdecimal=False), nullable=False, default=1.0)
     tax = Column(Integer, nullable=False, default=0)
 
     item = relationship('Item', uselist=False)
@@ -648,7 +648,7 @@ class SaleProformaLine(Base):
     spec = Column(String(50))
     ignore_spec = Column(Boolean, default=False) 
     quantity = Column(Integer, default=1)
-    price = Column(Numeric(10, 2, asdecimal=False), default=1.0)
+    price = Column(Numeric(10, 6, asdecimal=False), default=1.0)
     tax = Column(Integer, default=0)
     
     item = relationship('Item')

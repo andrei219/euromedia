@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1365</width>
+    <width>1309</width>
     <height>878</height>
    </rect>
   </property>
@@ -54,7 +54,7 @@
     <rect>
      <x>50</x>
      <y>380</y>
-     <width>1071</width>
+     <width>1091</width>
      <height>271</height>
     </rect>
    </property>
@@ -88,8 +88,8 @@
   <widget class="QToolButton" name="save_button">
    <property name="geometry">
     <rect>
-     <x>1000</x>
-     <y>760</y>
+     <x>1030</x>
+     <y>750</y>
      <width>111</width>
      <height>81</height>
     </rect>
@@ -180,7 +180,7 @@
     <rect>
      <x>50</x>
      <y>260</y>
-     <width>1131</width>
+     <width>1201</width>
      <height>111</height>
     </rect>
    </property>
@@ -398,19 +398,13 @@
    <widget class="QDoubleSpinBox" name="subtotal_spinbox">
     <property name="geometry">
      <rect>
-      <x>760</x>
+      <x>766</x>
       <y>50</y>
-      <width>87</width>
+      <width>131</width>
       <height>22</height>
      </rect>
     </property>
     <property name="minimumSize">
-     <size>
-      <width>87</width>
-      <height>22</height>
-     </size>
-    </property>
-    <property name="maximumSize">
      <size>
       <width>87</width>
       <height>22</height>
@@ -425,6 +419,9 @@
     <property name="readOnly">
      <bool>true</bool>
     </property>
+    <property name="decimals">
+     <number>5</number>
+    </property>
     <property name="maximum">
      <double>99999999.989999994635582</double>
     </property>
@@ -432,7 +429,7 @@
    <widget class="QLabel" name="label_23">
     <property name="geometry">
      <rect>
-      <x>770</x>
+      <x>790</x>
       <y>20</y>
       <width>51</width>
       <height>16</height>
@@ -451,7 +448,7 @@
    <widget class="QLabel" name="label_24">
     <property name="geometry">
      <rect>
-      <x>860</x>
+      <x>910</x>
       <y>20</y>
       <width>31</width>
       <height>16</height>
@@ -470,7 +467,7 @@
    <widget class="QComboBox" name="tax_combobox">
     <property name="geometry">
      <rect>
-      <x>860</x>
+      <x>910</x>
       <y>50</y>
       <width>41</width>
       <height>22</height>
@@ -521,7 +518,7 @@
    <widget class="QLabel" name="label_25">
     <property name="geometry">
      <rect>
-      <x>920</x>
+      <x>980</x>
       <y>20</y>
       <width>51</width>
       <height>16</height>
@@ -537,19 +534,13 @@
    <widget class="QDoubleSpinBox" name="total_spinbox">
     <property name="geometry">
      <rect>
-      <x>910</x>
+      <x>970</x>
       <y>50</y>
-      <width>87</width>
+      <width>121</width>
       <height>22</height>
      </rect>
     </property>
     <property name="minimumSize">
-     <size>
-      <width>87</width>
-      <height>22</height>
-     </size>
-    </property>
-    <property name="maximumSize">
      <size>
       <width>87</width>
       <height>22</height>
@@ -561,6 +552,9 @@
     <property name="readOnly">
      <bool>true</bool>
     </property>
+    <property name="decimals">
+     <number>5</number>
+    </property>
     <property name="maximum">
      <double>99999999.989999994635582</double>
     </property>
@@ -568,7 +562,7 @@
    <widget class="QToolButton" name="addButton">
     <property name="geometry">
      <rect>
-      <x>1020</x>
+      <x>1100</x>
       <y>50</y>
       <width>81</width>
       <height>22</height>
@@ -603,123 +597,6 @@
      <bool>true</bool>
     </property>
    </widget>
-  </widget>
-  <widget class="QWidget" name="layoutWidget">
-   <property name="geometry">
-    <rect>
-     <x>451</x>
-     <y>701</y>
-     <width>190</width>
-     <height>82</height>
-    </rect>
-   </property>
-   <layout class="QGridLayout" name="gridLayout_4">
-    <item row="0" column="0">
-     <widget class="QLabel" name="label_30">
-      <property name="layoutDirection">
-       <enum>Qt::LeftToRight</enum>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">font-weight:bold; </string>
-      </property>
-      <property name="text">
-       <string>Subtotal:</string>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="1">
-     <widget class="QLineEdit" name="subtotal_proforma_line_edit">
-      <property name="minimumSize">
-       <size>
-        <width>121</width>
-        <height>22</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>121</width>
-        <height>22</height>
-       </size>
-      </property>
-      <property name="layoutDirection">
-       <enum>Qt::LeftToRight</enum>
-      </property>
-      <property name="readOnly">
-       <bool>true</bool>
-      </property>
-     </widget>
-    </item>
-    <item row="1" column="0">
-     <widget class="QLabel" name="label_31">
-      <property name="layoutDirection">
-       <enum>Qt::LeftToRight</enum>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">font-weight:bold; </string>
-      </property>
-      <property name="text">
-       <string>Tax:</string>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="0">
-     <widget class="QLabel" name="label_32">
-      <property name="layoutDirection">
-       <enum>Qt::LeftToRight</enum>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">font-weight:bold; </string>
-      </property>
-      <property name="text">
-       <string>Total </string>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="1">
-     <widget class="QLineEdit" name="total_proforma_line_edit">
-      <property name="minimumSize">
-       <size>
-        <width>121</width>
-        <height>22</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>121</width>
-        <height>22</height>
-       </size>
-      </property>
-      <property name="layoutDirection">
-       <enum>Qt::LeftToRight</enum>
-      </property>
-      <property name="readOnly">
-       <bool>true</bool>
-      </property>
-     </widget>
-    </item>
-    <item row="1" column="1">
-     <widget class="QLineEdit" name="total_tax_line_edit">
-      <property name="minimumSize">
-       <size>
-        <width>121</width>
-        <height>22</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>121</width>
-        <height>22</height>
-       </size>
-      </property>
-      <property name="layoutDirection">
-       <enum>Qt::LeftToRight</enum>
-      </property>
-      <property name="readOnly">
-       <bool>true</bool>
-      </property>
-     </widget>
-    </item>
-   </layout>
   </widget>
   <widget class="QTextEdit" name="note">
    <property name="geometry">
@@ -1413,6 +1290,129 @@
      </widget>
     </item>
    </layout>
+  </widget>
+  <widget class="QLabel" name="label_30">
+   <property name="geometry">
+    <rect>
+     <x>452</x>
+     <y>702</y>
+     <width>51</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="layoutDirection">
+    <enum>Qt::LeftToRight</enum>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">font-weight:bold; </string>
+   </property>
+   <property name="text">
+    <string>Subtotal:</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="subtotal_proforma_line_edit">
+   <property name="geometry">
+    <rect>
+     <x>519</x>
+     <y>702</y>
+     <width>191</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>121</width>
+     <height>22</height>
+    </size>
+   </property>
+   <property name="layoutDirection">
+    <enum>Qt::LeftToRight</enum>
+   </property>
+   <property name="readOnly">
+    <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_32">
+   <property name="geometry">
+    <rect>
+     <x>452</x>
+     <y>758</y>
+     <width>32</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="layoutDirection">
+    <enum>Qt::LeftToRight</enum>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">font-weight:bold; </string>
+   </property>
+   <property name="text">
+    <string>Total </string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_31">
+   <property name="geometry">
+    <rect>
+     <x>452</x>
+     <y>730</y>
+     <width>24</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="layoutDirection">
+    <enum>Qt::LeftToRight</enum>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">font-weight:bold; </string>
+   </property>
+   <property name="text">
+    <string>Tax:</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="total_tax_line_edit">
+   <property name="geometry">
+    <rect>
+     <x>519</x>
+     <y>730</y>
+     <width>191</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>121</width>
+     <height>22</height>
+    </size>
+   </property>
+   <property name="layoutDirection">
+    <enum>Qt::LeftToRight</enum>
+   </property>
+   <property name="readOnly">
+    <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="total_proforma_line_edit">
+   <property name="geometry">
+    <rect>
+     <x>519</x>
+     <y>758</y>
+     <width>191</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>121</width>
+     <height>22</height>
+    </size>
+   </property>
+   <property name="layoutDirection">
+    <enum>Qt::LeftToRight</enum>
+   </property>
+   <property name="readOnly">
+    <bool>true</bool>
+   </property>
   </widget>
  </widget>
  <tabstops>
