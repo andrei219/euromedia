@@ -26,7 +26,7 @@ class Form(QDialog, Ui_Form):
 
         self.reception = reception
         self.total_lines = len(reception.lines) 
-        self.current_index = 0 
+        self.current_index = 0
         self.rs_model = models.ReceptionSeriesModel(reception) 
         
         self.snlist.setSelectionMode(QAbstractItemView.ExtendedSelection)
@@ -43,9 +43,6 @@ class Form(QDialog, Ui_Form):
         self.view.setSelectionBehavior(QTableView.SelectRows)
         self.view.setSelectionMode(QTableView.SingleSelection)
 
-
-        # control var for commit handler
-        self.in_serie_state = False 
 
     def disable_if_cancelled(self):
         if self.reception.proforma.cancelled:
@@ -168,6 +165,13 @@ class Form(QDialog, Ui_Form):
             self.actual_spec.setReadOnly(True)
 
         self.update_group_model()
+
+        # try:
+        #     index = self.view.model().index(0, 0)
+        #     self.view.setCurrentIndex(index)
+        # except:
+        #     raise
+
         self.update_overflow_condition()
 
     def processed_in_line(self):
@@ -192,14 +196,15 @@ class Form(QDialog, Ui_Form):
         self.populate_body()
 
     def commit_handler(self):    
-        
         if not self.in_serie_state:
             self.invent_series()
         else:
+            print('in serie state')
             if not self.sn.text(): 
                 QMessageBox.critical(self, 'Error', 'Empty SN/IMEI')
                 return 
             try:
+                print('before rs_model.add')
                 self.rs_model.add(
                     self.reception.lines[self.current_index], 
                     self.sn.text(), 
@@ -207,6 +212,7 @@ class Form(QDialog, Ui_Form):
                     self.actual_condition.text(), 
                     self.actual_spec.text(), 
                 )
+                print('after rs_model.add')
             except ValueError as ex:
                 QMessageBox.critical(self, 'Error', str(ex))
             except IntegrityError:
@@ -225,7 +231,6 @@ class Form(QDialog, Ui_Form):
         try:
             new_processed = int(self.processed.text())
             old_processed = self.processed_in_line()
-
             self.rs_model.add_invented(
                 self.reception.lines[self.current_index], 
                 new_processed - old_processed, 

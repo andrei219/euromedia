@@ -24,7 +24,6 @@ from sqlalchemy.exc import IntegrityError
 
 from utils import (
     setCommonViewConfig, 
-    getPassword, 
     getTracking, 
     getNote, 
     get_directory
@@ -1082,23 +1081,17 @@ class MainGui(Ui_MainGui, QMainWindow):
     # TOOLS HANDLERS:
     def tools_create_product_handler(self):
         d = product_form.ProductForm(self)  
-        password = getPassword(self) 
-        if password == PASSWORD:
-            d.exec_() 
+        d.exec_() 
 
     def tools_check_inventory_handler(self):
         d = inventory_form.InventoryForm(self)
-        password = getPassword(self)
-        if password == PASSWORD:
-            d.exec_() 
+        d.exec_() 
     
     def tools_change_spec_handler(self):
         if models.stock_gap():
             QMessageBox.information(self, 'Information', 'Process all sales first.')
             return 
         d = spec_change_form.SpecChange(self)
-        # password = getPassword(self)
-        # if password == PASSWORD:
         d.exec_() 
 
     def tools_change_condition_handler(self):
