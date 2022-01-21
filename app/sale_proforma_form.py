@@ -86,6 +86,7 @@ class Form(Ui_SalesProformaForm, QWidget):
             self.lines_model.reset()   
 
         self.update_totals() 
+        
         # removing objects in pending state 
         db.session.rollback() 
 

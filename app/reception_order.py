@@ -60,12 +60,24 @@ class Form(QDialog, Ui_Form):
     def setCompleters(self):
         conditions = utils.conditions.difference({'Mix'})
         specs = utils.specs.difference({'Mix'})
+        # for field, data in [
+        #     (self.actual_item, utils.description_id_map.keys()), 
+        #     (self.actual_condition, conditions), 
+        #     (self.actual_spec, specs)
+        # ]: setCompleter(field, data) 
+        
         for field, data in [
-            (self.actual_item, utils.description_id_map.keys()), 
             (self.actual_condition, conditions), 
             (self.actual_spec, specs)
         ]: setCompleter(field, data) 
 
+        self.set_actual_item_completer()
+
+
+    def set_actual_item_completer(self):
+        line = self.reception.lines[self.current_index]
+        data = utils.mixed_to_clean_description(line.description)
+        setCompleter(self.actual_item, data)
 
     def on_automatic_toggled(self, on):
         if on:
@@ -173,6 +185,8 @@ class Form(QDialog, Ui_Form):
         #     raise
 
         self.update_overflow_condition()
+
+        self.set_actual_item_completer()
 
     def processed_in_line(self):
         line = self.reception.lines[self.current_index]

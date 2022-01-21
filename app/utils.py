@@ -4,6 +4,7 @@ import os
 import re 
 import base64
 from datetime import datetime 
+import functools
 
 # QtFramework stuff:
 from PyQt5.QtWidgets import QInputDialog
@@ -27,29 +28,29 @@ def mymap(db_class):
 		where(db_class.active == True)}
 
 
-def complete_descriptions(clean_map, dirty_map):
-    descriptions = set()
-    descriptions.update(clean_map.keys())
-    for dirty_repr in dirty_map:
-        mpn, man, cat, mod, cap, col, has_serie = \
-            dirty_repr.split('|')
-        
-        if all((
-            man != '?', cat != '?', mod != '?', cap != '?', col != '?', has_serie == 'y'
-        )) and mpn == '?': # Items for mixing 
-            descriptions.update(
-                {
-                    ' '.join((man, cat, mod, 'Mixed GB', col)),
-                    ' '.join((man, cat, mod, 'Mixed GB', 'Mixed Color')), 
-                    ' '.join((man, cat, mod, cap, 'Mixed Color'))
-                }
-            )
-    return descriptions
-
-
 countries = list(dict(countries_for_language("en")).values())
 dirty_map = bidict({item.dirty_repr:item.id for item in db.session.query(db.Item)})
 description_id_map = bidict({item.clean_repr:item.id for item in db.session.query(db.Item)})
+
+# Build this map at import time
+# the new map will be man|cat|mod|cap|col -> item_id 
+
+def mix_candidate(dirty_description):
+    mpn, man, cat, mod, cap, col, has_serie = dirty_description.split('|')
+    return all((
+        mpn == '?', 
+        man != '?', 
+        cat != '?', 
+        mod != '?', 
+        cap != '?', 
+        col != '?', 
+        has_serie == 'y'
+    ))
+
+sub_dirty_map = {k[2:-2]:dirty_map[k] for k in dirty_map \
+        if mix_candidate(k)}
+
+
 specs = {s.description for s in db.session.query(db.Spec.description)}
 conditions = {c.description for c in db.session.query(db.Condition.description)}
 partner_id_map =mymap(db.Partner)
@@ -63,7 +64,88 @@ warehouse_id_map = {
 	for w in db.session.query(db.Warehouse.description, db.Warehouse.id)
 }
 
-descriptions = complete_descriptions(description_id_map, dirty_map)
+
+def complete_descriptions(clean_map, dirty_map):
+    descriptions = set()
+    descriptions.update(clean_map.keys())
+    for dirty_repr in dirty_map:
+            mpn, man, cat, mod, cap, col, has_serie = dirty_repr.split('|')
+            if  all((
+                mpn == '?', 
+                man != '?', 
+                cat != '?', 
+                mod != '?', 
+                cap != '?', 
+                col != '?', 
+                has_serie == 'y'
+            )):
+                descriptions.update(
+                    {
+                        ' '.join((man, cat, mod, 'Mixed GB', col)),
+                        ' '.join((man, cat, mod, 'Mixed GB', 'Mixed Color')), 
+                        ' '.join((man, cat, mod, cap, 'Mixed Color'))
+                    }
+                )
+    return descriptions
+
+
+
+@functools.cache
+def mixed_to_clean_description(mixed_description):
+    clean_descriptions = [] 
+    if mixed_description.count('Mixed') == 2:
+        for dirty_desc in sub_dirty_map:
+            man, cat, mod, _, _ = dirty_desc.split('|')
+            if ' '.join((man, cat, mod, 'Mixed GB', 'Mixed Color')) == mixed_description:
+                clean_descriptions.append(
+                    description_id_map.inverse[sub_dirty_map[dirty_desc]]
+                )
+
+    elif 'Mixed GB' in mixed_description:
+        for dirty_desc in sub_dirty_map:
+            man, cat, mod, _, col = dirty_desc.split('|')
+            if ' '.join((man, cat, mod, 'Mixed GB', col)) == mixed_description:
+                clean_descriptions.append(
+                    description_id_map.inverse[sub_dirty_map[dirty_desc]]
+                )
+
+    elif 'Mixed Color' in mixed_description:
+        for dirty_desc in sub_dirty_map:
+            man, cat, mod, cap, _  = dirty_desc.split('|') 
+            if ' '.join((man, cat, mod, cap, 'Mixed Color')) == mixed_description:
+                clean_descriptions.append(
+                    description_id_map.inverse[sub_dirty_map[dirty_desc]]
+                )
+
+
+    return clean_descriptions
+
+
+descriptions = complete_descriptions(description_id_map, dirty_map) 
+
+
+@functools.cache
+def get_itemids_from_mixed_description(mixed_description):
+    ids = [] 
+    if mixed_description.count('Mixed') == 2:
+        for dirty_desc in sub_dirty_map:
+            man, cat, mod, _, _ = dirty_desc.split('|')
+            if ' '.join((man, cat, mod, 'Mixed GB', 'Mixed Color')) == mixed_description:
+                ids.append(sub_dirty_map[dirty_desc])
+
+    elif 'Mixed GB' in mixed_description:
+        for dirty_desc in sub_dirty_map:
+            man, cat, mod, _, col = dirty_desc.split('|')
+            if ' '.join((man, cat, mod, 'Mixed GB', col)) == mixed_description:
+                ids.append(sub_dirty_map[dirty_desc])
+
+    elif 'Mixed Color' in mixed_description:
+        for dirty_desc in sub_dirty_map:
+            man, cat, mod, cap, _  = dirty_desc.split('|') 
+            if ' '.join((man, cat, mod, cap, 'Mixed Color')) == mixed_description:
+                ids.append(sub_dirty_map[dirty_desc])
+
+    return ids
 
 
 def has_serie(clean_repr):
@@ -223,3 +305,12 @@ def build_description(lines):
         manufacturer, category, model, 
         capacity, color 
     ])
+ 
+
+if __name__ == '__main__':
+
+    for d in complete_descriptions(description_id_map, dirty_map):
+        if 'Mix' in d:
+            print(' ', d)
+            for clean in mixed_to_clean_description(d):
+                print('\t', clean)

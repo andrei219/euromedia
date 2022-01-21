@@ -46,6 +46,10 @@ import utils
 from importlib import reload
 utils = reload(utils)
 
+def dot_comma_number_repr(str_number):
+    count = str_number.count(',')
+    return str_number.replace('.', ',').replace(',', '.', count)
+
 class LinePDFRepr:
 
     def __iter__(self):
@@ -64,8 +68,10 @@ class PurcahseLinePDFRepr(LinePDFRepr):
             self.description += f', {line.spec}'
         
         self.quantity = line.quantity
-        self.price = line.price
-        self.total = round(line.price * line.quantity, 2)
+        self.total = '{:,.2f}'.format(round(line.price * line.quantity, 2))
+        self.price = '{:,.2f}'.format(round(line.price, 2))
+        self.total = dot_comma_number_repr(self.total)
+        self.price = dot_comma_number_repr(self.price)
 
 
 class SaleLinePDFRepr(LinePDFRepr):
@@ -109,8 +115,11 @@ class SaleLinePDFRepr(LinePDFRepr):
         self.description = description
         self.quantity = sum(line.quantity for line in lines)
         self.price = lines[0].price
-        self.total = round(self.price * self.quantity, 2)
-    
+        self.total = '{:,.2f}'.format(round(self.price * self.quantity, 2))
+        self.price = '{:,.2f}'.format(round(self.price, 2))
+        self.total = dot_comma_number_repr(self.total)
+        self.price = dot_comma_number_repr(self.price)
+
     def set_line_from_line(self, line):
         description = line.description or utils.description_id_map.inverse[line.item_id]
         
@@ -125,8 +134,10 @@ class SaleLinePDFRepr(LinePDFRepr):
 
         self.description = description
         self.quantity = line.quantity
-        self.price = line.price
-        self.total = round(line.price * line.quantity, 2)
+        self.total = '{:,.2f}'.format(round(line.price * line.quantity, 2))
+        self.price = '{:,.2f}'.format(round(line.price, 2))
+        self.total = dot_comma_number_repr(self.total)
+        self.price = dot_comma_number_repr(self.price)
 
 
 class AdvancedSaleLinePDFRepr(LinePDFRepr):
@@ -142,8 +153,11 @@ class AdvancedSaleLinePDFRepr(LinePDFRepr):
             self.description += f', {line.spec}'
         
         self.quantity = line.quantity
-        self.price = line.price
-        self.total = round(line.price * line.quantity, 2)
+      
+        self.total = '{:,.2f}'.format((line.price * line.quantity, 2))
+        self.price = '{:,.2f}'.format(round(line.price, 2))
+        self.total = dot_comma_number_repr(self.total)
+        self.price = dot_comma_number_repr(self.price)
 
 class LinesPDFRepr:
 
@@ -226,18 +240,22 @@ class TotalsData:
         except AttributeError:
             lines = document.lines 
 
-        self.Total_excl_VAT = round(sum(line.price * line.quantity for line in lines), 2)
-        
+        self.Total_excl_VAT = sum(line.price * line.quantity for line in lines)
         self.Shipping = 0.0 
-        self.Total_VAT = round(
-            sum(
-                line.quantity * line.price * line.tax / 100
-                for line in lines 
-            ), 2 
-        )
-        self.Total = round(float(self.Total_excl_VAT + self.Shipping + self.Total_VAT), 2)
+        self.Total_VAT = sum(line.quantity * line.price * line.tax / 100 for line in lines)
+        
+        self.Total = '{:,.2f}'.format(round(self.Total_excl_VAT + self.Shipping + self.Total_VAT, 2))
 
-    
+        self.Total_excl_VAT = '{:,.2f}'.format(round(self.Total_excl_VAT, 2))
+        self.Shipping = '{:,.2f}'.format(round(self.Shipping, 2))
+        self.Total_VAT = '{:,.2f}'.format(round(self.Total_VAT, 2))
+
+        self.Total = dot_comma_number_repr(self.Total)
+        self.Total_excl_VAT = dot_comma_number_repr(self.Total_excl_VAT)
+        self.Total_VAT = dot_comma_number_repr(self.Total_VAT)
+
+        self.Shipping = dot_comma_number_repr(self.Shipping)
+
     def __len__(self):
         return len(self.__dict__)
 
@@ -348,7 +366,6 @@ class PDF(FPDF):
         self.set_font('Arial', size=10)
         self.cell(0, txt=self.document.note)
         self.y += ADDITIONAL_TEXT_TERM_INCREMENT 
-
 
 
     def print_terms(self):

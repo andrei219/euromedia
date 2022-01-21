@@ -1413,7 +1413,6 @@ class OrganizedLines:
 	def lines(self):
 		return self.instrumented_lines
 
-
 	def get_next_mix(self):
 		last_mix = db.session.query(func.max(db.SaleProformaLine.mix_id)).scalar()
 		if last_mix is None:
@@ -1449,6 +1448,10 @@ class OrganizedLines:
 	def append(self, price, ignore_spec, tax, showing, *stocks, row=None):
 		if len(stocks) == 0:
 			raise ValueError('At least one stock must be provided')
+		
+		# Note that the method invoked here
+		# is stock.__eq__ thats why it works, 
+		# line.__eq__ always returns false
 		if any((
 			stock == line
 			for line in self.lines
@@ -1617,7 +1620,6 @@ class OrganizedLines:
 		line.mix_id = mix_id
 		return line 
 
-
 	def __getitem__(self, index):
 		try:
 			return self.organized_lines[index]
@@ -1647,14 +1649,6 @@ class SaleProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 		row, column = index.row(), index.column() 
 		if role == Qt.DisplayRole:
 			return self.organized_lines.repr(row, column) 
-
-	def get_next_mix(self):
-		last_mix = db.session.query(func.max(db.SaleProformaLine.mix_id)).scalar()
-		if last_mix is None:
-			last_mix = 0 
-		else:
-			last_mix += 1
-		return last_mix
 
 	def lines(self):
 		return self.organized_lines.lines 
@@ -2621,50 +2615,6 @@ class StockEntry:
 		return functools.reduce(operator.xor, hashes, 0)
 
 
-def get_itemids_sequence_from_mixed_description(description):
-
-	if description is None:return 
-
-	item_ids = [] 
-
-	# Branch order is important in this switch:
-	for map_desc in utils.description_id_map:
-		if description.count('Mixed') == 2:
-			manufacturer, category, model , *_ = description.split()
-			map_desc_manufacturer, map_desc_category, map_desc_model, *_ = map_desc.split()
-			if all((
-				manufacturer == map_desc_manufacturer, 
-				category == map_desc_category, 
-				model == map_desc_model
-			)):
-				item_ids.append(utils.description_id_map[map_desc])
-
-		elif 'Mixed GB' in description:
-			manufacturer, category, model, *_, color = description.split() 
-			map_desc_manufacturer, map_desc_category, map_desc_model, *_, map_desc_color = map_desc.split()
-			if all((
-				manufacturer == map_desc_manufacturer, 
-				category == map_desc_category, 
-				model == map_desc_model, 
-				color == map_desc_color
-			)):
-				item_ids.append(utils.description_id_map[map_desc])
-
-		elif 'Mixed Color' in description:
-			manufacturer, category, model, capacity, *_ = description.split()
-			map_desc_manufacturer, map_desc_category, map_desc_model, map_desc_capacity, *_ = map_desc.split()
-
-			if all((
-				manufacturer == map_desc_manufacturer, 
-				category == map_desc_category, 
-				model == map_desc_model, 
-				capacity == map_desc_capacity
-			)):
-				item_ids.append(utils.description_id_map[map_desc])
-
-	return item_ids 
-
-
 class StockModel(BaseTable, QtCore.QAbstractTableModel):
 
 	DESCRIPTION, CONDITION, SPEC, QUANTITY, REQUEST = \
@@ -2692,7 +2642,6 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
 		
 		session = session 
 
-
 		item_id = utils.description_id_map.get(description)
 		query = session.query(
 			db.Imei.item_id, db.Imei.condition, 
@@ -2706,7 +2655,7 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
 		if item_id:
 			query = query.where(db.Imei.item_id == item_id)
 		else:
-			item_ids = get_itemids_sequence_from_mixed_description(description)
+			item_ids = utils.get_itemids_from_mixed_description(description)
 			query = query.where(db.Imei.item_id.in_(item_ids))
 		
 		if condition:
@@ -2891,7 +2840,6 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
 
 		return imeis 
 
-
 	def data(self, index, role=Qt.DisplayRole):
 		if not index.isValid():
 			return
@@ -3028,7 +2976,7 @@ class IncomingStockModel(BaseTable, QtCore.QAbstractTableModel):
 		if item_id:
 			query = query.where(db.PurchaseProformaLine.item_id == item_id)
 		else:
-			item_ids = get_itemids_sequence_from_mixed_description(description)
+			item_ids = utils.get_itemids_from_mixed_description(description)
 			if item_ids:
 				predicates = (
 					db.PurchaseProformaLine.item_id.in_(item_ids), 
@@ -3627,7 +3575,7 @@ class AdvancedStockModel(StockModel):
 			query = query.where(db.ImeiMask.item_id == line.item_id)
 		
 		elif line.mixed_description:
-			item_ids = get_itemids_sequence_from_mixed_description(line.mixed_description)
+			item_ids = utils.get_itemids_from_mixed_description(line.mixed_description)
 			query = query.where(db.ImeiMask.item_id.in_(item_ids))
 
 
