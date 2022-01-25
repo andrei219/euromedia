@@ -35,6 +35,11 @@ description_id_map = bidict({item.clean_repr:item.id for item in db.session.quer
 # Build this map at import time
 # the new map will be man|cat|mod|cap|col -> item_id 
 
+#STOCK TYPES:
+SERIE_NOT_MIXED, SERIE_MIXED, NO_SERIE = 0, 1, 2 
+
+
+
 def mix_candidate(dirty_description):
     mpn, man, cat, mod, cap, col, has_serie = dirty_description.split('|')
     return all((
@@ -47,9 +52,26 @@ def mix_candidate(dirty_description):
         has_serie == 'y'
     ))
 
-sub_dirty_map = {k[2:-2]:dirty_map[k] for k in dirty_map \
-        if mix_candidate(k)}
+sub_dirty_map = bidict({k[2:-2]:dirty_map[k] for k in dirty_map \
+        if mix_candidate(k)})
 
+
+def stock_type(stock):
+    # Este check me permite sobrecargar el metodo, 
+    # acepta item_id o stockEntry
+    
+    if isinstance(stock, int):
+        id = stock
+    else:
+        id = stock.item_id
+    
+    # BRANCH ORDER IS IMPORTANT
+    if dirty_map.inverse[id].endswith('n'):
+        return NO_SERIE
+    if id in dirty_map.inverse and not id in sub_dirty_map.inverse:
+        return SERIE_NOT_MIXED
+    elif id in sub_dirty_map.inverse:
+        return SERIE_MIXED 
 
 specs = {s.description for s in db.session.query(db.Spec.description)}
 conditions = {c.description for c in db.session.query(db.Condition.description)}
@@ -126,6 +148,9 @@ descriptions = complete_descriptions(description_id_map, dirty_map)
 
 @functools.cache
 def get_itemids_from_mixed_description(mixed_description):
+    # Cuando calculamos todo el stock, 
+    # este metodo recibe none 
+    if not mixed_description: return None
     ids = [] 
     if mixed_description.count('Mixed') == 2:
         for dirty_desc in sub_dirty_map:
@@ -278,7 +303,7 @@ def setCompleter(field, data):
 def build_description(lines):
     capacities = set() 
     for line in lines:
-        for e in description_id_map.inverse[line.item_id].split():
+        for e in sub_dirty_map.inverse[line.item_id].split('|'):
             if e.isdigit():
                 capacities.add(e)
                 break
@@ -290,7 +315,7 @@ def build_description(lines):
     
     colors = set()
     for line in lines:
-        color = description_id_map.inverse[line.item_id].split()[-1]
+        color = sub_dirty_map.inverse[line.item_id].split('|')[-1]
         colors.add(color) 
 
     if len(colors) == 1:
@@ -299,8 +324,8 @@ def build_description(lines):
         color = 'Mixed Color'
     
     line = lines[0]
-    description = description_id_map.inverse[line.item_id] 
-    manufacturer, category, model , *_ = description.split() 
+    description = sub_dirty_map.inverse[line.item_id] 
+    manufacturer, category, model , *_ = description.split('|') 
     return ' '.join([
         manufacturer, category, model, 
         capacity, color 

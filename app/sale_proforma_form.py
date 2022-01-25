@@ -178,14 +178,23 @@ class Form(Ui_SalesProformaForm, QWidget):
     def delete_selected_stock_clicked(self):
         try:
             i = {i.row() for i in self.lines_view.selectedIndexes()}.pop() 
-            j = {i.row() for i in self.selected_stock_view.selectedIndexes()}.pop()
-        except KeyError: 
+        except KeyError:
+            QMessageBox.critical(self, 'Error', 'No line selected')
             return 
-        else:
+        try:
+            j = {i.row() for i in self.selected_stock_view.selectedIndexes()}.pop()
+        except KeyError:
+            QMessageBox.critical(self, 'Error', 'No stock from line stock selected')
+            return
+        
+        try:
             self.lines_model.delete(i, j)
             self.set_selected_stock_mv() 
             self.set_stock_mv()
             self.lines_view.clearSelection() 
+        except:
+            QMessageBox.critical(self, 'Error', 'Error reaching database')
+            raise 
 
     def search_handler(self):
         if self.filters_unset():
@@ -258,7 +267,7 @@ class Form(Ui_SalesProformaForm, QWidget):
         try:
             row = {i.row() for i in self.lines_view.selectedIndexes()}.pop()
         except KeyError:
-            return 
+            QMessageBox.critical(self, 'Error', 'No line selected')
         else:
             self.lines_model.delete(row)
             self.set_stock_mv()
@@ -270,6 +279,7 @@ class Form(Ui_SalesProformaForm, QWidget):
         if not hasattr(self, 'stock_model'):return
 
         requested_stocks = self.stock_model.requested_stocks
+
 
         price = self.price.value()
         ignore = self.ignore.isChecked()
@@ -339,9 +349,9 @@ class Form(Ui_SalesProformaForm, QWidget):
         # self.parent.set_mv('proformas_sales_')
 
     def update_totals(self):
-        self.proforma_total.setText(str(self.lines_model.total()))
-        self.proforma_tax.setText(str(self.lines_model.tax()))
-        self.subtotal_proforma.setText(str(self.lines_model.subtotal()))
+        self.proforma_total.setText(str(self.lines_model.total))
+        self.proforma_tax.setText(str(self.lines_model.tax))
+        self.subtotal_proforma.setText(str(self.lines_model.subtotal))
 
     def _valid_header(self):
         try:

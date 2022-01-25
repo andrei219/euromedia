@@ -1249,9 +1249,11 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 		
 	
 	def nextNumberOfType(self, type):
+		
 		sql = f"select max(number) from sale_proformas where type={type}"
-		current_num = db.engine.execute(sql).scalar() 
+		current_num = db.session.execute(sql).scalar() 
 
+		print(current_num)
 		if not current_num: # Means first number of type
 			return 1 
 		else:
@@ -1421,6 +1423,8 @@ class OrganizedLines:
 			last_mix += 1
 		return last_mix
 
+	# Este metodo no hay que tocarlo, no contiene codigo
+	# relacionado con la representación 
 	def delete(self, i, j=None):
 		if j is None:
 			lines = self.organized_lines.pop(i)
@@ -1428,13 +1432,14 @@ class OrganizedLines:
 				for line in lines:
 					self.instrumented_lines.remove(line)
 			except TypeError:
+				# Non itereable
 				self.instrumented_lines.remove(lines) 
 		else:
 			line = self.organized_lines[i].pop(j)
 			try:
 				if len(self.organized_lines[i]) == 1:
 					self.organized_lines[i] = self.organized_lines[i][0]
-				elif not self.organize_lines:
+				elif not self.organized_lines[i]:
 					del self.organized_lines[i]
 			except IndexError:
 				pass 
@@ -1443,61 +1448,119 @@ class OrganizedLines:
 
 		db.session.flush()
 
-		self.organized_lines = [e for e in self.organized_lines if e]
+		# Esta linea pretende restructurar la lista 
+		# No deberia ser necesaria
+		# self.organized_lines = [e for e in self.organized_lines if e]
 
 	def append(self, price, ignore_spec, tax, showing, *stocks, row=None):
 		if len(stocks) == 0:
-			raise ValueError('At least one stock must be provided')
+			raise ValueError("At least one stock must be provided")
+
+		if any((stock == line for line in self.lines for stock in stocks)):
+				raise ValueError("I can't handle duplicated stocks")
 		
-		# Note that the method invoked here
-		# is stock.__eq__ thats why it works, 
-		# line.__eq__ always returns false
-		if any((
-			stock == line
-			for line in self.lines
-			for stock in stocks
-		)):
-			raise ValueError("I can't handle duplicate stocks")
+		if row is None:
+			new_lines = [
+				self.build_line(price, ignore_spec,tax, showing, stock)	
+				for stock in stocks
+			]
 
-		new_lines = [
-			self.build_line(
-				price, ignore_spec, 
-				tax, showing, stock
-			) for stock in stocks
-		]
-
-		if row is not None:
-			group = self.organized_lines[row]
-			if isinstance(group, Iterable):
-				if self.group_conflict(group, *stocks):
-					raise ValueError('You can only mix colors or capacities')
-				mix_id = group[0].mix_id
+			if len(new_lines) != 1:
+				mix_id = self.get_next_mix()
 				for line in new_lines:
 					line.mix_id = mix_id 
-				group.extend(new_lines) 
+				self.organized_lines.append(new_lines)
 			else:
-				if group.item_id not in utils.description_id_map.values():
-					raise ValueError("You cannot add stocks in this line")
-					if any((
-						self.conflict_check(group)
-						for stock in stocks
-					)):
-						raise ValueError('You can only mix colors or capacities')
-				self.organized_lines[row] = [group] + new_lines
+				self.organized_lines.append(
+					self.build_line(price, ignore_spec, tax, showing, stocks[0])
+				)
 		else:
-			if len(new_lines) == 1:
-				self.organized_lines.append(new_lines[0])
+			if self.backward_compatible(stocks, row):
+				new_lines = self.update_organized_lines(
+					price, ignore_spec, tax, showing, *stocks, row=row
+				)
 			else:
-				if self.group_conflict(stocks, *stocks):
-					raise ValueError('You can only mix colors or capacities')
-				
-				for line in new_lines:
-					line.mix_id = self.next_mix
-				self.organized_lines.append(new_lines) 
-				self.next_mix += 1
+				raise ValueError("I can't mix these stocks")
 		
 		self.instrumented_lines.extend(new_lines) 
 		db.session.flush() 
+	
+	def update_organized_lines(self, price, ignore_spec, tax, showing, *stocks, row=-1):
+		# No need for checking 
+		existent_lines = self.organized_lines[row] 
+		new_lines = [] 
+		if isinstance(existent_lines, Iterable) and len(stocks) == 1:
+			line = self.build_line(
+				price, ignore_spec, tax, showing, stocks[0], mix_id = existent_lines[0].mix_id
+			)
+			existent_lines.append(line)
+			new_lines.append(line) 
+		elif isinstance(existent_lines, Iterable) and len(stocks) != 1:
+			lines = [
+				self.build_line(
+					price, ignore_spec, tax, showing, stock, existent_lines[0].mix_id
+				)
+				for stock in stocks
+			]
+			existent_lines.extend(lines)
+			new_lines.extend(lines) 
+		elif not isinstance(existent_lines, Iterable) and len(stocks) == 1:
+			mix_id = self.get_next_mix()
+			existent_lines.mix_id = mix_id
+			line = self.build_line(price, ignore_spec, tax, showing, stocks[0], mix_id=mix_id)
+			self.organized_lines[row] = [existent_lines, line]
+			new_lines.append(line)
+
+		elif not isinstance(existent_lines, Iterable) and len(stocks) != 1:
+			mix_id = self.get_next_mix()
+			existent_lines.mix_id = mix_id 
+			lines = [
+				self.build_line(price, ignore_spec, tax, showing, stock, mix_id=mix_id)
+				for stock in stocks
+			]
+			self.organized_lines[row] = [existent_lines] + [lines]
+			new_lines.append(lines) 
+		return new_lines
+
+	def backward_compatible(self, stocks, row):
+		existent_lines = self.organized_lines[row]
+		try: # Already a mixed group 
+			if all((
+				utils.stock_type(stock) == utils.SERIE_MIXED
+				for stock in stocks
+			)) and all ((
+				utils.stock_type(line.item_id) == utils.SERIE_MIXED
+				for line in existent_lines
+			)) and all ((
+				self.no_line_stock_conflict(stock, line)
+				for line in existent_lines 
+				for stock in stocks
+			)):
+				return True 
+
+			return False 
+
+		except TypeError: # Single line, may be possible group candidate
+			line = existent_lines # only one line object 
+			if utils.stock_type(line.item_id) in (
+				utils.SERIE_NOT_MIXED, utils.NO_SERIE
+			):
+				return False 
+			if all((
+				self.no_line_stock_conflict(line, stock)
+				for stock in stocks
+			)):
+				return True 
+
+
+	def no_line_stock_conflict(self, line, stock):
+		line_description = utils.sub_dirty_map.inverse[line.item_id]
+		stock_description = utils.sub_dirty_map.inverse[stock.item_id]
+		sman, scat, smod, *_ = stock_description.split('|')
+		lman, lcat, lmod, *_ = line_description.split('|')
+		return all((
+			sman == lman, scat == lcat, smod == lmod
+		))
 
 	def insert_free(self, description, quantity, price, tax):
 		
@@ -1546,9 +1609,10 @@ class OrganizedLines:
 						[l for l in lines if l.mix_id == line.mix_id]
 					)
 					searched.add(line.mix_id)
-		return aux  
+		return aux
 
 	def complex_line_repr(self, lines, col):
+		
 		diff_items = {line.item_id for line in lines}
 		diff_conditions = {line.condition for line in lines}
 		diff_specs = {line.spec for line in lines}
@@ -1649,21 +1713,24 @@ class SaleProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 		row, column = index.row(), index.column() 
 		if role == Qt.DisplayRole:
 			return self.organized_lines.repr(row, column) 
-
+	
+	@property
 	def lines(self):
 		return self.organized_lines.lines 
 
+	@property
 	def tax(self):
-		return sum(map(lambda l:l.tax, self.lines()))
-
+		return sum(map(lambda l:l.tax, self.lines))
+	@property
 	def subtotal(self):
 		return sum(
 			line.quantity * line.price * line.tax / 100
-			for line in self.lines()
+			for line in self.lines
 		)
- 
-	def total(self):
-		return self.tax() + self.subtotal()
+	
+	@property 
+	def total(self): 
+		return self.tax + self.subtotal
 
 	def add(self, price, ignore_spec, tax, showing, *stocks, row=None):
 		self.organized_lines.append(
@@ -2425,9 +2492,31 @@ class ExpeditionModel(BaseTable, QtCore.QAbstractTableModel):
 					else QtGui.QColor(GREEN)
 
 
+	def sort(self, section, order):
+		reverse = True if order == Qt.AscendingOrder else False
+		if section == ExpeditionModel.FROM_PROFORMA:
+			self.layoutAboutToBeChanged.emit()
+			self.expeditions = sorted(
+				self.expeditions, key=lambda r:(r.proforma.type, r.proforma.number), 
+				reverse=reverse
+			)
+			self.layoutChanged.emit()
+		else:
+			attr = {
+				ExpeditionModel.ID:'id', 
+				ExpeditionModel.WAREHOUSE:'proforma.warehouse_id', 
+				ExpeditionModel.CANCELLED:'proforma.cancelled', 
+				ExpeditionModel.PARTNER: 'proforma.partner.fiscal_name',
+				ExpeditionModel.AGENT: 'proforma.agent.fiscal_name', 
+			}.get(section) 
 
-	def completed(self, reception):
-		pass 
+			if attr:
+				self.layoutAboutToBeChanged.emit()
+				self.expeditions = sorted(self.expeditions, key=operator.attrgetter(attr), \
+					reverse = True if order == Qt.DescendingOrder else False)
+				self.layoutChanged.emit()
+
+
 
 class ReceptionModel(BaseTable, QtCore.QAbstractTableModel):
 
@@ -2533,6 +2622,31 @@ class ReceptionModel(BaseTable, QtCore.QAbstractTableModel):
 				return QtGui.QColor(RED) if reception.proforma.cancelled \
 					else QtGui.QColor(GREEN)
 
+	def sort(self, section, order):
+		reverse = True if order == Qt.AscendingOrder else False
+		if section == ReceptionModel.FROM_PROFORMA:
+			self.layoutAboutToBeChanged.emit()
+			self.receptions = sorted(
+				self.receptions, key=lambda r:(r.proforma.type, r.proforma.number), 
+				reverse=reverse
+			)
+			self.layoutChanged.emit()
+		else:
+			attr = {
+				ReceptionModel.ID:'id', 
+				ReceptionModel.WAREHOUSE:'proforma.warehouse_id', 
+				ReceptionModel.CANCELLED:'proforma.cancelled', 
+				ReceptionModel.PARTNER: 'proforma.partner.fiscal_name',
+				ReceptionModel.AGENT: 'proforma.agent.fiscal_name', 
+			}.get(section) 
+
+			if attr:
+				self.layoutAboutToBeChanged.emit()
+				self.receptions = sorted(self.receptions, key=operator.attrgetter(attr), \
+					reverse = True if order == Qt.DescendingOrder else False)
+				self.layoutChanged.emit()
+
+
 import operator, functools
 
 class StockEntry:
@@ -2545,6 +2659,10 @@ class StockEntry:
 		self._request = 0 
 		# Make self.__eq__ with saleproformaline.__eq__ compatible
 		self.description = None
+
+	@classmethod
+	def fake(cls, item_id):
+		return cls(item_id, '', '', 10)
 
 	@property
 	def item_id(self):
@@ -2656,7 +2774,9 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
 			query = query.where(db.Imei.item_id == item_id)
 		else:
 			item_ids = utils.get_itemids_from_mixed_description(description)
-			query = query.where(db.Imei.item_id.in_(item_ids))
+			if item_ids:
+
+				query = query.where(db.Imei.item_id.in_(item_ids))
 		
 		if condition:
 			query = query.where(

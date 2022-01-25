@@ -139,11 +139,11 @@ font: 8pt &quot;Verdana&quot;;</string>
     <string notr="true"/>
    </property>
    <property name="text">
-    <string>Cancel</string>
+    <string>Exit</string>
    </property>
    <property name="icon">
     <iconset resource="../app/icons.qrc">
-     <normaloff>:/cancel</normaloff>:/cancel</iconset>
+     <normaloff>:/exit</normaloff>:/exit</iconset>
    </property>
    <property name="iconSize">
     <size>
