@@ -7,8 +7,8 @@ from ui_expedition_form import Ui_ExpeditionForm
 
 from models import (
     SerieModel, 
-    total_quantity, 
-    total_processed
+    sale_total_quantity, 
+    sale_total_processed
 )
 
 from exceptions import LineCompletedError, SeriePresentError
@@ -124,7 +124,7 @@ class Form(Ui_ExpeditionForm, QDialog):
         self.partner.setText(self.expedition.proforma.partner.fiscal_name)
         self.agent.setText(self.expedition.proforma.agent.fiscal_name)
         self.warehouse.setText(self.expedition.proforma.warehouse.description)
-        self.expedition_total.setText(str(total_quantity(self.expedition)))
+        self.expedition_total.setText(str(sale_total_quantity(self.expedition)))
 
     def populateBody(self):
         self.description.setText(str((self.expedition.lines[self.current_index].item)))
@@ -134,7 +134,7 @@ class Form(Ui_ExpeditionForm, QDialog):
 
         self.processed_line.setText(str(self.processed_in_line))
         self.number.setText(str(self.current_index + 1) + '/' + str(self.total_lines))
-        self.expedition_total_processed.setText(str(total_processed(self.expedition))) 
+        self.expedition_total_processed.setText(str(sale_total_processed(self.expedition))) 
 
         self.update_overflow_condition() 
 

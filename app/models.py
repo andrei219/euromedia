@@ -27,7 +27,6 @@ from exceptions import DuplicateLine, SeriePresentError, LineCompletedError
 # YELLOW FOR OVERFLOW
 RED, GREEN, YELLOW, ORANGE = '#FF7F7F', '#90EE90', '#FFFF66', '#FFD580'
 
-
 class BaseTable:
 
 	def headerData(self, section, orientation, role = Qt.DisplayRole):
@@ -81,84 +80,106 @@ def computeCreditAvailable(partner_id):
 # Proformas utils::
 
 import math 
-def get_actual_object(object):
-	if isinstance(object, db.Reception):
-		return object.proforma
-	elif isinstance(object, db.PurchaseProforma):
-		return object
-	elif isinstance(object, db.SaleProforma):
-		return object 
-	elif isinstance(object, db.Expedition):
-		return object.proforma
 
-def total_debt(proforma):
-	return sum([line.quantity * line.price for line in proforma.lines]) or \
+# Utils for sales: 
+# Payments:
+def sale_total_debt(proforma):
+	return sum(line.quantity * line.price for line in proforma.lines) or \
 		sum(line.quantity * line.price for line in proforma.advanced_lines)
 
-def total_paid(proforma):
-	return sum([payment.amount for payment in proforma.payments])
+def sale_total_paid(proforma):
+	return sum(payment.amount for payment in proforma.payments)
 
-def total_quantity(proforma):
-	proforma = get_actual_object(proforma) 
-	if isinstance(proforma, db.SaleProforma):
-		return sum([line.quantity for line in proforma.lines if line.item_id]) or \
-			sum([line.quantity for line in proforma.advanced_lines if line.item_id])
+def sale_not_paid(proforma):
+	return math.isclose(sale_total_paid(proforma), 0)
 
-	return sum([line.quantity for line in proforma.lines if \
-		line.description in utils.descriptions or line.item_id]) or \
-			sum([line.quantity for line in proforma.advanced_lines if \
-				line.mixed_description in utils.descriptions or line.item_id])
+def sale_partially_paid(proforma):
+	return 0 < sale_total_paid(proforma) < sale_total_debt(proforma) 
 
-# def total_quantity(object):
+def sale_fully_paid(proforma):
+	return math.isclose(sale_total_paid(proforma), sale_total_debt(proforma))
 
-# 	if isinstance(object, db.PurchaseProforma):
-# 		return sum(line.quantity for line in object.lines if line.item_id or \
-# 			line.description in utils.descriptions)
-# 	elif isinstance(object, db.Reception):
-# 		return sum(line.quantity for line in object.lines)
-# 	elif isinstance(object, t)
+def sale_overpaid(proforma):
+	return 0 < total_debt(proforma) < total_paid(proforma) 
 
+# Warehouse:
+def sale_total_quantity(proforma):
+	return sum(line.quantity for line in proforma.lines if line.item_id) or \
+		sum(line.quantity for line in proforma.advanced_lines if line.item_id)
 
-def total_processed(proforma):
-	proforma = get_actual_object(proforma) 
-	if isinstance(proforma, db.PurchaseProforma):
-		try:
-			return len([1 for line in proforma.reception.lines \
-				for serie in line.series])
-		except AttributeError:
-			return 0 
-	elif isinstance(proforma, db.SaleProforma):
-		try:
-			return len([1 for line in proforma.expedition.lines \
-				for serie in line.series])
-		except AttributeError:
-			return 0 
-
-
-def empty(proforma):
-	return total_processed(proforma) == 0
-
-def partially_processed(proforma):
-	return 0 < total_processed(proforma) < total_quantity(proforma) 
-
-def completed(proforma):
-	return total_processed(proforma) == total_quantity(proforma) 
-
-def overflowed(proforma):
-	proforma = get_actual_object(proforma) 
+def sale_total_processed(proforma):
+	expedition = proforma if isinstance(proforma, db.Expedition) else proforma.expedition 
 	try:
-		lines_iterable = iter(proforma.reception.lines)
+		return sum(1
+		for line in expedition.lines 
+		for serie in line.series)
 	except AttributeError:
-		lines_iterable = iter(proforma.expedition.lines)
-	
-	for line in lines_iterable:
-		try:
-			if line.quantity < len(line.series):
-				return True 
-		except AttributeError:
-			continue
-	else:
-		return False 
+		return 0 
+
+
+def sale_empty(proforma):
+	return sale_total_processed(proforma) == 0 
+
+def sale_partially_processed(proforma):
+	return 0 < sale_total_processed(proforma) < sale_total_quantity(proforma) 
+
+def sale_completed(proforma):
+	return sale_total_processed(proforma) == sale_total_quantity(proforma) 
+
+def sale_overflowed(proforma):
+	return 0 < sale_total_quantity(proforma) < sale_total_processed(proforma) 
+
+# Purchase Proforma Utils:
+# Reuse method sales, simetric in payments
+def purchase_total_debt(proforma):
+	return sale_total_debt(proforma) 
+
+def purchase_total_paid(proforma):
+	return sale_total_paid(proforma) 
+
+def purchase_not_paid(proforma):
+	return math.isclose(purchase_total_paid(proforma), 0)
+
+def purchase_partially_paid(proforma):
+	return 0 < purchase_total_paid(proforma) < purchase_total_debt(proforma) 
+
+def purchase_fully_paid(proforma):
+	return math.isclose(purchase_total_paid(proforma), purchase_total_debt(proforma))
+
+def purchase_overpaid(proforma):
+	return 0 < purchase_total_debt(proforma) < purchase_total_paid(proforma)   
+
+# Warehouse:
+def purchase_total_quantity(proforma):
+	return sum(
+		line.quantity for line in proforma.lines
+		if line.item_id or line.description in utils.descriptions
+	)
+
+def purchase_total_processed(proforma):
+	# Method called with proforma object and reception object:
+	# Type-check first
+	reception = proforma if isinstance(proforma, db.Reception) else proforma.reception
+	try:
+		return sum( 1
+		for line in reception.lines 
+		for serie in line.series
+	)
+	except AttributeError:
+		return 0 
+
+def purchase_empty(proforma):
+	return purchase_total_processed(proforma) == 0 
+
+def purchase_partially_processed(proforma):
+	return 0 < purchase_total_processed(proforma) < purchase_total_quantity(proforma) 
+
+def purchase_completed(proforma):
+	return purchase_total_processed(proforma) == purchase_total_quantity(proforma) 
+
+def purchase_overflowed(proforma):
+	return 0 < purchase_total_quantity(proforma) < purchase_total_processed(proforma) 
+
 
 def stock_gap():
 	return not all(
@@ -169,17 +190,7 @@ def stock_gap():
 		.order_by(db.Expedition.id.desc())
 	)
 
-def not_paid(proforma):
-	return math.isclose(total_paid(proforma), 0)
 
-def partially_paid(proforma):
-	return 0 < total_paid(proforma) < total_debt(proforma)
-
-def fully_paid(proforma):
-	return math.isclose(total_paid(proforma), total_debt(proforma))
-
-def overpaid(proforma):
-	return total_paid(proforma) > total_debt(proforma) 
 
 class AgentModel(QtCore.QAbstractTableModel):
 
@@ -761,21 +772,21 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
 
 			if filters['financial']:
 				if 'notpaid' in filters['financial']:
-					self.proformas = filter(lambda p: not_paid(p), self.proformas)
+					self.proformas = filter(lambda p: purchase_not_paid(p), self.proformas)
 				if 'fullypaid' in filters['financial']:
-					self.proformas = filter(lambda p:fully_paid(p), self.proformas)
+					self.proformas = filter(lambda p:purchase_fully_paid(p), self.proformas)
 				if 'partiallypaid' in filters['financial']:
-					self.proformas = filter(lambda p:partially_paid(p) ,self.proformas)
+					self.proformas = filter(lambda p:purchase_partially_paid(p) ,self.proformas)
 			
 			if filters['logistic']:
 				if 'overflowed' in filters['logistic']:
-					self.proformas = filter(lambda p:overflowed(p), self.proformas)
+					self.proformas = filter(lambda p:purchase_overflowed(p), self.proformas)
 				if 'empty' in filters['logistic']:
-					self.proformas = filter(lambda p:empty(p), self.proformas)
+					self.proformas = filter(lambda p:purchase_empty(p), self.proformas)
 				if 'partially_processed' in filters['logistic']:
-					self.proformas = filter(lambda p:partially_processed(p), self.proformas) 
+					self.proformas = filter(lambda p:purchase_partially_processed(p), self.proformas) 
 				if 'completed' in filters['logistic']:
-					self.proformas = filter(lambda p:completed(p), self.proformas)
+					self.proformas = filter(lambda p:purchase_completed(p), self.proformas)
 				
 
 			if filters['shipment']:
@@ -823,22 +834,22 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
 			elif col == PurchaseProformaModel.AGENT:
 				return proforma.agent.fiscal_name 
 			elif col == PurchaseProformaModel.FINANCIAL:
-				if not_paid(proforma):
+				if purchase_not_paid(proforma):
 					return "Not Paid"
-				elif fully_paid(proforma):
+				elif purchase_fully_paid(proforma):
 					return "Paid"
-				elif partially_paid(proforma):
+				elif purchase_partially_paid(proforma):
 					return "Partially Paid"
-				elif overpaid(proforma):
+				elif purchase_overpaid(proforma):
 					return "They owe"
 			elif col == PurchaseProformaModel.LOGISTIC:
-				if empty(proforma):
+				if purchase_empty(proforma):
 					return "Empty"
-				elif overflowed(proforma):
+				elif purchase_overflowed(proforma):
 					return "Overflowed"	
-				elif partially_processed(proforma):
+				elif purchase_partially_processed(proforma):
 					return "Partially Received"
-				elif completed(proforma):
+				elif purchase_completed(proforma):
 					return "Completed"
 			
 			elif col == PurchaseProformaModel.SENT:
@@ -849,23 +860,23 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
 
 			elif col == PurchaseProformaModel.OWING:
 				sign = ' -€' if proforma.eur_currency else ' $'
-				owing = total_debt(proforma) - total_paid(proforma) 
+				owing = purchase_total_debt(proforma) - purchase_total_paid(proforma) 
 				return str(owing) + sign       
 			
 			elif col == PurchaseProformaModel.TOTAL:
 				sign = ' -€' if proforma.eur_currency else ' $'
-				return str(total_debt(proforma)) + sign
+				return str(purchase_total_debt(proforma)) + sign
 		elif role == Qt.DecorationRole:
 			if col == PurchaseProformaModel.FINANCIAL:
-				if not_paid(proforma):
+				if purchase_not_paid(proforma):
 					return QtGui.QColor(YELLOW)
-				elif fully_paid(proforma):
+				elif purchase_fully_paid(proforma):
 					return QtGui.QColor(GREEN)
-				elif partially_paid(proforma):
+				elif purchase_partially_paid(proforma):
 					return QtGui.QColor(ORANGE)
-				elif overpaid(proforma):
+				elif purchase_overpaid(proforma):
 					return QtGui.QColor(YELLOW)
-				elif overpaid(proforma):
+				elif purchase_overpaid(proforma):
 					return QtGui.QColor(RED) 
 			elif col == PurchaseProformaModel.DATE or col == PurchaseProformaModel.ETA:
 				return QtGui.QIcon(':\calendar')
@@ -874,13 +885,13 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
 			elif col == PurchaseProformaModel.AGENT:
 				return QtGui.QIcon(':\\agents')
 			elif col == PurchaseProformaModel.LOGISTIC:
-				if empty(proforma):
+				if purchase_empty(proforma):
 					return QtGui.QColor(YELLOW)
-				elif overflowed(proforma):
+				elif purchase_overflowed(proforma): 
 					return QtGui.QColor(RED)
-				elif partially_processed(proforma):
+				elif purchase_partially_processed(proforma):
 					return QtGui.QColor(ORANGE)
-				elif completed(proforma):
+				elif purchase_completed(proforma):
 					return QtGui.QColor(GREEN)
 			elif col == PurchaseProformaModel.CANCELLED:
 				return QtGui.QColor(RED) if proforma.cancelled else\
@@ -1088,21 +1099,21 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 
 			if filters['financial']:
 				if 'notpaid' in filters['financial']:
-					self.proformas = filter(lambda p: not_paid(p), self.proformas)
+					self.proformas = filter(lambda p: sale_not_paid(p), self.proformas)
 				if 'fullypaid' in filters['financial']:
-					self.proformas = filter(lambda p:fully_paid(p), self.proformas)
+					self.proformas = filter(lambda p:sale_fully_paid(p), self.proformas)
 				if 'partiallypaid' in filters['financial']:
-					self.proformas = filter(lambda p:partially_paid(p) ,self.proformas)
+					self.proformas = filter(lambda p:sale_partially_paid(p) ,self.proformas)
 
 			if filters['logistic']:
 				if 'overflowed' in filters['logistic']:
-					self.proformas = filter(lambda p:overflowed(p), self.proformas)
+					self.proformas = filter(lambda p:sale_overflowed(p), self.proformas)
 				if 'empty' in filters['logistic']:
-					self.proformas = filter(lambda p:empty(p), self.proformas)
+					self.proformas = filter(lambda p:sale_empty(p), self.proformas)
 				if 'partially_processed' in filters['logistic']:
-					self.proformas = filter(lambda p:partially_processed(p), self.proformas) 
+					self.proformas = filter(lambda p:sale_partially_processed(p), self.proformas) 
 				if 'completed' in filters['logistic']:
-					self.proformas = filter(lambda p:completed(p), self.proformas)
+					self.proformas = filter(lambda p:sale_completed(p), self.proformas)
 			
 			if filters['shipment']:
 				if 'sent' in filters['shipment']:
@@ -1139,22 +1150,22 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 			elif col == SaleProformaModel.AGENT:
 				return proforma.agent.fiscal_name 
 			elif col == SaleProformaModel.FINANCIAL:
-				if not_paid(proforma):
+				if sale_not_paid(proforma):
 					return 'Not Paid'
-				elif fully_paid(proforma):
+				elif sale_fully_paid(proforma):
 					return 'Paid' 
-				elif partially_paid(proforma):
+				elif sale_partially_paid(proforma):
 					return 'Partially Paid'
-				elif overpaid(proforma):
+				elif sale_overpaid(proforma):
 					return 'We Owe'
 			elif col == SaleProformaModel.LOGISTIC:
-				if empty(proforma):
+				if sale_empty(proforma):
 					return 'Empty'
-				elif overflowed(proforma):
+				elif sale_overflowed(proforma):
 					return 'Overflowed'
-				elif partially_processed(proforma):
+				elif sale_partially_processed(proforma):
 					return 'Partially Prepared'
-				elif completed(proforma):
+				elif sale_completed(proforma):
 					return 'Completed'
 			
 			elif col == SaleProformaModel.SENT:
@@ -1163,11 +1174,11 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 				return 'Yes' if proforma.cancelled else 'No'
 			elif col == SaleProformaModel.OWING:
 				sign = ' -€' if proforma.eur_currency else ' $'
-				owes = total_debt(proforma) - total_paid(proforma)
+				owes = sale_total_debt(proforma) - sale_total_paid(proforma)
 				return str(owes) + sign       
 			elif col == SaleProformaModel.TOTAL:
 				sign = ' -€' if proforma.eur_currency else ' $'
-				return str(total_debt(proforma)) + sign
+				return str(sale_total_debt(proforma)) + sign
 
 			elif col == SaleProformaModel.ADVANCED:
 				return 'Yes' if proforma.advanced_lines else 'No'
@@ -1182,13 +1193,13 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 
 		elif role == Qt.DecorationRole:
 			if col == SaleProformaModel.FINANCIAL:
-				if not_paid(proforma):
+				if sale_not_paid(proforma):
 					return QtGui.QColor(YELLOW) 
-				elif fully_paid(proforma):
+				elif sale_fully_paid(proforma):
 					return QtGui.QColor(GREEN)
-				elif partially_paid(proforma):
+				elif sale_partially_paid(proforma):
 					return QtGui.QColor(ORANGE)
-				elif overpaid(proforma):
+				elif sale_overpaid(proforma):
 					return QtGui.QColor(YELLOW)
 
 			elif col == SaleProformaModel.DATE:
@@ -1198,13 +1209,13 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 			elif col == SaleProformaModel.AGENT:
 				return QtGui.QIcon(':\\agents')
 			elif col == SaleProformaModel.LOGISTIC:
-				if empty(proforma):
+				if sale_empty(proforma):
 					return QtGui.QColor(YELLOW)
-				elif overflowed(proforma):
+				elif sale_overflowed(proforma):
 					return QtGui.QColor(RED)
-				elif partially_processed(proforma):
+				elif sale_partially_processed(proforma):
 					return QtGui.QColor(ORANGE)
-				elif completed(proforma):
+				elif sale_completed(proforma):
 					return QtGui.QColor(GREEN)
 			elif col == SaleProformaModel.SENT:
 				return QtGui.QColor(GREEN) if proforma.sent \
@@ -1253,7 +1264,6 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 		sql = f"select max(number) from sale_proformas where type={type}"
 		current_num = db.session.execute(sql).scalar() 
 
-		print(current_num)
 		if not current_num: # Means first number of type
 			return 1 
 		else:
@@ -1411,6 +1421,7 @@ class OrganizedLines:
 		self.organized_lines = self.organize_lines(lines) 
 		self.next_mix = self.get_next_mix()
 
+
 	@property
 	def lines(self):
 		return self.instrumented_lines
@@ -1461,7 +1472,7 @@ class OrganizedLines:
 		
 		if row is None:
 			new_lines = [
-				self.build_line(price, ignore_spec,tax, showing, stock)	
+				self.build_line(price, ignore_spec, tax, showing, stock)	
 				for stock in stocks
 			]
 
@@ -1524,43 +1535,62 @@ class OrganizedLines:
 
 	def backward_compatible(self, stocks, row):
 		existent_lines = self.organized_lines[row]
-		try: # Already a mixed group 
+		try:
 			if all((
-				utils.stock_type(stock) == utils.SERIE_MIXED
-				for stock in stocks
-			)) and all ((
-				utils.stock_type(line.item_id) == utils.SERIE_MIXED
+				utils.stock_type(stock) == utils.stock_type(line.item_id) != -1 
 				for line in existent_lines
-			)) and all ((
-				self.no_line_stock_conflict(stock, line)
+				for stock in stocks 
+			)) and all((
+				self.no_line_stock_conflict(line, stock)
 				for line in existent_lines 
-				for stock in stocks
+				for stock in stocks 
 			)):
 				return True 
-
 			return False 
-
-		except TypeError: # Single line, may be possible group candidate
-			line = existent_lines # only one line object 
-			if utils.stock_type(line.item_id) in (
-				utils.SERIE_NOT_MIXED, utils.NO_SERIE
-			):
-				return False 
+		except TypeError:
+			line = existent_lines 
 			if all((
+				utils.stock_type(line.item_id) == utils.stock_type(stock) != -1
+				for stock in stocks 
+			)) and all((
 				self.no_line_stock_conflict(line, stock)
 				for stock in stocks
 			)):
 				return True 
-
+			return False 
 
 	def no_line_stock_conflict(self, line, stock):
-		line_description = utils.sub_dirty_map.inverse[line.item_id]
-		stock_description = utils.sub_dirty_map.inverse[stock.item_id]
-		sman, scat, smod, *_ = stock_description.split('|')
-		lman, lcat, lmod, *_ = line_description.split('|')
-		return all((
-			sman == lman, scat == lcat, smod == lmod
-		))
+		line_description = utils.dirty_map.inverse[line.item_id]
+		stock_description = utils.dirty_map.inverse[stock.item_id]
+		
+		stock_stock_type = utils.stock_type(stock)
+		line_stock_type = utils.stock_type(line.item_id) 
+		
+		if -1 == line_stock_type or -1 == stock_stock_type:
+			return False 
+
+		elif line_stock_type == stock_stock_type == utils.CAP_COL:
+			_, sman, scat, smod, *_ = stock_description.split('|')
+			_, lman, lcat, lmod, *_ = line_description.split('|')
+			return all((
+				sman == lman, scat == lcat, smod == lmod
+			))
+		elif line_stock_type == stock_stock_type == utils.ONLY_COL:
+			_, sman, scat, smod, scap, scol, _ = stock_description.split('|')
+			_, lman, lcat, lmod, lcap, lcol, _ = line_description.split('|')
+			return all((
+				sman == lman, scat == lcat, smod == lmod, lcap == scap == '?', 
+				scol != lcol != '?'
+			))
+		elif line_stock_type == stock_stock_type == utils.ONLY_CAP:
+			_, sman, scat, smod, scap, scol, _ = stock_description.split('|')
+			_, lman, lcat, lmod, lcap, lcol, _ = line_description.split('|')
+			return all((
+				sman == lman, scat == lcat, smod == lmod, scap != lcap != '?', 
+				lcol == scol == '?'
+			))
+		else:
+			return False 
 
 	def insert_free(self, description, quantity, price, tax):
 		
@@ -1720,13 +1750,11 @@ class SaleProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 
 	@property
 	def tax(self):
-		return sum(map(lambda l:l.tax, self.lines))
+		return sum(line.quantity * line.price * line.tax / 100 for line in self.lines)
+	
 	@property
 	def subtotal(self):
-		return sum(
-			line.quantity * line.price * line.tax / 100
-			for line in self.lines
-		)
+		return sum(line.quantity * line.price for line in self.lines)
 	
 	@property 
 	def total(self): 
@@ -2418,13 +2446,13 @@ class ExpeditionModel(BaseTable, QtCore.QAbstractTableModel):
 
 			if filters['logistic']:
 				if 'empty' in filters['logistic']:
-					self.expeditions = filter(lambda e:empty(e), self.expeditions)
+					self.expeditions = filter(lambda e:sale_empty(e), self.expeditions)
 				if 'overflowed' in filters['logistic']:
-					self.expeditions = filter(lambda e:overflowed(e), self.expeditions)
+					self.expeditions = filter(lambda e:sale_overflowed(e), self.expeditions)
 				if 'partially_processed' in filters['logistic']:
-					self.expeditions = filter(lambda e:partially_processed(e), self.expeditions)
+					self.expeditions = filter(lambda e:sale_partially_processed(e), self.expeditions)
 				if 'completed' in filters['logistic']:
-					self.expeditions = filter(lambda e:completed(e), self.expeditions)
+					self.expeditions = filter(lambda e:sale_completed(e), self.expeditions)
 			if filters['cancelled']:
 				if 'cancelled' in filters['cancelled']:
 					self.expeditions = filter(lambda e:e.proforma.cancelled, self.expeditions)
@@ -2448,21 +2476,20 @@ class ExpeditionModel(BaseTable, QtCore.QAbstractTableModel):
 			elif column == ExpeditionModel.WAREHOUSE:
 				return expedition.proforma.warehouse.description 
 			elif column == ExpeditionModel.TOTAL:
-				return str(total_quantity(expedition))
+				return str(sale_total_quantity(expedition))
 			elif column == ExpeditionModel.PARTNER:
 				return expedition.proforma.partner.fiscal_name
 			elif column == ExpeditionModel.PROCESSED:
-				return str(total_processed(expedition)) 
+				return str(sale_total_processed(expedition)) 
 			elif column == ExpeditionModel.LOGISTIC:
-				if empty(expedition):
+				if sale_empty(expedition):
 					return 'Empty'
-				elif overflowed(expedition):
+				elif sale_overflowed(expedition):
 					return 'Overflowed'
-				elif partially_processed(expedition):
+				elif sale_partially_processed(expedition):
 					return 'Partially Prepared'
-				elif completed(expedition):
+				elif sale_completed(expedition):
 					return 'Completed'
-
 
 			elif column == ExpeditionModel.CANCELLED:
 				return 'Yes' if expedition.proforma.cancelled else 'No'
@@ -2479,13 +2506,13 @@ class ExpeditionModel(BaseTable, QtCore.QAbstractTableModel):
 			elif column == ExpeditionModel.PARTNER:
 				return QtGui.QIcon(':\partners')
 			elif column == ExpeditionModel.LOGISTIC:
-				if empty(expedition):
+				if sale_empty(expedition):
 					return QtGui.QColor(YELLOW)
-				elif overflowed(expedition):
+				elif sale_overflowed(expedition):
 					return QtGui.QColor(RED)
-				elif partially_processed(expedition):
+				elif sale_partially_processed(expedition):
 					return QtGui.QColor(ORANGE)
-				elif completed(expedition):
+				elif sale_completed(expedition):
 					return QtGui.QColor(GREEN) 
 			elif column == ExpeditionModel.CANCELLED:
 				return QtGui.QColor(RED) if expedition.proforma.cancelled \
@@ -2550,13 +2577,13 @@ class ReceptionModel(BaseTable, QtCore.QAbstractTableModel):
 			self.receptions = query.all() 
 			if filters['logistic']:
 				if 'empty' in filters['logistic']:
-					self.receptions = filter(lambda r :empty(r), self.receptions)
+					self.receptions = filter(lambda r :purchase_empty(r), self.receptions)
 				if 'overflowed' in filters['logistic']:
-					self.receptions = filter(lambda r:overflowed(r), self.receptions)
+					self.receptions = filter(lambda r:purchase_overflowed(r), self.receptions)
 				if 'partially_processed' in filters['logistic']:
-					self.receptions = filter(lambda r:partially_processed(r), self.receptions)
+					self.receptions = filter(lambda r:purchase_partially_processed(r), self.receptions)
 				if "completed" in filters['logistic']:
-					self.receptions = filter(lambda r:completed(r), self.receptions) 
+					self.receptions = filter(lambda r:purchase_completed(r), self.receptions) 
 		
 			if filters['cancelled']:
 				if 'cancelled' in filters['cancelled']:
@@ -2581,19 +2608,19 @@ class ReceptionModel(BaseTable, QtCore.QAbstractTableModel):
 			elif column == ReceptionModel.WAREHOUSE:
 				return reception.proforma.warehouse.description 
 			elif column == ReceptionModel.TOTAL:
-				return str(total_quantity(reception))
+				return str(purchase_total_quantity(reception))
 			elif column == ReceptionModel.PARTNER:
 				return reception.proforma.partner.fiscal_name
 			elif column == ReceptionModel.PROCESSED:
-				return str(total_processed(reception)) 
+				return str(purchase_total_processed(reception)) 
 			elif column == ReceptionModel.LOGISTIC:
-				if empty(reception):
+				if purchase_empty(reception):
 					return "Empty"
-				elif overflowed(reception):
+				elif purchase_overflowed(reception):
 					return 'Overflowed'
-				elif partially_processed(reception):
+				elif purchase_partially_processed(reception):
 					return 'Partially Received'
-				elif completed(reception):
+				elif purchase_completed(reception):
 					return "Completed"
 			elif column == ReceptionModel.CANCELLED:
 				return "Yes" if reception.proforma.cancelled else "No"
@@ -2610,13 +2637,13 @@ class ReceptionModel(BaseTable, QtCore.QAbstractTableModel):
 			elif column == ReceptionModel.PARTNER:
 				return QtGui.QIcon(':\partners')
 			elif column == ReceptionModel.LOGISTIC:
-				if empty(reception):
+				if purchase_empty(reception):
 					return QtGui.QColor(YELLOW)
-				elif overflowed(reception):
+				elif purchase_overflowed(reception):
 					return QtGui.QColor(RED)
-				elif partially_processed(reception):
+				elif purchase_partially_processed(reception):
 					return QtGui.QColor(ORANGE)
-				elif completed(reception):
+				elif purchase_completed(reception):
 					return QtGui.QColor(GREEN) 
 			elif column == ReceptionModel.CANCELLED:
 				return QtGui.QColor(RED) if reception.proforma.cancelled \
@@ -2744,23 +2771,33 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
 			'Quantity avail. ', 'Requested quant.']
 		self.name = 'stocks'
 		
-		if not any((
-			warehouse_id, description, condition, spec
-		)):
-			self.stocks = []
-		else:
-			self.stocks = self.computeStock(
-				warehouse_id,
-				description,
-				condition,
-				spec
-			)
+		# if not any((
+		# 	warehouse_id, description, condition, spec
+		# )):
+		# 	self.stocks = []
+		# else:
+		self.stocks = self.computeStock(
+			warehouse_id,
+			description,
+			condition,
+			spec
+		)
+
+	@classmethod
+	def stocks(cls, warehouse_id, description=None, condition=None, spec=None):
+		
+		
+		return cls(warehouse_id, description=description, condition=condition, \
+			spec=spec).stocks 
+
 
 	def computeStock(self, warehouse_id, description, condition, spec, session=db.session):
+		
 		
 		session = session 
 
 		item_id = utils.description_id_map.get(description)
+		
 		query = session.query(
 			db.Imei.item_id, db.Imei.condition, 
 			db.Imei.spec, func.count(db.Imei.imei).label('quantity')
@@ -2775,7 +2812,6 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
 		else:
 			item_ids = utils.get_itemids_from_mixed_description(description)
 			if item_ids:
-
 				query = query.where(db.Imei.item_id.in_(item_ids))
 		
 		if condition:
@@ -2907,6 +2943,7 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
 
 		stocks = self.resolve(imeis, imeis_mask, sales, outputs) 
 		
+
 		return list(filter(lambda stock:stock.quantity != 0, stocks))
 
 	def lines_against_stock(self, warehouse_id, lines):
@@ -3007,11 +3044,6 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
 	def requested_stocks(self):
 		return list(filter(lambda s:s.request > 0, self.stocks))
 
-
-	def reset(self):
-		self.layoutAboutToBeChanged.emit()
-		self.stocks = []
-		self.layoutChanged.emit() 
 
 class IncomingVector:
 
@@ -3826,14 +3858,10 @@ class BankAccountModel(BaseTable, QtCore.QAbstractTableModel):
 	
 	def add(self, name, iban, swift, address, postcode, city, state, country, \
 		routing, currency):
-		
 		self.layoutAboutToBeChanged.emit()
-
 		account = db.PartnerAccount(name, iban, swift, address, postcode,\
 			city, state, country, routing, currency)
-		
 		self.accounts.append(account)
-
 		self.layoutChanged.emit() 
 
 	def delete(self, row):

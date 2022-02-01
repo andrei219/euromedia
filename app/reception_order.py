@@ -60,12 +60,6 @@ class Form(QDialog, Ui_Form):
     def setCompleters(self):
         conditions = utils.conditions.difference({'Mix'})
         specs = utils.specs.difference({'Mix'})
-        # for field, data in [
-        #     (self.actual_item, utils.description_id_map.keys()), 
-        #     (self.actual_condition, conditions), 
-        #     (self.actual_spec, specs)
-        # ]: setCompleter(field, data) 
-        
         for field, data in [
             (self.actual_condition, conditions), 
             (self.actual_spec, specs)
@@ -76,8 +70,9 @@ class Form(QDialog, Ui_Form):
 
     def set_actual_item_completer(self):
         line = self.reception.lines[self.current_index]
-        data = utils.mixed_to_clean_description(line.description)
-        setCompleter(self.actual_item, data)
+        if line.description is not None:
+            data = utils.mixed_to_clean_descriptions(line.description)
+            setCompleter(self.actual_item, data)
 
     def on_automatic_toggled(self, on):
         if on:

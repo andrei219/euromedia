@@ -137,13 +137,23 @@ class ProductForm(Ui_ProductForm, QDialog):
             return False
         
         text = ''.join((
-            self.manufacturer_line_edit.text(), 
-            self.mpn.text(), self.category_line_edit.text(), 
-            self.model_line_edit.text(), self.capacity_line_edit.text(), 
-            self.color_line_edit.text()
+            self.manufacturer_line_edit.text().lower(), 
+            self.mpn.text().lower(), self.category_line_edit.text().lower(), 
+            self.model_line_edit.text(), self.capacity_line_edit.text().lower(), 
+            self.color_line_edit.text().lower()
         ))
 
-        if '|' in text or '?' in text:
-            QMessageBox.critical(self, 'Error', "Fields can't contain ? or | symbols")
+        if '|' in text or '?' in text or 'Mix' in text:
+            QMessageBox.critical(self, 'Error', "Fields can't contain ? or | symbols or Mix/Mixed words")
             return False
+        
+        if self.has_serie.isChecked() and any((
+            self.manufacturer_line_edit.text() == '', 
+            self.category_line_edit.text() == '', 
+            self.model_line_edit.text() == '', 
+            self.capacity_line_edit.text() == '', 
+            self.color_line_edit.text() == ''
+        )):
+            QMessageBox.critical(self, 'Error', 'If item has serie it must also have: manufacturer, category, model, color and capacity')
+            return False         
         return True 

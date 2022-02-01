@@ -14,6 +14,132 @@ from models import ActualLinesFromMixedModel, SaleProformaLineModel, StockModel
 from ui_sale_proforma_form import Ui_SalesProformaForm
 
 
+class StockBase:
+
+    def __init__(self, filters, warehouse_id, form):
+        self.filters = filters
+        self.warehouse_id = warehouse_id 
+        self.stocks = StockModel.stocks(warehouse_id=warehouse_id) 
+        self.completer = Completer(self, form) 
+
+        self._set_state()
+        self.completer.update() 
+
+    def update(self): 
+        self.stocks = StockModel.stocks(
+            warehouse_id = self.warehouse_id, 
+            description  = self.filters.description, 
+            condition    = self.filters.condition, 
+            spec         = self.filters.spec 
+        )
+
+        self._set_state()        
+        self.completer.update()
+
+    
+    def _set_state(self):
+        self._item_ids = {s.item_id for s in self.stocks}
+        self._conditions = {s.condition for s in self.stocks}
+        self._specs = {s.spec for s in self.stocks}
+        self._descriptions = utils.compute_available_descriptions(self._item_ids)
+
+    @property
+    def item_ids(self):
+        return self._item_ids
+
+    @property
+    def conditions(self):
+        return self._conditions
+
+    @property
+    def specs(self):
+        return self._specs
+
+    @property
+    def descriptions(self):
+        return self._descriptions
+
+class Filters:
+
+    def __init__(self, warehouse_id, form):
+        self._description = None
+        self._condition = None
+        self._spec = None
+        self._stock_base = StockBase(self, warehouse_id, form)
+
+    @property
+    def description(self):
+        return self._description
+    
+    @property
+    def condition(self):
+        return self._condition
+
+    @property
+    def spec(self):
+        return self._spec 
+    
+    @description.setter
+    def description(self, description):
+        self._description = description
+    
+    @condition.setter
+    def condition(self, condition):
+        self._condition = condition
+
+    @spec.setter 
+    def spec(self, spec):
+        self._spec = spec
+
+    @property
+    def stock_base(self):
+        return self._stock_base
+
+    def set(self, description, condition, spec):
+        self._dscription = description
+        self._condition = condition
+        self._spec = spec 
+        self.stock_base.update()
+
+
+class Completer:
+
+    def __init__(self, stock_base, form):
+        self.stock_base = stock_base
+        self.form = form
+    
+    def update(self, description=True, condition=True, spec=True):
+
+        print('Completer.update init')
+        
+        if spec:
+            utils.setCompleter(
+                self.form.spec, 
+                self.stock_base.specs.union({'Mix'}) \
+                    if len(self.stock_base.specs) > 1 
+                    else self.stock_base.specs
+                )   
+
+        if description:
+
+            print(utils.compute_available_descriptions(self.stock_base.item_ids))
+
+            utils.setCompleter(
+                self.form.description, 
+                utils.compute_available_descriptions(self.stock_base.item_ids)
+            )
+        
+        if condition:
+            utils.setCompleter(
+                self.form.condition, 
+                self.stock_base.conditions.union({'Mix'}) \
+                if len(self.stock_base.conditions) >  1 
+                else self.stock_base.conditions
+            )
+
+        print('Completer update exit')
+
+
 class Form(Ui_SalesProformaForm, QWidget):
 
     def __init__(self, parent, view):
@@ -24,6 +150,7 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.setupUi(self) 
         self.setCombos()
 
+        
         self.model = view.model() 
         self.init_template() 
         self.parent = parent
@@ -32,16 +159,20 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.stock_view.setSelectionBehavior(QTableView.SelectRows)
         utils.setCommonViewConfig(self.selected_stock_view)
         
-        self.setCompleters()
+        self.set_partner_completer()
         self.set_handlers()
 
+        warehouse_id = utils.warehouse_id_map[self.warehouse.currentText()]
+
+        self.filters = Filters(warehouse_id, self)
+        
 
     def init_template(self):
         self.proforma = db.SaleProforma() 
 
-        self.proforma.warehouse_id = utils.warehouse_id_map.get(
-            self.warehouse.currentText()
-        )
+        warehouse_id = utils.warehouse_id_map.get(self.warehouse.currentText())
+        self.proforma.warehouse_id = warehouse_id 
+
         db.session.add(self.proforma)
         db.session.flush() 
  
@@ -55,7 +186,7 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.delete_button.clicked.connect(self.delete_handler)
         self.add.clicked.connect(self.add_handler) 
         self.save.clicked.connect(self.save_handler)
-        self.partner.returnPressed.connect(self.partner_search)
+        self.partner.textChanged.connect(self.partner_search)
         self.apply.clicked.connect(self.apply_handler)
         self.remove.clicked.connect(self.remove_handler) 
         self.insert.clicked.connect(self.insert_handler) 
@@ -63,6 +194,10 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.delete_selected_stock.clicked.connect(self.delete_selected_stock_clicked)
         self.deselect.clicked.connect(lambda : self.lines_view.clearSelection())
         self.warehouse.currentTextChanged.connect(self.warehouse_changed)
+        self.description.returnPressed.connect(self.description_return_pressed)
+        self.condition.returnPressed.connect(self.condition_return_pressed)
+        self.spec.returnPressed.connect(self.spec_return_pressed)
+
 
     def warehouse_changed(self, text):
         # warehouse_id = utils.warehouse_id_map.get(text)
@@ -90,6 +225,59 @@ class Form(Ui_SalesProformaForm, QWidget):
         # removing objects in pending state 
         db.session.rollback() 
 
+    def description_return_pressed(self):
+        stock_base = self.filters.stock_base # Shorten if clauses
+        description = self.description.text()
+        
+        if description == '': # Empty
+            description = None
+        elif description not in stock_base.descriptions: #Invalid
+            return # ignore 
+
+        # Check the other two fields:
+        condition, spec = self.condition.text(), self.spec.text()
+        if condition == '' or condition not in stock_base.conditions:
+            condition = None
+        
+        if spec == '' or spec not in stock_base.specs:
+            spec = None
+
+        self.filters.set(description, condition, spec)
+
+    def spec_return_pressed(self):
+        stock_base = self.filters.stock_base 
+        spec = self.spec.text()
+
+        if spec == '':
+            spec = None
+        elif spec not in stock_base.specs: 
+            return 
+        
+        description, condition = self.description.text(), self.condition.text()
+
+        if condition == '' or condition not in stock_base.conditions:
+            condition = None
+
+        if description == '' or condition not in stock_base.conditions:
+            description = None 
+
+        self.filters.set(description, condition, spec)
+
+    def condition_return_pressed(self):
+        stock_base = self.filters.stock_base 
+        condition = self.condition.text() 
+        if condition == '':
+            condition = None
+        elif condition not in stock_base.conditions:return 
+
+        description, spec = self.description.text(), self.spec.text() 
+        if description == '' or description not in stock_base.descriptions:
+            description = None
+        if spec == '' or spec not in stock_base.specs:
+            spec = None
+        
+        self.filters.set(description, condition, spec)
+        
 
     def typeChanged(self, type):
         next_num = self.model.nextNumberOfType(int(type))
@@ -102,39 +290,37 @@ class Form(Ui_SalesProformaForm, QWidget):
             (self.courier, utils.courier_id_map.keys())
         ]: combo.addItems(data)
 
-    def setCompleters(self):
-        for field, data in [
-            (self.partner, utils.partner_id_map.keys()), 
-            (self.description, utils.descriptions), 
-            (self.spec, utils.specs), 
-            (self.condition, utils.conditions)
-        ]: utils.setCompleter(field, data)
+    def set_partner_completer(self):
+        utils.setCompleter(self.partner, utils.partner_id_map.keys())
+
 
     def partner_search(self):
-        partner_id = utils.partner_id_map.get(self.partner.text())
-        if not partner_id:
-            return
-        try:
-            available_credit = models.computeCreditAvailable(partner_id) 
-            self.available_credit.setValue(float(available_credit))
-            self.credit.setMaximum(float(available_credit))
-        
-        except TypeError:
-            raise 
-            
-        result = db.session.query(Agent.fiscal_name, Partner.warranty, Partner.euro,\
-            Partner.they_pay_they_ship, Partner.they_pay_we_ship, Partner.we_pay_we_ship,\
-                Partner.days_credit_limit).join(Agent).where(Partner.id == partner_id).one() 
+        partner = self.partner.text()
+        if partner in utils.partner_id_map.keys():
+            partner_id = utils.partner_id_map.get(partner)
+            if not partner_id:return
+            try:
+                available_credit = models.computeCreditAvailable(partner_id) 
+                self.available_credit.setValue(float(available_credit))
+                self.credit.setMaximum(0.0 if available_credit < 0 else available_credit)
 
-        agent, warranty, euro, they_pay_they_ship, they_pay_we_ship, we_pay_we_ship, days = \
-            result
+            except TypeError:
+                raise 
+                
+            result = db.session.query(Agent.fiscal_name, Partner.warranty, Partner.euro,\
+                Partner.they_pay_they_ship, Partner.they_pay_we_ship, Partner.we_pay_we_ship,\
+                    Partner.days_credit_limit).join(Agent).where(Partner.id == partner_id).one() 
 
-        self.agent.setCurrentText(agent)
-        self.warranty.setValue(warranty) 
-        self.eur.setChecked(euro) 
-        self.they_pay_they_ship.setChecked(they_pay_they_ship) 
-        self.they_pay_we_ship.setChecked(they_pay_we_ship) 
-        self.we_pay_we_ship.setChecked(we_pay_we_ship) 
+            agent, warranty, euro, they_pay_they_ship, they_pay_we_ship, we_pay_we_ship, days = \
+                result
+
+            self.agent.setCurrentText(agent)
+            self.warranty.setValue(warranty) 
+            print(partner, euro)
+            self.eur.setChecked(euro) 
+            self.they_pay_they_ship.setChecked(they_pay_they_ship) 
+            self.they_pay_we_ship.setChecked(they_pay_we_ship) 
+            self.we_pay_we_ship.setChecked(we_pay_we_ship) 
 
     def proforma_to_form(self):
         p = self.proforma
@@ -164,7 +350,7 @@ class Form(Ui_SalesProformaForm, QWidget):
         try:
             i = {i.row() for i in self.lines_view.selectedIndexes()}.pop()
         except KeyError:
-            return
+            return  
         else:
             lines = self.lines_model.actual_lines_from_mixed(i)
      
@@ -197,9 +383,6 @@ class Form(Ui_SalesProformaForm, QWidget):
             raise 
 
     def search_handler(self):
-        if self.filters_unset():
-            QMessageBox.critical(self, 'Error - Search', 'Set filters.')
-            return 
         self.set_stock_mv()
 
     def set_stock_mv(self):
@@ -227,10 +410,10 @@ class Form(Ui_SalesProformaForm, QWidget):
 
     def filters_unset(self):
         return any((
-            self.description.text() not in utils.descriptions, 
-            self.spec.text() not in utils.specs, 
-            self.condition.text() not in utils.conditions
-        )) 
+            self.description.text() not in self.filters.stock_base.descriptions, 
+            self.condition.text() not in self.filters.stock_base.conditions, 
+            self.spec.text() not in self.filters.stock_base.specs
+        ))
 
 
     def apply_handler(self):
@@ -280,7 +463,6 @@ class Form(Ui_SalesProformaForm, QWidget):
 
         requested_stocks = self.stock_model.requested_stocks
 
-
         price = self.price.value()
         ignore = self.ignore.isChecked()
         tax = int(self.tax.currentText())
@@ -308,7 +490,8 @@ class Form(Ui_SalesProformaForm, QWidget):
             self.set_stock_mv() 
             self.set_selected_stock_mv() 
             self.update_totals() 
-
+            
+            self.clear_filters()
 
     def save_handler(self):
         if not self._valid_header(): return
@@ -391,7 +574,6 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.description.clear()
         self.spec.clear()
         self.condition.clear()
-
 
 class EditableForm(Form):
     

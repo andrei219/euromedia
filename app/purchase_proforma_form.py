@@ -71,7 +71,7 @@ class Form(Ui_PurchaseProformaForm, QWidget):
         self.subtotal_spinbox.valueChanged.connect(subtotalOrTaxChanged)
         self.type_combo_box.currentTextChanged.connect(typeChanged)
 
-        self.partner_line_edit.returnPressed.connect(self.partnerSearch)
+        self.partner_line_edit.textChanged.connect(self.partnerSearch)
         self.addButton.clicked.connect(self.addHandler)
         self.deleteButton.clicked.connect(self.deleteHandler)
         self.save_button.clicked.connect(self.saveHandler) 
@@ -93,30 +93,33 @@ class Form(Ui_PurchaseProformaForm, QWidget):
 
 
     def partnerSearch(self):
-        partner_id = utils.partner_id_map.get(self.partner_line_edit.text())
-        if not partner_id:
-            return
-        try:
-            available_credit = models.computeCreditAvailable(partner_id) 
-            self.available_credit_spinbox.setValue(float(available_credit))
-            self.with_credit_spinbox.setMaximum(available_credit)
 
-        except TypeError:
-            raise 
+        partner = self.partner_line_edit.text()
+        if partner in utils.partner_id_map.keys():
+            partner_id = utils.partner_id_map.get(self.partner_line_edit.text())
+            if not partner_id:
+                return
+            try:
+                available_credit = models.computeCreditAvailable(partner_id) 
+                self.available_credit_spinbox.setValue(float(available_credit))
+                self.with_credit_spinbox.setMaximum(0.0 if available_credit < 0 else available_credit)
 
-        result = db.session.query(Agent.fiscal_name, Partner.warranty, Partner.euro,\
-            Partner.they_pay_they_ship, Partner.we_pay_they_ship, Partner.we_pay_we_ship,\
-                Partner.days_credit_limit).join(Agent).where(Partner.id == partner_id).one() 
+            except TypeError:
+                raise 
 
-        agent, warranty, euro, they_pay_they_ship, we_pay_they_ship, we_pay_we_ship, days = \
-            result
+            result = db.session.query(Agent.fiscal_name, Partner.warranty, Partner.euro,\
+                Partner.they_pay_they_ship, Partner.we_pay_they_ship, Partner.we_pay_we_ship,\
+                    Partner.days_credit_limit).join(Agent).where(Partner.id == partner_id).one() 
 
-        self.agent_combobox.setCurrentText(agent)
-        self.warranty_spinbox.setValue(warranty) 
-        self.eur_radio_button.setChecked(euro) 
-        self.they_pay_they_ship_shipping_radio_button.setChecked(they_pay_they_ship) 
-        self.we_pay_they_ship_shipping_radio_button.setChecked(we_pay_they_ship) 
-        self.we_pay_we_ship_shipping_radio_button.setChecked(we_pay_we_ship) 
+            agent, warranty, euro, they_pay_they_ship, we_pay_they_ship, we_pay_we_ship, days = \
+                result
+
+            self.agent_combobox.setCurrentText(agent)
+            self.warranty_spinbox.setValue(warranty) 
+            self.eur_radio_button.setChecked(euro) 
+            self.they_pay_they_ship_shipping_radio_button.setChecked(they_pay_they_ship) 
+            self.we_pay_they_ship_shipping_radio_button.setChecked(we_pay_they_ship) 
+            self.we_pay_we_ship_shipping_radio_button.setChecked(we_pay_we_ship) 
 
 
     def _validHeader(self):

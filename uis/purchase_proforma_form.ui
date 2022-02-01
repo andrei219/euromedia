@@ -764,8 +764,14 @@
       <property name="decimals">
        <number>2</number>
       </property>
+      <property name="minimum">
+       <double>-9999999999.000000000000000</double>
+      </property>
       <property name="maximum">
-       <double>99999999.000000000000000</double>
+       <double>99999999999.000000000000000</double>
+      </property>
+      <property name="singleStep">
+       <double>0.000000000000000</double>
       </property>
      </widget>
     </item>
