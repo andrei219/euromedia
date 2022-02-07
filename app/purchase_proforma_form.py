@@ -117,6 +117,9 @@ class Form(Ui_PurchaseProformaForm, QWidget):
             self.agent_combobox.setCurrentText(agent)
             self.warranty_spinbox.setValue(warranty) 
             self.eur_radio_button.setChecked(euro) 
+            self.usd_radio_button.setChecked( not euro)
+            
+            
             self.they_pay_they_ship_shipping_radio_button.setChecked(they_pay_they_ship) 
             self.we_pay_they_ship_shipping_radio_button.setChecked(we_pay_they_ship) 
             self.we_pay_we_ship_shipping_radio_button.setChecked(we_pay_we_ship) 
@@ -230,9 +233,10 @@ class Form(Ui_PurchaseProformaForm, QWidget):
     def saveHandler(self):
         if not self._validHeader():
             return 
-        if not self.lines_model:
-            QMessageBox.critical(self, 'Error', "You cant let an empty proforma")
-            return 
+        # if not self.lines_model:
+        #     QMessageBox.critical(self, 'Error', "I can't process an empty proforma")
+        #     return 
+        
         proforma = self._formToProforma() 
         try:
             self.model.add(proforma) 

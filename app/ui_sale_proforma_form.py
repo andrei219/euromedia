@@ -10,6 +10,7 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+from custom_widgets import CustomComboBox
 
 class Ui_SalesProformaForm(object):
     def setupUi(self, SalesProformaForm):
@@ -265,19 +266,24 @@ class Ui_SalesProformaForm(object):
         self.search.setAutoDefault(True)
         self.search.setDefault(True)
         self.search.setObjectName("search")
-        self.description = QtWidgets.QLineEdit(self.groupBox_6)
+        self.description = CustomComboBox(self.groupBox_6)
         self.description.setGeometry(QtCore.QRect(20, 20, 391, 22))
-        self.description.setText("")
-        self.description.setAlignment(QtCore.Qt.AlignCenter)
+        self.description.setEditable(True)
+        self.description.setMaxVisibleItems(20)
+        self.description.setFrame(False)
         self.description.setObjectName("description")
-        self.condition = QtWidgets.QLineEdit(self.groupBox_6)
-        self.condition.setGeometry(QtCore.QRect(420, 20, 91, 22))
-        self.condition.setText("")
-        self.condition.setAlignment(QtCore.Qt.AlignCenter)
+        self.condition = CustomComboBox(self.groupBox_6)
+        self.condition.setGeometry(QtCore.QRect(420, 20, 101, 22))
+        self.condition.setEditable(True)
+        self.condition.setMaxVisibleItems(20)
+        self.condition.setInsertPolicy(QtWidgets.QComboBox.InsertAtBottom)
+        self.condition.setFrame(False)
         self.condition.setObjectName("condition")
-        self.spec = QtWidgets.QLineEdit(self.groupBox_6)
-        self.spec.setGeometry(QtCore.QRect(530, 20, 91, 22))
-        self.spec.setAlignment(QtCore.Qt.AlignCenter)
+        self.spec = CustomComboBox(self.groupBox_6)
+        self.spec.setGeometry(QtCore.QRect(530, 20, 101, 22))
+        self.spec.setEditable(True)
+        self.spec.setMaxVisibleItems(20)
+        self.spec.setFrame(False)
         self.spec.setObjectName("spec")
         self.save = QtWidgets.QPushButton(SalesProformaForm)
         self.save.setGeometry(QtCore.QRect(1120, 920, 91, 31))
@@ -447,9 +453,6 @@ class Ui_SalesProformaForm(object):
         self.groupBox_5.setTitle(_translate("SalesProformaForm", "AVAILABLE STOCK:"))
         self.groupBox_6.setTitle(_translate("SalesProformaForm", "FILTERS:"))
         self.search.setText(_translate("SalesProformaForm", "SEARCH"))
-        self.description.setPlaceholderText(_translate("SalesProformaForm", "Description"))
-        self.condition.setPlaceholderText(_translate("SalesProformaForm", "Condition"))
-        self.spec.setPlaceholderText(_translate("SalesProformaForm", "Spec"))
         self.save.setText(_translate("SalesProformaForm", "Save"))
         self.delete_button.setText(_translate("SalesProformaForm", "Delete"))
         self.insert.setText(_translate("SalesProformaForm", "Insert Free "))

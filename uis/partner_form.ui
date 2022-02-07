@@ -1284,7 +1284,7 @@ p, li { white-space: pre-wrap; }
     <number>2</number>
    </property>
    <property name="text">
-    <string>Add bank info</string>
+    <string>Bank info</string>
    </property>
    <property name="icon">
     <iconset resource="../app/icons.qrc">

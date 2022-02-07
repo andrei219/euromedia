@@ -10,7 +10,6 @@ from db import Agent, AgentDocument
 
 import utils
 
-
 class AgentGui(QWidget, Ui_AgentGui):
     
     EDITABLE_MODE, NEW_MODE = 0, 1  

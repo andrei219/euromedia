@@ -100,7 +100,7 @@ def sale_fully_paid(proforma):
 	return math.isclose(sale_total_paid(proforma), sale_total_debt(proforma))
 
 def sale_overpaid(proforma):
-	return 0 < total_debt(proforma) < total_paid(proforma) 
+	return 0 < sale_total_debt(proforma) < sale_total_paid(proforma) 
 
 # Warehouse:
 def sale_total_quantity(proforma):
@@ -1450,10 +1450,11 @@ class OrganizedLines:
 			try:
 				if len(self.organized_lines[i]) == 1:
 					self.organized_lines[i] = self.organized_lines[i][0]
+					# self.organized_lines[i].mix_id = None
 				elif not self.organized_lines[i]:
 					del self.organized_lines[i]
 			except IndexError:
-				pass 
+				raise  
 			
 			self.instrumented_lines.remove(line) 
 
@@ -1461,14 +1462,27 @@ class OrganizedLines:
 
 		# Esta linea pretende restructurar la lista 
 		# No deberia ser necesaria
-		# self.organized_lines = [e for e in self.organized_lines if e]
+		self.organized_lines = [e for e in self.organized_lines if e]
 
 	def append(self, price, ignore_spec, tax, showing, *stocks, row=None):
 		if len(stocks) == 0:
 			raise ValueError("At least one stock must be provided")
 
-		if any((stock == line for line in self.lines for stock in stocks)):
-				raise ValueError("I can't handle duplicated stocks")
+		# If duplicated update:
+
+		# if any((stock == line for line in self.lines for stock in stocks)):
+		# 		raise ValueError("I can't handle duplicated stocks")
+		
+		hit = False 
+		for stock in stocks:
+			for line in self.lines:
+				if stock == line:
+					hit = True 
+					line.quantity += stock.quantity 
+		
+		if hit: 
+			db.session.flush() 
+			return 
 		
 		if row is None:
 			new_lines = [
@@ -1603,24 +1617,6 @@ class OrganizedLines:
 		self.organized_lines.append(line)
 		self.instrumented_lines.append(line) 
 
-	def group_conflict(self, lines, *stocks):
-		return any((
-			self.conflict_check(line, stock)
-			for stock in stocks
-			for line in lines 
-		))
- 
-	def conflict_check(self, line, stock):
-		line_description = utils.description_id_map.inverse[line.item_id]
-		line_manufacturer, line_category, line_model, *_ = line_description.split() 
-		stock_description = utils.description_id_map.inverse[stock.item_id]
-		stock_manufacturer, stock_category, stock_model , *_ = stock_description.split()
-		return any((
-			line_manufacturer != stock_manufacturer, 
-			line_category != stock_category, 
-			line_model != stock_model
-		))
-
 	def repr(self, row, col):
 		line = self.organized_lines[row]
 		if isinstance(line, Iterable):
@@ -1714,6 +1710,44 @@ class OrganizedLines:
 		line.mix_id = mix_id
 		return line 
 
+	def update_condition(self, row, condition):
+		lines = self.organized_lines[row]
+		if isinstance(lines, Iterable):
+			for line in lines:
+				line.showing_condition = condition
+		else:
+			lines.condition = condition
+		return True 
+
+	def update_spec(self, row, spec):
+		spec = spec.lower()
+		flag = spec != 'no'
+		lines = self.organized_lines[row]
+		if isinstance(lines, Iterable):
+			for line in lines:
+				line.ignore_spec = flag
+		else:
+			lines.ignore_spec = flag
+		return True 
+
+	def update_price(self, row, price):
+		lines = self.organized_lines[row]
+		if isinstance(lines, Iterable):
+			for line in lines:
+				line.price = price
+		else:
+			lines.price = price 
+		return True 
+
+	def update_tax(self, row, tax):
+		lines = self.organized_lines[row]
+		if isinstance(lines, Iterable):
+			for line in lines:
+				line.tax = tax
+		else:
+			lines.tax = tax 
+		return True 
+
 	def __getitem__(self, index):
 		try:
 			return self.organized_lines[index]
@@ -1731,10 +1765,11 @@ class SaleProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 	DESCRIPTION, CONDITION, SHOWING_CONDITION, SPEC, IGNORING_SPEC, \
 		QUANTITY, PRICE, SUBTOTAL, TAX, TOTAL = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 
 
-	def __init__(self, proforma):
+	def __init__(self, proforma, form):
 		super().__init__()
-		self._headerData = ['Description', 'Condition', 'Showing Condt.', 'Spec', \
-			'Ignoring Spec?','Qty.', 'Price', 'Subtotal', 'Tax', 'Total']
+		self.form = form 
+		self._headerData = ['Description', 'Condition', 'Showing Condt.(Editable)', 'Spec', \
+			'Ignoring Spec?(Editable)','Qty.', 'Price(Editable)', 'Subtotal', 'Tax(Editable)', 'Total']
 		self.organized_lines = OrganizedLines(proforma.lines)
 		self.name = 'organized_lines'
 
@@ -1793,6 +1828,64 @@ class SaleProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 		self.layoutAboutToBeChanged.emit()
 		self.organized_lines = OrganizedLines([])
 		self.layoutChanged.emit()
+
+	def setData(self, index, value, role=Qt.EditRole):
+		if not index.isValid(): 
+			return False
+		row, column = index.row(), index.column()
+		if not self.editable_column(column):
+			return False
+		updated = False 
+		if role == Qt.EditRole:
+			if column == self.__class__.SHOWING_CONDITION:
+				return self.organized_lines.update_condition(row, value)
+			elif column == self.__class__.IGNORING_SPEC:
+				if value.lower() not in ('yes', 'no'):
+					return False 
+				else:
+					updated = self.organized_lines.update_spec(row, value)
+			elif column == self.__class__.TAX:
+				try:
+					tax = int(value)
+					if tax not in (0, 4, 10, 21):
+						return False 
+				except ValueError:
+					return False 
+				else:
+					updated =  self.organized_lines.update_tax(row, tax) 
+			elif column == self.__class__.PRICE:
+				try:
+					price = int(value)
+					if price < 0:
+						raise ValueError
+				except ValueError:
+					return False
+				else:
+					updated = self.organized_lines.update_price(row, price) 
+
+			if updated:
+				self.form.update_totals() 
+				return True   
+			return False 
+		return False 
+
+	def editable_column(self, column):
+		return column in (
+			self.__class__.SHOWING_CONDITION, 
+			self.__class__.IGNORING_SPEC, 
+			self.__class__.PRICE, 
+			self.__class__.TAX
+		)
+
+	def flags(self, index):
+		if not index.isValid(): return Qt.ItemIsEnabled
+		if self.editable_column(index.column()):
+			# return Qt.ItemFlags(super().flags(index) | Qt.ItemIsEditable)
+			result = super().flags(index) 
+			if result is not None:
+				return Qt.ItemFlags(super().flags(index) | Qt.ItemIsEditable)
+		else:
+			return Qt.ItemFlags(~Qt.ItemIsEditable)
 
 class ActualLinesFromMixedModel(BaseTable, QtCore.QAbstractTableModel):
 
@@ -1972,9 +2065,11 @@ class PurchaseProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 			}.get(col) 
 
 	def setData(self, index, value, role=Qt.EditRole):
-		if not index.isValid():return False
+		if not index.isValid():
+			return False
 		row, column = index.row(), index.column()
-		if not self.editable_column(column):return False
+		if not self.editable_column(column):
+			return False
 		line = self.lines[row]
 		if role == Qt.EditRole:
 			if column == self.__class__.PRICE:
@@ -2015,7 +2110,7 @@ class PurchaseProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 		)
 
 	def flags(self, index):
-		if not index.isValid(): return 
+		if not index.isValid(): return Qt.ItemIsEnabled
 		if self.editable_column(index.column()):
 			return Qt.ItemFlags(super().flags(index) | Qt.ItemIsEditable)
 		else:
@@ -2783,9 +2878,10 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
 			spec
 		)
 
+
+
 	@classmethod
 	def stocks(cls, warehouse_id, description=None, condition=None, spec=None):
-		
 		
 		return cls(warehouse_id, description=description, condition=condition, \
 			spec=spec).stocks 
@@ -2793,10 +2889,14 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
 
 	def computeStock(self, warehouse_id, description, condition, spec, session=db.session):
 		
-		
+		print('ComputeStock:', description, condition, spec)
+
 		session = session 
 
 		item_id = utils.description_id_map.get(description)
+		
+		print('ComputeStock: item_id=', item_id)
+		
 		
 		query = session.query(
 			db.Imei.item_id, db.Imei.condition, 
@@ -2808,8 +2908,10 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
 		)
 
 		if item_id:
+			print('ComputeStock: item_id')
 			query = query.where(db.Imei.item_id == item_id)
 		else:
+			print('no item_id')
 			item_ids = utils.get_itemids_from_mixed_description(description)
 			if item_ids:
 				query = query.where(db.Imei.item_id.in_(item_ids))
@@ -2954,6 +3056,14 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
 		stocks = set(self.computeStock(warehouse_id, None, None, None, session=session))
  
 
+		print('lines************************')
+		print(lines)
+
+		print('s************************')
+
+		for stock in stocks:
+			print(stock)
+
 		# for line in lines:
 		# 	print(line)
 
@@ -2967,6 +3077,7 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
 		# print('stocks.difference(lines):', stocks.difference(lines))
 
 		if lines.difference(stocks):
+			print('reached')
 			return True 
 
 		if any((
@@ -3029,7 +3140,7 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
 
 	def flags(self, index):
 		if not index.isValid():
-			return
+			return Qt.ItemIsEnabled
 		if index.column() == 4:
 			return Qt.ItemFlags(super().flags(index) | Qt.ItemIsEditable)
 		else:

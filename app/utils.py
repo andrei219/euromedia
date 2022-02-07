@@ -36,8 +36,7 @@ description_id_map = bidict({item.clean_repr:item.id for item in db.session.quer
 # the new map will be man|cat|mod|cap|col -> item_id 
 
 #STOCK TYPES:
-
-CAP_COL, ONLY_COL, ONLY_CAP = 0, 1, 2
+ONLY_COL, ONLY_CAP, CAP_COL = 1, 2, 3
 
 def stock_type(stock):
     # Este check me permite sobrecargar el metodo, 
@@ -76,14 +75,17 @@ def complete_descriptions(clean_map, dirty_map):
         if mpn != '?': continue 
         else: mpn = ''
         if cap != '?' and col != '?':
+            print('cap col')
             descriptions.update({
                 ' '.join((mpn, man, cat, mod, 'Mixed GB', 'Mixed Color')).strip(), 
                 ' '.join((mpn, man, cat, mod, 'Mixed GB', col)).strip(), 
                 ' '.join((mpn, man, cat, mod, cap, 'Mixed Color')).strip()
             })
         elif col != '?' and cap == '?':
+            print('only col')
             descriptions.add(' '.join((mpn, man, cat, mod, 'Mixed Color')).strip())
         elif cap != '?' and col == '?':
+            print('only col')
             descriptions.add(' '.join((mpn, man, cat, mod, 'Mixed GB')).strip()) 
     
     return descriptions
@@ -138,21 +140,26 @@ def get_itemids_from_mixed_description(mixed_description):
     if mixed_description.count('Mixed') == 2:
         for dirty_desc in dirty_map:
             mpn, man, cat, mod, *_ = dirty_desc.split('|')
-            if mpn == '?':mpn = '' 
+            # if mpn == '?':mpn = '' 
+            if mpn != '?':continue 
+            else:mpn = ''
+
             if ' '.join((mpn, man, cat, mod, 'Mixed GB', 'Mixed Color')).strip() == mixed_description:
                 ids.append(dirty_map[dirty_desc])
     
     elif 'Mixed GB' in mixed_description:
         for dirty_desc in dirty_map:
             mpn, man, cat, mod, _, col, _ = dirty_desc.split('|')
-            if mpn == '?':mpn = '' 
+            if mpn != '?':continue 
+            else:mpn = ''
             if ' '.join((mpn, man, cat, mod, 'Mixed GB', col)).strip() == mixed_description:
                 ids.append(dirty_map[dirty_desc])
 
     elif 'Mixed Color' in mixed_description:
         for dirty_desc in dirty_map:
             mpn, man, cat, mod, cap, col, _  = dirty_desc.split('|') 
-            if mpn == '?':mpn = '' 
+            if mpn != '?':continue 
+            else: mpn = '' 
             if cap != '?' and col != '?':
                 if ' '.join((mpn, man, cat, mod, cap, 'Mixed Color')).strip() == mixed_description:
                     ids.append(dirty_map[dirty_desc])
@@ -160,7 +167,6 @@ def get_itemids_from_mixed_description(mixed_description):
             elif cap == '?' and col != '?':
                 if ' '.join((mpn, man, cat, mod, 'Mixed Color')).strip() == mixed_description:
                     ids.append(dirty_map[dirty_desc])
-    
     return ids 
 
 def compute_available_descriptions(available_item_ids):
@@ -273,8 +279,8 @@ from PyQt5.QtWidgets import QCompleter
 
 def setCompleter(field, data):
     print('set completer init:', field.objectName())
-    model = QStringListModel()
-    model.setStringList(data)
+
+    model = QStringListModel(data)
     completer = field.completer()
     if completer is not None:
         print('completer is not None')
@@ -288,6 +294,25 @@ def setCompleter(field, data):
         completer.setModel(model)
         field.setCompleter(completer)
     
+
+def setComboCompleter(combo, data):
+
+    # model = QStringListModel(data)
+    # completer = combo.completer()
+    # if completer is not None:
+    #     completer.setModel(model)
+    #     print('completer not none')
+    # else:
+    #     print('completer None')
+    #     completer = QCompleter()
+    #     completer.setModel(QStringListModel(data))
+    #     completer.setCaseSensitivity(Qt.CaseInsensitive)
+    #     completer.setFilterMode(Qt.MatchContains)
+    #     completer.setCompletionMode(QtGui.QCompleter.PopupCompletion)
+    #     combo.setCompleter(completer)
+
+
+    combo.replace_items(data) 
 
 def build_description(lines):
 
@@ -340,12 +365,3 @@ def build_description(lines):
         return ' '.join((
             manufacturer, category, model, color
         ))
-
- 
-if __name__ == '__main__':
-
-    for description in complete_descriptions(description_id_map, dirty_map):
-        if 'Mix' in description:
-            print(description)
-            for d in mixed_to_clean_descriptions(description):
-                print('\t', d)

@@ -501,5 +501,5 @@ class Ui_Partner_Form(object):
         self.isp_checkbox.setText(_translate("Partner_Form", "ISP"))
         self.re_checkbox.setText(_translate("Partner_Form", "RE"))
         self.bank_button.setToolTip(_translate("Partner_Form", "Check Documentd assciated"))
-        self.bank_button.setText(_translate("Partner_Form", "Add bank info"))
+        self.bank_button.setText(_translate("Partner_Form", "Bank info"))
 import icons_rc

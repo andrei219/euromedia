@@ -123,8 +123,7 @@ class Item(Base):
     has_serie = Column(Boolean, default=False) 
 
     __table_args__ = ( 
-        UniqueConstraint('mpn', 'manufacturer', 'category', 'model', 'capacity', 'color', \
-            'has_serie', name='uix_1'), 
+        UniqueConstraint('mpn', 'manufacturer', 'category', 'model', 'capacity', 'color', name='uix_1'), 
     )
 
     def __init__(self, mpn, manufacturer, category, model, capacity, color,\
@@ -1525,12 +1524,54 @@ def create_advanced_line():
     session.commit() 
 
 
-spec1 = Spec('EU')
-spec2 = Spec('USA') 
-spec3 = Spec('JAPAN')
+def create_test_items():
+    
+    item = Item(
+        mpn ='', 
+        manufacturer='Apple Test', 
+        catefory= 'IphoneTest', 
+        model ='Model Test', 
+        capacity='Capacity test', 
+        color='Color Test', 
+        has_serie=True
+    )
 
-condition1 = Condition('NEW')
-condition2 = Condition('A+')
-condition3 = Condition('A-')
+    session.add(item)
+
+    item = Item(
+        mpn = '', 
+        manufacturer='Manu Test', 
+        category = 'Tablet Test', 
+        model = 'Model Test', 
+        capacity='Capacity test', 
+        color='', 
+        has_serie=True 
+    )
+
+    session.add(item) 
 
 
+    item = Item(
+        mpn='', 
+        manufacturer='Manufacturer test', 
+        category = 'category test', 
+        model= 'model test', 
+        capacity= '', 
+        color = 'color test', 
+        has_serie=True
+    )
+
+    session.add(item)
+
+    item = Item(
+        mpn='', 
+        manufacturer='Manufacturer test', 
+        category = 'category test', 
+        model= 'model test', 
+        capacity= '', 
+        color = 'color test', 
+        has_serie=False
+    )
+
+    session.add(item)
+    

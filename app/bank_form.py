@@ -41,8 +41,18 @@ class Dialog(Ui_Dialog, QDialog):
         self.add.clicked.connect(self.add_handler)
         self.delete_.clicked.connect(self.delete_handler) 
         self.save.clicked.connect(self.save_handler) 
-        self.exit.clicked.connect(lambda : self.close())
+        self.exit.clicked.connect(lambda : self.close())    
+        self.iban.textChanged.connect(self.update_bic)
 
+
+    def update_bic(self, iban):
+        from utils import swiftFromIban
+        try:
+            print(iban)
+            bic = swiftFromIban(iban)
+            self.swift.setText(bic)
+        except: pass 
+        
 
     def clear_fields(self):
         
