@@ -3808,16 +3808,6 @@ class DefinedSeriesModel(QtCore.QAbstractListModel):
 from operator import attrgetter
 
 Group = namedtuple('Group', 'description condition spec quantity')
-
-class Group:
-
-	def __init__(self, description, condition, spec, quantity):
-		self.description = description
-		self.condition = condition
-		self.spec = spec 
-		self.quantity = int(quantity)
-
-
 class GroupModel(BaseTable, QtCore.QAbstractTableModel):
 
 	DESCRIPTION, CONDITION, SPEC, QUANTITY = 0, 1, 2, 3
@@ -3853,6 +3843,18 @@ class GroupModel(BaseTable, QtCore.QAbstractTableModel):
 				self.__class__.SPEC:group.spec, 
 				self.__class__.QUANTITY:group.quantity 
 			}.get(col)
+
+	
+	def group_exists(self, description, condition, spec):
+		pass 
+		for group in self.groups:
+			if all((
+				group.description == description, 
+				group.condition == condition, 
+				group.spec == spec 
+			)):
+				return True 
+		return False 	
 
 
 class EditableGroupModel(GroupModel):

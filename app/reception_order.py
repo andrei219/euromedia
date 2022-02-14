@@ -107,11 +107,12 @@ class Form(QDialog, Ui_Form):
         self.agent.setText(self.reception.proforma.agent.fiscal_name)
         self.warehouse.setText(self.reception.proforma.warehouse.description)
         self.reception_total.setText(str(self._total()))
+        self.processed.setReadOnly(True)
     
 
     def block_unblock_widgets(self, has_serie:bool):
         
-        self.processed.setReadOnly(has_serie)
+        # self.processed.setReadOnly(has_serie)
         
         for name in [
             'sn', 'snlist', 'delete_button', 
@@ -210,25 +211,27 @@ class Form(QDialog, Ui_Form):
         self.populate_body()
 
     def commit_handler(self):   
-
-        description = self.actual_item.text()
-        condition = self.condition.text()
-        spec = self.spec.text()
-
-        print('description:', description not in utils.description_id_map)
-
-        print('condition:', condition not in utils.conditions)
-
-        if not all((
-            description in utils.description_id_map, 
-            condition in utils.conditions, 
-            spec in utils.specs
-        )):
-            QMessageBox.critical(self, 'Error', 'Invalid description, condition or spec')
-            return 
-
         if not self.in_serie_state:
+            
+            description = self.actual_item.text()
+            condition = self.actual_condition.text()
+            spec = self.actual_spec.text() 
+
+            if not all((
+                description in utils.description_id_map, 
+                condition in utils.conditions, 
+                spec in utils.specs
+            )):
+                QMessageBox.critical(self, 'Error', 'Invalid description, condition or spec(1)')
+                return 
+
+            group_model = self.view.model()
+            if group_model.group_exists(description, condition, spec):
+                QMessageBox.critical(self, 'Error', 'Group already exists, edit in table')
+                return
+            
             self.invent_series()
+
         else:
             if not self.sn.text(): 
                 QMessageBox.critical(self, 'Error', 'Empty SN/IMEI')
@@ -255,11 +258,11 @@ class Form(QDialog, Ui_Form):
 
     def invent_series(self):
         try:
-            new_processed = int(self.processed.text())
-            old_processed = self.processed_in_line()
+            # new_processed = int(self.processed.text())
+            # old_processed = self.processed_in_line()
             self.rs_model.add_invented(
                 self.reception.lines[self.current_index], 
-                new_processed - old_processed, 
+                1, 
                 self.actual_item.text(), 
                 self.actual_condition.text(), 
                 self.actual_spec.text()
