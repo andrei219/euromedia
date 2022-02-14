@@ -43,6 +43,7 @@ class Form(Ui_PurchaseProformaForm, QWidget):
         self.setUp() 
         self.is_invoice = False 
 
+
     def setUp(self):
 
         self.partner_line_edit.setFocus() 
@@ -206,12 +207,19 @@ class Form(Ui_PurchaseProformaForm, QWidget):
         description = self.description_line_edit.text()
         condition = self.condition_line_edit.text()
         spec = self.spec_line_edit.text()
+
+        print(description, condition, spec)
+
         if not description:return 
-        if description in utils.descriptions and \
-            condition not in utils.conditions and spec not in utils.specs:
+
+
+        if description in utils.descriptions:
+            if condition not in utils.conditions or spec not in utils.specs:
                 QMessageBox.critical(self, 'Error', 'You cant add a device without condition and spec')
                 return 
         try:
+
+            print('reached, description:', description)
             self.lines_model.add(self.description_line_edit.text(), \
                 self.condition_line_edit.text(), self.spec_line_edit.text(), self.quantity_spinbox.value(),\
                     self.price_spinbox.value(), int(self.tax_combobox.currentText()))
@@ -233,10 +241,7 @@ class Form(Ui_PurchaseProformaForm, QWidget):
     def saveHandler(self):
         if not self._validHeader():
             return 
-        # if not self.lines_model:
-        #     QMessageBox.critical(self, 'Error', "I can't process an empty proforma")
-        #     return 
-        
+       
         proforma = self._formToProforma() 
         try:
             self.model.add(proforma) 
@@ -244,10 +249,12 @@ class Form(Ui_PurchaseProformaForm, QWidget):
         except:
             raise 
         else:
-            QMessageBox.information(self, 'Information',\
-                'Purchase saved successfully')
+            QMessageBox.information(self, 'Information','Purchase saved successfully')
             self.close() 
 
+
+    def closeEvent(self, event):
+        db.session.rollback() 
 
 class EditableForm(Form):
     
@@ -262,7 +269,6 @@ class EditableForm(Form):
         self.title = 'Line - Error'
         self.model = view.model() 
         self.is_invoice = is_invoice 
-
         if is_invoice:
             self.setWindowTitle('Proforma / Invoice Edit')
         else:
@@ -296,9 +302,6 @@ class EditableForm(Form):
         self.partner_line_edit.returnPressed.connect(self.partnerSearch)
         self.save_button.clicked.connect(self.saveHandler)
 
-    def partnerSearch(self):
-        super().partnerSearch()
-
     def proforma_to_form(self):
         p = self.proforma
         self.type_combo_box.setCurrentText(str(p.type))
@@ -320,32 +323,13 @@ class EditableForm(Form):
         self.they_pay_they_ship_shipping_radio_button.setChecked(p.they_pay_they_ship)
         self.we_pay_we_ship_shipping_radio_button.setChecked(p.we_pay_we_ship)
         self.we_pay_they_ship_shipping_radio_button.setChecked(p.we_pay_they_ship)
-        
-    
-    def addHandler(self):
-        super().addHandler() 
-
-    def deleteHandler(self):
-        indexes = self.lines_view.selectedIndexes() 
-        if not indexes:
-            return
-        try:
-            self.lines_model.delete(indexes)
-        except: 
-            raise 
-
-    # @ask_save
-
-    def closeEvent(self, event):
-        db.session.rollback() 
-        # self.parent.set_mv('proformas_purchases')
 
     def saveHandler(self):
         if not super()._validHeader():
             return
-        if not self.lines_model:
-            QMessageBox.critical(self, 'Error', "You cant let an empty proforma")
-            return 
+        # if not self.lines_model:
+        #     QMessageBox.critical(self, 'Error', "You cant let an empty proforma")
+        #     return 
 
         self._formToProforma(input_proforma=self.proforma)
         try:

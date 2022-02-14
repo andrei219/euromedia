@@ -2,6 +2,9 @@
 <ui version="4.0">
  <class>PurchaseProformaForm</class>
  <widget class="QWidget" name="PurchaseProformaForm">
+  <property name="windowModality">
+   <enum>Qt::WindowModal</enum>
+  </property>
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -16,6 +19,9 @@
   <property name="windowIcon">
    <iconset resource="../app/icons.qrc">
     <normaloff>:/proformas</normaloff>:/proformas</iconset>
+  </property>
+  <property name="layoutDirection">
+   <enum>Qt::LeftToRight</enum>
   </property>
   <property name="styleSheet">
    <string notr="true"/>
@@ -88,7 +94,7 @@
   <widget class="QToolButton" name="save_button">
    <property name="geometry">
     <rect>
-     <x>1030</x>
+     <x>990</x>
      <y>750</y>
      <width>111</width>
      <height>81</height>
@@ -1420,6 +1426,38 @@
     <bool>true</bool>
    </property>
   </widget>
+  <widget class="QToolButton" name="save_button_2">
+   <property name="geometry">
+    <rect>
+     <x>1140</x>
+     <y>750</y>
+     <width>111</width>
+     <height>81</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background:lightgray; </string>
+   </property>
+   <property name="text">
+    <string>EXIT</string>
+   </property>
+   <property name="icon">
+    <iconset resource="../app/icons.qrc">
+     <normaloff>:/exit</normaloff>:/exit</iconset>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>24</width>
+     <height>24</height>
+    </size>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonTextUnderIcon</enum>
+   </property>
+   <property name="autoRaise">
+    <bool>true</bool>
+   </property>
+  </widget>
  </widget>
  <tabstops>
   <tabstop>description_line_edit</tabstop>
@@ -1458,5 +1496,22 @@
  <resources>
   <include location="../app/icons.qrc"/>
  </resources>
- <connections/>
+ <connections>
+  <connection>
+   <sender>save_button_2</sender>
+   <signal>clicked()</signal>
+   <receiver>PurchaseProformaForm</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1192</x>
+     <y>783</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1235</x>
+     <y>619</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

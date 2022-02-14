@@ -1524,54 +1524,510 @@ def create_advanced_line():
     session.commit() 
 
 
-def create_test_items():
+def create_test_data():
+
+    import sys, random  
+
+    if sys.platform == 'win32':
+        testpath = r'.\app\SalesInvoice_LWI003703.pdf'
+    elif sys.platform == 'darwin':
+        testpath = r'./app/SalesInvoice_LWI003703.pdf'
+    else:
+        print('I dont know in which platform I am')
+        sys.exit() 
+
+    # CAP=0 COL=0 SERIE=1
+    import random
+    session.add_all([
+        Item(
+            mpn = '', 
+            manufacturer = 'AMD', 
+            category='Graphic Card', 
+            model = 'x11', 
+            color='',
+            capacity='', 
+            has_serie=True
+        ), Item(
+            mpn='', 
+            manufacturer = 'INTEL', 
+            category='microprocesor', 
+            model = 'x86_64', 
+            color='', 
+            capacity='', 
+            has_serie=True
+        ), 
+
+        #  CAP=0 COL=0 SERIE=0
+        Item(
+            mpn='MPN1231', 
+            manufacturer='Apple', 
+            category='cable', 
+            model = 'coco', 
+            color='', 
+            capacity='', 
+            has_serie=False
+        ), 
+        Item(
+            mpn='', 
+            manufacturer='Apple', 
+            category='Charger', 
+            model='lol', 
+            capacity='', 
+            color='', 
+            has_serie=False
+        )
+    ])
     
-    item = Item(
-        mpn ='', 
-        manufacturer='Apple Test', 
-        catefory= 'IphoneTest', 
-        model ='Model Test', 
-        capacity='Capacity test', 
-        color='Color Test', 
-        has_serie=True
-    )
-
-    session.add(item)
-
-    item = Item(
-        mpn = '', 
-        manufacturer='Manu Test', 
-        category = 'Tablet Test', 
-        model = 'Model Test', 
-        capacity='Capacity test', 
-        color='', 
-        has_serie=True 
-    )
-
-    session.add(item) 
 
 
-    item = Item(
-        mpn='', 
-        manufacturer='Manufacturer test', 
-        category = 'category test', 
-        model= 'model test', 
-        capacity= '', 
-        color = 'color test', 
-        has_serie=True
-    )
+    # STOCK_TYPE = -1 
 
-    session.add(item)
+    session.add_all([
+        Item(
+            mpn = 'MPN1', 
+            manufacturer = 'Apple', 
+            category='iPhone', 
+            model = 'xs pro', 
+            capacity='433', 
+            color='yellow', 
+            has_serie=True  
+        ), 
+        Item(
+            mpn = 'MPN2', 
+            manufacturer='Samsung', 
+            category='Phone', 
+            model = 'galaxy', 
+            capacity='22', 
+            color='blue', 
+            has_serie=True
+        )
+    ])
 
-    item = Item(
-        mpn='', 
-        manufacturer='Manufacturer test', 
-        category = 'category test', 
-        model= 'model test', 
-        capacity= '', 
-        color = 'color test', 
-        has_serie=False
-    )
+    # CAP=0 COL=1 SERIE=0
 
-    session.add(item)
+    session.add_all([
+        Item(
+            mpn='', 
+            manufacturer='Apple', 
+            category= 'Airpods', 
+            model = 'model1',
+            capacity='', 
+            color='yellow', 
+            has_serie=False
+        ), 
+        Item(
+            mpn='', 
+            manufacturer='Apple', 
+            category= 'Airpods', 
+            model = 'model1',
+            capacity='', 
+            color='blue', 
+            has_serie=False
+        ),
+        Item(
+            mpn='', 
+            manufacturer='Apple', 
+            category= 'Airpods', 
+            model = 'model1',
+            capacity='', 
+            color='orange', 
+            has_serie=False
+        ),
+        Item(
+            mpn='', 
+            manufacturer='Apple', 
+            category= 'Airpods', 
+            model = 'model1',
+            capacity='', 
+            color='brown', 
+            has_serie=False
+        ), 
+        Item(
+            mpn='', 
+            manufacturer='Samsung', 
+            category='Headphones', 
+            model='themodel', 
+            capacity='', 
+            color='purple', 
+            has_serie=False
+        ), 
+        Item(
+            mpn='', 
+            manufacturer='Samsung', 
+            category='Headphones', 
+            model='themodel', 
+            capacity='', 
+            color='gray', 
+            has_serie=False
+        )
+    ])
+
+    # CAP = 0 COL=1 SERIE=1
+    session.add_all([
+        Item(
+            mpn='', 
+            manufacturer='Apple', 
+            category='iPad', 
+            model = 'wer', 
+            capacity='', 
+            color='brown', 
+            has_serie=True
+        ), 
+        Item(
+            mpn='', 
+            manufacturer='Apple', 
+            category='iPad', 
+            model = 'wer', 
+            capacity='', 
+            color='yellow',
+            has_serie=True 
+        ), 
+        Item(
+            mpn='', 
+            manufacturer='Apple', 
+            category='iPad', 
+            model = 'wer', 
+            capacity='', 
+            color='gray', 
+            has_serie=True
+        ), 
+        Item(
+            mpn='', 
+            manufacturer='Apple', 
+            category='iPad', 
+            model = 'wer', 
+            capacity='', 
+            color='purple',
+            has_serie=True 
+        ), 
+        Item(
+            mpn='', 
+            manufacturer='Xiamoi', 
+            category='Tv', 
+            model = 'wgdf', 
+            capacity='', 
+            color='black', 
+            has_serie=True
+        ), 
+        Item(
+            mpn='', 
+            manufacturer='Xiaomi', 
+            category='Tv', 
+            model = 'wgdf', 
+            capacity='', 
+            color='white', 
+            has_serie=True
+        )
+    ])
+
+    # CAP = 1 COL = 0 SERIE=1
+    session.add_all([
+        Item(
+            mpn = '', 
+            manufacturer='Samsung', 
+            category='Watch',
+            model='wam', 
+            capacity = '13', 
+            color='', 
+            has_serie=True
+        ),Item(
+            mpn = '', 
+            manufacturer='Samsung', 
+            category='Watch',
+            model='wam', 
+            capacity = '43', 
+            color='',  
+            has_serie=True
+        ),Item(
+            mpn = '', 
+            manufacturer='Samsung', 
+            category='Watch',
+            model='wam', 
+            capacity = '54', 
+            color='',  
+            has_serie=True
+        ),Item(
+            mpn = '', 
+            manufacturer='Samsung', 
+            category='Watch',
+            model='wam', 
+            capacity = '65', 
+            color='',  
+            has_serie=True
+        ),Item(
+            mpn = '', 
+            manufacturer='Huawey', 
+            category='Watch',
+            model='wam', 
+            capacity = '10', 
+            color='',  
+            has_serie=True
+        ),Item(
+            mpn = '', 
+            manufacturer='Huawey', 
+            category='Watch',
+            model='wam', 
+            capacity = '33', 
+            color='',  
+            has_serie=True
+        )
+    ])
+
+
+    # CAP = 1 COL = 1 SERIE = 1 
+
+    session.add_all([
+        Item(
+            mpn = '', 
+            manufacturer='Apple', 
+            category='iPhone',
+            model='xs', 
+            capacity = '10', 
+            color='yellow', 
+            has_serie=True
+        ),Item(
+            mpn = '', 
+            manufacturer='Apple', 
+            category='iPhone',
+            model='xs', 
+            capacity = '10', 
+            color='blue',  
+            has_serie=True
+        ),Item(
+            mpn = '', 
+            manufacturer='Apple', 
+            category='iPhone',
+            model='xs', 
+            capacity = '10', 
+            color='green',  
+            has_serie=True
+        ),Item(
+            mpn = '', 
+            manufacturer='Apple', 
+            category='iPhone',
+            model='xs', 
+            capacity = '12', 
+            color='black',  
+            has_serie=True
+        ),Item(
+            mpn = '', 
+            manufacturer='Apple', 
+            category='iPhone',
+            model='xs',
+            capacity = '14', 
+            color='white',  
+            has_serie=True
+        ),Item(
+            mpn = '', 
+            manufacturer='Huawey', 
+            category='Watch',
+            model='wam', 
+            capacity = '16', 
+            color='black',  
+            has_serie=True
+        ),Item(
+            mpn = '', 
+            manufacturer='Huawey', 
+            category='Watch',
+            model='wam', 
+            capacity = '33', 
+            color='gray',  
+            has_serie=True
+        ),Item(
+            mpn = '', 
+            manufacturer='Huawey', 
+            category='Watch',
+            model='wam', 
+            capacity = '55', 
+            color='yellow',  
+            has_serie=True
+        ),Item(
+            mpn = '', 
+            manufacturer='Samsung', 
+            category='Watch',
+            model='wam', 
+            capacity = '10', 
+            color='nocolor',  
+            has_serie=True
+        ),Item(
+            mpn = '', 
+            manufacturer='Samsung', 
+            category='Dron',
+            model='sdr', 
+            capacity = '130', 
+            color='black',  
+            has_serie=True
+        ),Item(
+            mpn = '', 
+            manufacturer='Samsung', 
+            category='Dron',
+            model='sdr', 
+            capacity = '421', 
+            color='red',  
+            has_serie=True
+        )
+    ])
+
+    session.add_all([
+        Condition('A'), 
+        Condition('B'), 
+        Condition('New'), 
+        Condition('Mix')
+    ])
+
+
+    session.add_all([
+        Spec('EU'), 
+        Spec('Mix'), 
+        Spec('US')
+    ])
+
+    session.add_all([
+        Warehouse('warehouse1'), 
+        Warehouse('Warehouse2')
+    ])
+
+    session.add_all([
+        Courier('Courier1'), 
+        Courier('Courier2')
+    ])
+
+
+    a1 = Agent() 
+
+    a1.fiscal_name = 'Andrei Enache'
+    a1.fiscal_number = 'X4946057E'
+    a1.email = 'andrei.officee@gmail.com'
+    a1.phone = '604178304'
+    a1.country = 'Spain'
+    a1.active = True
+
+    a2 = Agent() 
+
+    a2.fiscal_name = 'Raimundo Cortès'
+    a2.fiscal_number = '4253234532'
+    a2.email = 'raimun.cortes@bbb.com'
+    a2.phone = '898949865'
+    a2.country = 'France'
+    a2.active = True
+
+    a3 = Agent()
+    a3.fiscal_name = 'Raimundo Lopez'
+    a3.fiscal_number = 'X34234234'
+    a3.active = False
+    a3.country = 'Spain'
+    a3.email = 'aasdasdnwe@fas.com'
+    a3.phone = '7723324324'
+
+    agent_list = [a1, a2, a3]
+
+    partner1 = Partner()
+
+    partner1.fiscal_name = 'Euromedia Investment Group, S.L.'
+    partner1.fiscal_number = 'B98815608'
+    partner1.trading_name = 'Euromedia'
+    partner1.billing_country = 'Spain'
+    partner1.agent = random.choice(agent_list)
+
+
+    partner1.shipping_line1 = 'Shipping line1'
+    partner1.shipping_line2 = 'Shipping line2'
+    partner1.shipping_line3 = 'Shipping line3'
+
+    partner1.shipping_city = 'Shipping city'
+    partner1.shipping_state = 'Shipping state'
+    partner1.shipping_country = 'Spain'
+    partner1.shipping_postcode = 'Shipping postcode'
+
     
+    partner1.billing_line1 = 'billing line1'
+    partner1.billing_line2 = 'billing line2'
+    partner1.billing_line3 = 'billing line3'
+
+    partner1.billing_city = 'billing city'
+    partner1.billing_state = 'billing state'
+    partner1.billing_country = 'Spain'
+    partner1.billing_postcode = 'billing postcode'
+
+    contact1 = PartnerContact('Angel Mirchev', 'CEO', '673567274', \
+        'angel.bn@euromediagroup.com', 'Boss of the people')
+    
+    contact2 = PartnerContact('Tihomir Damyianov', 'Sales Manager', '772342343',\
+        'tihomir.dv@euromediagroup.com', 'The boss of the salesman')
+
+    partner1.contacts.extend([contact1, contact2])
+
+    partner1.we_pay_they_ship = True
+    partner1.days_credit_limit = 30 
+    partner1.amount_credit_limit = 10000
+    partner1.warranty = 7
+
+    partner2 = Partner()
+    
+    partner2.fiscal_name = 'The boring company.'
+    partner2.fiscal_number = '32442234235324'
+    partner2.trading_name = 'The boring comany'
+    partner2.billing_country = 'EEUU'
+    partner2.agent = random.choice(agent_list) 
+
+    contact1 = PartnerContact('Elon Musk', 'CEO', '673567274', \
+        'elon.musk@tre.com', 'Boss of the people')
+    
+    contact2 = PartnerContact('Jose Ignacio Fernanzed', 'Admin', '772342343',\
+        'jose@ignacio.com', 'Un idiota')
+
+    partner2.contacts.extend([contact1, contact2])
+
+    partner2.shipping_line1 = 'Shipping line1'
+    partner2.shipping_line2 = 'Shipping line2'
+    partner2.shipping_line3 = 'Shipping line3'
+
+    partner2.shipping_city = 'Shipping city'
+    partner2.shipping_state = 'Shipping state'
+    partner2.shipping_country = 'Spain'
+    partner2.shipping_postcode = 'Shipping postcode'
+
+    
+    partner2.billing_line1 = 'billing line1'
+    partner2.billing_line2 = 'billing line2'
+    partner2.billing_line3 = 'billing line3'
+
+    partner2.billing_city = 'billing city'
+    partner2.billing_state = 'billing state'
+    partner2.billing_country = 'Spain'
+    partner2.billing_postcode = 'billing postcode'
+
+    partner2.warranty = 9 
+    partner2.we_pay_they_ship = True
+    partner2.days_credit_limit = 10 
+    partner2.amount_credit_limit = 50000
+
+    partner_list = [partner1, partner2]
+
+    from utils import base64Pdf 
+
+    ad1 = AgentDocument()
+    ad1.name = 'NIE'
+    ad1.document = base64Pdf(testpath) 
+    ad1.agent = random.choice(agent_list)
+
+    ad2 = AgentDocument()
+    ad2.name = 'Passport'
+    ad2.document = base64Pdf(testpath)
+    ad2.agent = random.choice(agent_list) 
+
+
+    pd = PartnerDocument()
+    pd.name = 'TAF'
+    pd.document = base64Pdf(testpath)
+    pd.partner = random.choice(partner_list) 
+    
+    session.add_all(agent_list)
+    session.add_all(partner_list)
+
+    session.commit() 
+
+if __name__ == '__main__':
+
+    Base.metadata.create_all(dev_engine) 
+    create_test_data()

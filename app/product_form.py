@@ -13,7 +13,7 @@ from utils import setCommonViewConfig
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import select
 
-from db import engine, Item
+from db import session, Item
 
 class ProductForm(Ui_ProductForm, QDialog):
 
@@ -29,7 +29,8 @@ class ProductForm(Ui_ProductForm, QDialog):
     
         # configure view: 
 
-        setCommonViewConfig(self.product_view)
+        # setCommonViewConfig(self.product_view)
+        self.product_view.setSortingEnabled(True)
 
         self.setUpCompleters() 
 
@@ -39,10 +40,10 @@ class ProductForm(Ui_ProductForm, QDialog):
 
         setCompleter(
             self.mpn, 
-            [r[0] for r in engine.execute(select(Item.mpn).distinct())]
+            [r[0] for r in session.execute(select(Item.mpn).distinct())]
         )
 
-        manufacturers = [r[0] for r in engine.execute(select(Item.manufacturer).distinct())]
+        manufacturers = [r[0] for r in session.execute(select(Item.manufacturer).distinct())]
         manufacturerModel = QStringListModel(manufacturers)
         completer = QCompleter()
         completer.setModel(manufacturerModel)
@@ -50,7 +51,7 @@ class ProductForm(Ui_ProductForm, QDialog):
 
         self.manufacturer_line_edit.setCompleter(completer)
 
-        categories = [r[0] for r in engine.execute(select(Item.category).distinct())]
+        categories = [r[0] for r in session.execute(select(Item.category).distinct())]
         model = QStringListModel(categories)
         completer = QCompleter()
         completer.setModel(model)
@@ -58,21 +59,21 @@ class ProductForm(Ui_ProductForm, QDialog):
 
         self.category_line_edit.setCompleter(completer)
 
-        models = [r[0] for r in engine.execute(select(Item.model).distinct())]
+        models = [r[0] for r in session.execute(select(Item.model).distinct())]
         model = QStringListModel(models)
         completer = QCompleter()
         completer.setModel(model)
         completer.setCaseSensitivity(False)
         self.model_line_edit.setCompleter(completer) 
 
-        capacities = [r[0] for r in engine.execute(select(Item.capacity).distinct())]
+        capacities = [r[0] for r in session.execute(select(Item.capacity).distinct())]
         model = QStringListModel(capacities)
         completer = QCompleter()
         completer.setModel(model)
         completer.setCaseSensitivity(False)
         self.capacity_line_edit.setCompleter(completer)
 
-        colors = [ r[0] for r in engine.execute(select(Item.color).distinct()) ]
+        colors = [ r[0] for r in session.execute(select(Item.color).distinct()) ]
         model = QStringListModel(colors)
         completer = QCompleter()
         completer.setModel(model)
@@ -147,13 +148,3 @@ class ProductForm(Ui_ProductForm, QDialog):
             QMessageBox.critical(self, 'Error', "Fields can't contain ? or | symbols or Mix/Mixed words")
             return False
         
-        if self.has_serie.isChecked() and any((
-            self.manufacturer_line_edit.text() == '', 
-            self.category_line_edit.text() == '', 
-            self.model_line_edit.text() == '', 
-            self.capacity_line_edit.text() == '', 
-            self.color_line_edit.text() == ''
-        )):
-            QMessageBox.critical(self, 'Error', 'If item has serie it must also have: manufacturer, category, model, color and capacity')
-            return False         
-        return True 

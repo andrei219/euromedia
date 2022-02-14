@@ -132,7 +132,7 @@ def sale_overflowed(proforma):
 # Purchase Proforma Utils:
 # Reuse method sales, simetric in payments
 def purchase_total_debt(proforma):
-	return sale_total_debt(proforma) 
+	return sum(line.quantity * line.price for line in proforma.lines)
 
 def purchase_total_paid(proforma):
 	return sale_total_paid(proforma) 
@@ -1881,9 +1881,7 @@ class SaleProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 		if not index.isValid(): return Qt.ItemIsEnabled
 		if self.editable_column(index.column()):
 			# return Qt.ItemFlags(super().flags(index) | Qt.ItemIsEditable)
-			result = super().flags(index) 
-			if result is not None:
-				return Qt.ItemFlags(super().flags(index) | Qt.ItemIsEditable)
+			return Qt.ItemFlags(super().flags(index) | Qt.ItemIsEditable)
 		else:
 			return Qt.ItemFlags(~Qt.ItemIsEditable)
 
@@ -1972,9 +1970,63 @@ class ProductModel(BaseTable, QtCore.QAbstractTableModel):
 			db.session.commit() 
 			del self.items[row]
 			self.layoutChanged.emit() 
-		except:
+		except:      
 			db.session.rollback()
 			raise 
+
+
+	def setData(self, index, value, role=Qt.EditRole):
+		if not index.isValid(): 
+			return False 
+		if '|' in value or '?' in value or 'Mix' in value: 
+			return False 
+		if role == Qt.EditRole:
+			row, column = index.row(), index.column() 
+			item = self.items[row]
+			if column == self.__class__.MPN:
+				item.mpn = value 
+			elif column == self.__class__.MANUFACTURER:
+				if not value: 
+					return False # These specific fields cannot be empty
+				item.manufacturer = value
+			elif column == self.__class__.CATEGORY:
+				if not value: 
+					return False 
+				item.category = value 
+			elif column == self.__class__.MODEL:
+				if not value:
+					return False 
+				item.model = value
+			elif column == self.__class__.CAPACITY:
+				item.capacity = value 
+			elif column == self.__class__.COLOR:
+				item.color = value 
+			try:
+				db.session.commit()
+			except IntegrityError: # UNIQUE VIOLATION
+				db.session.rollback() 
+				return False 
+			return True 
+		return False 
+	
+	def flags(self, index):
+		if not index.isValid(): 
+			return Qt.ItemIsEnabled
+		
+		if self.editable_column(index.column()):
+			return Qt.ItemFlags(super().flags(index) | Qt.ItemIsEditable)
+		else:
+			return Qt.ItemFlags(~Qt.ItemIsEditable)
+
+	def editable_column(self, column):
+		return column in (
+			self.__class__.MPN, 
+			self.__class__.MANUFACTURER, 
+			self.__class__.CATEGORY, 
+			self.__class__.MODEL, 
+			self.__class__.CAPACITY, 
+			self.__class__.COLOR
+		)
 
 	def sort(self, section, order):
 		attr = {
@@ -2110,7 +2162,8 @@ class PurchaseProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 		)
 
 	def flags(self, index):
-		if not index.isValid(): return Qt.ItemIsEnabled
+		if not index.isValid(): 
+			return Qt.ItemIsEnabled
 		if self.editable_column(index.column()):
 			return Qt.ItemFlags(super().flags(index) | Qt.ItemIsEditable)
 		else:
@@ -2143,11 +2196,10 @@ class PurchaseProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 		line.tax = tax
 		line.price = price 
 
-
 		# Dont apply mean for non stock relevant lines:
-		if line.description not in utils.descriptions and \
-			line.item_id is None:
+		if line.item_id is None:
 				self.lines.append(line) 
+				self.layoutChanged.emit() 
 		else:
 			updated = self.update_if_pre_exists(line)
 			if not updated:
@@ -2180,7 +2232,6 @@ class PurchaseProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 		
 		return False
 
-
 	def delete(self, indexes):
 		rows = { index.row() for index in indexes}
 		for row in sorted(rows, reverse=True):
@@ -2206,7 +2257,6 @@ class PurchaseProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 		if not self.lines:return
 		for line in self.lines:
 			line.proforma = proforma 
-			db.session.add(line) 
 		try:
 			db.session.commit() 
 		except:
@@ -2492,6 +2542,7 @@ class SerieModel(QtCore.QAbstractListModel):
 
 	def rowCount(self, index):
 		return len(self.series)
+
 
 	def data(self, index, role=Qt.DisplayRole):
 		if not index.isValid():
@@ -3609,7 +3660,6 @@ class ReceptionSeriesModel:
 			join(db.ReceptionLine).join(db.Reception).\
 				where(db.Reception.id == reception.id).all() 
 
-		
 	def add(self, line, serie, description, condition, spec):
 		if serie.lower() in [o.serie.lower() for o in self.reception_series]:
 			raise ValueError('Serie already processed in this reception order')
@@ -3631,7 +3681,6 @@ class ReceptionSeriesModel:
 		except:
 			db.session.rollback()
 			raise 
-
 
 	def add_invented(self, line, qnt, description, condition, spec):
 		import uuid
@@ -3694,7 +3743,6 @@ class ReceptionSeriesModel:
 			# 	db.session.rollback()
 			# 	raise 
 
-
 	def delete(self, series):
 		delete_targets = [r for r in self.reception_series \
 			if r.serie in series]
@@ -3733,6 +3781,11 @@ class DefinedSeriesModel(QtCore.QAbstractListModel):
 				r.spec == spec
 			))]
 
+	def clear(self):
+		self.layoutAboutToBeChanged.emit()
+		self.series = []
+		self.layoutChanged.emit() 
+
 	def rowCount(self, index):
 		return len(self.series) 
 
@@ -3753,17 +3806,28 @@ class DefinedSeriesModel(QtCore.QAbstractListModel):
 		return False 	
 
 from operator import attrgetter
+
 Group = namedtuple('Group', 'description condition spec quantity')
+
+class Group:
+
+	def __init__(self, description, condition, spec, quantity):
+		self.description = description
+		self.condition = condition
+		self.spec = spec 
+		self.quantity = int(quantity)
+
+
 class GroupModel(BaseTable, QtCore.QAbstractTableModel):
 
 	DESCRIPTION, CONDITION, SPEC, QUANTITY = 0, 1, 2, 3
 
 	def __init__(self, rs_model, line):
 		super().__init__() 
-		self._headerData = ['Description', 'Condition', 'Spec', \
-			'Quantity']
+		self._headerData = ['Description', 'Condition', 'Spec', 'Quantity']
 		self.name = 'groups'
 		key = attrgetter('item_id', 'condition', 'spec')
+		
 
 		series = rs_model.reception_series
 		_filter = lambda o:o.line_id == line.id
@@ -3790,6 +3854,58 @@ class GroupModel(BaseTable, QtCore.QAbstractTableModel):
 				self.__class__.QUANTITY:group.quantity 
 			}.get(col)
 
+
+class EditableGroupModel(GroupModel):
+
+	def __init__(self, rs_model, line, form):
+		self.line = line 
+		self.rs_model = rs_model 
+		self.form = form
+		super().__init__(rs_model, line) 
+
+	def flags(self, index):
+		if not index.isValid(): return Qt.ItemIsEnabled
+		if index.column() == self.__class__.QUANTITY:
+			return Qt.ItemFlags(super().flags(index) | Qt.ItemIsEditable)
+		else:
+			return Qt.ItemFlags(~Qt.ItemIsEditable)
+
+	def setData(self, index, value, role=Qt.EditRole):
+		if not index.isValid(): return False 
+		try:
+			v = int(value)
+			if v < 0: 
+				raise ValueError
+		except ValueError:
+			return False 
+		
+		if role == Qt.EditRole:
+			row, column = index.row(), index.column() 
+			if index.column() == self.__class__.QUANTITY:
+				try:
+					new_processed = int(value)
+					if new_processed < 0: 
+						raise ValueError
+				except ValueError:
+					return False 
+				
+				try:
+					group = self.groups[row]
+					old_processed = self.groups[row].quantity
+					actual_item = group.description
+					condition = group.condition
+					spec = group.spec 
+					self.rs_model.add_invented(self.line, 
+						new_processed - old_processed, 
+						actual_item, condition, spec
+					)
+					self.form.populate_body()
+					return True 
+
+				except:
+					raise # debug
+					return False
+		return True 
 
 class AdvancedStockModel(StockModel):
 

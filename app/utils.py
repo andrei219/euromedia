@@ -3,7 +3,7 @@
 import os 
 import re 
 import base64
-from datetime import datetime 
+from datetime import datetime   
 import functools
 
 # QtFramework stuff:
@@ -42,7 +42,12 @@ def stock_type(stock):
     # Este check me permite sobrecargar el metodo, 
     # acepta item_id o stockEntry
     id = stock if isinstance(stock, int) else stock.item_id 
-    *_, cap, col, _ = dirty_map.inverse[id] 
+    # breakpoint()    
+    mpn, *_, cap, col, _ = dirty_map.inverse[id].split('|')
+
+    if mpn != '?':
+        return -1 
+
     if cap != '?' and col != '?':
         return CAP_COL
     elif cap == '?' and col != '?':
@@ -75,17 +80,14 @@ def complete_descriptions(clean_map, dirty_map):
         if mpn != '?': continue 
         else: mpn = ''
         if cap != '?' and col != '?':
-            print('cap col')
             descriptions.update({
                 ' '.join((mpn, man, cat, mod, 'Mixed GB', 'Mixed Color')).strip(), 
                 ' '.join((mpn, man, cat, mod, 'Mixed GB', col)).strip(), 
                 ' '.join((mpn, man, cat, mod, cap, 'Mixed Color')).strip()
             })
         elif col != '?' and cap == '?':
-            print('only col')
             descriptions.add(' '.join((mpn, man, cat, mod, 'Mixed Color')).strip())
         elif cap != '?' and col == '?':
-            print('only col')
             descriptions.add(' '.join((mpn, man, cat, mod, 'Mixed GB')).strip()) 
     
     return descriptions
@@ -174,10 +176,17 @@ def compute_available_descriptions(available_item_ids):
     dmap = bidict({k:v for k, v in dirty_map.items() if v in available_item_ids})
     return complete_descriptions(cmap, dmap)
 
-def has_serie(clean_repr):
-    id = description_id_map[clean_repr]
-    dirty_repr = dirty_map.inverse[id]
-    return dirty_repr.endswith('y')
+def has_serie(line):
+    try:
+        id = description_id_map[line.item.clean_repr]
+        dirty_repr = dirty_map.inverse[id]
+        return dirty_repr.endswith('y')
+    except AttributeError: # line.item is None
+        ids = get_itemids_from_mixed_description(line.description)
+        return all((
+            dirty_map.inverse[id].endswith('y')
+            for id in get_itemids_from_mixed_description(line.description)
+        ))
 
 def validSwift(bic):
     try:
@@ -318,50 +327,51 @@ def build_description(lines):
 
     line = lines[0] 
 
+    capacities = {dirty_map.inverse[line.item_id].split('|')[-3]\
+            for line in lines}
+
+    colors = {dirty_map.inverse[line.item_id].split('|')[-2]\
+            for line in lines}
+
     if stock_type(line.item_id) == CAP_COL:
-        capacities = set() 
-        for line in lines:
-            capacities.add(
-                dirty_map.inverse[line.item_id].split('|')[-3]
-            )
 
         if len(capacities) == 1: 
-            capacity = capacities.pop() + ' GB'
+            capacity = capacities.pop()
         else:
             capacity = 'Mixed GB'
-        
-        colors = set()
-        for line in lines:
-            color = dirty_map.inverse[line.item_id].split('|')[-2]
-            colors.add(color) 
 
         if len(colors) == 1:
             color = colors.pop()
         else:
             color = 'Mixed Color'
         
-        line = lines[0]
-        description = dirty_map.inverse[line.item_id] 
-        _, manufacturer, category, model , *_ = description.split('|') 
-        return ' '.join([
-            manufacturer, category, model, 
-            capacity, color 
-        ])
+        _, manufacturer, category, model, *_ = dirty_map.inverse[line.item_id].split('|') 
+        return ' '.join([manufacturer, category, model, capacity, color ])
     
     elif stock_type(line.item_id) == ONLY_COL:
-        
-        colors = set()
-        for line in lines:
-            color = dirty_map.inverse[line.item_id].split('|')[-2]
-            colors.add(color) 
 
         if len(colors) == 1:
             color = colors.pop()
         else:
             color = 'Mixed Color'
         
-        description = dirty_map.inverse[line.item_id] 
-        _, manufacturer, category, model, *_ = description.split('|') 
-        return ' '.join((
-            manufacturer, category, model, color
-        ))
+        _, manufacturer, category, model, *_ = dirty_map.inverse[line.item_id].split('|') 
+        return ' '.join((manufacturer, category, model, color))
+
+    elif stock_type(line.item_id) == ONLY_CAP:
+        capacities = {dirty_map.inverse[line.item_id].split('|')[-3]\
+            for line in lines}
+        
+        _, man, cat, mod, *_ = dirty_map.inverse[line.item_id].split('|')
+        
+        if len(capacities) == 1:
+            capacity = capacities.pop()
+        else :
+            capacity = 'Mixed GB'     
+        return ' '.join((man, cat, mod, capacity))
+
+
+if __name__ == '__main__':
+
+    for k, v in description_id_map.items():
+        print(k, ':', stock_type(v)) 
