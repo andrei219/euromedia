@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>989</width>
-    <height>806</height>
+    <width>1033</width>
+    <height>863</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -25,22 +25,35 @@
     <rect>
      <x>50</x>
      <y>40</y>
-     <width>881</width>
+     <width>951</width>
      <height>651</height>
     </rect>
    </property>
   </widget>
-  <widget class="QPushButton" name="pushButton">
+  <widget class="QToolButton" name="toolButton">
    <property name="geometry">
     <rect>
-     <x>840</x>
-     <y>742</y>
-     <width>91</width>
-     <height>31</height>
+     <x>910</x>
+     <y>750</y>
+     <width>81</width>
+     <height>81</height>
     </rect>
    </property>
    <property name="text">
     <string>Exit</string>
+   </property>
+   <property name="icon">
+    <iconset resource="../app/icons.qrc">
+     <normaloff>:/exit</normaloff>:/exit</iconset>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>32</width>
+     <height>32</height>
+    </size>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonTextUnderIcon</enum>
    </property>
   </widget>
  </widget>
@@ -49,18 +62,18 @@
  </resources>
  <connections>
   <connection>
-   <sender>pushButton</sender>
+   <sender>toolButton</sender>
    <signal>clicked()</signal>
    <receiver>InventoryForm</receiver>
    <slot>close()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>845</x>
-     <y>758</y>
+     <x>923</x>
+     <y>778</y>
     </hint>
     <hint type="destinationlabel">
-     <x>724</x>
-     <y>752</y>
+     <x>757</x>
+     <y>766</y>
     </hint>
    </hints>
   </connection>

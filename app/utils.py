@@ -44,10 +44,8 @@ def stock_type(stock):
     id = stock if isinstance(stock, int) else stock.item_id 
     # breakpoint()    
     mpn, *_, cap, col, _ = dirty_map.inverse[id].split('|')
-
     if mpn != '?':
         return -1 
-
     if cap != '?' and col != '?':
         return CAP_COL
     elif cap == '?' and col != '?':
@@ -57,6 +55,21 @@ def stock_type(stock):
     else:
         return -1 # No mixing available 
     
+
+def mixing_compatible(o, p):
+    # First stocks must be same type and != -1 
+    if stock_type(o) == -1 or stock_type(p) == -1:
+        return False
+    if stock_type(o) != stock_type(o):
+        return False
+    
+    # Once stock is same type, we are interested in base 
+    d1, d2 = dirty_map.inverse[o.item_id], dirty_map.inverse[p.item_id]
+    man1, cat1, mod1, *_ = d1.split('|')
+    man2, cat2, mod2, *_ = d2.split('|')
+    return all((man1 == man2, cat1 == cat2, mod1 == mod2))
+
+
 
 specs = {s.description for s in db.session.query(db.Spec.description)}
 conditions = {c.description for c in db.session.query(db.Condition.description)}
@@ -95,6 +108,7 @@ def complete_descriptions(clean_map, dirty_map):
 
 @functools.cache
 def mixed_to_clean_descriptions(mixed_description):
+    print('mixed_to_clean...:', mixed_description)
     clean_descriptions = [] 
     if mixed_description.count('Mixed') == 2:
         for dirty_desc in dirty_map:
@@ -110,15 +124,19 @@ def mixed_to_clean_descriptions(mixed_description):
             mpn, man, cat, mod, _, col, _ = dirty_desc.split('|')
             if mpn != '?': continue 
             else: mpn = ''
+            col = col if col != '?' else ''
+
             if ' '.join((mpn, man, cat, mod, 'Mixed GB', col)).strip() == mixed_description:
                 clean_descriptions.append(
                     description_id_map.inverse[dirty_map[dirty_desc]]
                 )
+    
     elif 'Mixed Color' in mixed_description:
         for dirty_desc in dirty_map:
             mpn, man, cat, mod, cap, col, _  = dirty_desc.split('|') 
             if mpn != '?': continue 
             else: mpn = ''
+            
             if cap != '?' and col != '?':
                 if ' '.join((mpn, man, cat, mod, cap, 'Mixed Color')).strip() == mixed_description:
                     clean_descriptions.append(
@@ -286,42 +304,33 @@ def today_date():
 from PyQt5.QtCore import QStringListModel, Qt
 from PyQt5.QtWidgets import QCompleter
 
-def setCompleter(field, data):
-    print('set completer init:', field.objectName())
+# def setCompleter(field, data):
+#     model = QStringListModel(data)
+#     completer = field.completer()
+#     if completer is not None:
+#         # completer.model().beginModelReset()
+#         completer.setModel(model)
+#     else:
+#         model = QStringListModel()
+#         model.setStringList(data)
+#         completer = QCompleter()
+#         completer.setFilterMode(Qt.MatchContains)
+#         completer.setCaseSensitivity(False)
+#         completer.setModel(model)
+#         field.setCompleter(completer)
+    
 
-    model = QStringListModel(data)
+def setCompleter(field, data):
     completer = field.completer()
     if completer is not None:
-        print('completer is not None')
-        completer.setModel(model)
+        completer.model().setStringList(data)
     else:
-        model = QStringListModel()
-        model.setStringList(data)
         completer = QCompleter()
         completer.setFilterMode(Qt.MatchContains)
         completer.setCaseSensitivity(False)
+        model = QStringListModel(data)
         completer.setModel(model)
         field.setCompleter(completer)
-    
-
-def setComboCompleter(combo, data):
-
-    # model = QStringListModel(data)
-    # completer = combo.completer()
-    # if completer is not None:
-    #     completer.setModel(model)
-    #     print('completer not none')
-    # else:
-    #     print('completer None')
-    #     completer = QCompleter()
-    #     completer.setModel(QStringListModel(data))
-    #     completer.setCaseSensitivity(Qt.CaseInsensitive)
-    #     completer.setFilterMode(Qt.MatchContains)
-    #     completer.setCompletionMode(QtGui.QCompleter.PopupCompletion)
-    #     combo.setCompleter(completer)
-
-
-    combo.replace_items(data) 
 
 def build_description(lines):
 

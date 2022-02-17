@@ -157,11 +157,18 @@ class MainGui(Ui_MainGui, QMainWindow):
             self.agents_model = models.AgentModel(search_key=search_key)
             self.agents_view.setModel(self.agents_model) 
             setCommonViewConfig(self.agents_view)
+            self.agents_view.resizeColumnToContents(1)
+            self.agents_view.resizeColumnToContents(3)
 
         elif prefix == 'partners_':
             self.partners_model = models.PartnerModel(search_key=search_key)
             self.partners_view.setModel(self.partners_model)
             setCommonViewConfig(self.partners_view)
+            self.partners_view.resizeColumnToContents(1)
+            self.partners_view.resizeColumnToContents(2)
+            self.partners_view.resizeColumnToContents(3)
+            self.partners_view.resizeColumnToContents(7)
+            
 
         elif prefix == 'proformas_purchases_':
             self.proformas_purchases_model = \
@@ -172,6 +179,9 @@ class MainGui(Ui_MainGui, QMainWindow):
             self.proformas_purchases_view.setSelectionBehavior(QTableView.SelectRows)
             self.proformas_purchases_view.setSortingEnabled(True)
             self.proformas_purchases_view.setAlternatingRowColors(True)
+            self.proformas_purchases_view.resizeColumnToContents(3)
+            self.proformas_purchases_view.resizeColumnToContents(4)
+            
 
         elif prefix == 'invoices_purchases_':
             self.invoices_purchases_model = \
@@ -208,15 +218,26 @@ class MainGui(Ui_MainGui, QMainWindow):
             self.warehouse_receptions_view.setSortingEnabled(True)
             self.warehouse_receptions_view.setAlternatingRowColors(True) 
 
+            self.warehouse_receptions_view.resizeColumnToContents(6)
+            self.warehouse_receptions_view.resizeColumnToContents(7)
+            self.warehouse_receptions_view.resizeColumnToContents(8)
+            self.warehouse_receptions_view.resizeColumnToContents(4)
+            
+            
+
+
         elif prefix == 'warehouse_expeditions_':
-            self.warehouse_expeditions_model = models.ExpeditionModel(
-                filters = filters, 
-                search_key = search_key
-            )
+            self.warehouse_expeditions_model = \
+                models.ExpeditionModel(filters = filters, search_key = search_key)
             self.warehouse_expeditions_view.setModel(self.warehouse_expeditions_model)
             self.warehouse_expeditions_view.setSelectionBehavior(QTableView.SelectRows)
             self.warehouse_expeditions_view.setAlternatingRowColors(True)
             self.warehouse_expeditions_view.setSortingEnabled(True)
+
+            self.warehouse_expeditions_view.resizeColumnToContents(6)
+            self.warehouse_expeditions_view.resizeColumnToContents(7)
+            self.warehouse_expeditions_view.resizeColumnToContents(8)
+            self.warehouse_expeditions_view.resizeColumnToContents(4)
 
     def set_handlers(self):
         from itertools import product

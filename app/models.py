@@ -177,8 +177,21 @@ def purchase_partially_processed(proforma):
 def purchase_completed(proforma):
 	return purchase_total_processed(proforma) == purchase_total_quantity(proforma) 
 
+def reception_overflowed(reception):
+	# print('eeee')
+	for line in reception.lines:
+		try:
+			if len(line.series) > line.quantity:
+				return True 
+		except AttributeError:
+			raise
+	return False
+
+
 def purchase_overflowed(proforma):
-	return 0 < purchase_total_quantity(proforma) < purchase_total_processed(proforma) 
+	return reception_overflowed(proforma.reception) 
+
+	# return 0 < purchase_total_quantity(proforma) < purchase_total_processed(proforma) 
 
 
 def stock_gap():
@@ -1468,11 +1481,7 @@ class OrganizedLines:
 		if len(stocks) == 0:
 			raise ValueError("At least one stock must be provided")
 
-		# If duplicated update:
-
-		# if any((stock == line for line in self.lines for stock in stocks)):
-		# 		raise ValueError("I can't handle duplicated stocks")
-		
+		# Update quantity
 		hit = False 
 		for stock in stocks:
 			for line in self.lines:
@@ -1505,7 +1514,7 @@ class OrganizedLines:
 					price, ignore_spec, tax, showing, *stocks, row=row
 				)
 			else:
-				raise ValueError("I can't mix these stocks")
+				raise ValueError("Incompatible mixing")
 		
 		self.instrumented_lines.extend(new_lines) 
 		db.session.flush() 
@@ -1548,30 +1557,19 @@ class OrganizedLines:
 		return new_lines
 
 	def backward_compatible(self, stocks, row):
-		existent_lines = self.organized_lines[row]
+		previous_lines = self.organized_lines[row]
 		try:
-			if all((
-				utils.stock_type(stock) == utils.stock_type(line.item_id) != -1 
-				for line in existent_lines
-				for stock in stocks 
-			)) and all((
-				self.no_line_stock_conflict(line, stock)
-				for line in existent_lines 
-				for stock in stocks 
-			)):
-				return True 
-			return False 
+			return all((
+				utils.mixing_compatible(stock, line)
+				for line in previous_lines
+				for stock in stock
+			))			
 		except TypeError:
-			line = existent_lines 
-			if all((
-				utils.stock_type(line.item_id) == utils.stock_type(stock) != -1
-				for stock in stocks 
-			)) and all((
-				self.no_line_stock_conflict(line, stock)
+			line = previous_lines 
+			return all((
+				utils.mixing_compabile(stock, line)
 				for stock in stocks
-			)):
-				return True 
-			return False 
+			))
 
 	def no_line_stock_conflict(self, line, stock):
 		line_description = utils.dirty_map.inverse[line.item_id]
@@ -1974,7 +1972,6 @@ class ProductModel(BaseTable, QtCore.QAbstractTableModel):
 			db.session.rollback()
 			raise 
 
-
 	def setData(self, index, value, role=Qt.EditRole):
 		if not index.isValid(): 
 			return False 
@@ -1986,21 +1983,25 @@ class ProductModel(BaseTable, QtCore.QAbstractTableModel):
 			if column == self.__class__.MPN:
 				item.mpn = value 
 			elif column == self.__class__.MANUFACTURER:
-				if not value: 
+				if not value.strip(): 
 					return False # These specific fields cannot be empty
 				item.manufacturer = value
 			elif column == self.__class__.CATEGORY:
-				if not value: 
+				if not value.strip(): 
 					return False 
 				item.category = value 
 			elif column == self.__class__.MODEL:
-				if not value:
+				if not value.strip():
 					return False 
 				item.model = value
 			elif column == self.__class__.CAPACITY:
 				item.capacity = value 
 			elif column == self.__class__.COLOR:
 				item.color = value 
+			elif column == self.__class__.HAS_SERIE:
+				if value.lower() not in ('yes', 'no'):
+					return False 
+				item.has_serie = True if value.lower() == 'yes' else False 
 			try:
 				db.session.commit()
 			except IntegrityError: # UNIQUE VIOLATION
@@ -2012,21 +2013,7 @@ class ProductModel(BaseTable, QtCore.QAbstractTableModel):
 	def flags(self, index):
 		if not index.isValid(): 
 			return Qt.ItemIsEnabled
-		
-		if self.editable_column(index.column()):
-			return Qt.ItemFlags(super().flags(index) | Qt.ItemIsEditable)
-		else:
-			return Qt.ItemFlags(~Qt.ItemIsEditable)
-
-	def editable_column(self, column):
-		return column in (
-			self.__class__.MPN, 
-			self.__class__.MANUFACTURER, 
-			self.__class__.CATEGORY, 
-			self.__class__.MODEL, 
-			self.__class__.CAPACITY, 
-			self.__class__.COLOR
-		)
+		return Qt.ItemFlags(super().flags(index) | Qt.ItemIsEditable)
 
 	def sort(self, section, order):
 		attr = {
@@ -2047,6 +2034,9 @@ class ProductModel(BaseTable, QtCore.QAbstractTableModel):
 			)
 			self.layoutChanged.emit() 
 
+
+	def __iter__(self):
+		return iter(self.items)	
 
 def update_advanced_line_after_purchase_line_update(newquantity, origin_id):
 	# Not yet purchase line persisted and given an id
@@ -2122,7 +2112,10 @@ class PurchaseProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 		row, column = index.row(), index.column()
 		if not self.editable_column(column):
 			return False
-		line = self.lines[row]
+		try:
+			line = self.lines[row]
+		except IndexError:
+			return False 		
 		if role == Qt.EditRole:
 			if column == self.__class__.PRICE:
 				try:
@@ -2725,7 +2718,7 @@ class ReceptionModel(BaseTable, QtCore.QAbstractTableModel):
 				if 'empty' in filters['logistic']:
 					self.receptions = filter(lambda r :purchase_empty(r), self.receptions)
 				if 'overflowed' in filters['logistic']:
-					self.receptions = filter(lambda r:purchase_overflowed(r), self.receptions)
+					self.receptions = filter(lambda r:reception_overflowed(r), self.receptions)
 				if 'partially_processed' in filters['logistic']:
 					self.receptions = filter(lambda r:purchase_partially_processed(r), self.receptions)
 				if "completed" in filters['logistic']:
@@ -2762,7 +2755,7 @@ class ReceptionModel(BaseTable, QtCore.QAbstractTableModel):
 			elif column == ReceptionModel.LOGISTIC:
 				if purchase_empty(reception):
 					return "Empty"
-				elif purchase_overflowed(reception):
+				elif reception_overflowed(reception):
 					return 'Overflowed'
 				elif purchase_partially_processed(reception):
 					return 'Partially Received'
@@ -2785,7 +2778,7 @@ class ReceptionModel(BaseTable, QtCore.QAbstractTableModel):
 			elif column == ReceptionModel.LOGISTIC:
 				if purchase_empty(reception):
 					return QtGui.QColor(YELLOW)
-				elif purchase_overflowed(reception):
+				elif reception_overflowed(reception):
 					return QtGui.QColor(RED)
 				elif purchase_partially_processed(reception):
 					return QtGui.QColor(ORANGE)
@@ -3683,6 +3676,7 @@ class ReceptionSeriesModel:
 			raise 
 
 	def add_invented(self, line, qnt, description, condition, spec):
+
 		import uuid
 		reception_series = [] 
 		if qnt > 0:
@@ -3702,16 +3696,21 @@ class ReceptionSeriesModel:
 				raise 
 
 		elif qnt < 0:
+
 			qnt = abs(qnt)
 			counter, targets = 0, [] 
 			for serie in self.reception_series:
-				if serie.item_id == line.item_id and \
-					serie.line_id == line.id:
-						counter += 1
-						targets.append(serie)
-						if counter == qnt:
-							break 
-
+				if all((
+					serie.item_id == utils.description_id_map[description],
+					serie.line_id == line.id,
+					serie.condition == condition, 
+					serie.spec == spec 
+				)):
+					counter += 1
+					targets.append(serie)
+					if counter == qnt:
+						break 
+			
 			for target in targets:
 				db.session.delete(target) 
 			
@@ -3856,6 +3855,9 @@ class GroupModel(BaseTable, QtCore.QAbstractTableModel):
 				return True 
 		return False 	
 
+	def __len__(self):
+		return len(self.groups)
+
 
 class EditableGroupModel(GroupModel):
 
@@ -3890,7 +3892,6 @@ class EditableGroupModel(GroupModel):
 						raise ValueError
 				except ValueError:
 					return False 
-				
 				try:
 					group = self.groups[row]
 					old_processed = self.groups[row].quantity

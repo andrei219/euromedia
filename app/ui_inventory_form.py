@@ -14,24 +14,29 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_InventoryForm(object):
     def setupUi(self, InventoryForm):
         InventoryForm.setObjectName("InventoryForm")
-        InventoryForm.resize(989, 806)
+        InventoryForm.resize(1033, 863)
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(":/warehouse"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         InventoryForm.setWindowIcon(icon)
         InventoryForm.setStyleSheet("")
         self.view = QtWidgets.QTableView(InventoryForm)
-        self.view.setGeometry(QtCore.QRect(50, 40, 881, 651))
+        self.view.setGeometry(QtCore.QRect(50, 40, 951, 651))
         self.view.setObjectName("view")
-        self.pushButton = QtWidgets.QPushButton(InventoryForm)
-        self.pushButton.setGeometry(QtCore.QRect(840, 742, 91, 31))
-        self.pushButton.setObjectName("pushButton")
+        self.toolButton = QtWidgets.QToolButton(InventoryForm)
+        self.toolButton.setGeometry(QtCore.QRect(910, 750, 81, 81))
+        icon1 = QtGui.QIcon()
+        icon1.addPixmap(QtGui.QPixmap(":/exit"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.toolButton.setIcon(icon1)
+        self.toolButton.setIconSize(QtCore.QSize(32, 32))
+        self.toolButton.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
+        self.toolButton.setObjectName("toolButton")
 
         self.retranslateUi(InventoryForm)
-        self.pushButton.clicked.connect(InventoryForm.close)
+        self.toolButton.clicked.connect(InventoryForm.close)
         QtCore.QMetaObject.connectSlotsByName(InventoryForm)
 
     def retranslateUi(self, InventoryForm):
         _translate = QtCore.QCoreApplication.translate
         InventoryForm.setWindowTitle(_translate("InventoryForm", "Inventory"))
-        self.pushButton.setText(_translate("InventoryForm", "Exit"))
+        self.toolButton.setText(_translate("InventoryForm", "Exit"))
 import icons_rc

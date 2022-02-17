@@ -1,6 +1,6 @@
 
 from PyQt5.QtCore import QStringListModel, Qt
-from PyQt5.QtWidgets import QCompleter, QMessageBox
+from PyQt5.QtWidgets import QCompleter, QMessageBox, QTableView
 
 from PyQt5.QtWidgets import QDialog
 
@@ -31,6 +31,9 @@ class ProductForm(Ui_ProductForm, QDialog):
 
         # setCommonViewConfig(self.product_view)
         self.product_view.setSortingEnabled(True)
+        self.product_view.setAlternatingRowColors(True)
+        self.product_view.setSelectionBehavior(QTableView.SelectRows)
+
 
         self.setUpCompleters() 
 
@@ -38,47 +41,16 @@ class ProductForm(Ui_ProductForm, QDialog):
 
         from utils import setCompleter
 
-        setCompleter(
-            self.mpn, 
-            [r[0] for r in session.execute(select(Item.mpn).distinct())]
-        )
 
-        manufacturers = [r[0] for r in session.execute(select(Item.manufacturer).distinct())]
-        manufacturerModel = QStringListModel(manufacturers)
-        completer = QCompleter()
-        completer.setModel(manufacturerModel)
-        completer.setCaseSensitivity(False)
-
-        self.manufacturer_line_edit.setCompleter(completer)
-
-        categories = [r[0] for r in session.execute(select(Item.category).distinct())]
-        model = QStringListModel(categories)
-        completer = QCompleter()
-        completer.setModel(model)
-        completer.setCaseSensitivity(False)
-
-        self.category_line_edit.setCompleter(completer)
-
-        models = [r[0] for r in session.execute(select(Item.model).distinct())]
-        model = QStringListModel(models)
-        completer = QCompleter()
-        completer.setModel(model)
-        completer.setCaseSensitivity(False)
-        self.model_line_edit.setCompleter(completer) 
-
-        capacities = [r[0] for r in session.execute(select(Item.capacity).distinct())]
-        model = QStringListModel(capacities)
-        completer = QCompleter()
-        completer.setModel(model)
-        completer.setCaseSensitivity(False)
-        self.capacity_line_edit.setCompleter(completer)
-
-        colors = [ r[0] for r in session.execute(select(Item.color).distinct()) ]
-        model = QStringListModel(colors)
-        completer = QCompleter()
-        completer.setModel(model)
-        completer.setCaseSensitivity(False)
-        self.color_line_edit.setCompleter(completer)
+        for field, data in [
+            (self.mpn, {item.mpn for item in self.model}), 
+            (self.manufacturer_line_edit, {item.manufacturer for item in self.model}), 
+            (self.category_line_edit, {item.category for item in self.model}), 
+            (self.model_line_edit, {item.model for item in self.model}), 
+            (self.capacity_line_edit, {item.capacity for item in self.model}), 
+            (self.color_line_edit, {item.color for item in self.model}), 
+        ]: 
+            setCompleter(field, data) 
 
     def clearFields(self):
         self.mpn.clear()
@@ -111,6 +83,8 @@ class ProductForm(Ui_ProductForm, QDialog):
             if code == 1062:
                 QMessageBox.critical(self, 'Error - Update', 'That product already exists')
             
+        self.setUpCompleters()      
+
     def removeItemHandler(self):
         indexes = self.product_view.selectedIndexes() 
         if indexes:
@@ -124,7 +98,12 @@ class ProductForm(Ui_ProductForm, QDialog):
                 if code == 1451:
                     QMessageBox.critical(self, 'Error - Update', 'That product has data associated')
 
+
+        self.setUpCompleters()
+
     def validProduct(self):
+        
+
         if not all((
             self.manufacturer_line_edit.text(), 
             self.model_line_edit.text(), 
@@ -148,3 +127,56 @@ class ProductForm(Ui_ProductForm, QDialog):
             QMessageBox.critical(self, 'Error', "Fields can't contain ? or | symbols or Mix/Mixed words")
             return False
         
+        try:
+            self.validate_subsets_mpn()
+        except ValueError as ex:
+            QMessageBox.critical(self,'Error', str(ex))
+            return False
+
+        return True
+
+    def validate_subsets_mpn(self):
+
+        incompatible = 'Incompatible Product'
+
+        mpn, man, cat, mod, cap, col, has_serie = \
+            self.mpn.text().strip(), self.manufacturer_line_edit.text().strip(), self.category_line_edit.text().strip(),\
+                self.model_line_edit.text().strip(), self.capacity_line_edit.text().strip(),\
+                    self.color_line_edit.text().strip(), self.has_serie.isChecked()
+        
+        base = lambda item: (item.manufacturer, item.category, item.model) == (man, cat, mod) 
+
+        if cap and not has_serie:
+            raise ValueError('If product has capacity it must have serie')
+        
+        for item in self.model:
+                if mpn == item.mpn != '':
+                    raise ValueError(f"Mpn:{mpn} already exists, it cannot be duplicated")
+
+        if not cap and not col:
+            if list(filter(base, self.model)):
+                raise ValueError(f"Product: {man} {cat} {mod} already exists")
+            return True 
+        
+        elif not cap and col:
+            if all((
+                item.color and not item.capacity
+                for item in filter(base, self.model)
+            )):
+                return True
+            raise ValueError(incompatible) 
+
+        elif cap and not col:
+            if all((
+                item.capacity and not item.color
+                for item in filter(base, self.model) 
+            )):
+                return True
+            raise ValueError(incompatible)
+        elif cap and col:
+            if all((
+                item.color and item.capacity
+                for item in filter(base, self.model)
+            )):
+                return True
+            raise ValueError(incompatible)

@@ -1377,6 +1377,17 @@ def insert_imei_after_sale(mapper, connection, target):
     connection.execute(stmt)
 
 
+# En estos metodos se usa Core SQLAlchemy.
+@event.listens_for(Item, 'before_insert')
+def validate(mapper, connection, target):
+    print(connection)
+    print(target)
+
+
+@event.listens_for(Item, 'before_update')
+def validate(mapper, connection, target):
+    print(target)
+
 class SpecChange(Base):
 
     __tablename__ = 'spec_changes'
@@ -1538,335 +1549,335 @@ def create_test_data():
 
     # CAP=0 COL=0 SERIE=1
     import random
-    session.add_all([
-        Item(
-            mpn = '', 
-            manufacturer = 'AMD', 
-            category='Graphic Card', 
-            model = 'x11', 
-            color='',
-            capacity='', 
-            has_serie=True
-        ), Item(
-            mpn='', 
-            manufacturer = 'INTEL', 
-            category='microprocesor', 
-            model = 'x86_64', 
-            color='', 
-            capacity='', 
-            has_serie=True
-        ), 
+    # session.add_all([
+    #     Item(
+    #         mpn = '', 
+    #         manufacturer = 'AMD', 
+    #         category='Graphic Card', 
+    #         model = 'x11', 
+    #         color='',
+    #         capacity='', 
+    #         has_serie=True
+    #     ), Item(
+    #         mpn='', 
+    #         manufacturer = 'INTEL', 
+    #         category='microprocesor', 
+    #         model = 'x86_64', 
+    #         color='', 
+    #         capacity='', 
+    #         has_serie=True
+    #     ), 
 
-        #  CAP=0 COL=0 SERIE=0
-        Item(
-            mpn='MPN1231', 
-            manufacturer='Apple', 
-            category='cable', 
-            model = 'coco', 
-            color='', 
-            capacity='', 
-            has_serie=False
-        ), 
-        Item(
-            mpn='', 
-            manufacturer='Apple', 
-            category='Charger', 
-            model='lol', 
-            capacity='', 
-            color='', 
-            has_serie=False
-        )
-    ])
+    #     #  CAP=0 COL=0 SERIE=0
+    #     Item(
+    #         mpn='MPN1231', 
+    #         manufacturer='Apple', 
+    #         category='cable', 
+    #         model = 'coco', 
+    #         color='', 
+    #         capacity='', 
+    #         has_serie=False
+    #     ), 
+    #     Item(
+    #         mpn='', 
+    #         manufacturer='Apple', 
+    #         category='Charger', 
+    #         model='lol', 
+    #         capacity='', 
+    #         color='', 
+    #         has_serie=False
+    #     )
+    # ])
     
 
 
-    # STOCK_TYPE = -1 
+    # # STOCK_TYPE = -1 
 
-    session.add_all([
-        Item(
-            mpn = 'MPN1', 
-            manufacturer = 'Apple', 
-            category='iPhone', 
-            model = 'xs pro', 
-            capacity='433', 
-            color='yellow', 
-            has_serie=True  
-        ), 
-        Item(
-            mpn = 'MPN2', 
-            manufacturer='Samsung', 
-            category='Phone', 
-            model = 'galaxy', 
-            capacity='22', 
-            color='blue', 
-            has_serie=True
-        )
-    ])
+    # session.add_all([
+    #     Item(
+    #         mpn = 'MPN1', 
+    #         manufacturer = 'Apple', 
+    #         category='iPhone', 
+    #         model = 'xs pro', 
+    #         capacity='433', 
+    #         color='yellow', 
+    #         has_serie=True  
+    #     ), 
+    #     Item(
+    #         mpn = 'MPN2', 
+    #         manufacturer='Samsung', 
+    #         category='Phone', 
+    #         model = 'galaxy', 
+    #         capacity='22', 
+    #         color='blue', 
+    #         has_serie=True
+    #     )
+    # ])
 
-    # CAP=0 COL=1 SERIE=0
+    # # CAP=0 COL=1 SERIE=0
 
-    session.add_all([
-        Item(
-            mpn='', 
-            manufacturer='Apple', 
-            category= 'Airpods', 
-            model = 'model1',
-            capacity='', 
-            color='yellow', 
-            has_serie=False
-        ), 
-        Item(
-            mpn='', 
-            manufacturer='Apple', 
-            category= 'Airpods', 
-            model = 'model1',
-            capacity='', 
-            color='blue', 
-            has_serie=False
-        ),
-        Item(
-            mpn='', 
-            manufacturer='Apple', 
-            category= 'Airpods', 
-            model = 'model1',
-            capacity='', 
-            color='orange', 
-            has_serie=False
-        ),
-        Item(
-            mpn='', 
-            manufacturer='Apple', 
-            category= 'Airpods', 
-            model = 'model1',
-            capacity='', 
-            color='brown', 
-            has_serie=False
-        ), 
-        Item(
-            mpn='', 
-            manufacturer='Samsung', 
-            category='Headphones', 
-            model='themodel', 
-            capacity='', 
-            color='purple', 
-            has_serie=False
-        ), 
-        Item(
-            mpn='', 
-            manufacturer='Samsung', 
-            category='Headphones', 
-            model='themodel', 
-            capacity='', 
-            color='gray', 
-            has_serie=False
-        )
-    ])
+    # session.add_all([
+    #     Item(
+    #         mpn='', 
+    #         manufacturer='Apple', 
+    #         category= 'Airpods', 
+    #         model = 'model1',
+    #         capacity='', 
+    #         color='yellow', 
+    #         has_serie=False
+    #     ), 
+    #     Item(
+    #         mpn='', 
+    #         manufacturer='Apple', 
+    #         category= 'Airpods', 
+    #         model = 'model1',
+    #         capacity='', 
+    #         color='blue', 
+    #         has_serie=False
+    #     ),
+    #     Item(
+    #         mpn='', 
+    #         manufacturer='Apple', 
+    #         category= 'Airpods', 
+    #         model = 'model1',
+    #         capacity='', 
+    #         color='orange', 
+    #         has_serie=False
+    #     ),
+    #     Item(
+    #         mpn='', 
+    #         manufacturer='Apple', 
+    #         category= 'Airpods', 
+    #         model = 'model1',
+    #         capacity='', 
+    #         color='brown', 
+    #         has_serie=False
+    #     ), 
+    #     Item(
+    #         mpn='', 
+    #         manufacturer='Samsung', 
+    #         category='Headphones', 
+    #         model='themodel', 
+    #         capacity='', 
+    #         color='purple', 
+    #         has_serie=False
+    #     ), 
+    #     Item(
+    #         mpn='', 
+    #         manufacturer='Samsung', 
+    #         category='Headphones', 
+    #         model='themodel', 
+    #         capacity='', 
+    #         color='gray', 
+    #         has_serie=False
+    #     )
+    # ])
 
-    # CAP = 0 COL=1 SERIE=1
-    session.add_all([
-        Item(
-            mpn='', 
-            manufacturer='Apple', 
-            category='iPad', 
-            model = 'wer', 
-            capacity='', 
-            color='brown', 
-            has_serie=True
-        ), 
-        Item(
-            mpn='', 
-            manufacturer='Apple', 
-            category='iPad', 
-            model = 'wer', 
-            capacity='', 
-            color='yellow',
-            has_serie=True 
-        ), 
-        Item(
-            mpn='', 
-            manufacturer='Apple', 
-            category='iPad', 
-            model = 'wer', 
-            capacity='', 
-            color='gray', 
-            has_serie=True
-        ), 
-        Item(
-            mpn='', 
-            manufacturer='Apple', 
-            category='iPad', 
-            model = 'wer', 
-            capacity='', 
-            color='purple',
-            has_serie=True 
-        ), 
-        Item(
-            mpn='', 
-            manufacturer='Xiamoi', 
-            category='Tv', 
-            model = 'wgdf', 
-            capacity='', 
-            color='black', 
-            has_serie=True
-        ), 
-        Item(
-            mpn='', 
-            manufacturer='Xiaomi', 
-            category='Tv', 
-            model = 'wgdf', 
-            capacity='', 
-            color='white', 
-            has_serie=True
-        )
-    ])
+    # # CAP = 0 COL=1 SERIE=1
+    # session.add_all([
+    #     Item(
+    #         mpn='', 
+    #         manufacturer='Apple', 
+    #         category='iPad', 
+    #         model = 'wer', 
+    #         capacity='', 
+    #         color='brown', 
+    #         has_serie=True
+    #     ), 
+    #     Item(
+    #         mpn='', 
+    #         manufacturer='Apple', 
+    #         category='iPad', 
+    #         model = 'wer', 
+    #         capacity='', 
+    #         color='yellow',
+    #         has_serie=True 
+    #     ), 
+    #     Item(
+    #         mpn='', 
+    #         manufacturer='Apple', 
+    #         category='iPad', 
+    #         model = 'wer', 
+    #         capacity='', 
+    #         color='gray', 
+    #         has_serie=True
+    #     ), 
+    #     Item(
+    #         mpn='', 
+    #         manufacturer='Apple', 
+    #         category='iPad', 
+    #         model = 'wer', 
+    #         capacity='', 
+    #         color='purple',
+    #         has_serie=True 
+    #     ), 
+    #     Item(
+    #         mpn='', 
+    #         manufacturer='Xiamoi', 
+    #         category='Tv', 
+    #         model = 'wgdf', 
+    #         capacity='', 
+    #         color='black', 
+    #         has_serie=True
+    #     ), 
+    #     Item(
+    #         mpn='', 
+    #         manufacturer='Xiaomi', 
+    #         category='Tv', 
+    #         model = 'wgdf', 
+    #         capacity='', 
+    #         color='white', 
+    #         has_serie=True
+    #     )
+    # ])
 
-    # CAP = 1 COL = 0 SERIE=1
-    session.add_all([
-        Item(
-            mpn = '', 
-            manufacturer='Samsung', 
-            category='Watch',
-            model='wam', 
-            capacity = '13', 
-            color='', 
-            has_serie=True
-        ),Item(
-            mpn = '', 
-            manufacturer='Samsung', 
-            category='Watch',
-            model='wam', 
-            capacity = '43', 
-            color='',  
-            has_serie=True
-        ),Item(
-            mpn = '', 
-            manufacturer='Samsung', 
-            category='Watch',
-            model='wam', 
-            capacity = '54', 
-            color='',  
-            has_serie=True
-        ),Item(
-            mpn = '', 
-            manufacturer='Samsung', 
-            category='Watch',
-            model='wam', 
-            capacity = '65', 
-            color='',  
-            has_serie=True
-        ),Item(
-            mpn = '', 
-            manufacturer='Huawey', 
-            category='Watch',
-            model='wam', 
-            capacity = '10', 
-            color='',  
-            has_serie=True
-        ),Item(
-            mpn = '', 
-            manufacturer='Huawey', 
-            category='Watch',
-            model='wam', 
-            capacity = '33', 
-            color='',  
-            has_serie=True
-        )
-    ])
+    # # CAP = 1 COL = 0 SERIE=1
+    # session.add_all([
+    #     Item(
+    #         mpn = '', 
+    #         manufacturer='Samsung', 
+    #         category='Watch',
+    #         model='wam', 
+    #         capacity = '13', 
+    #         color='', 
+    #         has_serie=True
+    #     ),Item(
+    #         mpn = '', 
+    #         manufacturer='Samsung', 
+    #         category='Watch',
+    #         model='wam', 
+    #         capacity = '43', 
+    #         color='',  
+    #         has_serie=True
+    #     ),Item(
+    #         mpn = '', 
+    #         manufacturer='Samsung', 
+    #         category='Watch',
+    #         model='wam', 
+    #         capacity = '54', 
+    #         color='',  
+    #         has_serie=True
+    #     ),Item(
+    #         mpn = '', 
+    #         manufacturer='Samsung', 
+    #         category='Watch',
+    #         model='wam', 
+    #         capacity = '65', 
+    #         color='',  
+    #         has_serie=True
+    #     ),Item(
+    #         mpn = '', 
+    #         manufacturer='Huawey', 
+    #         category='Watch',
+    #         model='wam', 
+    #         capacity = '10', 
+    #         color='',  
+    #         has_serie=True
+    #     ),Item(
+    #         mpn = '', 
+    #         manufacturer='Huawey', 
+    #         category='Watch',
+    #         model='wam', 
+    #         capacity = '33', 
+    #         color='',  
+    #         has_serie=True
+    #     )
+    # ])
 
 
-    # CAP = 1 COL = 1 SERIE = 1 
+    # # CAP = 1 COL = 1 SERIE = 1 
 
-    session.add_all([
-        Item(
-            mpn = '', 
-            manufacturer='Apple', 
-            category='iPhone',
-            model='xs', 
-            capacity = '10', 
-            color='yellow', 
-            has_serie=True
-        ),Item(
-            mpn = '', 
-            manufacturer='Apple', 
-            category='iPhone',
-            model='xs', 
-            capacity = '10', 
-            color='blue',  
-            has_serie=True
-        ),Item(
-            mpn = '', 
-            manufacturer='Apple', 
-            category='iPhone',
-            model='xs', 
-            capacity = '10', 
-            color='green',  
-            has_serie=True
-        ),Item(
-            mpn = '', 
-            manufacturer='Apple', 
-            category='iPhone',
-            model='xs', 
-            capacity = '12', 
-            color='black',  
-            has_serie=True
-        ),Item(
-            mpn = '', 
-            manufacturer='Apple', 
-            category='iPhone',
-            model='xs',
-            capacity = '14', 
-            color='white',  
-            has_serie=True
-        ),Item(
-            mpn = '', 
-            manufacturer='Huawey', 
-            category='Watch',
-            model='wam', 
-            capacity = '16', 
-            color='black',  
-            has_serie=True
-        ),Item(
-            mpn = '', 
-            manufacturer='Huawey', 
-            category='Watch',
-            model='wam', 
-            capacity = '33', 
-            color='gray',  
-            has_serie=True
-        ),Item(
-            mpn = '', 
-            manufacturer='Huawey', 
-            category='Watch',
-            model='wam', 
-            capacity = '55', 
-            color='yellow',  
-            has_serie=True
-        ),Item(
-            mpn = '', 
-            manufacturer='Samsung', 
-            category='Watch',
-            model='wam', 
-            capacity = '10', 
-            color='nocolor',  
-            has_serie=True
-        ),Item(
-            mpn = '', 
-            manufacturer='Samsung', 
-            category='Dron',
-            model='sdr', 
-            capacity = '130', 
-            color='black',  
-            has_serie=True
-        ),Item(
-            mpn = '', 
-            manufacturer='Samsung', 
-            category='Dron',
-            model='sdr', 
-            capacity = '421', 
-            color='red',  
-            has_serie=True
-        )
-    ])
+    # session.add_all([
+    #     Item(
+    #         mpn = '', 
+    #         manufacturer='Apple', 
+    #         category='iPhone',
+    #         model='xs', 
+    #         capacity = '10', 
+    #         color='yellow', 
+    #         has_serie=True
+    #     ),Item(
+    #         mpn = '', 
+    #         manufacturer='Apple', 
+    #         category='iPhone',
+    #         model='xs', 
+    #         capacity = '10', 
+    #         color='blue',  
+    #         has_serie=True
+    #     ),Item(
+    #         mpn = '', 
+    #         manufacturer='Apple', 
+    #         category='iPhone',
+    #         model='xs', 
+    #         capacity = '10', 
+    #         color='green',  
+    #         has_serie=True
+    #     ),Item(
+    #         mpn = '', 
+    #         manufacturer='Apple', 
+    #         category='iPhone',
+    #         model='xs', 
+    #         capacity = '12', 
+    #         color='black',  
+    #         has_serie=True
+    #     ),Item(
+    #         mpn = '', 
+    #         manufacturer='Apple', 
+    #         category='iPhone',
+    #         model='xs',
+    #         capacity = '14', 
+    #         color='white',  
+    #         has_serie=True
+    #     ),Item(
+    #         mpn = '', 
+    #         manufacturer='Huawey', 
+    #         category='Watch',
+    #         model='wam', 
+    #         capacity = '16', 
+    #         color='black',  
+    #         has_serie=True
+    #     ),Item(
+    #         mpn = '', 
+    #         manufacturer='Huawey', 
+    #         category='Watch',
+    #         model='wam', 
+    #         capacity = '33', 
+    #         color='gray',  
+    #         has_serie=True
+    #     ),Item(
+    #         mpn = '', 
+    #         manufacturer='Huawey', 
+    #         category='Watch',
+    #         model='wam', 
+    #         capacity = '55', 
+    #         color='yellow',  
+    #         has_serie=True
+    #     ),Item(
+    #         mpn = '', 
+    #         manufacturer='Samsung', 
+    #         category='Watch',
+    #         model='wam', 
+    #         capacity = '10', 
+    #         color='nocolor',  
+    #         has_serie=True
+    #     ),Item(
+    #         mpn = '', 
+    #         manufacturer='Samsung', 
+    #         category='Dron',
+    #         model='sdr', 
+    #         capacity = '130', 
+    #         color='black',  
+    #         has_serie=True
+    #     ),Item(
+    #         mpn = '', 
+    #         manufacturer='Samsung', 
+    #         category='Dron',
+    #         model='sdr', 
+    #         capacity = '421', 
+    #         color='red',  
+    #         has_serie=True
+    #     )
+    # ])
 
     session.add_all([
         Condition('A'), 

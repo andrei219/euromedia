@@ -8,7 +8,7 @@ import db
 import decorators
 import models
 import utils
-from db import (Agent, Partner, SalePayment, SaleProforma, SaleProformaLine,
+from db import (Agent, Partner, SaleProforma, SaleProformaLine,
                 func)
 from models import ActualLinesFromMixedModel, SaleProformaLineModel, StockModel
 from ui_sale_proforma_form import Ui_SalesProformaForm
@@ -19,23 +19,22 @@ class StockBase:
     def __init__(self, filters, warehouse_id, form):
         self.filters = filters
         self.warehouse_id = warehouse_id 
-        self.stocks = StockModel.stocks(warehouse_id=warehouse_id) 
         self.completer = Completer(self, form) 
-
-        self._set_state()
-        self.completer.update() 
+        self.update()
 
     def update(self): 
-        print('SockBase.update', self.filters.description, self.filters.condition, self.filters.spec)
+        description  = self.filters.description
+        condition    = self.filters.condition
+        spec         = self.filters.spec
         self.stocks = StockModel.stocks(
-            warehouse_id = self.warehouse_id, 
-            description  = self.filters.description, 
-            condition    = self.filters.condition, 
-            spec         = self.filters.spec 
+            self.warehouse_id, 
+            description,
+            condition,   
+            spec    
         )
 
         self._set_state()        
-        self.completer.update()
+        self.completer.update(description, condition, spec)
 
     
     def _set_state(self):
@@ -100,7 +99,6 @@ class Filters:
         self._description = description
         self._condition = condition
         self._spec = spec 
-        print('Filters.set:', description, condition, spec)
 
         self.stock_base.update()
 
@@ -111,21 +109,30 @@ class Completer:
         self.stock_base = stock_base
         self.form = form
     
-    def update(self):
+    def update(self, description, condition, spec):
     
-        utils.setComboCompleter(
-            self.form.spec, 
-            self.stock_base.specs.union({''})) 
-    
-        utils.setComboCompleter(
-            self.form.description, 
-            utils.compute_available_descriptions(self.stock_base.item_ids).union({''})
-        )
-    
-        utils.setComboCompleter(
-            self.form.condition,
-            self.stock_base.conditions.union({''}) 
-        )
+        if spec is None:
+
+            utils.setCompleter(
+                self.form.spec, 
+                self.stock_base.specs.union({'Mix'})) 
+
+        # print('*' * 100)
+        # print(self.stock_base.item_ids)
+        # for item in utils.compute_available_descriptions(self.stock_base.item_ids):
+        #     print(item)
+        
+        if description is None:
+            utils.setCompleter(
+                self.form.description, 
+                utils.compute_available_descriptions(self.stock_base.item_ids)
+            )
+        
+        if condition is None:
+            utils.setCompleter(
+                self.form.condition,
+                self.stock_base.conditions.union({'Mix'}) 
+            )
 
 
 class Form(Ui_SalesProformaForm, QWidget):
@@ -183,9 +190,9 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.deselect.clicked.connect(lambda : self.lines_view.clearSelection())
         self.warehouse.currentTextChanged.connect(self.warehouse_changed)
         
-        self.description.returnPressed.connect(self.description_return_pressed)
-        self.condition.returnPressed.connect(self.condition_return_pressed)
-        self.spec.returnPressed.connect(self.spec_return_pressed)
+        self.description.editingFinished.connect(self.description_editing_finished)
+        self.condition.editingFinished.connect(self.condition_editing_finished)
+        self.spec.editingFinished.connect(self.spec_editing_finished)
 
 
     def warehouse_changed(self, text):
@@ -219,11 +226,9 @@ class Form(Ui_SalesProformaForm, QWidget):
         # removing objects in pending state 
         db.session.rollback() 
 
-    def description_return_pressed(self):
+    def description_editing_finished(self):
         description = self.description.text() 
         stock_base = self.filters.stock_base 
-        if description not in stock_base.descriptions or description == '':
-            return 
         
         condition, spec = self.condition.text(), self.spec.text()
         if condition == '' or condition not in stock_base.conditions:
@@ -233,69 +238,42 @@ class Form(Ui_SalesProformaForm, QWidget):
             spec = None 
 
         self.filters.set(description, condition, spec)
-        
-        self.description.setCurrentText(description)
-        
-        if condition is not None:
-            self.condition.setCurrentText(condition)
 
-        if spec is not None:
-            self.spec.setCurrentText(spec)
+        # self.description.setText(description)
 
-        for stock in self.filters.stock_base.stocks:
-            print(stock)
-
-    def condition_return_pressed(self):
+    def condition_editing_finished(self):
         condition = self.condition.text()
         stock_base = self.filters.stock_base
-        if condition not in stock_base.conditions or condition == '':
-            return
         
-        description ,spec = self.description.text(), self.spec.text()
-        if description =='' or description not in stock_base.descriptions:
+        description,spec = self.description.text(), self.spec.text()
+        
+        if not description or description not in stock_base.descriptions:
             description=None
         
-        if spec == '' or spec not in stock_base.specs:
+        if not spec or spec == 'Mix' or spec not in stock_base.specs:
             spec = None
         
+        if not spec or spec == 'Mix' or spec not in stock_base.specs:
+            spec = None 
+
         self.filters.set(description, condition, spec)
         
-        self.condition.setCurrentText(condition)
-
-        if spec is not None:
-            self.spec.setCurrentText(spec)
-        
-        if description is not None:
-            self.description.setCurrentText(description)
-
-    def spec_return_pressed(self):  
-
+    def spec_editing_finished(self):  
         spec = self.spec.text()
         stock_base = self.filters.stock_base 
 
-        if spec not in stock_base.specs or spec == '':
-            return
-        
         description, condition = self.description.text(), self.condition.text()
         
-        if description == '' or description not in stock_base.descriptions:
+        if not description or description not in stock_base.descriptions:
             description = None
         
-        if condition == '' or condition not in stock_base.conditions:
-            condition = None 
+        if not condition or condition == 'Mix' or condition not in stock_base.conditions:
+            condition = None
+
+        if not spec or spec == 'Mix' or spec not in stock_base.specs:
+            spec = None 
         
         self.filters.set(description, condition, spec)
-
-        self.spec.setCurrentText(spec)
-        if description is not None:
-            self.description.setCurrentText(description)
-
-        if condition is not None:
-            self.condition.setCurrentText(condition)
-
-        for stock in stock_base.stocks:
-            print(stock)
-
 
     def typeChanged(self, type):
         next_num = self.model.nextNumberOfType(int(type))
@@ -480,6 +458,9 @@ class Form(Ui_SalesProformaForm, QWidget):
             self.lines_view.clearSelection() 
             self.update_totals() 
     
+        self.lines_view.resizeColumnToContents(0)
+        self.stock_view.resizeColumnToContents(0)
+
     def add_handler(self):
         if not hasattr(self, 'stock_model'):return
 
@@ -509,18 +490,16 @@ class Form(Ui_SalesProformaForm, QWidget):
             for stock in requested_stocks:
                 stock.request = 0
         else:
-            self.set_stock_mv() 
-            self.set_selected_stock_mv() 
+            self.stock_model.reset() 
             self.update_totals() 
             self.clear_filters()
             self.filters.set(None, None, None)
 
+        self.lines_view.resizeColumnToContents(0)
+        self.stock_view.resizeColumnToContents(0)
+
     def save_handler(self):
         if not self._valid_header(): return
-        # if not self.lines_model:
-        #     QMessageBox.critical(self, 'Error', "Can't process empty proforma")
-        #     return 
-
         warehouse_id = utils.warehouse_id_map.get(self.warehouse.currentText())
         lines = self.lines_model.lines 
         if hasattr(self, 'stock_model'):
@@ -528,7 +507,7 @@ class Form(Ui_SalesProformaForm, QWidget):
                 QMessageBox.critical(
                     self, 
                     'Error', 
-                    'Someone took those stocks. Start again.'
+                    'These stocks are no longer available'
                 )
                 self.close() 
                 return 
@@ -593,9 +572,9 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.proforma.note = self.note.toPlainText()[0:255]
 
     def clear_filters(self):
-        self.description.setCurrentText('')
-        self.spec.setCurrentText('')
-        self.condition.setCurrentText('')
+        self.description.clear()
+        self.spec.clear()
+        self.condition.clear()
 
 class EditableForm(Form):
     

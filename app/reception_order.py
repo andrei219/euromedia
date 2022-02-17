@@ -18,10 +18,19 @@ class AlreadyProcessedError(BaseException):
 class ExcessLimitError(BaseException):
     pass 
 
+
+def reload_utils():
+    from importlib import reload 
+    global utils
+    utils = reload(utils)
+
 class Form(QDialog, Ui_Form):
 
     def __init__(self, parent, reception):
         super().__init__(parent=parent) 
+
+        reload_utils()
+
         self.setupUi(self)
 
         self.reception = reception
@@ -35,6 +44,8 @@ class Form(QDialog, Ui_Form):
         self.setCompleters()
         self.populateHeader() 
         self.populate_body()
+
+        self.view.resizeColumnToContents(0)
         
         self.disable_if_cancelled()
 
@@ -56,6 +67,9 @@ class Form(QDialog, Ui_Form):
         self.commit.clicked.connect(self.commit_handler)
         self.delete_button.clicked.connect(self.delete_handler)
         self.search.clicked.connect(self.search_handler) 
+        self.actual_spec.editingFinished.connect(lambda : self.sn.setFocus(True))
+        self.actual_item.editingFinished.connect(lambda : self.actual_condition.setFocus(True))
+        self.actual_condition.editingFinished.connect(lambda : self.actual_spec.setFocus(True))
 
 
     def setCompleters(self):
@@ -73,7 +87,9 @@ class Form(QDialog, Ui_Form):
         line = self.reception.lines[self.current_index]
         if line.description is not None:
             data = utils.mixed_to_clean_descriptions(line.description)
+            print(data)
             setCompleter(self.actual_item, data)
+
 
     def on_automatic_toggled(self, on):
         if on:
@@ -186,8 +202,9 @@ class Form(QDialog, Ui_Form):
         except: pass 
 
         self.update_overflow_condition()
-
         self.set_actual_item_completer()
+        self.view.resizeColumnToContents(0)
+
 
     def processed_in_line(self):
         line = self.reception.lines[self.current_index]
@@ -211,25 +228,24 @@ class Form(QDialog, Ui_Form):
         self.populate_body()
 
     def commit_handler(self):   
-        if not self.in_serie_state:
-            
-            description = self.actual_item.text()
-            condition = self.actual_condition.text()
-            spec = self.actual_spec.text() 
+    
+        description = self.actual_item.text()
+        condition = self.actual_condition.text()
+        spec = self.actual_spec.text() 
 
+        if not self.in_serie_state:
             if not all((
                 description in utils.description_id_map, 
                 condition in utils.conditions, 
                 spec in utils.specs
             )):
-                QMessageBox.critical(self, 'Error', 'Invalid description, condition or spec(1)')
+                QMessageBox.critical(self, 'Error', 'Invalid description, condition or spec(Group Mode)')
                 return 
 
             group_model = self.view.model()
             if group_model.group_exists(description, condition, spec):
                 QMessageBox.critical(self, 'Error', 'Group already exists, edit in table')
                 return
-            
             self.invent_series()
 
         else:
@@ -254,6 +270,7 @@ class Form(QDialog, Ui_Form):
 
         self.sn.clear()
         self.sn.setFocus()
+        self.view.resizeColumnToContents(0)
 
 
     def invent_series(self):

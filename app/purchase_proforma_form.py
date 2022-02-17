@@ -215,7 +215,7 @@ class Form(Ui_PurchaseProformaForm, QWidget):
 
         if description in utils.descriptions:
             if condition not in utils.conditions or spec not in utils.specs:
-                QMessageBox.critical(self, 'Error', 'You cant add a device without condition and spec')
+                QMessageBox.critical(self, 'Error', "Can't add stock without condition and spec")
                 return 
         try:
 
@@ -229,6 +229,7 @@ class Form(Ui_PurchaseProformaForm, QWidget):
         
         self._updateTotals() 
         self._clearLineFields()
+        self.lines_view.resizeColumnToContents(0)
 
     def deleteHandler(self):
         indexes = self.lines_view.selectedIndexes() 
@@ -250,7 +251,7 @@ class Form(Ui_PurchaseProformaForm, QWidget):
             raise 
         else:
             QMessageBox.information(self, 'Information','Purchase saved successfully')
-            self.close() 
+            # self.close() 
 
 
     def closeEvent(self, event):
@@ -280,9 +281,12 @@ class EditableForm(Form):
         
         self._updateTotals()
         self.lines_view.setModel(self.lines_model) 
+        self.lines_view.resizeColumnToContents(0)
 
         self.setUp()
         self.proforma_to_form()
+
+        
 
 
     def disable_things(self):
@@ -350,5 +354,5 @@ class EditableForm(Form):
 
                 QMessageBox.information(self, "Information", message) 
 
-        self.close()
+        # self.close()
 
