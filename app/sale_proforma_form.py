@@ -117,10 +117,6 @@ class Completer:
                 self.form.spec, 
                 self.stock_base.specs.union({'Mix'})) 
 
-        # print('*' * 100)
-        # print(self.stock_base.item_ids)
-        # for item in utils.compute_available_descriptions(self.stock_base.item_ids):
-        #     print(item)
         
         if description is None:
             utils.setCompleter(
@@ -133,6 +129,10 @@ class Completer:
                 self.form.condition,
                 self.stock_base.conditions.union({'Mix'}) 
             )
+
+
+
+# class ImprovedFrame
 
 
 class Form(Ui_SalesProformaForm, QWidget):
@@ -160,6 +160,8 @@ class Form(Ui_SalesProformaForm, QWidget):
         warehouse_id = utils.warehouse_id_map[self.warehouse.currentText()]
 
         self.filters = Filters(warehouse_id, self)
+
+
         
 
     def init_template(self):
@@ -194,7 +196,7 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.condition.editingFinished.connect(self.condition_editing_finished)
         self.spec.editingFinished.connect(self.spec_editing_finished)
 
-
+    
     def warehouse_changed(self, text):
         # warehouse_id = utils.warehouse_id_map.get(text)
         # db.session.rollback() 
@@ -241,6 +243,8 @@ class Form(Ui_SalesProformaForm, QWidget):
 
         # self.description.setText(description)
 
+        self.condition.setFocus(True)
+
     def condition_editing_finished(self):
         condition = self.condition.text()
         stock_base = self.filters.stock_base
@@ -257,6 +261,8 @@ class Form(Ui_SalesProformaForm, QWidget):
             spec = None 
 
         self.filters.set(description, condition, spec)
+
+        self.spec.setFocus(True)
         
     def spec_editing_finished(self):  
         spec = self.spec.text()
@@ -274,6 +280,8 @@ class Form(Ui_SalesProformaForm, QWidget):
             spec = None 
         
         self.filters.set(description, condition, spec)
+
+        self.search.setFocus(True)
 
     def typeChanged(self, type):
         next_num = self.model.nextNumberOfType(int(type))
@@ -343,6 +351,7 @@ class Form(Ui_SalesProformaForm, QWidget):
 
     def lines_view_clicked_handler(self):
         self.set_selected_stock_mv() 
+        self.selected_stock_view.resizeColumnToContents(0)
 
     def set_selected_stock_mv(self):
         try:
@@ -384,6 +393,7 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.set_stock_mv()
         self.clear_filters()
         self.filters.set(None, None, None)
+        self.stock_view.setFocus(True)
 
     def set_stock_mv(self):
         warehouse_id = utils.warehouse_id_map.get(
@@ -453,13 +463,15 @@ class Form(Ui_SalesProformaForm, QWidget):
             QMessageBox.critical(self, 'Error', 'No line selected')
         else:
             self.lines_model.delete(row)
-            self.set_stock_mv()
-            self.set_selected_stock_mv() 
+            # self.set_stock_mv()
+            # self.set_selected_stock_mv() 
             self.lines_view.clearSelection() 
             self.update_totals() 
     
         self.lines_view.resizeColumnToContents(0)
+        self.lines_view.resizeColumnToContents(2)
         self.stock_view.resizeColumnToContents(0)
+        
 
     def add_handler(self):
         if not hasattr(self, 'stock_model'):return
@@ -496,7 +508,9 @@ class Form(Ui_SalesProformaForm, QWidget):
             self.filters.set(None, None, None)
 
         self.lines_view.resizeColumnToContents(0)
+        self.lines_view.resizeColumnToContents(2)
         self.stock_view.resizeColumnToContents(0)
+        self.description.setFocus(True)
 
     def save_handler(self):
         if not self._valid_header(): return
@@ -509,7 +523,6 @@ class Form(Ui_SalesProformaForm, QWidget):
                     'Error', 
                     'These stocks are no longer available'
                 )
-                self.close() 
                 return 
 
         self._form_to_proforma() 

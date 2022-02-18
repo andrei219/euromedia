@@ -45,9 +45,12 @@ def grouped(rows):
     key = lambda r:(r[0], r[1], r[2])
     rows = sorted(rows, key=key)
 
+    
+
     for k, g in groupby(rows, key=key):
         for e in g:
             yield e
+
 
 
 if generated_ids == distinct_ids:
@@ -56,8 +59,8 @@ if generated_ids == distinct_ids:
 
     wb = openpyxl.Workbook()
     ws = wb.active
-
-    for row in grouped(rows):
+    import random
+    for row in random.shuffle(list(grouped(rows))):
         ws.append(row) 
 
     from openpyxl.styles import Font

@@ -834,7 +834,7 @@
      </rect>
     </property>
    </widget>
-   <widget class="QGroupBox" name="groupBox_6">
+   <widget class="GroupBox" name="groupBox_6">
     <property name="geometry">
      <rect>
       <x>0</x>
@@ -859,7 +859,7 @@
       <string>SEARCH</string>
      </property>
      <property name="autoDefault">
-      <bool>true</bool>
+      <bool>false</bool>
      </property>
      <property name="default">
       <bool>true</bool>
@@ -923,6 +923,8 @@
      </property>
     </widget>
    </widget>
+   <zorder>groupBox_6</zorder>
+   <zorder>stock_view</zorder>
   </widget>
   <widget class="QPushButton" name="save">
    <property name="geometry">
@@ -1087,7 +1089,7 @@
     </item>
    </layout>
   </widget>
-  <widget class="QGroupBox" name="groupBox_7">
+  <widget class="GroupBox" name="create_line_frame">
    <property name="geometry">
     <rect>
      <x>80</x>
@@ -1199,6 +1201,12 @@
     <property name="text">
      <string>ADD</string>
     </property>
+    <property name="autoDefault">
+     <bool>false</bool>
+    </property>
+    <property name="default">
+     <bool>false</bool>
+    </property>
    </widget>
    <widget class="QLabel" name="label_30">
     <property name="geometry">
@@ -1254,6 +1262,61 @@
    </property>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>GroupBox</class>
+   <extends>QGroupBox</extends>
+   <header location="global">groupbox</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <tabstops>
+  <tabstop>type</tabstop>
+  <tabstop>number</tabstop>
+  <tabstop>date</tabstop>
+  <tabstop>warranty</tabstop>
+  <tabstop>agent</tabstop>
+  <tabstop>they_pay_we_ship</tabstop>
+  <tabstop>they_pay_they_ship</tabstop>
+  <tabstop>we_pay_we_ship</tabstop>
+  <tabstop>partner</tabstop>
+  <tabstop>warehouse</tabstop>
+  <tabstop>courier</tabstop>
+  <tabstop>incoterms</tabstop>
+  <tabstop>eur</tabstop>
+  <tabstop>usd</tabstop>
+  <tabstop>available_credit</tabstop>
+  <tabstop>credit</tabstop>
+  <tabstop>days</tabstop>
+  <tabstop>cnview</tabstop>
+  <tabstop>apply</tabstop>
+  <tabstop>tracking</tabstop>
+  <tabstop>external</tabstop>
+  <tabstop>remove</tabstop>
+  <tabstop>lines_view</tabstop>
+  <tabstop>description</tabstop>
+  <tabstop>condition</tabstop>
+  <tabstop>spec</tabstop>
+  <tabstop>search</tabstop>
+  <tabstop>stock_view</tabstop>
+  <tabstop>price</tabstop>
+  <tabstop>ignore</tabstop>
+  <tabstop>tax</tabstop>
+  <tabstop>showing_condition</tabstop>
+  <tabstop>add</tabstop>
+  <tabstop>save</tabstop>
+  <tabstop>delete_button</tabstop>
+  <tabstop>insert</tabstop>
+  <tabstop>proforma_total</tabstop>
+  <tabstop>proforma_tax</tabstop>
+  <tabstop>delete_selected_stock</tabstop>
+  <tabstop>subtotal_proforma</tabstop>
+  <tabstop>deselect</tabstop>
+  <tabstop>lineEdit</tabstop>
+  <tabstop>selected_stock_view</tabstop>
+  <tabstop>note</tabstop>
+  <tabstop>cancel</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

@@ -248,6 +248,12 @@ class Form(QDialog, Ui_Form):
                 return
             self.invent_series()
 
+            self.view.setFocus(True)
+            index = self.view.model().index(len(self.view.model()), 3)
+            self.view.setCurrentIndex(index)
+
+
+
         else:
             if not self.sn.text(): 
                 QMessageBox.critical(self, 'Error', 'Empty SN/IMEI')

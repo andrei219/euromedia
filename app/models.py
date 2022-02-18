@@ -178,7 +178,6 @@ def purchase_completed(proforma):
 	return purchase_total_processed(proforma) == purchase_total_quantity(proforma) 
 
 def reception_overflowed(reception):
-	# print('eeee')
 	for line in reception.lines:
 		try:
 			if len(line.series) > line.quantity:
@@ -948,7 +947,7 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
 	def nextNumberOfType(self, type):
 		current_num = db.session.query(func.max(db.PurchaseProforma.number)). \
 			where(db.PurchaseProforma.type == type).scalar()  
-		return 1 if not current_num else current_num + 1 
+		return 1 if current_num is None else current_num + 1 
 	
 	def cancel(self, indexes):
 		rows = {index.row() for index in indexes}
@@ -959,7 +958,6 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
 		try:
 			# Update advanced lines depending on this purchase
 			ids = [line.id for line in p.lines]
-			print(ids)
 			db.session.query(db.AdvancedLine).\
 				where(db.AdvancedLine.origin_id.in_(ids)).\
 					update({db.AdvancedLine.quantity:0})
@@ -1273,14 +1271,10 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 		
 	
 	def nextNumberOfType(self, type):
-		
-		sql = f"select max(number) from sale_proformas where type={type}"
-		current_num = db.session.execute(sql).scalar() 
-
-		if not current_num: # Means first number of type
-			return 1 
-		else:
-			return current_num + 1 
+		current_num = db.session.query(func.max(db.SaleProforma.number)).\
+			where(db.SaleProforma.type == type).scalar()
+		return 1 if current_num is None else current_num + 1	
+	
 	
 	def cancel(self, indexes):
 		rows = {index.row() for index in indexes}
@@ -1392,16 +1386,6 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 				proforma.lines
 			)
 		)
-
-		# print('warehouse_lines:')
-		# print('_' * 100)
-		# for line in warehouse_lines:
-		# 	print(line)
-		# print('proforma_lines:')
-		# print('_' * 100)
-		# for line in proforma_lines:
-		# 	print(line) 
-
 
 		added_lines = proforma_lines.difference(warehouse_lines)
 		for line in added_lines:
@@ -2052,11 +2036,8 @@ def update_advanced_line_after_purchase_line_update(newquantity, origin_id):
 	total, first = 0, True 
 	for i, line in enumerate(lines):
 		if total <= newquantity:
-			print('total <= newquantity')
 			total += line.quantity
-			print('total =', total)
 			if total > newquantity:
-				print('total > newquantity')
 				lines[i].quantity = line.quantity + newquantity - total
 				continue 
 		if total > newquantity:
@@ -2894,7 +2875,6 @@ class StockEntry:
 		# None at the end of the list in able to make this hash 
 		# compatible with that of SaleProformaLine and enable
 		# set operations. This is shit. But it works. 
-		# Next program will be better. 
 		hashes = (hash(x) for x in (self._item_id, self._spec, self._condition, self.description))
 		return functools.reduce(operator.xor, hashes, 0)
 
@@ -2922,8 +2902,6 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
 			spec
 		)
 
-
-
 	@classmethod
 	def stocks(cls, warehouse_id, description=None, condition=None, spec=None):
 		
@@ -2933,14 +2911,8 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
 
 	def computeStock(self, warehouse_id, description, condition, spec, session=db.session):
 		
-		print('ComputeStock:', description, condition, spec)
-
-		session = session 
-
+		# session = session 
 		item_id = utils.description_id_map.get(description)
-		
-		print('ComputeStock: item_id=', item_id)
-		
 		
 		query = session.query(
 			db.Imei.item_id, db.Imei.condition, 
@@ -2952,10 +2924,8 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
 		)
 
 		if item_id:
-			print('ComputeStock: item_id')
 			query = query.where(db.Imei.item_id == item_id)
 		else:
-			print('no item_id')
 			item_ids = utils.get_itemids_from_mixed_description(description)
 			if item_ids:
 				query = query.where(db.Imei.item_id.in_(item_ids))
@@ -3093,46 +3063,33 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
 		return list(filter(lambda stock:stock.quantity != 0, stocks))
 
 	def lines_against_stock(self, warehouse_id, lines):
-		Session = db.sessionmaker(bind=db.engine)
-		session = Session() 
+		# Session = db.sessionmaker(bind=db.dev_engine)
+		# session = db.Session() 
 
-		lines = set([line for line in lines if line.item_id is not None]) 
-		stocks = set(self.computeStock(warehouse_id, None, None, None, session=session))
- 
+		Session = db.sessionmaker(bind=db.get_engine())
+		with Session.begin() as session:
 
-		print('lines************************')
-		print(lines)
+			lines = set([line for line in lines if line.item_id is not None]) 
+			stocks = set(self.computeStock(warehouse_id, None, None, None, session=session))
 
-		print('s************************')
+			if lines.difference(stocks):
+				return True 
 
-		for stock in stocks:
-			print(stock)
+			if any((
+				line == stock and line.quantity > stock.quantity
+				for line in lines
+				for stock in stocks 
+			)): 
+				return True 
+			return False
 
-		# for line in lines:
-		# 	print(line)
+			# for line in lines:
+			# 	for stock in stocks:
+			# 		if line == stock:
+			# 			if line.quantity > stock.quantity:
+			# 				return True
 
-		# print('_' * 100 )
-		# for stock in stocks:
-		# 	print(stock) 
-
-		
-		# diff = lines.difference(stocks) 
-		# print('lines.difference(stocks):', diff)
-		# print('stocks.difference(lines):', stocks.difference(lines))
-
-		if lines.difference(stocks):
-			print('reached')
-			return True 
-
-		if any((
-			line == stock and line.quantity > stock.quantity
-			for line in lines
-			for stock in stocks 
-		)):
-			return True 
-
-		return False
-		
+	
 	def resolve(self, imeis, imeis_mask, sales, outputs):
 	
 		for imei_mask in imeis_mask:
@@ -3148,6 +3105,7 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
 		for sale in sales:
 			for imei in imeis:
 				if sale == imei:
+					# print('sale:', sale, 'imei:', imei)
 					imei -= sale 
 
 		return imeis 
@@ -3231,7 +3189,6 @@ class IncomingVector:
 			self.available = 0 
 
 
-		print(line) 
 
 	def compute_processed(self, line):
 		line_alias = line 
@@ -3303,12 +3260,8 @@ class IncomingStockModel(BaseTable, QtCore.QAbstractTableModel):
 
 	def lines_against_stock(self, warehouse_id, lines):
 
-		Session = db.sessionmaker(bind=db.engine)
+		# Session = db.sessionmaker(bind=db.engine)
 		session = Session()
-
-		# for line in lines:
-		# 	print(line)
-		# print('-' * 100)
 
 		for stock in self.computeIncomingStock(warehouse_id, description=None, \
 			condition=None, spec=None, session=session):

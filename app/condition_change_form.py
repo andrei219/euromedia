@@ -69,7 +69,7 @@ class ConditionChange(Ui_ConditionChange, QDialog):
     def searchAndPopulate(self):
         try:
             self.db_result = db.session.query(db.Imei).join(db.Item).where(db.Imei.imei == self.sn.text()).one() 
-            self.description.setText(str(self.db_result.item))
+            self.description.setText(str(self.db_result.item.clean_repr))
             self.current_condition.setText(self.db_result.condition)
         except NoResultFound:
             QMessageBox.critical(self, 'Search Error', 'No IMEI/SN was found')

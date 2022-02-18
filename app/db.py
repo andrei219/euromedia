@@ -19,9 +19,17 @@ except KeyError:
     print('set environment variable debug')
     sys.exit() 
 
-# Decide wich engine from enviroment variable 
 
-Session = scoped_session(sessionmaker(bind=dev_engine if debug else engine, autoflush=False))
+def get_engine():
+    try:
+        debug = os.environ['APP_DEBUG'] == 'TRUE'
+        return dev_engine if debug else engine 
+    except KeyError:
+        print('SET APP_DEBUG VARIABLE')
+        sys.exit() 
+    
+
+Session = scoped_session(sessionmaker(bind=get_engine(), autoflush=False))
 session = Session() 
 
 from datetime import datetime

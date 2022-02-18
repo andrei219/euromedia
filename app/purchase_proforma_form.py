@@ -208,7 +208,6 @@ class Form(Ui_PurchaseProformaForm, QWidget):
         condition = self.condition_line_edit.text()
         spec = self.spec_line_edit.text()
 
-        print(description, condition, spec)
 
         if not description:return 
 

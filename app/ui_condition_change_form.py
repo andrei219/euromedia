@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '.\uis\condition_change_form.py'
+# Form implementation generated from reading ui file '.\uis\condition_change_form.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.4
 #
@@ -35,6 +35,7 @@ class Ui_ConditionChange(object):
         self.sn.setMinimumSize(QtCore.QSize(261, 22))
         self.sn.setMaximumSize(QtCore.QSize(261, 22))
         self.sn.setAlignment(QtCore.Qt.AlignCenter)
+        self.sn.setClearButtonEnabled(True)
         self.sn.setObjectName("sn")
         self.horizontalLayout.addWidget(self.sn)
         self.label_3 = QtWidgets.QLabel(ConditionChange)

@@ -70,7 +70,7 @@ class SpecChange(Ui_SpecChange, QDialog):
         try:
             self.db_result = db.session.query(db.Imei).join(db.Item).where(db.Imei.imei == self.sn.text()).one() 
 
-            self.description.setText(str(self.db_result.item))
+            self.description.setText(str(self.db_result.item.clean_repr))
             self.current_spec.setText(self.db_result.spec)
 
         except NoResultFound:
