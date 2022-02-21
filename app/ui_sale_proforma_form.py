@@ -257,7 +257,7 @@ class Ui_SalesProformaForm(object):
         self.stock_view = QtWidgets.QTableView(self.groupBox_5)
         self.stock_view.setGeometry(QtCore.QRect(0, 100, 711, 251))
         self.stock_view.setObjectName("stock_view")
-        self.groupBox_6 = GroupBox(self.groupBox_5)
+        self.groupBox_6 = QtWidgets.QGroupBox(self.groupBox_5)
         self.groupBox_6.setGeometry(QtCore.QRect(0, 30, 711, 61))
         self.groupBox_6.setObjectName("groupBox_6")
         self.search = QtWidgets.QPushButton(self.groupBox_6)
@@ -356,7 +356,7 @@ class Ui_SalesProformaForm(object):
         self.proforma_total.setReadOnly(True)
         self.proforma_total.setObjectName("proforma_total")
         self.formLayout.setWidget(3, QtWidgets.QFormLayout.FieldRole, self.proforma_total)
-        self.create_line_frame = GroupBox(SalesProformaForm)
+        self.create_line_frame = QtWidgets.QGroupBox(SalesProformaForm)
         self.create_line_frame.setGeometry(QtCore.QRect(80, 830, 551, 91))
         self.create_line_frame.setObjectName("create_line_frame")
         self.tax = QtWidgets.QComboBox(self.create_line_frame)
@@ -520,4 +520,3 @@ class Ui_SalesProformaForm(object):
         self.showing_condition.setPlaceholderText(_translate("SalesProformaForm", "Showing condition..."))
         self.delete_selected_stock.setText(_translate("SalesProformaForm", "Delete"))
         self.deselect.setText(_translate("SalesProformaForm", "Deselect"))
-from groupbox import GroupBox

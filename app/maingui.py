@@ -199,6 +199,9 @@ class MainGui(Ui_MainGui, QMainWindow):
             self.invoices_sales_view.setSortingEnabled(True)
             self.invoices_sales_view.setAlternatingRowColors(True)
 
+            # self.invoices_sales_view.resizeColumnToContents(2)
+            # self.invoices_sales_view.resizeColumnToContents(3)
+            
 
         elif prefix == 'proformas_sales_':
             self.proformas_sales_model = \
@@ -209,6 +212,10 @@ class MainGui(Ui_MainGui, QMainWindow):
             self.proformas_sales_view.setSelectionBehavior(QTableView.SelectRows)
             self.proformas_sales_view.setAlternatingRowColors(True)
             self.proformas_sales_view.setSortingEnabled(True) 
+
+            self.proformas_sales_view.resizeColumnToContents(2)
+            self.proformas_sales_view.resizeColumnToContents(3) 
+
 
         elif prefix == 'warehouse_receptions_':
             self.warehouse_receptions_model = \

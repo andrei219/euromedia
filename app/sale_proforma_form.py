@@ -23,9 +23,13 @@ class StockBase:
         self.update()
 
     def update(self): 
+        
         description  = self.filters.description
         condition    = self.filters.condition
         spec         = self.filters.spec
+
+        print('StockBase.update:description:', self.filters.description)
+
         self.stocks = StockModel.stocks(
             self.warehouse_id, 
             description,
@@ -99,6 +103,8 @@ class Filters:
         self._description = description
         self._condition = condition
         self._spec = spec 
+
+        print('Filters.set: description=', description)
 
         self.stock_base.update()
 
@@ -239,6 +245,8 @@ class Form(Ui_SalesProformaForm, QWidget):
         if spec == '' or spec not in stock_base.specs:
             spec = None 
 
+        print('description_editing_finished:',description)
+            
         self.filters.set(description, condition, spec)
 
         # self.description.setText(description)

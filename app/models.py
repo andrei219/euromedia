@@ -938,16 +938,29 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
 		db.session.add(proforma)
 		try:
 			db.session.commit()
+			self.layoutAboutToBeChanged.emit()
 			self.proformas.append(proforma) 
 			self.layoutChanged.emit()   
-		except:
+		except IntegrityError:
 			db.session.rollback()
-			raise 
+			try:
+				proforma.number = self.nextNumberOfType(proforma.type)
+				db.session.add(proforma)
+				db.session.commit()
+				self.layoutAboutToBeChanged.emit()
+				self.proformas.append(proforma)
+				self.layoutChanged.emit()
+			
+			except:
+				db.session.rollback()
+				raise 
 	
 	def nextNumberOfType(self, type):
-		current_num = db.session.query(func.max(db.PurchaseProforma.number)). \
-			where(db.PurchaseProforma.type == type).scalar()  
-		return 1 if current_num is None else current_num + 1 
+		Session = db.sessionmaker(bind=db.get_engine()) 
+		with Session.begin() as session:
+			current_num = db.session.query(func.max(db.PurchaseProforma.number)). \
+				where(db.PurchaseProforma.type == type).scalar()  
+			return 1 if current_num is None else current_num + 1 
 	
 	def cancel(self, indexes):
 		rows = {index.row() for index in indexes}
@@ -1263,18 +1276,30 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 		db.session.add(proforma)
 		try:
 			db.session.commit()
+			self.layoutAboutToBeChanged.emit()
 			self.proformas.append(proforma)
 			self.layoutChanged.emit()
-		except:
+		except IntegrityError:
 			db.session.rollback()
-			raise 
+			try:
+				proforma.number = self.nextNumberOfType(proforma.type)
+				db.session.add(proforma)
+				db.session.commit()
+				self.layoutAboutToBeChanged.emit()
+				self.proformas.append(proforma)
+				self.layoutChanged.emit()
+			except:
+				db.session.rollback() 
+				raise 
 		
 	
 	def nextNumberOfType(self, type):
-		current_num = db.session.query(func.max(db.SaleProforma.number)).\
-			where(db.SaleProforma.type == type).scalar()
-		return 1 if current_num is None else current_num + 1	
-	
+		Session = db.sessionmaker(bind=db.get_engine())
+		with Session.begin() as session:
+			current_num = db.session.query(func.max(db.SaleProforma.number)).\
+				where(db.SaleProforma.type == type).scalar()
+			return 1 if current_num is None else current_num + 1	
+		
 	
 	def cancel(self, indexes):
 		rows = {index.row() for index in indexes}
@@ -2911,6 +2936,8 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
 
 	def computeStock(self, warehouse_id, description, condition, spec, session=db.session):
 		
+		print('StockModel.computeStock:description=', description)
+
 		# session = session 
 		item_id = utils.description_id_map.get(description)
 		
@@ -2926,10 +2953,14 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
 		if item_id:
 			query = query.where(db.Imei.item_id == item_id)
 		else:
+			print('not StockModel.computeStock.item_id ')
 			item_ids = utils.get_itemids_from_mixed_description(description)
+			print('StockModel.computeStock.item_ids:', item_ids)
 			if item_ids:
 				query = query.where(db.Imei.item_id.in_(item_ids))
 		
+		print('_'* 200)
+
 		if condition:
 			query = query.where(
 				db.Imei.condition == condition

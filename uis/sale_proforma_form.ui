@@ -834,7 +834,7 @@
      </rect>
     </property>
    </widget>
-   <widget class="GroupBox" name="groupBox_6">
+   <widget class="QGroupBox" name="groupBox_6">
     <property name="geometry">
      <rect>
       <x>0</x>
@@ -1089,7 +1089,7 @@
     </item>
    </layout>
   </widget>
-  <widget class="GroupBox" name="create_line_frame">
+  <widget class="QGroupBox" name="create_line_frame">
    <property name="geometry">
     <rect>
      <x>80</x>
@@ -1262,14 +1262,6 @@
    </property>
   </widget>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>GroupBox</class>
-   <extends>QGroupBox</extends>
-   <header location="global">groupbox</header>
-   <container>1</container>
-  </customwidget>
- </customwidgets>
  <tabstops>
   <tabstop>type</tabstop>
   <tabstop>number</tabstop>
