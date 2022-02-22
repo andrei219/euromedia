@@ -32,7 +32,7 @@
      <x>30</x>
      <y>270</y>
      <width>681</width>
-     <height>221</height>
+     <height>251</height>
     </rect>
    </property>
   </widget>
@@ -40,7 +40,7 @@
    <property name="geometry">
     <rect>
      <x>640</x>
-     <y>500</y>
+     <y>530</y>
      <width>71</width>
      <height>31</height>
     </rect>
@@ -77,7 +77,7 @@
    <property name="title">
     <string>ADD PAYMENT:</string>
    </property>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>12</x>
@@ -233,8 +233,8 @@
     <rect>
      <x>30</x>
      <y>40</y>
-     <width>63</width>
-     <height>16</height>
+     <width>71</width>
+     <height>20</height>
     </rect>
    </property>
    <property name="text">
@@ -244,10 +244,10 @@
   <widget class="QLabel" name="label_5">
    <property name="geometry">
     <rect>
-     <x>52</x>
+     <x>50</x>
      <y>102</y>
-     <width>40</width>
-     <height>16</height>
+     <width>51</width>
+     <height>20</height>
     </rect>
    </property>
    <property name="text">
@@ -285,9 +285,9 @@
   <widget class="QLabel" name="label_4">
    <property name="geometry">
     <rect>
-     <x>41</x>
+     <x>31</x>
      <y>72</y>
-     <width>51</width>
+     <width>61</width>
      <height>20</height>
     </rect>
    </property>
@@ -326,7 +326,7 @@
     <bool>true</bool>
    </property>
   </widget>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>327</x>
@@ -370,7 +370,7 @@
     </item>
    </layout>
   </widget>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>311</x>
@@ -425,6 +425,25 @@
      </widget>
     </item>
    </layout>
+  </widget>
+  <widget class="QPushButton" name="all">
+   <property name="geometry">
+    <rect>
+     <x>250</x>
+     <y>230</y>
+     <width>75</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>All</string>
+   </property>
+   <property name="autoDefault">
+    <bool>false</bool>
+   </property>
+   <property name="default">
+    <bool>true</bool>
+   </property>
   </widget>
  </widget>
  <tabstops>

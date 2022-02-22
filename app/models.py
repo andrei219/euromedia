@@ -288,40 +288,51 @@ class AgentModel(QtCore.QAbstractTableModel):
 			raise 
 
 	def update(self, agent):
-		for old_agent in self.agents:
-			if old_agent.id == agent.id:
-				break
-		old_agent.fiscal_name = agent.fiscal_name
-		old_agent.fiscal_number = agent.fiscal_number 
-		old_agent.email = agent.email 
-		old_agent.phone = agent.phone 
-		old_agent.active = agent.active
-		old_agent.country = agent.country
-		old_agent.fixed_salary = agent.fixed_salary
-		old_agent.from_profit = agent.from_profit
-		old_agent.from_turnover = agent.from_turnover
-		old_agent.fixed_perpiece = agent.fixed_perpiece
-		old_agent.bank_name = agent.bank_name
-		old_agent.iban = agent.iban
-		old_agent.swift = agent.swift
-		old_agent.bank_address = agent.bank_address
-		old_agent.bank_postcode = agent.bank_postcode 
-		old_agent.bank_city = agent.bank_city
-		old_agent.bank_state = agent.bank_state
-		old_agent.bank_country = agent.bank_country
-		old_agent.bank_routing = agent.bank_routing
+		# for old_agent in self.agents:
+		# 	if old_agent.id == agent.id:
+		# 		break
+		# old_agent.fiscal_name = agent.fiscal_name
+		# old_agent.fiscal_number = agent.fiscal_number 
+		# old_agent.email = agent.email 
+		# old_agent.phone = agent.phone 
+		# old_agent.active = agent.active
+		# old_agent.country = agent.country
+		# old_agent.fixed_salary = agent.fixed_salary
+		# old_agent.from_profit = agent.from_profit
+		# old_agent.from_turnover = agent.from_turnover
+		# old_agent.fixed_perpiece = agent.fixed_perpiece
+		# old_agent.bank_name = agent.bank_name
+		# old_agent.iban = agent.iban
+		# old_agent.swift = agent.swift
+		# old_agent.bank_address = agent.bank_address
+		# old_agent.bank_postcode = agent.bank_postcode 
+		# old_agent.bank_city = agent.bank_city
+		# old_agent.bank_state = agent.bank_state
+		# old_agent.bank_country = agent.bank_country
+		# old_agent.bank_routing = agent.bank_routing
+
+		# try:
+		# 	db.session.commit()
+		# 	print('commit executed')
+		# except:
+		# 	db.session.rollback()
+		# 	raise
+		# self.dataChanged.emit(QModelIndex(), QModelIndex())
 
 		try:
+			self.layoutAboutToBeChanged.emit()
 			db.session.commit()
+			self.layoutChanged.emit()
+
 		except:
 			db.session.rollback()
-			raise
-		self.dataChanged.emit(QModelIndex(), QModelIndex())
+			raise 
+
 
 	def delete(self, index):
 		if not index.isValid():
 			return
-		row = index.row() 
+		row = index.row()        
 		candidate_agent = self.agents[row]
 		db.session.delete(candidate_agent)
 		try:
@@ -1441,38 +1452,38 @@ class OrganizedLines:
 	def __init__(self, lines):
 		self.instrumented_lines = lines 
 		self.organized_lines = self.organize_lines(lines) 
-		self.next_mix = self.get_next_mix()
-
 
 	@property
 	def lines(self):
 		return self.instrumented_lines
 
 	def get_next_mix(self):
-		last_mix = db.session.query(func.max(db.SaleProformaLine.mix_id)).scalar()
-		if last_mix is None:
-			last_mix = 0 
-		else:
-			last_mix += 1
-		return last_mix
+		import uuid
+		return str(uuid.uuid4())
 
-	# Este metodo no hay que tocarlo, no contiene codigo
-	# relacionado con la representación 
+		# engine = db.get_engine()
+		# last_mix = engine.execute(func.max(db.SaleProformaLine.mix_id)).scalar()
+		# print('last_mix:', last_mix)
+		# if last_mix is None:
+		# 	last_mix = 0 
+		# else:
+		# 	last_mix += 1
+		# return last_mix
+
 	def delete(self, i, j=None):
 		if j is None:
 			lines = self.organized_lines.pop(i)
-			try:
+			if isinstance(lines, Iterable):
 				for line in lines:
 					self.instrumented_lines.remove(line)
-			except TypeError:
-				# Non itereable
-				self.instrumented_lines.remove(lines) 
+			elif isinstance(db.SaleProformaLine):
+				self.instrumented_lines.remove(lines)
 		else:
 			line = self.organized_lines[i].pop(j)
 			try:
 				if len(self.organized_lines[i]) == 1:
 					self.organized_lines[i] = self.organized_lines[i][0]
-					# self.organized_lines[i].mix_id = None
+					self.organized_lines[i].mix_id = None
 				elif not self.organized_lines[i]:
 					del self.organized_lines[i]
 			except IndexError:
@@ -1571,47 +1582,14 @@ class OrganizedLines:
 			return all((
 				utils.mixing_compatible(stock, line)
 				for line in previous_lines
-				for stock in stock
+				for stock in stocks
 			))			
 		except TypeError:
 			line = previous_lines 
 			return all((
-				utils.mixing_compabile(stock, line)
+				utils.mixing_compatible(stock, line)
 				for stock in stocks
 			))
-
-	def no_line_stock_conflict(self, line, stock):
-		line_description = utils.dirty_map.inverse[line.item_id]
-		stock_description = utils.dirty_map.inverse[stock.item_id]
-		
-		stock_stock_type = utils.stock_type(stock)
-		line_stock_type = utils.stock_type(line.item_id) 
-		
-		if -1 == line_stock_type or -1 == stock_stock_type:
-			return False 
-
-		elif line_stock_type == stock_stock_type == utils.CAP_COL:
-			_, sman, scat, smod, *_ = stock_description.split('|')
-			_, lman, lcat, lmod, *_ = line_description.split('|')
-			return all((
-				sman == lman, scat == lcat, smod == lmod
-			))
-		elif line_stock_type == stock_stock_type == utils.ONLY_COL:
-			_, sman, scat, smod, scap, scol, _ = stock_description.split('|')
-			_, lman, lcat, lmod, lcap, lcol, _ = line_description.split('|')
-			return all((
-				sman == lman, scat == lcat, smod == lmod, lcap == scap == '?', 
-				scol != lcol != '?'
-			))
-		elif line_stock_type == stock_stock_type == utils.ONLY_CAP:
-			_, sman, scat, smod, scap, scol, _ = stock_description.split('|')
-			_, lman, lcat, lmod, lcap, lcol, _ = line_description.split('|')
-			return all((
-				sman == lman, scat == lcat, smod == lmod, scap != lcap != '?', 
-				lcol == scol == '?'
-			))
-		else:
-			return False 
 
 	def insert_free(self, description, quantity, price, tax):
 		
@@ -1723,7 +1701,7 @@ class OrganizedLines:
 			for line in lines:
 				line.showing_condition = condition
 		else:
-			lines.condition = condition
+			lines.showing_condition = condition
 		return True 
 
 	def update_spec(self, row, spec):
@@ -1786,6 +1764,9 @@ class SaleProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 		if role == Qt.DisplayRole:
 			return self.organized_lines.repr(row, column) 
 	
+	def __iter__(self):
+		return iter(self.organized_lines.lines)
+
 	@property
 	def lines(self):
 		return self.organized_lines.lines 
@@ -1862,7 +1843,7 @@ class SaleProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 					updated =  self.organized_lines.update_tax(row, tax) 
 			elif column == self.__class__.PRICE:
 				try:
-					price = int(value)
+					price = float(value)
 					if price < 0:
 						raise ValueError
 				except ValueError:
@@ -2936,7 +2917,6 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
 
 	def computeStock(self, warehouse_id, description, condition, spec, session=db.session):
 		
-		print('StockModel.computeStock:description=', description)
 
 		# session = session 
 		item_id = utils.description_id_map.get(description)
@@ -2953,13 +2933,10 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
 		if item_id:
 			query = query.where(db.Imei.item_id == item_id)
 		else:
-			print('not StockModel.computeStock.item_id ')
 			item_ids = utils.get_itemids_from_mixed_description(description)
-			print('StockModel.computeStock.item_ids:', item_ids)
 			if item_ids:
 				query = query.where(db.Imei.item_id.in_(item_ids))
 		
-		print('_'* 200)
 
 		if condition:
 			query = query.where(
@@ -3136,7 +3113,6 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
 		for sale in sales:
 			for imei in imeis:
 				if sale == imei:
-					# print('sale:', sale, 'imei:', imei)
 					imei -= sale 
 
 		return imeis 
@@ -3183,6 +3159,22 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
 		self.layoutAboutToBeChanged.emit()
 		self.stocks = []
 		self.layoutChanged.emit() 
+
+
+	def sort(self, section, order):
+		attr = {
+			self.DESCRIPTION:'item_id', 
+			self.CONDITION:'condition', 
+			self.SPEC:'spec', 
+			self.QUANTITY:'quantity'
+		}.get(section)
+
+		if attr:
+			reverse = True if order  == Qt.AscendingOrder else False
+			self.layoutAboutToBeChanged.emit()
+			self.stocks.sort(key=operator.attrgetter(attr), reverse=reverse)
+			self.layoutChanged.emit() 
+
 
 	@property
 	def requested_stocks(self):
@@ -3828,6 +3820,20 @@ class GroupModel(BaseTable, QtCore.QAbstractTableModel):
 			}.get(col)
 
 	
+	def sort(self, section, order):
+		attr = {
+			self.DESCRIPTION:'description', 
+			self.CONDITION:'condition', 
+			self.SPEC:'spec', 
+			self.QUANTITY:'quantity'
+		}.get(section)
+
+		if attr:
+			reverse = True if order  == Qt.AscendingOrder else False
+			self.layoutAboutToBeChanged.emit()
+			self.stocks.sort(key=operator.attrgetter(attr), reverse=reverse)
+			self.layoutChanged.emit() 
+
 	def group_exists(self, description, condition, spec):
 		pass 
 		for group in self.groups:

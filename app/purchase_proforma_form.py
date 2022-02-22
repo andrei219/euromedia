@@ -36,6 +36,7 @@ class Form(Ui_PurchaseProformaForm, QWidget):
         self.setupUi(self)
         self.parent = parent 
         self.model = view.model() 
+        self.view = view 
         self.lines_model = models.PurchaseProformaLineModel() 
         self.lines_view.setModel(self.lines_model)
         self.title = 'Line - Error'
@@ -244,13 +245,19 @@ class Form(Ui_PurchaseProformaForm, QWidget):
        
         proforma = self._formToProforma() 
         try:
+            
             self.model.add(proforma) 
             self.lines_model.save(proforma) 
         except:
             raise 
         else:
             QMessageBox.information(self, 'Information','Purchase saved successfully')
-            # self.close() 
+            self.adjust_view()
+            self.close()
+    
+    def adjust_view(self):
+        self.view.resizeColumnToContents(3)
+        self.view.resizeColumnToContents(4) 
 
 
     def closeEvent(self, event):
@@ -264,6 +271,7 @@ class EditableForm(Form):
         self.setupUi(self)
         self.parent = parent
         self.proforma = proforma 
+        self.view = view 
         self.type_combo_box.setEnabled(False) 
         self.lines_view.setSelectionBehavior(QTableView.SelectRows)
         self.title = 'Line - Error'
@@ -285,9 +293,6 @@ class EditableForm(Form):
         self.setUp()
         self.proforma_to_form()
 
-        
-
-
     def disable_things(self):
         try:
             if sum(1 for line in self.proforma.reception.lines for serie in line.series):
@@ -298,7 +303,6 @@ class EditableForm(Form):
         self.partner_line_edit.setReadOnly(True)
         self.eta_line_edit.setReadOnly(True)
         
-
     def setHandlers(self):
         self.deleteButton.clicked.connect(self.deleteHandler)
         self.addButton.clicked.connect(self.addHandler)
@@ -330,9 +334,6 @@ class EditableForm(Form):
     def saveHandler(self):
         if not super()._validHeader():
             return
-        # if not self.lines_model:
-        #     QMessageBox.critical(self, 'Error', "You cant let an empty proforma")
-        #     return 
 
         self._formToProforma(input_proforma=self.proforma)
         try:
@@ -353,5 +354,8 @@ class EditableForm(Form):
 
                 QMessageBox.information(self, "Information", message) 
 
-        # self.close()
+            self.adjust_view() 
+            # self.close()
+
+
 

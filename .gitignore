@@ -2,3 +2,4 @@ virtualenv
 .vscode 
 venv 
 *.pdf
+*.xlsx

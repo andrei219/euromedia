@@ -127,7 +127,7 @@ class Form(Ui_ExpeditionForm, QDialog):
         self.expedition_total.setText(str(sale_total_quantity(self.expedition)))
 
     def populateBody(self):
-        self.description.setText(str((self.expedition.lines[self.current_index].item)))
+        self.description.setText(str((self.expedition.lines[self.current_index].item.clean_repr)))
         self.line_total.setText(str(self.expedition.lines[self.current_index].quantity))
         self.condition.setText(self.expedition.lines[self.current_index].condition)
         self.spec.setText(self.expedition.lines[self.current_index].spec) 

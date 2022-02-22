@@ -21,12 +21,17 @@ class PaymentForm(Ui_PaymentsForm, QDialog):
 
         self.add_payment_tool_button.clicked.connect(self.addHandler) 
         self.delete_payment_tool_button.clicked.connect(self.deleteHandler)
+        self.all.clicked.connect(lambda:self.amount.setText(str(self.total - self.paid)))
 
         self.view.setSelectionBehavior(QTableView.SelectRows)
         self.view.setSortingEnabled(True)
         self.populate()
 
         self.date_line_edit.setText(today_date())
+
+    def allclicked(self):
+        self.amount.setText(str(self.total - self.paid))
+
 
     def addHandler(self):
         try:
@@ -48,7 +53,7 @@ class PaymentForm(Ui_PaymentsForm, QDialog):
 
         try:
             self.model.add(date, amount, info)
-            # self.view.resizeColumnsToContents() 
+            self.view.resizeColumnToContents(2) 
             self.updateOwing()
             self.clearFields() 
 
@@ -62,12 +67,13 @@ class PaymentForm(Ui_PaymentsForm, QDialog):
             return 
         try:
             self.model.delete(indexes)
-            # self.view.resizeColumnsToContents() 
+            self.view.resizeColumnToContents(2) 
             self.view.clearSelection() 
             self.updateOwing()
         except:
             raise 
             QMessageBox.critical(self, 'Error - Update', 'Could not delete payments')
+
 
     def updateOwing(self):
         self.owing = round(self.total - self.paid, 2) 

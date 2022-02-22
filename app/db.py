@@ -3,7 +3,6 @@ from sqlalchemy.sql import func, exists
 from sqlalchemy.orm import sessionmaker, scoped_session
 
 engine = create_engine('mysql+mysqlconnector://andrei:hnq#4506@192.168.2.253:3306/appdb', echo=False) 
-
 dev_engine = create_engine('mysql+mysqlconnector://root:hnq#4506@localhost:3306/appdb', echo=False) 
 
 import sys, os 
@@ -37,7 +36,7 @@ from datetime import datetime
 from sqlalchemy import ( 
     Table, Column, Integer, String, Enum, DateTime, 
     ForeignKey, UniqueConstraint, SmallInteger, Boolean, LargeBinary,
-    Date, CheckConstraint, Numeric
+    Date, CheckConstraint, Numeric, 
 )
 
 from sqlalchemy.ext.declarative import declarative_base
@@ -180,10 +179,11 @@ class Agent(Base):
 
 
     # Optional, check when populating form:
-    fixed_salary = Column(Numeric(10, 2, asdecimal=False))
-    from_profit = Column(Numeric(10, 2, asdecimal=False))
-    from_turnover = Column(Numeric(10, 2, asdecimal=False))
-    fixed_perpiece = Column(Numeric(10, 2, asdecimal=False))
+
+    fixed_salary = Column(Numeric(10, 2, asdecimal=False), default=1.0, nullable=False)
+    from_profit = Column(Numeric(10, 2, asdecimal=False), default=1.0, nullable=False)
+    from_turnover = Column(Numeric(10, 2, asdecimal=False), default=1.0, nullable=False)
+    fixed_perpiece = Column(Numeric(10, 2, asdecimal=False), default=1.0, nullable=False)
     bank_name = Column(String(50))
     iban = Column(String(50))
     swift = Column(String(50))
@@ -222,7 +222,7 @@ class Partner(Base):
     trading_name = Column(String(50), nullable=False, unique=True)
     warranty = Column(Integer, default=0)
     note = Column(String(255))
-    amount_credit_limit = Column(Numeric(10, 2, asdecimal=False), default=0)
+    amount_credit_limit = Column(Numeric(10, 2, asdecimal=False), default=0.0)
     days_credit_limit = Column(Integer, default=0)
     
     created_on = Column(DateTime, default=datetime.now)
@@ -381,7 +381,7 @@ class PurchaseProforma(Base):
     tracking = Column(String(50))
     external = Column(String(50))
 
-    credit_amount = Column(Numeric(10, 2, asdecimal=False), nullable=False, default=0)
+    credit_amount = Column(Numeric(10, 2, asdecimal=False), default=0.0)
     credit_days = Column(Integer, default=0, nullable=False) 
 
     incoterm = Column(String(3), nullable=False)
@@ -402,8 +402,8 @@ class PurchaseProformaLine(Base):
     condition = Column(String(50), nullable=True)
     spec = Column(String(50), nullable=True)
 
-    quantity = Column(Integer, nullable=False)
-    price = Column(Numeric(10, 6, asdecimal=False), nullable=False, default=1.0)
+    quantity = Column(Integer, default=1, nullable=False)
+    price = Column(Numeric(10, 2, asdecimal=False), default=1.0, nullable=False)
     tax = Column(Integer, nullable=False, default=0)
 
     item = relationship('Item', uselist=False)
@@ -483,7 +483,7 @@ class PurchasePayment(Base):
     proforma_id = Column(Integer, ForeignKey('purchase_proformas.id'), index=True)
 
     date = Column(Date)
-    amount = Column(Numeric(10, 2, asdecimal=False))
+    amount = Column(Numeric(10, 2, asdecimal=False), default=0.0)
     note = Column(String(255))
     
     proforma = relationship('PurchaseProforma', backref=backref('payments'))
@@ -503,7 +503,7 @@ class PurchaseExpense(Base):
     proforma_id = Column(Integer, ForeignKey('purchase_proformas.id'))
 
     date = Column(Date)
-    amount = Column(Numeric(10, 2, asdecimal=False))
+    amount = Column(Numeric(10, 2, asdecimal=False), default=0.0)
     note = Column(String(255))
 
     proforma = relationship('PurchaseProforma', backref=backref('expenses'))
@@ -544,7 +544,7 @@ class SaleProforma(Base):
     agent_id = Column(Integer, ForeignKey('agents.id'))
     sale_invoice_id = Column(Integer, ForeignKey('sale_invoices.id'))
 
-    credit_amount = Column(Numeric(10, 2, asdecimal=False), default=0)
+    credit_amount = Column(Numeric(10, 2, asdecimal=False), default=0.0)
     credit_days = Column(Integer, default=0)
     tracking = Column(String(50))
     external = Column(String(50))
@@ -570,7 +570,7 @@ class SalePayment(Base):
     proforma_id = Column(Integer, ForeignKey('sale_proformas.id'))
 
     date = Column(Date)
-    amount = Column(Numeric(10, 2, asdecimal=False))
+    amount = Column(Numeric(10, 2, asdecimal=False), default=0.0, nullable=False)
     note = Column(String(255))
     
     def __init__(self, date, amount, note, proforma):
@@ -588,7 +588,7 @@ class SaleExpense(Base):
     proforma_id = Column(Integer, ForeignKey('sale_proformas.id'))
 
     date = Column(Date)
-    amount = Column(Numeric(10, 2, asdecimal=False))
+    amount = Column(Numeric(10, 2, asdecimal=False), default=0.0, nullable=False)
     note = Column(String(255))
 
     def __init__(self, date, amount, note, proforma):
@@ -645,7 +645,7 @@ class SaleProformaLine(Base):
     proforma_id = Column(Integer, ForeignKey('sale_proformas.id'))
 
     item_id = Column(Integer, ForeignKey('items.id'), nullable=True)
-    mix_id = Column(Integer, nullable=True)
+    mix_id = Column(String(36), nullable=True)
 
     # No stock related line 
     description = Column(String(100)) 
@@ -654,9 +654,9 @@ class SaleProformaLine(Base):
     showing_condition = Column(String(50))
     spec = Column(String(50))
     ignore_spec = Column(Boolean, default=False) 
-    quantity = Column(Integer, default=1)
-    price = Column(Numeric(10, 6, asdecimal=False), default=1.0)
-    tax = Column(Integer, default=0)
+    quantity = Column(Integer, default=1, nullable=False)
+    price = Column(Numeric(10, 2, asdecimal=False), default=0.0, nullable=False)
+    tax = Column(Integer, default=0, nullable=False)
     
     item = relationship('Item')
     proforma = relationship(
@@ -763,7 +763,7 @@ class AdvancedLine(Base):
     condition = Column(String(50))
     spec = Column(String(50))
     quantity = Column(Integer, nullable=False, default=1) 
-    price = Column(Numeric(10, 2, asdecimal=False), nullable=False, default=1.0) 
+    price = Column(Numeric(10, 2, asdecimal=False), default=0.0) 
     tax = Column(Integer, nullable=False, default=0) 
     ignore_spec = Column(Boolean, default=True, nullable=False)
     showing_condition = Column(String(50), nullable=True)    
@@ -850,10 +850,10 @@ class ExpeditionLine(Base):
     id = Column(Integer, primary_key=True)
     expedition_id = Column(Integer, ForeignKey('expeditions.id'))
     
-    item_id = Column(Integer, ForeignKey('items.id'))
-    condition = Column(String(50))
-    spec = Column(String(50))
-    quantity = Column(Integer)
+    item_id = Column(Integer, ForeignKey('items.id'), nullable=False)
+    condition = Column(String(50), nullable=False)
+    spec = Column(String(50), nullable=False)
+    quantity = Column(Integer, nullable=False)
 
     item = relationship('Item', uselist=False)
     expedition = relationship('Expedition', backref=backref('lines'))
@@ -912,9 +912,9 @@ class ReceptionLine(Base):
     
     item_id = Column(Integer, ForeignKey('items.id'), nullable=True)
     description = Column(String(100), nullable=True)
-    condition = Column(String(50))
-    spec = Column(String(50))
-    quantity = Column(Integer)
+    condition = Column(String(50), nullable=False)
+    spec = Column(String(50), nullable=False)
+    quantity = Column(Integer, nullable=False)
 
     reception = relationship('Reception', backref=backref('lines'))
     item = relationship('Item', uselist=False)
@@ -993,11 +993,11 @@ class Imei(Base):
 
     __tablename__ = 'imeis'
 
-    imei = Column(String(50), primary_key=True)
+    imei = Column(String(50), primary_key=True, nullable=False)
     item_id = Column(Integer, ForeignKey('items.id'), nullable=False)
     condition = Column(String(50))
     spec = Column(String(50))
-    warehouse_id = Column(Integer, ForeignKey('warehouses.id'))
+    warehouse_id = Column(Integer, ForeignKey('warehouses.id'), nullable=False)
 
     item = relationship('Item', uselist=False) 
     warehouse = relationship('Warehouse', uselist=False) 
@@ -1009,9 +1009,9 @@ class ImeiMask(Base):
 
     imei = Column(String(50), primary_key=True)
     item_id = Column(Integer, ForeignKey('items.id'), nullable=False)
-    condition = Column(String(50))
-    spec = Column(String(50))
-    warehouse_id = Column(Integer, ForeignKey('warehouses.id'))
+    condition = Column(String(50), nullable=False)
+    spec = Column(String(50), nullable=False)
+    warehouse_id = Column(Integer, ForeignKey('warehouses.id'), nullable=False)
     origin_id = Column(Integer, nullable=False) 
 
     item = relationship('Item', uselist=False) 
@@ -1283,8 +1283,6 @@ def create_sale(type):
     session.add(proforma)
     session.commit() 
 
-from exceptions import NotExistingStockOutput
-
 
 @event.listens_for(PurchaseProformaLine, 'after_delete')
 def delete_dependant_advanced_sales(mapper, connection, target):
@@ -1365,6 +1363,7 @@ def delete_imei_after_sale(mapper, connection, target):
         where(Imei.spec == spec)
     result = connection.execute(stmt) 
     if not result.rowcount:
+        from exceptions import NotExistingStockOutput
         raise NotExistingStockOutput
     else:
         connection.execute(

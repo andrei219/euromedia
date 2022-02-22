@@ -181,7 +181,8 @@ class MainGui(Ui_MainGui, QMainWindow):
             self.proformas_purchases_view.setAlternatingRowColors(True)
             self.proformas_purchases_view.resizeColumnToContents(3)
             self.proformas_purchases_view.resizeColumnToContents(4)
-            
+            self.proformas_purchases_view.resizeColumnToContents(5)
+            self.proformas_purchases_view.resizeColumnToContents(6) 
 
         elif prefix == 'invoices_purchases_':
             self.invoices_purchases_model = \

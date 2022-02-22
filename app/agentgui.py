@@ -38,10 +38,6 @@ class AgentGui(QWidget, Ui_AgentGui):
         self.docs_button.clicked.connect(self.docsButtonHandler)
         self.save_button.clicked.connect(self.saveButtonHandler)
         self.iban_line_edit.textChanged.connect(self.ibanHandler)
-        self.from_turnover_spinbox.valueChanged.connect(self.test)
-
-    def test(self, v):
-        print(type(v))
 
     def ibanHandler(self, text):
         if utils.validIban(text):
@@ -65,7 +61,6 @@ class AgentGui(QWidget, Ui_AgentGui):
             except:
                 # raise
                 QMessageBox.critical(self, 'Agent - Update ','Fields fiscal name, name and email are mandatory' )  
-                # self.save_button.clearFocus() 
 
         elif self.mode == AgentGui.EDITABLE_MODE:
             try:
@@ -73,7 +68,8 @@ class AgentGui(QWidget, Ui_AgentGui):
                 self.model.update(self.agent)
                 QMessageBox.information(self, 'Agent - Update ', 'Agent updated successfully') 
             except:
-                QMessageBox.critical(self, 'Agent - Update', 'Fields fiscal name, name and email are mandatory')
+                raise
+                # QMessageBox.critical(self, 'Agent - Update', 'Fields fiscal name, name and email are mandatory')
     
     def formToAgent(self):
             self.agent.fiscal_name = self.fiscal_name_line_edit.text()
@@ -83,6 +79,8 @@ class AgentGui(QWidget, Ui_AgentGui):
             self.agent.country = self.agent_country_combobox.currentText() 
             self.agent.active = self.active_checkbox.isChecked()
             
+            self.agent.fixed_salary = self.fixed_salary_spinbox.value()
+            self.agent.from_profit = self.from_profit_spinbox.value()
             self.agent.from_turnover = self.from_turnover_spinbox.value()
             self.agent.fixed_perpiece = self.fixed_per_piece_spinbox.value()
             self.agent.bank_name = self.bank_name_line_edit.text()

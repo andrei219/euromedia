@@ -28,7 +28,6 @@ class StockBase:
         condition    = self.filters.condition
         spec         = self.filters.spec
 
-        print('StockBase.update:description:', self.filters.description)
 
         self.stocks = StockModel.stocks(
             self.warehouse_id, 
@@ -104,7 +103,6 @@ class Filters:
         self._condition = condition
         self._spec = spec 
 
-        print('Filters.set: description=', description)
 
         self.stock_base.update()
 
@@ -150,7 +148,6 @@ class Form(Ui_SalesProformaForm, QWidget):
         super().__init__() 
         self.setupUi(self) 
         self.setCombos()
-
         
         self.model = view.model() 
         self.init_template() 
@@ -158,8 +155,10 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.lines_model = SaleProformaLineModel(self.proforma, self)
         self.lines_view.setModel(self.lines_model)
         self.stock_view.setSelectionBehavior(QTableView.SelectRows)
-        utils.setCommonViewConfig(self.selected_stock_view)
-        
+        self.stock_view.setSortingEnabled(True)
+        self.selected_stock_view.setSortingEnabled(True)
+        self.selected_stock_view.setSelectionBehaviour(QTableView.SelectRows)
+
         self.set_partner_completer()
         self.set_handlers()
 
@@ -167,7 +166,15 @@ class Form(Ui_SalesProformaForm, QWidget):
 
         self.filters = Filters(warehouse_id, self)
 
+        self.view = view 
+        
+        self.lines_view.resizeColumnToContents(0)
+        self.lines_view.resizeColumnToContents(2)
 
+    
+    def adjust_view(self):
+        self.view.resizeColumnToContents(2)
+        self.view.resizeColumnToContents(3)
         
 
     def init_template(self):
@@ -245,8 +252,6 @@ class Form(Ui_SalesProformaForm, QWidget):
         if spec == '' or spec not in stock_base.specs:
             spec = None 
 
-        print('description_editing_finished:',description)
-            
         self.filters.set(description, condition, spec)
 
         # self.description.setText(description)
@@ -399,8 +404,6 @@ class Form(Ui_SalesProformaForm, QWidget):
 
     def search_handler(self):
         self.set_stock_mv()
-        self.clear_filters()
-        self.filters.set(None, None, None)
         self.stock_view.setFocus(True)
 
     def set_stock_mv(self):
@@ -424,7 +427,7 @@ class Form(Ui_SalesProformaForm, QWidget):
                 condition, spec,
             ) 
         self.stock_view.setModel(self.stock_model) 
-        self.stock_view.resizeColumnsToContents() 
+        self.stock_view.resizeColumnToContents(0) 
 
     def filters_unset(self):
         return any((
@@ -471,15 +474,15 @@ class Form(Ui_SalesProformaForm, QWidget):
             QMessageBox.critical(self, 'Error', 'No line selected')
         else:
             self.lines_model.delete(row)
-            # self.set_stock_mv()
-            # self.set_selected_stock_mv() 
+            self.set_stock_mv()
+            self.set_selected_stock_mv() 
             self.lines_view.clearSelection() 
             self.update_totals() 
     
-        self.lines_view.resizeColumnToContents(0)
-        self.lines_view.resizeColumnToContents(2)
-        self.stock_view.resizeColumnToContents(0)
-        
+            self.lines_view.resizeColumnToContents(0)
+            self.lines_view.resizeColumnToContents(2)
+            self.stock_view.resizeColumnToContents(3)
+            
 
     def add_handler(self):
         if not hasattr(self, 'stock_model'):return
@@ -510,21 +513,26 @@ class Form(Ui_SalesProformaForm, QWidget):
             for stock in requested_stocks:
                 stock.request = 0
         else:
-            self.stock_model.reset() 
+            # self.stock_model.reset() 
             self.update_totals() 
-            self.clear_filters()
+            # self.clear_filters()
+            self.set_stock_mv()
             self.filters.set(None, None, None)
 
         self.lines_view.resizeColumnToContents(0)
         self.lines_view.resizeColumnToContents(2)
-        self.stock_view.resizeColumnToContents(0)
         self.description.setFocus(True)
 
     def save_handler(self):
         if not self._valid_header(): return
         warehouse_id = utils.warehouse_id_map.get(self.warehouse.currentText())
-        lines = self.lines_model.lines 
         if hasattr(self, 'stock_model'):
+            
+            lines = [
+                line
+                for line in self.model
+                if not utils.is_object_presisted(line)
+            ]
             if self.stock_model.lines_against_stock(warehouse_id, lines):
                 QMessageBox.critical(
                     self, 
@@ -537,17 +545,18 @@ class Form(Ui_SalesProformaForm, QWidget):
         try:
             self.save_template()
             db.session.commit()
-            # self.parent.set_mv('proformas_sales_')
+            self.parent.set_mv('proformas_sales_')
         except:
             raise 
             db.session.rollback() 
         else:
             QMessageBox.information(self, 'Success', 'Sale saved successfully')
-        
-        self.close() 
+            self.adjust_view()
 
     def save_template(self):
-        self.model.add(self.proforma) 
+
+        if not utils.is_object_presisted(self.proforma):
+            self.model.add(self.proforma) 
 
     def closeEvent(self, event):
         db.session.rollback()     

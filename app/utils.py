@@ -55,6 +55,10 @@ def stock_type(stock):
     else:
         return -1 # No mixing available 
     
+def is_object_presisted(object):
+    from sqlalchemy import inspect
+    inspector = inspect(object)
+    return inspector.persistent
 
 def mixing_compatible(o, p):
     # First stocks must be same type and != -1 
@@ -108,7 +112,6 @@ def complete_descriptions(clean_map, dirty_map):
 
 @functools.cache
 def mixed_to_clean_descriptions(mixed_description):
-    print('mixed_to_clean...:', mixed_description)
     clean_descriptions = [] 
     if mixed_description.count('Mixed') == 2:
         for dirty_desc in dirty_map:
@@ -125,7 +128,6 @@ def mixed_to_clean_descriptions(mixed_description):
             if mpn != '?': continue 
             else: mpn = ''
             col = col if col != '?' else ''
-
             if ' '.join((mpn, man, cat, mod, 'Mixed GB', col)).strip() == mixed_description:
                 clean_descriptions.append(
                     description_id_map.inverse[dirty_map[dirty_desc]]
@@ -172,6 +174,7 @@ def get_itemids_from_mixed_description(mixed_description):
             mpn, man, cat, mod, _, col, _ = dirty_desc.split('|')
             if mpn != '?':continue 
             else:mpn = ''
+            col = col if col != '?' else ''
             if ' '.join((mpn, man, cat, mod, 'Mixed GB', col)).strip() == mixed_description:
                 ids.append(dirty_map[dirty_desc])
 
