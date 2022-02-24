@@ -53,6 +53,7 @@ class Form(QDialog, Ui_Form):
 
         self.view.setSelectionBehavior(QTableView.SelectRows)
         self.view.setSelectionMode(QTableView.SingleSelection)
+        self.view.setSortingEnabled(True)
 
 
     def disable_if_cancelled(self):
@@ -281,8 +282,6 @@ class Form(QDialog, Ui_Form):
 
     def invent_series(self):
         try:
-            # new_processed = int(self.processed.text())
-            # old_processed = self.processed_in_line()
             self.rs_model.add_invented(
                 self.reception.lines[self.current_index], 
                 1, 

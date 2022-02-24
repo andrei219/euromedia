@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1273</width>
-    <height>989</height>
+    <width>1260</width>
+    <height>962</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -192,22 +192,6 @@
      </rect>
     </property>
    </widget>
-  </widget>
-  <widget class="QPushButton" name="exit">
-   <property name="geometry">
-    <rect>
-     <x>1060</x>
-     <y>40</y>
-     <width>111</width>
-     <height>81</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>EXIT</string>
-   </property>
-   <property name="autoDefault">
-    <bool>false</bool>
-   </property>
   </widget>
   <widget class="QGroupBox" name="groupBox_4">
    <property name="geometry">
@@ -879,6 +863,32 @@
     </property>
    </widget>
   </widget>
+  <widget class="QToolButton" name="exit">
+   <property name="geometry">
+    <rect>
+     <x>1130</x>
+     <y>20</y>
+     <width>91</width>
+     <height>71</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>EXIT</string>
+   </property>
+   <property name="icon">
+    <iconset resource="../app/icons.qrc">
+     <normaloff>:/exit</normaloff>:/exit</iconset>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>32</width>
+     <height>32</height>
+    </size>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonTextUnderIcon</enum>
+   </property>
+  </widget>
  </widget>
  <tabstops>
   <tabstop>sn</tabstop>
@@ -887,7 +897,6 @@
   <tabstop>actual_spec</tabstop>
   <tabstop>all</tabstop>
   <tabstop>automatic</tabstop>
-  <tabstop>exit</tabstop>
   <tabstop>delete_button</tabstop>
   <tabstop>search_line_edit</tabstop>
   <tabstop>search</tabstop>
@@ -922,12 +931,12 @@
    <slot>close()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>993</x>
-     <y>113</y>
+     <x>1175</x>
+     <y>86</y>
     </hint>
     <hint type="destinationlabel">
-     <x>990</x>
-     <y>190</y>
+     <x>1162</x>
+     <y>223</y>
     </hint>
    </hints>
   </connection>

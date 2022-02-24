@@ -107,6 +107,10 @@ def sale_total_quantity(proforma):
 	return sum(line.quantity for line in proforma.lines if line.item_id) or \
 		sum(line.quantity for line in proforma.advanced_lines if line.item_id)
 
+def expedition_total_quantity(expedition):
+	return sum(line.quantity for line in expedition.lines)
+
+
 def sale_total_processed(proforma):
 	expedition = proforma if isinstance(proforma, db.Expedition) else proforma.expedition 
 	try:
@@ -1040,7 +1044,7 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
 		
 		reception_line.item_id = line.item_id
 		reception_line.description = line.description
-		
+
 		if reception_line.item_id or reception_line.description in \
 				utils.descriptions:
 					reception_line.reception = reception 
@@ -1375,6 +1379,8 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 			exp_line.condition = line.condition
 			exp_line.spec = line.spec 
 			exp_line.quantity = line.quantity
+			exp_line.showing_condition = line.showing_condition
+
 			if line.item_id:
 				exp_line.expedition = expedition
 		try:
@@ -1411,38 +1417,68 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 		exp_line.expedition = expedition
 
 	def updateWarehouse(self, proforma):
-		if proforma.expedition is None:
-			return 
-
-		warehouse_lines = set(proforma.expedition.lines)
-
-		proforma_lines = set(
-			filter(
-				lambda line: line.item_id in utils.description_id_map.values(), 
-				proforma.lines
-			)
-		)
-
-		added_lines = proforma_lines.difference(warehouse_lines)
+		if proforma.expedition is None: return 
+		
+		added_lines = self.difference(proforma)
+		
 		for line in added_lines:
 			self.build_expedition_line(line, proforma.expedition)
 		
-		deleted_lines = warehouse_lines.difference(proforma_lines) 
+		deleted_lines = self.difference(proforma, direction='expedition_proforma')
+
 		for line in deleted_lines:
 			line.quantity = 0
 			if sum(1 for serie in line.series) == 0:
 				db.session.delete(line) 
 
-		for proforma_line in proforma_lines:
-			for exp_line in proforma.expedition.lines:
-				if exp_line == proforma_line:
-					exp_line.quantity = proforma_line.quantity
-		
+		# Update quantity
+		# Upadte showing condition
+		for pline in filter(self.item_key, proforma.lines):
+			for eline in proforma.expedition.lines:
+				if self.pline_eline_equal(pline, eline):
+					eline.quantity = pline.quantity
+					eline.showing_condition = pline.showing_condition
 		try:
 			db.session.commit()
 		except:
 			db.session.rollback()
 			raise 
+
+	def pline_eline_equal(self, pline, eline): 
+		return all((
+			pline.item_id == eline.item_id, 
+			pline.condition == eline.condition, 
+			pline.spec == eline.spec 
+		))
+
+	item_key = lambda line: line.item_id in utils.description_id_map.inverse
+
+	def item_key(self, line):
+		return line.item_id in utils.description_id_map.inverse
+
+	def difference(self, proforma, direction='proforma_expedition'):
+		
+		key = lambda line: line.item_id in utils.description_id_map.inverse
+
+		if direction == 'proforma_expedition':
+			print('direction1')
+			iter_A = filter(self.item_key, proforma.lines)
+			iter_B = iter(proforma.expedition.lines)
+		elif direction == 'expedition_proforma':
+			print('direction2')
+			iter_A = iter(proforma.expedition.lines)
+			iter_B = filter(self.item_key, proforma.lines)
+
+		for pline in iter_A:
+			for eline in iter_B:
+				print('inner lop run')
+				if self.pline_eline_equal(pline, eline):
+					print('Hit:', pline, eline)
+					break
+			else:
+				print('else:', pline)
+				yield pline 
+
 
 
 from collections.abc import Iterable 
@@ -1461,22 +1497,19 @@ class OrganizedLines:
 		import uuid
 		return str(uuid.uuid4())
 
-		# engine = db.get_engine()
-		# last_mix = engine.execute(func.max(db.SaleProformaLine.mix_id)).scalar()
-		# print('last_mix:', last_mix)
-		# if last_mix is None:
-		# 	last_mix = 0 
-		# else:
-		# 	last_mix += 1
-		# return last_mix
-
 	def delete(self, i, j=None):
 		if j is None:
+			print('j is None')
 			lines = self.organized_lines.pop(i)
 			if isinstance(lines, Iterable):
+				print('isinstance(lines, Iterable)')
 				for line in lines:
+					print('for line in lines:', line)
+			
 					self.instrumented_lines.remove(line)
-			elif isinstance(db.SaleProformaLine):
+			
+			elif isinstance(lines, db.SaleProformaLine):
+				print('isinstance(lines, SaleProformaLine')
 				self.instrumented_lines.remove(lines)
 		else:
 			line = self.organized_lines[i].pop(j)
@@ -1491,7 +1524,9 @@ class OrganizedLines:
 			
 			self.instrumented_lines.remove(line) 
 
+		print('delete.pre flush')
 		db.session.flush()
+		print('delete pos flush')
 
 		# Esta linea pretende restructurar la lista 
 		# No deberia ser necesaria
@@ -1514,15 +1549,22 @@ class OrganizedLines:
 			return 
 		
 		if row is None:
+			# Check Mixing Compatible first
+			for a in stocks:
+				for b in stocks:
+					if not utils.mixing_compatible(a, b):
+						raise ValueError('Mixing Incompatible')
+
 			new_lines = [
 				self.build_line(price, ignore_spec, tax, showing, stock)	
 				for stock in stocks
 			]
 
+			# Ensured that len of list > 1 
 			if len(new_lines) != 1:
 				mix_id = self.get_next_mix()
 				for line in new_lines:
-					line.mix_id = mix_id 
+					line.mix_id = mix_id
 				self.organized_lines.append(new_lines)
 			else:
 				self.organized_lines.append(
@@ -1537,6 +1579,7 @@ class OrganizedLines:
 				raise ValueError("Incompatible mixing")
 		
 		self.instrumented_lines.extend(new_lines) 
+		
 		db.session.flush() 
 	
 	def update_organized_lines(self, price, ignore_spec, tax, showing, *stocks, row=-1):
@@ -1579,17 +1622,25 @@ class OrganizedLines:
 	def backward_compatible(self, stocks, row):
 		previous_lines = self.organized_lines[row]
 		try:
-			return all((
+			print('Executing try:')
+			result = all((
 				utils.mixing_compatible(stock, line)
 				for line in previous_lines
 				for stock in stocks
-			))			
+			))		
+			
+			print('result:', result)
+			return result
+
 		except TypeError:
+			print('except TypeError:')
 			line = previous_lines 
-			return all((
+			result = all((
 				utils.mixing_compatible(stock, line)
 				for stock in stocks
 			))
+			print('result:', result)
+			return result
 
 	def insert_free(self, description, quantity, price, tax):
 		
@@ -1767,6 +1818,11 @@ class SaleProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 	def __iter__(self):
 		return iter(self.organized_lines.lines)
 
+
+	@property
+	def quantity(self):
+		return sum(line.quantity for line in self.lines)
+
 	@property
 	def lines(self):
 		return self.organized_lines.lines 
@@ -1884,19 +1940,33 @@ class ActualLinesFromMixedModel(BaseTable, QtCore.QAbstractTableModel):
 		self.lines = lines or []
 
 
+	def sort(self, section, order):
+
+		attr = {
+			self.DESCRIPTION:'item_id', 
+			self.CONDITION:'condition', 
+			self.SPEC:'spec', 
+		}.get(section)
+
+		if attr:
+			reverse = True if order == Qt.AscendingOrder else False
+			self.layoutAboutToBeChanged.emit()
+			self.lines.sort(key=operator.attrgetter(attr), reverse=reverse)
+			self.layoutChanged.emit() 
+
 	def data(self, index, role=Qt.DisplayRole):
 		if not index.isValid():
 			return
 		row, column = index.row(), index.column() 
 		line = self.lines[row]
 		if role == Qt.DisplayRole:
-			if column == ActualLinesFromMixedModel.DESCRIPTION:
+			if column == self.DESCRIPTION:
 				return utils.description_id_map.inverse[line.item_id]
-			elif column == ActualLinesFromMixedModel.CONDITION:
+			elif column == self.CONDITION:
 				return line.condition
-			elif column == ActualLinesFromMixedModel.SPEC:
+			elif column == self.SPEC:
 				return line.spec
-			elif column == ActualLinesFromMixedModel.REQUEST:
+			elif column == self.REQUEST:
 				return str(line.quantity)
 
 	def reset(self):
@@ -2466,8 +2536,11 @@ class SerieModel(QtCore.QAbstractListModel):
 	def __init__(self, line, expedition):
 		super().__init__() 
 		self.expedition = expedition
-		self.series = db.session.query(db.ExpeditionSerie).join(db.ExpeditionLine).\
-			where(db.ExpeditionSerie.line_id == line.id).all()
+		self.line = line 
+		# self.series = db.session.query(db.ExpeditionSerie).join(db.ExpeditionLine).\
+		# 	where(db.ExpeditionSerie.line_id == line.id).all()
+
+		# self.series = line.series 
 
 		self.series_at_expedition_level = self.get_series_at_expedition_level() 
 
@@ -2477,6 +2550,10 @@ class SerieModel(QtCore.QAbstractListModel):
 			join(db.ExpeditionLine).join(db.Expedition).
 			where(db.Expedition.id == self.expedition.id)
 		}
+
+		# return list(serie for line in self.expedition.lines for serie in line.series)
+
+
 		
 	def add(self, line, _serie):
 		if _serie in self:
@@ -2520,9 +2597,27 @@ class SerieModel(QtCore.QAbstractListModel):
 			db.session.rollback()
 			raise 
 
+	def add_invented(self, quantity):
+		if quantity > 0:
+			for invented_serie in self.uuid_generator(quantity):
+				expedition_serie = db.ExpeditionSerie()
+				expedition_serie.serie = invented_serie 
+				expedition_serie.line = self.line 
+				db.session.add(expedition_serie)
+			try:
+				db.session.commit()
+			except:pass 
+
+		elif quantity < 0:
+			pass 
+
+	
+	def uuid_generator(self, quantity):
+		for i in range(quantity):
+			yield str(uuid.uuid4()) 
+
 	def rowCount(self, index):
 		return len(self.series)
-
 
 	def data(self, index, role=Qt.DisplayRole):
 		if not index.isValid():
@@ -2602,7 +2697,7 @@ class ExpeditionModel(BaseTable, QtCore.QAbstractTableModel):
 			elif column == ExpeditionModel.WAREHOUSE:
 				return expedition.proforma.warehouse.description 
 			elif column == ExpeditionModel.TOTAL:
-				return str(sale_total_quantity(expedition))
+				return str(expedition_total_quantity(expedition))
 			elif column == ExpeditionModel.PARTNER:
 				return expedition.proforma.partner.fiscal_name
 			elif column == ExpeditionModel.PROCESSED:
@@ -3734,9 +3829,7 @@ class ReceptionSeriesModel:
 
 	
 	def processed_in(self, line):
-		return len([
-			o for o in self.reception_series if o.line_id == line.id
-		])
+		return sum(1 for o in self.reception_series if o.line_id == line.id)
 
 	def __len__(self):
 		return len(self.reception_series)
@@ -3819,7 +3912,6 @@ class GroupModel(BaseTable, QtCore.QAbstractTableModel):
 				self.__class__.QUANTITY:group.quantity 
 			}.get(col)
 
-	
 	def sort(self, section, order):
 		attr = {
 			self.DESCRIPTION:'description', 
@@ -3831,7 +3923,7 @@ class GroupModel(BaseTable, QtCore.QAbstractTableModel):
 		if attr:
 			reverse = True if order  == Qt.AscendingOrder else False
 			self.layoutAboutToBeChanged.emit()
-			self.stocks.sort(key=operator.attrgetter(attr), reverse=reverse)
+			self.groups.sort(key=operator.attrgetter(attr), reverse=reverse)
 			self.layoutChanged.emit() 
 
 	def group_exists(self, description, condition, spec):

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1475</width>
+    <width>1427</width>
     <height>970</height>
    </rect>
   </property>
@@ -880,6 +880,9 @@
      <property name="placeholderText">
       <string>Description</string>
      </property>
+     <property name="clearButtonEnabled">
+      <bool>true</bool>
+     </property>
     </widget>
     <widget class="QLineEdit" name="condition">
      <property name="geometry">
@@ -898,6 +901,9 @@
      </property>
      <property name="placeholderText">
       <string>Condition</string>
+     </property>
+     <property name="clearButtonEnabled">
+      <bool>true</bool>
      </property>
     </widget>
     <widget class="QLineEdit" name="spec">
@@ -920,6 +926,9 @@
      </property>
      <property name="placeholderText">
       <string>Spec</string>
+     </property>
+     <property name="clearButtonEnabled">
+      <bool>true</bool>
      </property>
     </widget>
    </widget>
@@ -1259,6 +1268,28 @@
    </property>
    <property name="text">
     <string>Deselect</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="quantity">
+   <property name="geometry">
+    <rect>
+     <x>850</x>
+     <y>470</y>
+     <width>201</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">font:bold; </string>
+   </property>
+   <property name="text">
+    <string>Quantity:</string>
+   </property>
+   <property name="textFormat">
+    <enum>Qt::AutoText</enum>
+   </property>
+   <property name="scaledContents">
+    <bool>false</bool>
    </property>
   </widget>
  </widget>

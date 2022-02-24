@@ -1671,10 +1671,10 @@ class Ui_MainGui(object):
         MainGui.setStatusBar(self.statusBar)
 
         self.retranslateUi(MainGui)
-        self.main_tab.setCurrentIndex(2)
+        self.main_tab.setCurrentIndex(4)
         self.proformastab.setCurrentIndex(1)
         self.invoicestab.setCurrentIndex(1)
-        self.warehouse.setCurrentIndex(0)
+        self.warehouse.setCurrentIndex(1)
         self.rmastab.setCurrentIndex(1)
         QtCore.QMetaObject.connectSlotsByName(MainGui)
 

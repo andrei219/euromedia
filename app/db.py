@@ -853,6 +853,7 @@ class ExpeditionLine(Base):
     item_id = Column(Integer, ForeignKey('items.id'), nullable=False)
     condition = Column(String(50), nullable=False)
     spec = Column(String(50), nullable=False)
+    showing_condition = Column(String(50), nullable=True)
     quantity = Column(Integer, nullable=False)
 
     item = relationship('Item', uselist=False)
@@ -1359,9 +1360,15 @@ def delete_imei_after_mixed_purchase(mapper, connection, target):
 def delete_imei_after_sale(mapper, connection, target):
     condition = target.line.condition 
     spec = target.line.spec 
+    item_id = target.line.item_id
     stmt = delete(Imei).where(Imei.imei == target.serie).where(Imei.condition == condition).\
-        where(Imei.spec == spec)
+        where(Imei.spec == spec).where(Imei.item_id == item_id)
     result = connection.execute(stmt) 
+
+    print('target.line.condition:', condition)
+    print('target.line.spec:', spec)
+    print('target.line.item_id', item_id, target.line.item.clean_repr)
+
     if not result.rowcount:
         from exceptions import NotExistingStockOutput
         raise NotExistingStockOutput
@@ -1384,16 +1391,6 @@ def insert_imei_after_sale(mapper, connection, target):
     connection.execute(stmt)
 
 
-# En estos metodos se usa Core SQLAlchemy.
-@event.listens_for(Item, 'before_insert')
-def validate(mapper, connection, target):
-    print(connection)
-    print(target)
-
-
-@event.listens_for(Item, 'before_update')
-def validate(mapper, connection, target):
-    print(target)
 
 class SpecChange(Base):
 

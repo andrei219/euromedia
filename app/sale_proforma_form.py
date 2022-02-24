@@ -154,10 +154,22 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.parent = parent
         self.lines_model = SaleProformaLineModel(self.proforma, self)
         self.lines_view.setModel(self.lines_model)
+        
+
+        self.lines_view.setSelectionBehavior(QTableView.SelectRows)
+        self.lines_view.setAlternatingRowColors(True)
+        self.lines_view.setSelectionMode(QTableView.SingleSelection)
+
+
         self.stock_view.setSelectionBehavior(QTableView.SelectRows)
         self.stock_view.setSortingEnabled(True)
+        self.stock_view.setAlternatingRowColors(True)
+
         self.selected_stock_view.setSortingEnabled(True)
-        self.selected_stock_view.setSelectionBehaviour(QTableView.SelectRows)
+        self.selected_stock_view.setSelectionBehavior(QTableView.SelectRows)
+        self.selected_stock_view.setAlternatingRowColors(True)
+        self.selected_stock_view.setSelectionMode(QTableView.SingleSelection)
+
 
         self.set_partner_completer()
         self.set_handlers()
@@ -407,6 +419,7 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.stock_view.setFocus(True)
 
     def set_stock_mv(self):
+
         warehouse_id = utils.warehouse_id_map.get(
             self.warehouse.currentText()
         )
@@ -560,12 +573,13 @@ class Form(Ui_SalesProformaForm, QWidget):
 
     def closeEvent(self, event):
         db.session.rollback()     
-        # self.parent.set_mv('proformas_sales_')
+        self.parent.set_mv('proformas_sales_')
 
     def update_totals(self):
         self.proforma_total.setText(str(self.lines_model.total))
         self.proforma_tax.setText(str(self.lines_model.tax))
         self.subtotal_proforma.setText(str(self.lines_model.subtotal))
+        self.quantity.setText('Qnt.: ' + str(self.lines_model.quantity))
 
     def _valid_header(self):
         try:

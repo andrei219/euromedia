@@ -52,8 +52,8 @@ def stock_type(stock):
         return ONLY_COL
     elif cap != '?' and col == '?':
         return ONLY_CAP
-    else:
-        return -1 # No mixing available 
+    # else:
+    #     return -1 # No mixing available 
     
 def is_object_presisted(object):
     from sqlalchemy import inspect
@@ -68,7 +68,10 @@ def mixing_compatible(o, p):
         return False
     
     # Once stock is same type, we are interested in base 
+
+
     d1, d2 = dirty_map.inverse[o.item_id], dirty_map.inverse[p.item_id]
+    
     man1, cat1, mod1, *_ = d1.split('|')
     man2, cat2, mod2, *_ = d2.split('|')
     return all((man1 == man2, cat1 == cat2, mod1 == mod2))

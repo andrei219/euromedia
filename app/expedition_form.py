@@ -25,6 +25,7 @@ class Form(Ui_ExpeditionForm, QDialog):
         self.expedition = expedition
         self.current_index = 0 
         self.total_lines = len(expedition.lines)
+        self.parent = parent
 
         self.next.clicked.connect(self.next_handler) 
         self.prev.clicked.connect(self.prev_handler) 
@@ -58,30 +59,51 @@ class Form(Ui_ExpeditionForm, QDialog):
             self.model.add(line, serie) 
             self.populateBody()
         except SeriePresentError:
-            try:
-                if serie and serie in self.view.model():
-                    index = self.view.model().index_of(serie)
-                    index = self.view.model().index(index, 0)
-                    self.view.selectionModel().setCurrentIndex(
-                        index, 
-                        QItemSelectionModel.SelectCurrent
-                    )
-            except AttributeError as ex:
-                print(ex)
-            except TypeError as ex:
-                print(ex)
+            if serie and serie in self.view.model():
+                # index_of may return None if serie not found
+                # Catch error and ignore it
+                index = self.view.model().index_of(serie)
+                
+                if index is None:
+                    mss = ' SN/IMEI: ' + serie
+                    mss += ' is already processed in this order'
+                    QMessageBox.critical(self, 'Error', mss)
+                    self.imei.clear()
+                    return 
+                
+                index = self.view.model().index(index, 0)
+                
+   
+                self.view.selectionModel().setCurrentIndex(
+                    index, 
+                    QItemSelectionModel.SelectCurrent
+                )
 
+        
         except IntegrityError as err:
-            print(err)
+            QMessageBox.critical(self, 'Error', '[ERROR 1001]:' + str(err))
+            return 
 
         except NotExistingStockOutput:
-            mss = 'This SN with this spec or condition is not in Stock'
-            mss += mss + 'May be it is in overflow?' 
-            QMessageBox.critical(
-                self, 'Error', 
-                mss
-            )
+            mss = 'This SN with this spec or condition is not in Stock. '
+            mss += 'May be it is in an overflowed expedition?' 
+            QMessageBox.critical(self, 'Error', mss) 
+        
         self.imei.clear()
+
+
+
+    def invent_series(self):
+        try:
+            new_processed = int(self.processed_line.text())
+            old_processed = self.processed_in_line
+        except ValueError:
+            QMessageBox.critical(self, 'Error', 'Enter an integer number')
+            return 
+        else:
+            self.model.add_invented(new_processed - old_processed)
+
+
 
     def update_overflow_condition(self):
         processed_in_line = self.processed_in_line
@@ -119,6 +141,7 @@ class Form(Ui_ExpeditionForm, QDialog):
         self.populateHeader()
 
     def populateHeader(self):
+        self.imei.setFocus(True)
         self.expedition_number.setText(str(self.expedition.id).zfill(6))
         self.date.setText(str(self.expedition.created_on.strftime('%d/%m/%Y')))
         self.partner.setText(self.expedition.proforma.partner.fiscal_name)
@@ -131,6 +154,7 @@ class Form(Ui_ExpeditionForm, QDialog):
         self.line_total.setText(str(self.expedition.lines[self.current_index].quantity))
         self.condition.setText(self.expedition.lines[self.current_index].condition)
         self.spec.setText(self.expedition.lines[self.current_index].spec) 
+        self.showing_condition.setText(self.expedition.lines[self.current_index].showing_condition)
 
         self.processed_line.setText(str(self.processed_in_line))
         self.number.setText(str(self.current_index + 1) + '/' + str(self.total_lines))
@@ -156,9 +180,7 @@ class Form(Ui_ExpeditionForm, QDialog):
 
     @property
     def processed_in_line(self):
-        return sum(
-            [1 for serie in self.expedition.lines[self.current_index].series]
-        ) 
+        return sum(1 for serie in self.expedition.lines[self.current_index].series) 
 
     def set_model(self, line):
         self.model = SerieModel(line, self.expedition) 
@@ -175,4 +197,5 @@ class Form(Ui_ExpeditionForm, QDialog):
         except:
             db.session.rollback()
             raise 
-        super().closeEvent(event)             
+        super().closeEvent(event)        
+        self.parent.set_mv('warehouse_expeditions_')  
