@@ -33,6 +33,7 @@ class Form(Ui_ExpeditionForm, QDialog):
         self.delete_imei.clicked.connect(self.delete_handler) 
         self.imei.returnPressed.connect(self.serieInput) 
 
+
         self.view.setSelectionMode(QAbstractItemView.ExtendedSelection)
 
         if expedition.proforma.cancelled:
@@ -51,12 +52,11 @@ class Form(Ui_ExpeditionForm, QDialog):
                 self.serieInput() 
 
     def serieInput(self):
-        line = self.expedition.lines[self.current_index]
         serie = self.imei.text() 
         if not serie:
             return 
         try:
-            self.model.add(line, serie) 
+            self.model.add(serie) 
             self.populateBody()
         except SeriePresentError:
             if serie and serie in self.view.model():
@@ -92,17 +92,16 @@ class Form(Ui_ExpeditionForm, QDialog):
         self.imei.clear()
 
 
-
     def invent_series(self):
         try:
             new_processed = int(self.processed_line.text())
             old_processed = self.processed_in_line
+            self.model.add_invented(new_processed - old_processed)
         except ValueError:
             QMessageBox.critical(self, 'Error', 'Enter an integer number')
             return 
-        else:
-            self.model.add_invented(new_processed - old_processed)
-
+        except:
+            raise 
 
 
     def update_overflow_condition(self):
@@ -160,7 +159,20 @@ class Form(Ui_ExpeditionForm, QDialog):
         self.number.setText(str(self.current_index + 1) + '/' + str(self.total_lines))
         self.expedition_total_processed.setText(str(sale_total_processed(self.expedition))) 
 
+        import utils 
+        serie_state = utils.has_serie(self.expedition.lines[self.current_index])
+        self.handle_layout_mode(serie_state)
+
         self.update_overflow_condition() 
+
+
+    def handle_layout_mode(self, serie_state):
+        for widget in [
+            'imei', 'view', 'automatic_input', 
+            'delete_imei', 'all', 
+        ]:
+            getattr(self, widget).setEnabled(serie_state)
+        self.processed_line.setReadOnly(not serie_state)
 
     def next_handler(self):
         if self.current_index + 1 == self.total_lines:
@@ -192,10 +204,7 @@ class Form(Ui_ExpeditionForm, QDialog):
         for line in self.expedition.lines:
             if line.quantity == len(line.series) == 0:
                 db.session.delete(line)
-        try:
-            db.session.commit() 
-        except:
-            db.session.rollback()
-            raise 
+
+        self.model.commit()
         super().closeEvent(event)        
         self.parent.set_mv('warehouse_expeditions_')  

@@ -986,6 +986,10 @@ class ExpeditionSerie(Base):
 
     line = relationship('ExpeditionLine', backref=backref('series')) 
 
+
+    def __init__(self, serie):
+        self.serie = serie 
+
     __table_args__ = (
         UniqueConstraint('id', 'line_id', 'serie'), 
     )

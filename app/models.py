@@ -2,6 +2,10 @@ from collections import namedtuple
 
 from collections.abc import Iterable
 
+from functools import wraps
+
+from uuid import uuid4
+
 from PyQt5 import QtCore
 from PyQt5.QtCore import Qt
 from PyQt5.QtCore import QModelIndex
@@ -1461,22 +1465,17 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 		key = lambda line: line.item_id in utils.description_id_map.inverse
 
 		if direction == 'proforma_expedition':
-			print('direction1')
 			iter_A = filter(self.item_key, proforma.lines)
 			iter_B = iter(proforma.expedition.lines)
 		elif direction == 'expedition_proforma':
-			print('direction2')
 			iter_A = iter(proforma.expedition.lines)
 			iter_B = filter(self.item_key, proforma.lines)
 
 		for pline in iter_A:
 			for eline in iter_B:
-				print('inner lop run')
 				if self.pline_eline_equal(pline, eline):
-					print('Hit:', pline, eline)
 					break
 			else:
-				print('else:', pline)
 				yield pline 
 
 
@@ -1509,8 +1508,10 @@ class OrganizedLines:
 					self.instrumented_lines.remove(line)
 			
 			elif isinstance(lines, db.SaleProformaLine):
-				print('isinstance(lines, SaleProformaLine')
+				print('isinstance(lines, SaleProformaLine)')
 				self.instrumented_lines.remove(lines)
+				db.session.flush()
+		
 		else:
 			line = self.organized_lines[i].pop(j)
 			try:
@@ -1528,8 +1529,6 @@ class OrganizedLines:
 		db.session.flush()
 		print('delete pos flush')
 
-		# Esta linea pretende restructurar la lista 
-		# No deberia ser necesaria
 		self.organized_lines = [e for e in self.organized_lines if e]
 
 	def append(self, price, ignore_spec, tax, showing, *stocks, row=None):
@@ -1550,10 +1549,11 @@ class OrganizedLines:
 		
 		if row is None:
 			# Check Mixing Compatible first
-			for a in stocks:
-				for b in stocks:
-					if not utils.mixing_compatible(a, b):
-						raise ValueError('Mixing Incompatible')
+			if len(stocks) != 1:
+				for a in stocks:
+					for b in stocks:
+						if not utils.mixing_compatible(a, b):
+							raise ValueError('Incompatible Mixing [0]')
 
 			new_lines = [
 				self.build_line(price, ignore_spec, tax, showing, stock)	
@@ -1576,7 +1576,9 @@ class OrganizedLines:
 					price, ignore_spec, tax, showing, *stocks, row=row
 				)
 			else:
-				raise ValueError("Incompatible mixing")
+				raise ValueError("Incompatible mixing[1]")
+		
+		print(new_lines)
 		
 		self.instrumented_lines.extend(new_lines) 
 		
@@ -1584,8 +1586,15 @@ class OrganizedLines:
 	
 	def update_organized_lines(self, price, ignore_spec, tax, showing, *stocks, row=-1):
 		# No need for checking 
+		
+		print('model.update_organized_lines')
+
 		existent_lines = self.organized_lines[row] 
+		
+		print('existent_lines:', existent_lines)
+
 		new_lines = [] 
+
 		if isinstance(existent_lines, Iterable) and len(stocks) == 1:
 			line = self.build_line(
 				price, ignore_spec, tax, showing, stocks[0], mix_id = existent_lines[0].mix_id
@@ -1796,7 +1805,7 @@ class OrganizedLines:
 	def __bool__(self):
 		return bool(self.instrumented_lines)
 
-class SaleProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
+class SaleProformaLineModel_old(BaseTable, QtCore.QAbstractTableModel):
 	
 	DESCRIPTION, CONDITION, SHOWING_CONDITION, SPEC, IGNORING_SPEC, \
 		QUANTITY, PRICE, SUBTOTAL, TAX, TOTAL = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 
@@ -1929,6 +1938,111 @@ class SaleProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 		else:
 			return Qt.ItemFlags(~Qt.ItemIsEditable)
 
+
+def change_layout_and_flush(func):
+	wraps(func)
+	def wrapper(self, *args, **kwargs):
+		self.layoutAboutToBeChanged.emit()
+		r = func(self, *args, **kwargs)
+		db.session.flush() 
+		self.layoutChanged.emit()
+		return r 
+
+
+class SaleProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
+
+	def __init__(self, proforma, form):
+		super().__init__()
+		self._headerData = ['Description', 'Condition', 'Showing Condt.(Editable)', 'Spec', \
+			'Ignoring Spec?(Editable)','Qty.', 'Price(Editable)', 'Subtotal', 'Tax(Editable)', 'Total']
+
+		self.form = form
+		self.lines = proforma.lines 
+		self.name = 'lines'
+
+	@property
+	def quantity(self):
+		return sum(line.quantity for line in self.lines)
+	
+	@property
+	def tax(self):
+		return sum(line.quantity * line.price * line.tax / 100 for line in self.lines)
+	
+	@property
+	def subtotal(self):
+		return sum(line.quantity * line.price for line in self.lines)
+	
+	@property 
+	def total(self): 
+		return self.tax + self.subtotal
+
+	def columnCount(self, index=QModelIndex()):
+		return len(self._headerData)
+
+	def rowCount(self, index=QModelIndex()):
+		return len(set(line.mix_id for line in self.lines))
+
+	def data(self, index, role=Qt.DisplayRole):
+		if not index.isValid():
+			return 
+		row, column = index.row()
+
+
+	def setData(self, index, value, role=Qt.EditRole):
+		pass 
+
+	def flags(self, index):
+		if not index.isValid(): 
+			return Qt.ItemIsEnabled
+		if self.editable(index.column()):
+			return Qt.ItemFlags(super().flags(index) | Qt.ItemIsEditable)
+		else:
+			return Qt.ItemFlags(~Qt.ItemIsEditable)
+
+	def add(self, price, ignore_spec, tax, showing_condition, *stocks, row=None):
+		pass 
+
+	@change_layout_and_flush
+	def add_free(self, description, quantity, price, tax):
+		line = db.SaleProformaLine()
+		line.description = description
+		line.quantity = quantity
+		line.price = price
+		line.tax = tax 
+		line.mix_id = str(uuid4())
+		self.lines.append(line) 
+
+	@change_layout_and_flush
+	def delete_line(self, row):
+		mix_id = self.lines[row].mix_id
+		for line in filter(lambda line:line.mix_id == mix_id, self.lines):
+			self.lines.remove(line) 
+
+	@property
+	def lines_from_mix(self, row):
+		mix_id = self.lines[row]
+		for line in filter(lambda line:line.mix_id == mix_id, self.lines):
+			yield line 
+		
+
+	def editable(self, column):
+		return column in (
+			self.SHOWING_CONDITION, 
+			self.IGNORE_SPEC, 
+			self.PRICE, 
+			self.TAX
+		)
+	@change_layou
+	def reset(self):
+		self.lines.clear() 
+		
+	def __iter__(self):
+		return iter(self.lines) 	
+	
+	def __bool__(self):
+		return bool(self.lines) 
+	
+
 class ActualLinesFromMixedModel(BaseTable, QtCore.QAbstractTableModel):
 
 	DESCRIPTION, CONDITION, SPEC, REQUEST = 0, 1, 2, 3
@@ -1941,7 +2055,6 @@ class ActualLinesFromMixedModel(BaseTable, QtCore.QAbstractTableModel):
 
 
 	def sort(self, section, order):
-
 		attr = {
 			self.DESCRIPTION:'item_id', 
 			self.CONDITION:'condition', 
@@ -2537,81 +2650,56 @@ class SerieModel(QtCore.QAbstractListModel):
 		super().__init__() 
 		self.expedition = expedition
 		self.line = line 
-		# self.series = db.session.query(db.ExpeditionSerie).join(db.ExpeditionLine).\
-		# 	where(db.ExpeditionSerie.line_id == line.id).all()
-
-		# self.series = line.series 
-
-		self.series_at_expedition_level = self.get_series_at_expedition_level() 
-
-	def get_series_at_expedition_level(self):
-		return {
-			r[0] for r in db.session.query(db.ExpeditionSerie.serie).
-			join(db.ExpeditionLine).join(db.Expedition).
-			where(db.Expedition.id == self.expedition.id)
-		}
-
-		# return list(serie for line in self.expedition.lines for serie in line.series)
+		self.series = line.series 
 
 
-		
-	def add(self, line, _serie):
-		if _serie in self:
-			raise SeriePresentError
+	@property
+	def expedition_series(self):
+		for line in self.expedition.lines:
+			for serie in line.series:
+				yield serie 
 
-		serie = db.ExpeditionSerie() 
-		serie.serie = _serie
-		serie.line = line 
-		db.session.add(serie) 
-		try:
-			db.session.commit() 
-			self.series.append(serie)
-			self.series_at_expedition_level = self.get_series_at_expedition_level() 
-			self.layoutChanged.emit() 
-		except:
-			db.session.rollback() 
-			raise 
-	
+	def add(self, serie):
+		if serie in self:
+			raise SeriePresentError 
+
+		self.series.append(db.ExpeditionSerie(serie)) 
+		self.commit() 
+
+
 	def delete_all(self):
-		for expedition_serie in self.series:
-			db.session.delete(expedition_serie)
-		try:
-			db.session.commit() 
-			self.series = [] 
-			self.series_at_expedition_level = self.get_series_at_expedition_level() 
-			self.layoutChanged.emit() 
-		except:
-			db.session.rollback() 
-			raise 
+		for o in self.series:
+			self.series.pop(0) 
+		
+		# self.series.clear()
+		self.commit() 
 
-	def delete(self, series):
-		for serie in series:
-			db.session.delete(serie)
+
+	def delete(self, objects):
+		for o in objects:
+			self.series.remove(o) 
+		self.commit() 
+
+	def handle_invented(self, quantity):
+		if qnt > 0:
+			for invented in self.uuid_generator(quantity):
+				self.series.append(db.ExpeditionSerie(invented)) 
+		elif qnt < 0:
+			for i in range(abs(qnt)):
+				try:
+					self.series.pop(0)
+				except:
+					raise 
+
+		self.commit() 
+
+	def commit(self):
 		try:
 			db.session.commit()
-			for serie in series:
-				self.series.remove(serie)
-			self.layoutChanged.emit()
-			self.series_at_expedition_level = self.get_series_at_expedition_level() 
 		except:
 			db.session.rollback()
 			raise 
 
-	def add_invented(self, quantity):
-		if quantity > 0:
-			for invented_serie in self.uuid_generator(quantity):
-				expedition_serie = db.ExpeditionSerie()
-				expedition_serie.serie = invented_serie 
-				expedition_serie.line = self.line 
-				db.session.add(expedition_serie)
-			try:
-				db.session.commit()
-			except:pass 
-
-		elif quantity < 0:
-			pass 
-
-	
 	def uuid_generator(self, quantity):
 		for i in range(quantity):
 			yield str(uuid.uuid4()) 
@@ -2626,12 +2714,12 @@ class SerieModel(QtCore.QAbstractListModel):
 			return self.series[index.row()].serie 
 
 	def __contains__(self, serie):
-		return serie in self.series_at_expedition_level
+		return serie in list(self.expedition_series) 
 
 	def index_of(self, key):
 		for index, serie in enumerate(self.series):
 			if key == serie.serie:
-				return index 
+				return index
 
 class ExpeditionModel(BaseTable, QtCore.QAbstractTableModel):
 
@@ -3745,6 +3833,7 @@ class ReceptionSeriesModel:
 		except:
 			db.session.rollback()
 			raise 
+
 
 	def add_invented(self, line, qnt, description, condition, spec):
 

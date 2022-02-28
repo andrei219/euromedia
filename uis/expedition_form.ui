@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>980</width>
+    <width>990</width>
     <height>904</height>
    </rect>
   </property>
@@ -128,19 +128,25 @@
     </rect>
    </property>
    <property name="frameShape">
-    <enum>QFrame::WinPanel</enum>
+    <enum>QFrame::StyledPanel</enum>
    </property>
    <property name="frameShadow">
-    <enum>QFrame::Raised</enum>
+    <enum>QFrame::Plain</enum>
+   </property>
+   <property name="lineWidth">
+    <number>3</number>
+   </property>
+   <property name="showDropIndicator" stdset="0">
+    <bool>true</bool>
    </property>
    <property name="dragEnabled">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="dragDropOverwriteMode">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="dragDropMode">
-    <enum>QAbstractItemView::DropOnly</enum>
+    <enum>QAbstractItemView::NoDragDrop</enum>
    </property>
    <property name="selectionMode">
     <enum>QAbstractItemView::MultiSelection</enum>
@@ -148,17 +154,20 @@
    <property name="selectionBehavior">
     <enum>QAbstractItemView::SelectItems</enum>
    </property>
+   <property name="movement">
+    <enum>QListView::Static</enum>
+   </property>
    <property name="flow">
     <enum>QListView::TopToBottom</enum>
    </property>
    <property name="isWrapping" stdset="0">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="viewMode">
-    <enum>QListView::IconMode</enum>
+    <enum>QListView::ListMode</enum>
    </property>
    <property name="wordWrap">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
   </widget>
   <widget class="QGroupBox" name="header">
