@@ -1239,8 +1239,11 @@
       <height>22</height>
      </rect>
     </property>
+    <property name="text">
+     <string/>
+    </property>
     <property name="placeholderText">
-     <string>Showing condition...</string>
+     <string>Public Condition...</string>
     </property>
    </widget>
   </widget>

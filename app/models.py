@@ -1089,12 +1089,12 @@ import functools
 class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 	
 	TYPE_NUM, DATE, PARTNER, AGENT, FINANCIAL, LOGISTIC, SENT, \
-		CANCELLED, OWING, TOTAL, ADVANCED, DEFINED = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11
+		CANCELLED, OWING, TOTAL, ADVANCED, DEFINED, READY = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12
 
 	def __init__(self, search_key=None, filters=None, proxy=False):
 		super().__init__() 
 		self._headerData = ['Type & Num', 'Date', 'Partner','Agent', \
-			'Financial', 'Logistic','Sent', 'Cancelled', 'Owes', 'Total', 'Advanced', 'Defined']
+			'Financial', 'Logistic','Sent', 'Cancelled', 'Owes', 'Total', 'Advanced', 'Defined', 'Ready To Go']
 		self.proformas = [] 
 		self.name = 'proformas'
 		query = db.session.query(db.SaleProforma).\
@@ -1183,16 +1183,16 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 		proforma = self.proformas[row]
 
 		if role == Qt.DisplayRole:
-			if col == SaleProformaModel.TYPE_NUM:
+			if col == self.TYPE_NUM:
 				s = str(proforma.type) + '-' + str(proforma.number).zfill(6)
 				return s 
-			elif col == SaleProformaModel.DATE:
+			elif col == self.DATE:
 				return proforma.date.strftime('%d/%m/%Y')
-			elif col == SaleProformaModel.PARTNER:
+			elif col == self.PARTNER:
 				return proforma.partner.fiscal_name 
-			elif col == SaleProformaModel.AGENT:
+			elif col == self.AGENT:
 				return proforma.agent.fiscal_name 
-			elif col == SaleProformaModel.FINANCIAL:
+			elif col == self.FINANCIAL:
 				if sale_not_paid(proforma):
 					return 'Not Paid'
 				elif sale_fully_paid(proforma):
@@ -1201,7 +1201,7 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 					return 'Partially Paid'
 				elif sale_overpaid(proforma):
 					return 'We Owe'
-			elif col == SaleProformaModel.LOGISTIC:
+			elif col == self.LOGISTIC:
 				if sale_empty(proforma):
 					return 'Empty'
 				elif sale_overflowed(proforma):
@@ -1211,31 +1211,34 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 				elif sale_completed(proforma):
 					return 'Completed'
 			
-			elif col == SaleProformaModel.SENT:
+			elif col == self.SENT:
 				return 'Yes' if proforma.sent else 'No'
-			elif col == SaleProformaModel.CANCELLED:
+			elif col == self.CANCELLED:
 				return 'Yes' if proforma.cancelled else 'No'
-			elif col == SaleProformaModel.OWING:
+			elif col == self.OWING:
 				sign = ' -€' if proforma.eur_currency else ' $'
 				owes = sale_total_debt(proforma) - sale_total_paid(proforma)
 				return str(owes) + sign       
-			elif col == SaleProformaModel.TOTAL:
+			elif col == self.TOTAL:
 				sign = ' -€' if proforma.eur_currency else ' $'
 				return str(sale_total_debt(proforma)) + sign
 
-			elif col == SaleProformaModel.ADVANCED:
+			elif col == self.ADVANCED:
 				return 'Yes' if proforma.advanced_lines else 'No'
 			
-			elif col == SaleProformaModel.DEFINED:
+			elif col == self.DEFINED:
 				for line in proforma.advanced_lines:
 					for definition in line.definitions:
 						if definition:
-							return 'Yes'
+							return 'Yes' # All or None defined.
 				else:
 					return 'No'
 
+			elif col == self.READY:
+				return 'Yes' if proforma.ready else 'No'
+
 		elif role == Qt.DecorationRole:
-			if col == SaleProformaModel.FINANCIAL:
+			if col == self.FINANCIAL:
 				if sale_not_paid(proforma):
 					return QtGui.QColor(YELLOW) 
 				elif sale_fully_paid(proforma):
@@ -1245,13 +1248,13 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 				elif sale_overpaid(proforma):
 					return QtGui.QColor(YELLOW)
 
-			elif col == SaleProformaModel.DATE:
+			elif col == self.DATE:
 				return QtGui.QIcon(':\calendar')
-			elif col == SaleProformaModel.PARTNER:
+			elif col == self.PARTNER:
 				return QtGui.QIcon(':\partners')
-			elif col == SaleProformaModel.AGENT:
+			elif col == self.AGENT:
 				return QtGui.QIcon(':\\agents')
-			elif col == SaleProformaModel.LOGISTIC:
+			elif col == self.LOGISTIC:
 				if sale_empty(proforma):
 					return QtGui.QColor(YELLOW)
 				elif sale_overflowed(proforma):
@@ -1260,29 +1263,31 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 					return QtGui.QColor(ORANGE)
 				elif sale_completed(proforma):
 					return QtGui.QColor(GREEN)
-			elif col == SaleProformaModel.SENT:
-				return QtGui.QColor(GREEN) if proforma.sent \
-					else QtGui.QColor(RED)
-			elif col == SaleProformaModel.CANCELLED:
-				return QtGui.QColor(RED) if proforma.cancelled \
-					else QtGui.QColor(GREEN)
+			elif col == self.SENT:
+				return QtGui.QColor(GREEN if proforma.sent else RED)
+			elif col == self.CANCELLED:
+				return QtGui.QColor(RED if proforma.cancelled else GREEN)
+			elif col == self.READY:
+				return QtGui.QColor(GREEN if proforma.ready else RED) 
+
 
 	def __getitem__(self, index):
 		return self.proformas[index]
 
 	def sort(self, section, order):
 		reverse = True if order == Qt.AscendingOrder else False
-		if section == SaleProformaModel.TYPE_NUM:
+		if section == self.TYPE_NUM:
 			self.layoutAboutToBeChanged.emit() 
 			self.proformas.sort(key = lambda p : (p.type, p.number), reverse=reverse) 
 			self.layoutChanged.emit() 
 
 		else:
 			attr = {
-				SaleProformaModel.DATE:'date', 
-				SaleProformaModel.PARTNER:'partner.trading_name', 
-				SaleProformaModel.AGENT:'agent.fiscal_name',
-				SaleProformaModel.SENT:'sent', 
+				self.DATE:'date', 
+				self.PARTNER:'partner.trading_name', 
+				self.AGENT:'agent.fiscal_name',
+				self.SENT:'sent', 
+				self.READY:'ready'
 			}.get(section) 
 			
 			if attr:
@@ -1346,6 +1351,18 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 			return proforma.invoice 
 		except:
 			db.session.rollback() 
+			raise 
+
+	def ready(self, indexes):
+		rows = {index.row() for index in indexes}
+		for row in rows:
+			p = self.proformas[row]
+			p.ready = True if not p.ready else False 
+		try:
+			db.session.commit()
+			self.layoutChanged.emit()
+		except:
+			db.session.rollback()
 			raise 
 
 	def ship(self, proforma, tracking):
@@ -1510,14 +1527,12 @@ class OrganizedLines:
 			elif isinstance(lines, db.SaleProformaLine):
 				print('isinstance(lines, SaleProformaLine)')
 				self.instrumented_lines.remove(lines)
-				db.session.flush()
-		
 		else:
 			line = self.organized_lines[i].pop(j)
 			try:
 				if len(self.organized_lines[i]) == 1:
 					self.organized_lines[i] = self.organized_lines[i][0]
-					self.organized_lines[i].mix_id = None
+					# self.organized_lines[i].mix_id = None
 				elif not self.organized_lines[i]:
 					del self.organized_lines[i]
 			except IndexError:
@@ -1528,12 +1543,11 @@ class OrganizedLines:
 		print('delete.pre flush')
 		db.session.flush()
 		print('delete pos flush')
-
-		self.organized_lines = [e for e in self.organized_lines if e]
+		# self.organized_lines = [e for e in self.organized_lines if e]
 
 	def append(self, price, ignore_spec, tax, showing, *stocks, row=None):
 		if len(stocks) == 0:
-			raise ValueError("At least one stock must be provided")
+			raise ValueError("No stock provided")
 
 		# Update quantity
 		hit = False 
@@ -1542,21 +1556,23 @@ class OrganizedLines:
 				if stock == line:
 					hit = True 
 					line.quantity += stock.quantity 
+					break 
 		
 		if hit: 
 			db.session.flush() 
 			return 
 		
+		# Adding
 		if row is None:
 			# Check Mixing Compatible first
 			if len(stocks) != 1:
 				for a in stocks:
 					for b in stocks:
 						if not utils.mixing_compatible(a, b):
-							raise ValueError('Incompatible Mixing [0]')
+							raise ValueError('Incompatible Mixing [0:Appending]')
 
 			new_lines = [
-				self.build_line(price, ignore_spec, tax, showing, stock)	
+				self.build_line(price, ignore_spec, tax, showing, stock)
 				for stock in stocks
 			]
 
@@ -1570,13 +1586,15 @@ class OrganizedLines:
 				self.organized_lines.append(
 					self.build_line(price, ignore_spec, tax, showing, stocks[0])
 				)
+		
+		# Updating:
 		else:
 			if self.backward_compatible(stocks, row):
 				new_lines = self.update_organized_lines(
 					price, ignore_spec, tax, showing, *stocks, row=row
 				)
 			else:
-				raise ValueError("Incompatible mixing[1]")
+				raise ValueError("Incompatible mixing[1:Updating]")
 		
 		print(new_lines)
 		
@@ -1805,7 +1823,7 @@ class OrganizedLines:
 	def __bool__(self):
 		return bool(self.instrumented_lines)
 
-class SaleProformaLineModel_old(BaseTable, QtCore.QAbstractTableModel):
+class SaleProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 	
 	DESCRIPTION, CONDITION, SHOWING_CONDITION, SPEC, IGNORING_SPEC, \
 		QUANTITY, PRICE, SUBTOTAL, TAX, TOTAL = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 
@@ -1813,7 +1831,7 @@ class SaleProformaLineModel_old(BaseTable, QtCore.QAbstractTableModel):
 	def __init__(self, proforma, form):
 		super().__init__()
 		self.form = form 
-		self._headerData = ['Description', 'Condition', 'Showing Condt.(Editable)', 'Spec', \
+		self._headerData = ['Description', 'Condition', 'Public Condt.(Editable)', 'Spec', \
 			'Ignoring Spec?(Editable)','Qty.', 'Price(Editable)', 'Subtotal', 'Tax(Editable)', 'Total']
 		self.organized_lines = OrganizedLines(proforma.lines)
 		self.name = 'organized_lines'
@@ -1947,9 +1965,13 @@ def change_layout_and_flush(func):
 		db.session.flush() 
 		self.layoutChanged.emit()
 		return r 
+	return wrapper 
 
 
-class SaleProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
+class SaleProformaLineModel_deadline(BaseTable, QtCore.QAbstractTableModel):
+
+	DESCRIPTION, CONDITION, SHOWING_CONDITION, SPEC, IGNORING_SPEC, \
+		QUANTITY, PRICE, SUBTOTAL, TAX, TOTAL = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 
 
 	def __init__(self, proforma, form):
 		super().__init__()
@@ -1976,17 +1998,16 @@ class SaleProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 	def total(self): 
 		return self.tax + self.subtotal
 
-	def columnCount(self, index=QModelIndex()):
-		return len(self._headerData)
-
 	def rowCount(self, index=QModelIndex()):
 		return len(set(line.mix_id for line in self.lines))
 
 	def data(self, index, role=Qt.DisplayRole):
 		if not index.isValid():
 			return 
-		row, column = index.row()
+		row, column = index.row(), index.column()
 
+		if role == Qt.DisplayRole:
+			return 'a'
 
 	def setData(self, index, value, role=Qt.EditRole):
 		pass 
@@ -1999,8 +2020,25 @@ class SaleProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 		else:
 			return Qt.ItemFlags(~Qt.ItemIsEditable)
 
+	@change_layout_and_flush 
 	def add(self, price, ignore_spec, tax, showing_condition, *stocks, row=None):
-		pass 
+		if row is None:
+			mix_id = str(uuid4())
+			for stock in stocks:
+				line = db.SaleProformaLine() 
+				line.item_id = stock.item_id 
+				line.condition = stock.condition
+				line.spec = stock.spec 
+				line.quantity = stock.quantity 
+				line.price = price
+				line.ignore_spec = ignore_spec 
+				line.tax = tax
+				line.mix_id = mix_id
+				line.showing_condition = showing_condition
+				self.lines.append(line) 
+		else:
+			raise ValueError('Updating not implemented')
+
 
 	@change_layout_and_flush
 	def add_free(self, description, quantity, price, tax):
@@ -2018,24 +2056,22 @@ class SaleProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 		for line in filter(lambda line:line.mix_id == mix_id, self.lines):
 			self.lines.remove(line) 
 
-	@property
-	def lines_from_mix(self, row):
+	def actual_lines_from_mixed(self, row):
 		mix_id = self.lines[row]
-		for line in filter(lambda line:line.mix_id == mix_id, self.lines):
-			yield line 
+		return list(filter(lambda line:line.mix_id == mix_id, self.lines))
 		
 
 	def editable(self, column):
 		return column in (
 			self.SHOWING_CONDITION, 
-			self.IGNORE_SPEC, 
+			self.IGNORING_SPEC, 
 			self.PRICE, 
 			self.TAX
 		)
-	@change_layou
+	@change_layout_and_flush 
 	def reset(self):
 		self.lines.clear() 
-		
+
 	def __iter__(self):
 		return iter(self.lines) 	
 	
@@ -2724,12 +2760,12 @@ class SerieModel(QtCore.QAbstractListModel):
 class ExpeditionModel(BaseTable, QtCore.QAbstractTableModel):
 
 	ID, WAREHOUSE, TOTAL, PROCESSED, LOGISTIC ,CANCELLED, PARTNER,\
-		AGENT, WARNING, FROM_PROFORMA = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
+		AGENT, WARNING, FROM_PROFORMA, READY = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10
 
 	def __init__(self, search_key=None, filters=None):
 		super().__init__() 
 		self._headerData = ['Expedition ID', 'Warehouse', 'Total', 'Processed', 
-		'Logistic','Cancelled', 'Partner', 'Agent', 'Warning', 'From Proforma']
+		'Logistic','Cancelled', 'Partner', 'Agent', 'Warning', 'From Proforma', 'Ready To Go']
 		self.name = 'expeditions' 
 		query = db.session.query(db.Expedition).\
 			select_from(
@@ -2780,17 +2816,17 @@ class ExpeditionModel(BaseTable, QtCore.QAbstractTableModel):
 		column = index.column() 
 
 		if role == Qt.DisplayRole: 
-			if column == ExpeditionModel.ID:
+			if column == self.ID:
 				return str(expedition.id).zfill(6)
-			elif column == ExpeditionModel.WAREHOUSE:
+			elif column == self.WAREHOUSE:
 				return expedition.proforma.warehouse.description 
-			elif column == ExpeditionModel.TOTAL:
+			elif column == self.TOTAL:
 				return str(expedition_total_quantity(expedition))
-			elif column == ExpeditionModel.PARTNER:
+			elif column == self.PARTNER:
 				return expedition.proforma.partner.fiscal_name
-			elif column == ExpeditionModel.PROCESSED:
+			elif column == self.PROCESSED:
 				return str(sale_total_processed(expedition)) 
-			elif column == ExpeditionModel.LOGISTIC:
+			elif column == self.LOGISTIC:
 				if sale_empty(expedition):
 					return 'Empty'
 				elif sale_overflowed(expedition):
@@ -2800,21 +2836,23 @@ class ExpeditionModel(BaseTable, QtCore.QAbstractTableModel):
 				elif sale_completed(expedition):
 					return 'Completed'
 
-			elif column == ExpeditionModel.CANCELLED:
+			elif column == self.CANCELLED:
 				return 'Yes' if expedition.proforma.cancelled else 'No'
-			elif column == ExpeditionModel.AGENT:
+			elif column == self.AGENT:
 				return expedition.proforma.agent.fiscal_name 
-			elif column == ExpeditionModel.WARNING:
+			elif column == self.WARNING:
 				return expedition.note 
-			elif column == ExpeditionModel.FROM_PROFORMA:
+			elif column == self.FROM_PROFORMA:
 				return str(expedition.proforma.type) + '-' + str(expedition.proforma.number).zfill(6)
+			elif column == self.READY:
+				return 'Yes' if expedition.proforma.ready else 'No'
 
 		elif role == Qt.DecorationRole:
-			if column == ExpeditionModel.AGENT:
+			if column == self.AGENT:
 				return QtGui.QIcon(':\\agents')
-			elif column == ExpeditionModel.PARTNER:
+			elif column == self.PARTNER:
 				return QtGui.QIcon(':\partners')
-			elif column == ExpeditionModel.LOGISTIC:
+			elif column == self.LOGISTIC:
 				if sale_empty(expedition):
 					return QtGui.QColor(YELLOW)
 				elif sale_overflowed(expedition):
@@ -2823,14 +2861,15 @@ class ExpeditionModel(BaseTable, QtCore.QAbstractTableModel):
 					return QtGui.QColor(ORANGE)
 				elif sale_completed(expedition):
 					return QtGui.QColor(GREEN) 
-			elif column == ExpeditionModel.CANCELLED:
-				return QtGui.QColor(RED) if expedition.proforma.cancelled \
-					else QtGui.QColor(GREEN)
+			elif column == self.CANCELLED:
+				return QtGui.QColor(RED if expedition.proforma.cancelled else GREEN) 
 
+			elif column == self.READY:
+				return QtGui.QColor(GREEN if expedition.proforma.ready else RED)
 
 	def sort(self, section, order):
 		reverse = True if order == Qt.AscendingOrder else False
-		if section == ExpeditionModel.FROM_PROFORMA:
+		if section == self.FROM_PROFORMA:
 			self.layoutAboutToBeChanged.emit()
 			self.expeditions = sorted(
 				self.expeditions, key=lambda r:(r.proforma.type, r.proforma.number), 
@@ -2839,11 +2878,12 @@ class ExpeditionModel(BaseTable, QtCore.QAbstractTableModel):
 			self.layoutChanged.emit()
 		else:
 			attr = {
-				ExpeditionModel.ID:'id', 
-				ExpeditionModel.WAREHOUSE:'proforma.warehouse_id', 
-				ExpeditionModel.CANCELLED:'proforma.cancelled', 
-				ExpeditionModel.PARTNER: 'proforma.partner.fiscal_name',
-				ExpeditionModel.AGENT: 'proforma.agent.fiscal_name', 
+				self.ID:'id', 
+				self.WAREHOUSE:'proforma.warehouse_id', 
+				self.CANCELLED:'proforma.cancelled', 
+				self.PARTNER: 'proforma.partner.fiscal_name',
+				self.AGENT: 'proforma.agent.fiscal_name', 
+				self.READY:'proforma.ready'
 			}.get(section) 
 
 			if attr:

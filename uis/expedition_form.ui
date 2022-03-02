@@ -655,7 +655,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Showing condition:</string>
+     <string>Public condition:</string>
     </property>
    </widget>
    <widget class="QLineEdit" name="showing_condition">

@@ -14,6 +14,21 @@ from models import ActualLinesFromMixedModel, SaleProformaLineModel, StockModel
 from ui_sale_proforma_form import Ui_SalesProformaForm
 
 
+
+# Pruebas:
+
+# Añadir 1
+# Añadir 1 a ese 1 para formar lote
+# Añadir 2 a ese 1 para formar lote
+# Añadir 2 mas a esos 2 para formar lote
+# Añadir 1 que sea el mismo para comprobar que se actualiza
+# Añadir 1 incompatible a ese lote
+# Nuevo 2 incompatibles
+# Añadir 2 compatibles entre ellos, pero no con el previo
+# Añadir lote a linea libre
+#  
+
+
 class StockBase:
 
     def __init__(self, filters, warehouse_id, form):
@@ -464,13 +479,13 @@ class Form(Ui_SalesProformaForm, QWidget):
                 description = dialog.description.text()
                 if not description:
                     return 
-
                 self.lines_model.insert_free(
                     description,
                     dialog.quantity.value(),
                     dialog.price.value() ,
                     int(dialog.tax.currentText())
                 )
+            
             except:
                 raise 
                 QMessageBox.critical(
@@ -478,7 +493,8 @@ class Form(Ui_SalesProformaForm, QWidget):
                     'Error', 
                     'Error adding free line'
                 )
-
+            else:
+                self.resize_lines_view()
 
     def delete_handler(self):
         try:
@@ -491,11 +507,12 @@ class Form(Ui_SalesProformaForm, QWidget):
             self.set_selected_stock_mv() 
             self.lines_view.clearSelection() 
             self.update_totals() 
-    
-            self.lines_view.resizeColumnToContents(0)
-            self.lines_view.resizeColumnToContents(2)
-            self.stock_view.resizeColumnToContents(3)
-            
+            self.resize_lines_view()
+
+    def resize_lines_view(self):
+        self.lines_view.resizeColumnToContents(0)
+        self.lines_view.resizeColumnToContents(2)
+        self.stock_view.resizeColumnToContents(3)
 
     def add_handler(self):
         if not hasattr(self, 'stock_model'):return
@@ -532,8 +549,8 @@ class Form(Ui_SalesProformaForm, QWidget):
             self.set_stock_mv()
             self.filters.set(None, None, None)
 
-        self.lines_view.resizeColumnToContents(0)
-        self.lines_view.resizeColumnToContents(2)
+
+        self.resize_lines_view()
         self.description.setFocus(True)
 
     def save_handler(self):

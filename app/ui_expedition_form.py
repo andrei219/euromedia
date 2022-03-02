@@ -288,7 +288,7 @@ class Ui_ExpeditionForm(object):
         self.Label2_3.setText(_translate("ExpeditionForm", "Spec:"))
         self.label_2.setText(_translate("ExpeditionForm", "Nº"))
         self.prev.setText(_translate("ExpeditionForm", "Prev"))
-        self.label_5.setText(_translate("ExpeditionForm", "Showing condition:"))
+        self.label_5.setText(_translate("ExpeditionForm", "Public condition:"))
         self.Label8.setText(_translate("ExpeditionForm", "Line Total :"))
         self.Label10.setText(_translate("ExpeditionForm", "Processed:"))
         self.automatic_input.setTitle(_translate("ExpeditionForm", "AUTOMATIC INPUT:"))

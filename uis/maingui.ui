@@ -403,7 +403,7 @@
        </rect>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <property name="iconSize">
        <size>
@@ -425,7 +425,7 @@
        <widget class="QGroupBox" name="proformas_purchases_filters">
         <property name="geometry">
          <rect>
-          <x>0</x>
+          <x>10</x>
           <y>10</y>
           <width>211</width>
           <height>711</height>
@@ -1459,7 +1459,7 @@
        <widget class="QGroupBox" name="proformas_sales_filters">
         <property name="geometry">
          <rect>
-          <x>0</x>
+          <x>10</x>
           <y>10</y>
           <width>201</width>
           <height>711</height>
@@ -1989,7 +1989,7 @@
            <x>10</x>
            <y>10</y>
            <width>71</width>
-           <height>51</height>
+           <height>61</height>
           </rect>
          </property>
          <property name="text">
@@ -2073,7 +2073,7 @@
         <widget class="QToolButton" name="proformas_sales_payments">
          <property name="geometry">
           <rect>
-           <x>810</x>
+           <x>800</x>
            <y>10</y>
            <width>75</width>
            <height>60</height>
@@ -2108,7 +2108,7 @@
         <widget class="QToolButton" name="proformas_sales_expenses">
          <property name="geometry">
           <rect>
-           <x>910</x>
+           <x>900</x>
            <y>10</y>
            <width>75</width>
            <height>60</height>
@@ -2143,7 +2143,7 @@
         <widget class="QToolButton" name="proformas_sales_toinv">
          <property name="geometry">
           <rect>
-           <x>1080</x>
+           <x>1070</x>
            <y>10</y>
            <width>75</width>
            <height>60</height>
@@ -2178,7 +2178,7 @@
         <widget class="QToolButton" name="proformas_sales_towh">
          <property name="geometry">
           <rect>
-           <x>1165</x>
+           <x>1160</x>
            <y>10</y>
            <width>75</width>
            <height>60</height>
@@ -2213,7 +2213,7 @@
         <widget class="QToolButton" name="proformas_sales_mail">
          <property name="geometry">
           <rect>
-           <x>710</x>
+           <x>690</x>
            <y>10</y>
            <width>75</width>
            <height>60</height>
@@ -2242,7 +2242,7 @@
         <widget class="QToolButton" name="proformas_sales_ship">
          <property name="geometry">
           <rect>
-           <x>1250</x>
+           <x>1240</x>
            <y>10</y>
            <width>75</width>
            <height>60</height>
@@ -2312,7 +2312,7 @@
         <widget class="QToolButton" name="proformas_sales_docs">
          <property name="geometry">
           <rect>
-           <x>995</x>
+           <x>990</x>
            <y>10</y>
            <width>75</width>
            <height>60</height>
@@ -2400,6 +2400,41 @@
          </property>
          <property name="text">
           <string>DEF. ADV.SALE</string>
+         </property>
+        </widget>
+        <widget class="QToolButton" name="proformas_sales_ready">
+         <property name="geometry">
+          <rect>
+           <x>1320</x>
+           <y>10</y>
+           <width>101</width>
+           <height>60</height>
+          </rect>
+         </property>
+         <property name="toolTip">
+          <string>Add Tracking String</string>
+         </property>
+         <property name="statusTip">
+          <string>Add Tracking String</string>
+         </property>
+         <property name="text">
+          <string>Un/Ready To Go</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../app/icons.qrc">
+           <normaloff>:/ready</normaloff>:/ready</iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>40</width>
+           <height>40</height>
+          </size>
+         </property>
+         <property name="toolButtonStyle">
+          <enum>Qt::ToolButtonTextUnderIcon</enum>
+         </property>
+         <property name="autoRaise">
+          <bool>true</bool>
          </property>
         </widget>
        </widget>
@@ -3434,7 +3469,7 @@
          <enum>Qt::LeftToRight</enum>
         </property>
         <property name="title">
-         <string>Filters</string>
+         <string>FILTERS</string>
         </property>
         <property name="flat">
          <bool>false</bool>
@@ -4081,7 +4116,7 @@
           <rect>
            <x>430</x>
            <y>10</y>
-           <width>101</width>
+           <width>91</width>
            <height>61</height>
           </rect>
          </property>
@@ -4306,7 +4341,7 @@
        </rect>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>3</number>
       </property>
       <property name="iconSize">
        <size>
@@ -6260,6 +6295,7 @@
  </widget>
  <resources>
   <include location="../app/icons.qrc"/>
+  <include location="../../../../.designer/app/icons.qrc"/>
  </resources>
  <connections/>
 </ui>

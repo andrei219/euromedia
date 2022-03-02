@@ -49,5 +49,6 @@
         <file alias="greentick">.\\icons\\greentick.png</file>
         <file alias="calendar">.\\icons\\calendar.png</file>
         <file alias="mix">.\\icons\\mix.png</file>
+        <file alias="ready">.\\icons\\ready.png</file> 
     </qresource>
 </RCC>

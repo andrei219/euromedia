@@ -549,6 +549,9 @@ class SaleProforma(Base):
     tracking = Column(String(50))
     external = Column(String(50))
 
+    ready = Column(Boolean, nullable=False, default=False)
+
+
     partner = relationship('Partner', uselist=False) 
     courier = relationship('Courier', uselist=False)
     warehouse = relationship('Warehouse', uselist=False)

@@ -78,7 +78,8 @@ ACTIONS = [
     'check_inventory', 
     'create_product', 
     'view_pdf', 
-    'advnorm'
+    'advnorm', 
+    'ready'
 ]
 
 
@@ -631,8 +632,6 @@ class MainGui(Ui_MainGui, QMainWindow):
     
     # PROFORMAS SALES HANDLERS
     def proformas_sales_newadv_handler(self):
-        print('aaaa')
-
         self.asp = advanced_sale_proforma_form.get_form(
             self, 
             self.proformas_sales_view
@@ -645,6 +644,11 @@ class MainGui(Ui_MainGui, QMainWindow):
             self.proformas_sales_model
         )
 
+    def proformas_sales_ready_handler(self):
+        indexes = self.proformas_sales_view.selectedIndexes()
+        if not indexes: return 
+        self.proformas_sales_model.ready(indexes) 
+        
 
     def proformas_sales_advnorm_handler(self):
         indexes = self.proformas_sales_view.selectedIndexes()
@@ -669,9 +673,9 @@ class MainGui(Ui_MainGui, QMainWindow):
         self.selection_changed_generic(self.proformas_sales_view)
        
     def proformas_sales_new_handler(self):
-
+    
+        
         correct_imeis_mask()
-
 
         self.sp = sale_proforma_form.get_form(
             self, 
