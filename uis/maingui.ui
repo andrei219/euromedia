@@ -6295,7 +6295,6 @@
  </widget>
  <resources>
   <include location="../app/icons.qrc"/>
-  <include location="../../../../.designer/app/icons.qrc"/>
  </resources>
  <connections/>
 </ui>

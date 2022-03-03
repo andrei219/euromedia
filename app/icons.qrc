@@ -50,5 +50,6 @@
         <file alias="calendar">.\\icons\\calendar.png</file>
         <file alias="mix">.\\icons\\mix.png</file>
         <file alias="ready">.\\icons\\ready.png</file> 
+        <file alias="excel">.\\icons\\excel.png</file> 
     </qresource>
 </RCC>

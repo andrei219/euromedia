@@ -55,7 +55,7 @@ class LinePDFRepr:
     def __iter__(self):
         return iter(map(str,(self.description, self.quantity, self.price, self.total)))
 
-class PurcahseLinePDFRepr(LinePDFRepr):
+class PurchaseLinePDFRepr(LinePDFRepr):
     
     def __init__(self, line):
 
@@ -77,15 +77,11 @@ class PurcahseLinePDFRepr(LinePDFRepr):
 class SaleLinePDFRepr(LinePDFRepr):
 
     def __init__(self, lines):
-        if isinstance(lines, Iterable):
-            self.set_line_from_lines(lines)
-        else:
-            self.set_line_from_line(lines)
+        self.set_line_from_lines(lines)
 
 
     def set_line_from_lines(self, lines):
-        diff_items = {line.item_id for line in lines}
-        
+
         # Set condition
         if any((line.showing_condition for line in lines)):
             condition = lines[0].showing_condition
@@ -107,8 +103,19 @@ class SaleLinePDFRepr(LinePDFRepr):
                 spec = 'Mix'
         
         # set Spec
+
+        if lines[0].description:
+            description = lines[0].description
+
+    
         description = utils.build_description(lines) 
+        
+        
+        
         description += f', {condition}'
+        
+        
+        
         if spec:
             description += f', {spec} spec'
 
@@ -190,7 +197,7 @@ class SaleLinesPDFRepr(LinesPDFRepr):
 class PurchaseLinesPDFRepr(LinesPDFRepr):
     
     def __init__(self, lines):
-        self.lines = list(map(PurcahseLinePDFRepr, lines))
+        self.lines = list(map(PurchaseLinePDFRepr, lines))
 
 class AdvancedLinesPDFRepr(LinesPDFRepr):
     

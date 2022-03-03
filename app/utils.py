@@ -39,10 +39,7 @@ description_id_map = bidict({item.clean_repr:item.id for item in db.session.quer
 ONLY_COL, ONLY_CAP, CAP_COL = 1, 2, 3
 
 def stock_type(stock):
-    # Este check me permite sobrecargar el metodo, 
-    # acepta item_id o stockEntry
     id = stock if isinstance(stock, int) else stock.item_id 
-    # breakpoint()    
     mpn, *_, cap, col, _ = dirty_map.inverse[id].split('|')
     if mpn != '?':
         return -1 
@@ -61,21 +58,25 @@ def is_object_presisted(object):
     return inspector.persistent
 
 def mixing_compatible(o, p):
+
+    if o.item_id == p.item_id:
+        return True
     # First stocks must be same type and != -1 
     if stock_type(o) == -1 or stock_type(p) == -1:
         return False
     if stock_type(o) != stock_type(o):
         return False
     
-    # Once stock is same type, we are interested in base 
+     
 
+    # Once stock is same type, we are interested in base 
 
     d1, d2 = dirty_map.inverse[o.item_id], dirty_map.inverse[p.item_id]
     
     man1, cat1, mod1, *_ = d1.split('|')
     man2, cat2, mod2, *_ = d2.split('|')
+    
     return all((man1 == man2, cat1 == cat2, mod1 == mod2))
-
 
 
 specs = {s.description for s in db.session.query(db.Spec.description)}
@@ -83,14 +84,23 @@ conditions = {c.description for c in db.session.query(db.Condition.description)}
 partner_id_map =mymap(db.Partner)
 agent_id_map =mymap(db.Agent)
 
-courier_id_map = {
+courier_id_map = bidict({
 	c.description:c.id 
 	for c in db.session.query(db.Courier.id, db.Courier.description)
-}
-warehouse_id_map = {
+}) 
+warehouse_id_map = bidict({
 	w.description:w.id 
 	for w in db.session.query(db.Warehouse.description, db.Warehouse.id)
-}
+})
+
+
+import uuid
+def valid_uuid(string):
+    try:
+        uuid.UUID(string)
+        return True 
+    except ValueError:
+        return False 
 
 def complete_descriptions(clean_map, dirty_map):
     descriptions = set()
@@ -212,6 +222,12 @@ def has_serie(line):
             for id in get_itemids_from_mixed_description(line.description)
         ))
 
+
+
+def get_items_ids_by_keyword(keyword):
+    return [description_id_map[k] for k in description_id_map if keyword in k.lower()]
+
+
 def validSwift(bic):
     try:
         BIC(bic)
@@ -292,9 +308,17 @@ def getNote(parent, proforma):
     text, ok = QInputDialog.getText(parent, 'Warehouse', 'Enter a warning for the warehouse order')
     return ok, text
 
-
 def get_directory(parent):
-    return QFileDialog.getExistingDirectory(parent, 'Get direcotry', 'Z:')
+    return QFileDialog.getExistingDirectory(parent, 'Get directory', 'Z:')
+
+def get_file_path(parent):
+    file_path , _ = QFileDialog.getSaveFileName(
+            parent, 
+            'Abrir  Archivo', 
+            '', 
+            'Archivos excel (*.xlsx)'
+        )
+    return file_path
 
 def parse_date(string):
     if len(string) != 8:
@@ -302,29 +326,11 @@ def parse_date(string):
     day, month, year = int(string[0:2]), int(string[2:4]), int(string[4:8]) 
     return datetime(year, month, day)
 
-
 def today_date():
     return datetime.now().strftime('%d%m%Y')
 
-
 from PyQt5.QtCore import QStringListModel, Qt
 from PyQt5.QtWidgets import QCompleter
-
-# def setCompleter(field, data):
-#     model = QStringListModel(data)
-#     completer = field.completer()
-#     if completer is not None:
-#         # completer.model().beginModelReset()
-#         completer.setModel(model)
-#     else:
-#         model = QStringListModel()
-#         model.setStringList(data)
-#         completer = QCompleter()
-#         completer.setFilterMode(Qt.MatchContains)
-#         completer.setCaseSensitivity(False)
-#         completer.setModel(model)
-#         field.setCompleter(completer)
-    
 
 def setCompleter(field, data):
     completer = field.completer()

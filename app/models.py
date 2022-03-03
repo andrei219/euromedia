@@ -4,6 +4,9 @@ from collections.abc import Iterable
 
 from functools import wraps
 
+from itertools import groupby, product 
+
+
 from uuid import uuid4
 
 from PyQt5 import QtCore
@@ -1514,136 +1517,83 @@ class OrganizedLines:
 		return str(uuid.uuid4())
 
 	def delete(self, i, j=None):
+		update_stock_view = True
 		if j is None:
-			print('j is None')
 			lines = self.organized_lines.pop(i)
-			if isinstance(lines, Iterable):
-				print('isinstance(lines, Iterable)')
-				for line in lines:
-					print('for line in lines:', line)
-			
-					self.instrumented_lines.remove(line)
-			
-			elif isinstance(lines, db.SaleProformaLine):
-				print('isinstance(lines, SaleProformaLine)')
-				self.instrumented_lines.remove(lines)
+			for line in lines:
+				if line.item_id is None: # exploit the run
+					update_stock_view = False 
+				self.instrumented_lines.remove(line)
 		else:
 			line = self.organized_lines[i].pop(j)
-			try:
-				if len(self.organized_lines[i]) == 1:
-					self.organized_lines[i] = self.organized_lines[i][0]
-					# self.organized_lines[i].mix_id = None
-				elif not self.organized_lines[i]:
-					del self.organized_lines[i]
-			except IndexError:
-				raise  
-			
 			self.instrumented_lines.remove(line) 
 
-		print('delete.pre flush')
-		db.session.flush()
-		print('delete pos flush')
-		# self.organized_lines = [e for e in self.organized_lines if e]
+		self.organized_lines = [e for e in self.organized_lines if e]
+
+		return update_stock_view 
 
 	def append(self, price, ignore_spec, tax, showing, *stocks, row=None):
 		if len(stocks) == 0:
-			raise ValueError("No stock provided")
+			raise ValueError("Provide stocks")
 
 		# Update quantity
+
 		hit = False 
+
 		for stock in stocks:
 			for line in self.lines:
 				if stock == line:
-					hit = True 
 					line.quantity += stock.quantity 
+					hit = True
 					break 
 		
-		if hit: 
-			db.session.flush() 
+		if hit:
+			db.session.flush()
 			return 
+
+		# Check if stocks are compatible for mixing between them:
+		for a, b in product(stocks, stocks):
+			if not utils.mixing_compatible(a, b):
+				raise ValueError('Incompatible Mixing [0:First check]')
 		
 		# Adding
 		if row is None:
-			# Check Mixing Compatible first
-			if len(stocks) != 1:
-				for a in stocks:
-					for b in stocks:
-						if not utils.mixing_compatible(a, b):
-							raise ValueError('Incompatible Mixing [0:Appending]')
-
-			new_lines = [
-				self.build_line(price, ignore_spec, tax, showing, stock)
-				for stock in stocks
-			]
-
-			# Ensured that len of list > 1 
-			if len(new_lines) != 1:
-				mix_id = self.get_next_mix()
-				for line in new_lines:
-					line.mix_id = mix_id
-				self.organized_lines.append(new_lines)
-			else:
-				self.organized_lines.append(
-					self.build_line(price, ignore_spec, tax, showing, stocks[0])
-				)
-		
+			new_lines = self.build_lines_from_stocks(
+				price, ignore_spec, tax,
+				showing, *stocks
+			)
+			
+			mix_id = self.get_next_mix() 
+			for line in new_lines:
+				line.mix_id = mix_id
+			
+			self.organized_lines.append(new_lines) 
 		# Updating:
 		else:
 			if self.backward_compatible(stocks, row):
 				new_lines = self.update_organized_lines(
-					price, ignore_spec, tax, showing, *stocks, row=row
-				)
+					price, ignore_spec, 
+					tax, showing, *stocks, 
+					row=row)
 			else:
 				raise ValueError("Incompatible mixing[1:Updating]")
-		
-		print(new_lines)
 		
 		self.instrumented_lines.extend(new_lines) 
 		
 		db.session.flush() 
 	
+	def build_lines_from_stocks(self, price, ignore_spec, tax, showing, *stocks):
+		return [
+			self.build_line(price, ignore_spec, tax, showing, stock) for stock in stocks
+		]
+
 	def update_organized_lines(self, price, ignore_spec, tax, showing, *stocks, row=-1):
 		# No need for checking 
-		
 		print('model.update_organized_lines')
-
-		existent_lines = self.organized_lines[row] 
-		
-		print('existent_lines:', existent_lines)
-
-		new_lines = [] 
-
-		if isinstance(existent_lines, Iterable) and len(stocks) == 1:
-			line = self.build_line(
-				price, ignore_spec, tax, showing, stocks[0], mix_id = existent_lines[0].mix_id
-			)
-			existent_lines.append(line)
-			new_lines.append(line) 
-		elif isinstance(existent_lines, Iterable) and len(stocks) != 1:
-			lines = [
-				self.build_line(
-					price, ignore_spec, tax, showing, stock, existent_lines[0].mix_id
-				)
-				for stock in stocks
-			]
-			existent_lines.extend(lines)
-			new_lines.extend(lines) 
-		elif not isinstance(existent_lines, Iterable) and len(stocks) == 1:
-			mix_id = self.get_next_mix()
-			existent_lines.mix_id = mix_id
-			line = self.build_line(price, ignore_spec, tax, showing, stocks[0], mix_id=mix_id)
-			self.organized_lines[row] = [existent_lines, line]
-			new_lines.append(line)
-
-		elif not isinstance(existent_lines, Iterable) and len(stocks) != 1:
-			mix_id = self.get_next_mix()
-			existent_lines.mix_id = mix_id 
-			lines = [
-				self.build_line(price, ignore_spec, tax, showing, stock, mix_id=mix_id)
-				for stock in stocks
-			]
-			self.organized_lines[row] = [existent_lines] + [lines]
-			new_lines.append(lines) 
+		previous_lines = self.organized_lines[row] 
+		print('previous_lines:', previous_lines)
+		new_lines = self.build_lines_from_stocks(price, ignore_spec, tax, showing, *stocks)
+		previous_lines.extend(new_lines)
 		return new_lines
 
 	def backward_compatible(self, stocks, row):
@@ -1652,10 +1602,9 @@ class OrganizedLines:
 			print('Executing try:')
 			result = all((
 				utils.mixing_compatible(stock, line)
-				for line in previous_lines
-				for stock in stocks
+				for stock, line in product(previous_lines, stocks)
+
 			))		
-			
 			print('result:', result)
 			return result
 
@@ -1676,17 +1625,14 @@ class OrganizedLines:
 		line.quantity = quantity
 		line.price = price
 		line.tax = tax 
+		line.mix_id = self.get_next_mix() 
 
-		self.organized_lines.append(line)
-		self.instrumented_lines.append(line) 
+		lines = [line, ] # Homogeneo
 
-	def repr(self, row, col):
-		line = self.organized_lines[row]
-		if isinstance(line, Iterable):
-			return self.complex_line_repr(line, col)
-		else:
-			return self.simple_line_repr(line, col)
-	
+		self.organized_lines.append(lines)
+		
+		self.instrumented_lines.extend(lines) 
+
 	def organize_lines(self, lines):
 		searched, aux = set(), [] 
 		for line in lines:
@@ -1700,9 +1646,18 @@ class OrganizedLines:
 					searched.add(line.mix_id)
 		return aux
 
-	def complex_line_repr(self, lines, col):
+	def repr(self, row, col):
+		lines = self.organized_lines[row] 
 		
 		diff_items = {line.item_id for line in lines}
+		
+		# For free lines, ugly, but works and uses preious code hahah 
+		if diff_items == {None}:
+			line = lines[0]
+			return self.simple_line_repr(line, col)
+			return 
+
+		
 		diff_conditions = {line.condition for line in lines}
 		diff_specs = {line.spec for line in lines}
 		
@@ -1845,7 +1800,6 @@ class SaleProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 	def __iter__(self):
 		return iter(self.organized_lines.lines)
 
-
 	@property
 	def quantity(self):
 		return sum(line.quantity for line in self.lines)
@@ -1890,7 +1844,14 @@ class SaleProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 		self.layoutChanged.emit() 
 
 	def actual_lines_from_mixed(self, row):
-		return self.organized_lines[row]
+		try:
+			lines = self.organized_lines[row]
+			if lines[0].item_id:
+				return lines  
+		except TypeError:
+			pass 
+
+		# Implicit return None,solves the free line 
 
 	def __bool__(self):
 		return bool(self.organized_lines)
@@ -3115,15 +3076,9 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
 
 	def __init__(self, warehouse_id, description, condition, spec):
 		super().__init__() 
-		self._headerData = ['Description', 'Condition', 'Spec', \
-			'Quantity avail. ', 'Requested quant.']
+		self._headerData = ['Description', 'Condition', 'Spec', 'Quantity avail. ', 'Requested quant.']
 		self.name = 'stocks'
 		
-		# if not any((
-		# 	warehouse_id, description, condition, spec
-		# )):
-		# 	self.stocks = []
-		# else:
 		self.stocks = self.computeStock(
 			warehouse_id,
 			description,
@@ -3139,7 +3094,6 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
 
 
 	def computeStock(self, warehouse_id, description, condition, spec, session=db.session):
-		
 
 		# session = session 
 		item_id = utils.description_id_map.get(description)
@@ -3319,7 +3273,6 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
 			# 		if line == stock:
 			# 			if line.quantity > stock.quantity:
 			# 				return True
-
 	
 	def resolve(self, imeis, imeis_mask, sales, outputs):
 	
@@ -3383,7 +3336,6 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
 		self.stocks = []
 		self.layoutChanged.emit() 
 
-
 	def sort(self, section, order):
 		attr = {
 			self.DESCRIPTION:'item_id', 
@@ -3397,6 +3349,44 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
 			self.layoutAboutToBeChanged.emit()
 			self.stocks.sort(key=operator.attrgetter(attr), reverse=reverse)
 			self.layoutChanged.emit() 
+
+	def set_auto(self, rows):
+
+		print('_'*100 	)
+
+		from math import ceil 
+		accum = 0 
+
+		# init first
+		for row in rows:
+			self.stocks[row].request = 0 
+
+		try:
+			self.layoutAboutToBeChanged.emit() 
+			total = sum(self.stocks[row].quantity for row in rows)
+			
+			print('total=', total)
+			
+			for row in rows:
+				stock = self.stocks[row]
+				v = ceil(stock.quantity  / total)
+				print('v=', v)
+				accum += v 
+				print('accum=', accum)
+
+				if accum == total:
+					break 
+    
+
+				stock.request = ceil(v) 
+			
+			self.layoutChanged.emit() 
+
+		except:
+			raise 
+		
+			
+			
 
 
 	@property
@@ -3686,32 +3676,113 @@ class AdvancedLinesModel(BaseTable, QtCore.QAbstractTableModel):
 	def __bool__(self):
 		return bool(self._lines) 
 
-	
+
+
+InventoryEntry = namedtuple('InventoryEntry', 'serie description condition spec warehouse quantity')
+
+
 class InventoryModel(BaseTable, QtCore.QAbstractTableModel):
-	
-	def __init__(self):
+
+	SERIE, DESCRIPTION, CONDITION, SPEC, WAREHOUSE, QUANTITY = 0, 1, 2, 3, 4, 5, 
+
+	def __init__(self, description=None, condition=None, spec=None, warehouse=None):
 		super().__init__()
-		self._headerData = ['Serie', 'Description', 'Condition', 'spec', 'Warehouse']
+		self._headerData = ['Serie', 'Description', 'Condition', 'Spec', 'Warehouse', 'Quantity']
 		self.name = 'series'
-		# self.series = db.session.query(db.Imei).join(Item).join(Warehouse).all() 
-		self.series = db.session.query(db.Imei).join(db.Warehouse).all() 
+		query = db.session.query(db.Imei).join(db.Item).join(db.Warehouse)
+		
+		if description:
+			ids = utils.get_items_ids_by_keyword(description.lower())
+			if ids:
+				query = query.where(db.Imei.item_id.in_(ids)) 
+			else:
+				query = query.where(db.Imei.imei.contains(description))
+		
+		if condition:
+			query = query.where(db.Imei.condition.contains(condition))
+
+		if spec:
+			query = query.where(db.Imei.spec.contains(spec))
+		
+		if warehouse:
+
+			query = query.where(db.Warehouse.description.contains(warehouse))
+
+		series = query.all()
+
+		has_not_serie = lambda object:utils.valid_uuid(object.imei)
+		has_serie = lambda object:not utils.valid_uuid(object.imei) 
+
+		uuid_group = list(filter(has_not_serie, series))
+		sn_group = list(filter(has_serie, series))
+
+		key = operator.attrgetter('item_id', 'condition', 'spec', 'warehouse_id')
+		uuid_group = sorted(uuid_group, key=key)
+
+		self.series = [] 
+
+		# InventoryModel actua como punto comun para los dos tipos de stock
+		for entry in sn_group:
+			self.series.append(
+				InventoryEntry(
+					entry.imei, 
+					entry.item.clean_repr ,
+					entry.condition, 
+					entry.spec, 
+					entry.warehouse.description, 
+					1
+				)
+			)
+
+		for key, group in groupby(iterable=uuid_group, key=key):
+			item_id, condition, spec, warehouse_id = key
+			self.series.append(
+				InventoryEntry(
+					'',
+					utils.description_id_map.inverse[item_id], 
+					condition, 
+					spec, 
+					utils.warehouse_id_map.inverse[warehouse_id], 
+					len(list(group))
+				)
+			)
+
 	def data(self, index, role=Qt.DisplayRole):
 		if not index.isValid():
 			return
 		row, column = index.row(), index.column() 
 		entry = self.series[row]
 		if role == Qt.DisplayRole:
-			if column == 0:
-				return entry.imei 
-			elif column == 1:
-				return entry.item.clean_repr 
-			elif column == 2:
+			if column == self.SERIE:
+				return entry.serie 
+			elif column == self.DESCRIPTION:
+				return entry.description 
+			elif column == self.CONDITION:
 				return entry.condition
-			elif column == 3:
+			elif column == self.SPEC:
 				return entry.spec
-			elif column == 4:
-				return entry.warehouse.description
+			elif column == self.WAREHOUSE:
+				return entry.warehouse
+			elif column == self.QUANTITY:
+				return entry.quantity
 
+
+	def excel_export(self, path):
+		from openpyxl import Workbook
+		book = Workbook()
+		sheet = book.active
+
+		for entry in self.series:
+			sheet.append((
+				entry.serie, 
+				entry.description, 
+				entry.condition, 
+				entry.spec, 
+				entry.warehouse, 
+				entry.quantity
+			))
+
+		book.save(path)
 
 class WarehouseListModel(QtCore.QAbstractListModel):
 
@@ -4020,7 +4091,7 @@ class GroupModel(BaseTable, QtCore.QAbstractTableModel):
 		_filter = lambda o:o.line_id == line.id
 		series = list(filter(_filter, series))
 		series = sorted(series, key=key)
-		from itertools import groupby
+		
 		self.groups = [] 
 		for key, group in groupby(iterable=series, key=key):
 			item_id, condition, spec = key

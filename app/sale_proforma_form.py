@@ -23,10 +23,10 @@ from ui_sale_proforma_form import Ui_SalesProformaForm
 # Añadir 2 mas a esos 2 para formar lote
 # Añadir 1 que sea el mismo para comprobar que se actualiza
 # Añadir 1 incompatible a ese lote
-# Nuevo 2 incompatibles
+# Nuevo 2 incompatibles entre ellos 
 # Añadir 2 compatibles entre ellos, pero no con el previo
 # Añadir lote a linea libre
-#  
+# 
 
 
 class StockBase:
@@ -223,7 +223,7 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.delete_button.clicked.connect(self.delete_handler)
         self.add.clicked.connect(self.add_handler) 
         self.save.clicked.connect(self.save_handler)
-        self.partner.textChanged.connect(self.partner_search)
+        self.partner.editingFinished.connect(self.partner_search)
         self.apply.clicked.connect(self.apply_handler)
         self.remove.clicked.connect(self.remove_handler) 
         self.insert.clicked.connect(self.insert_handler) 
@@ -236,21 +236,10 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.condition.editingFinished.connect(self.condition_editing_finished)
         self.spec.editingFinished.connect(self.spec_editing_finished)
 
+        self.auto_.returnPressed.connect(self.auto_return_pressed)
+
     
     def warehouse_changed(self, text):
-        # warehouse_id = utils.warehouse_id_map.get(text)
-        # db.session.rollback() 
-        # self.proforma = SaleProforma() 
-        # self.proforma.warehouse_id = warehouse_id 
-        # self.lines_model = SaleProformaLineModel(self.proforma) 
-        # self.lines_view.setModel(self.lines_model)
-
-        # if hasattr(self, 'stock_model'):
-        #     self.stock_model.reset() 
-
-        # self.stock_view.setModel(self.stock_model) 
-        # db.session.add(self.proforma) 
-
         if hasattr(self, 'stock_model'):
             self.stock_model.reset()
 
@@ -339,6 +328,7 @@ class Form(Ui_SalesProformaForm, QWidget):
 
 
     def partner_search(self):
+
         partner = self.partner.text()
         if partner in utils.partner_id_map.keys():
             partner_id = utils.partner_id_map.get(partner)
@@ -400,24 +390,19 @@ class Form(Ui_SalesProformaForm, QWidget):
             return  
         else:
             lines = self.lines_model.actual_lines_from_mixed(i)
-     
-            from collections import Iterable
-            if not isinstance(lines, Iterable) or not lines:
-                lines = None
-            self.selected_stock_view.setModel(
-                ActualLinesFromMixedModel(lines)
-            )
+            self.selected_stock_view.setModel(ActualLinesFromMixedModel(lines))
+            self.selected_stock_view.resizeColumnsToContents()
 
     def delete_selected_stock_clicked(self):
         try:
             i = {i.row() for i in self.lines_view.selectedIndexes()}.pop() 
         except KeyError:
-            QMessageBox.critical(self, 'Error', 'No line selected')
+            QMessageBox.information(self, 'Information', 'No line selected')
             return 
         try:
             j = {i.row() for i in self.selected_stock_view.selectedIndexes()}.pop()
         except KeyError:
-            QMessageBox.critical(self, 'Error', 'No stock from line stock selected')
+            QMessageBox.information(self, 'Information', 'No stock from line stock selected')
             return
         
         try:
@@ -426,7 +411,7 @@ class Form(Ui_SalesProformaForm, QWidget):
             self.set_stock_mv()
             self.lines_view.clearSelection() 
         except:
-            QMessageBox.critical(self, 'Error', 'Error reaching database')
+            QMessageBox.information(self, 'Information', 'Error reaching database')
             raise 
 
     def search_handler(self):
@@ -500,11 +485,13 @@ class Form(Ui_SalesProformaForm, QWidget):
         try:
             row = {i.row() for i in self.lines_view.selectedIndexes()}.pop()
         except KeyError:
-            QMessageBox.critical(self, 'Error', 'No line selected')
+            QMessageBox.information(self, 'Information', 'No line selected')
         else:
-            self.lines_model.delete(row)
-            self.set_stock_mv()
-            self.set_selected_stock_mv() 
+            update = self.lines_model.delete(row)
+            if update:
+                self.set_stock_mv()
+                self.set_selected_stock_mv() 
+
             self.lines_view.clearSelection() 
             self.update_totals() 
             self.resize_lines_view()
@@ -513,6 +500,24 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.lines_view.resizeColumnToContents(0)
         self.lines_view.resizeColumnToContents(2)
         self.stock_view.resizeColumnToContents(3)
+
+
+    def auto_return_pressed(self):
+
+        if not hasattr(self, 'stock_model'):
+            return
+        
+        if not hasattr(self, 'lines_model'):
+            return 
+
+        try:
+            n = int(self.auto_.text())
+        except ValueError:
+            return 
+        rows = {index.row() for index in self.stock_view.selectedIndexes()}
+        
+        self.stock_model.set_auto(rows) 
+
 
     def add_handler(self):
         if not hasattr(self, 'stock_model'):return
@@ -539,7 +544,7 @@ class Form(Ui_SalesProformaForm, QWidget):
                 row=row
             )
         except ValueError as ex:
-            QMessageBox.critical(self, 'Error', str(ex))
+            QMessageBox.information(self, 'Information', str(ex))
             for stock in requested_stocks:
                 stock.request = 0
         else:
