@@ -346,6 +346,14 @@ def setCompleter(field, data):
 
 def build_description(lines):
 
+
+    # Si tiene mpn devuelve tal cual.
+    # Toda la generalizacion que he ganado por un lado la estoy perdiendo
+    # en este otro, pero bueno, esto es menos grave, 
+    # toca la parte de representacion
+    # no a la parte de gestion del inventario
+    
+
     line = lines[0] 
 
     capacities = {dirty_map.inverse[line.item_id].split('|')[-3]\
@@ -390,6 +398,9 @@ def build_description(lines):
         else :
             capacity = 'Mixed GB'     
         return ' '.join((man, cat, mod, capacity))
+
+    elif stock_type(line) == -1:
+        return description_id_map.inverse[lines[0].item_id]
 
 
 if __name__ == '__main__':

@@ -236,8 +236,6 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.condition.editingFinished.connect(self.condition_editing_finished)
         self.spec.editingFinished.connect(self.spec_editing_finished)
 
-        self.auto_.returnPressed.connect(self.auto_return_pressed)
-
     
     def warehouse_changed(self, text):
         if hasattr(self, 'stock_model'):
@@ -500,24 +498,6 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.lines_view.resizeColumnToContents(0)
         self.lines_view.resizeColumnToContents(2)
         self.stock_view.resizeColumnToContents(3)
-
-
-    def auto_return_pressed(self):
-
-        if not hasattr(self, 'stock_model'):
-            return
-        
-        if not hasattr(self, 'lines_model'):
-            return 
-
-        try:
-            n = int(self.auto_.text())
-        except ValueError:
-            return 
-        rows = {index.row() for index in self.stock_view.selectedIndexes()}
-        
-        self.stock_model.set_auto(rows) 
-
 
     def add_handler(self):
         if not hasattr(self, 'stock_model'):return

@@ -46,6 +46,10 @@ import utils
 from importlib import reload
 utils = reload(utils)
 
+# Deberiamos hacer una superclase que contenga attsetters 
+# que implemente esta conversion
+# asi no tendriamos que llamar 10 VECES la misma funcion
+# pero no estamos pa mas dolores de cabeza
 def dot_comma_number_repr(str_number):
     count = str_number.count(',')
     return str_number.replace('.', ',').replace(',', '.', count)
@@ -73,59 +77,38 @@ class PurchaseLinePDFRepr(LinePDFRepr):
         self.total = dot_comma_number_repr(self.total)
         self.price = dot_comma_number_repr(self.price)
 
-
 class SaleLinePDFRepr(LinePDFRepr):
 
     def __init__(self, lines):
-        self.set_line_from_lines(lines)
-
-
-    def set_line_from_lines(self, lines):
-
-        # Set condition
-        if any((line.showing_condition for line in lines)):
-            condition = lines[0].showing_condition
+        if len(lines) == 1 and {None} == {line.item_id for line in lines}:
+            line = lines[0]
+            self.description = line.description
+            self.quantity = line.quantity
+            self.price = line.price
+            self.total = line.quantity * line.price
         else:
-            diff_conditions = {line.condition for line in lines}
-            if len(diff_conditions) == 1:
-                condition = diff_conditions.pop() 
-            else:
-                condition = 'Mix'
+            self.description = utils.build_description(lines) 
+            self.quantity = sum(line.quantity for line in lines)
+            self.price = lines[0].price
+            self.total = '{:,.2f}'.format(round(self.price * self.quantity, 2))
+            self.price = '{:,.2f}'.format(round(self.price, 2))
+            self.total = dot_comma_number_repr(self.total)
+            self.price = dot_comma_number_repr(self.price)
 
-        # Set spec:
-        if any((line.ignore_spec for line in lines)):
-            spec = None
-        else:
-            diff_specs = {line.spec for line in lines}
-            if len(diff_specs) == 1:
-                spec = diff_specs.pop() 
-            else:
-                spec = 'Mix'
-        
-        # set Spec
+            showing_condition = lines[0].showing_condition
+            condition = showing_condition or lines[0].condition
 
-        if lines[0].description:
-            description = lines[0].description
+            self.description += ', ' + condition 
 
-    
-        description = utils.build_description(lines) 
-        
-        
-        
-        description += f', {condition}'
-        
-        
-        
-        if spec:
-            description += f', {spec} spec'
+            if not lines[0].ignore_spec:
+                diff_specs = {line.spec for line in lines}
+                if len(diff_specs) > 1:
+                    spec = 'Mix Spec'
+                else:
+                    spec = lines[0].spec
+                self.description += ', ' + spec 
 
-        self.description = description
-        self.quantity = sum(line.quantity for line in lines)
-        self.price = lines[0].price
-        self.total = '{:,.2f}'.format(round(self.price * self.quantity, 2))
-        self.price = '{:,.2f}'.format(round(self.price, 2))
-        self.total = dot_comma_number_repr(self.total)
-        self.price = dot_comma_number_repr(self.price)
+
 
     def set_line_from_line(self, line):
         description = line.description or utils.description_id_map.inverse[line.item_id]
@@ -145,7 +128,6 @@ class SaleLinePDFRepr(LinePDFRepr):
         self.price = '{:,.2f}'.format(round(line.price, 2))
         self.total = dot_comma_number_repr(self.total)
         self.price = dot_comma_number_repr(self.price)
-
 
 class AdvancedSaleLinePDFRepr(LinePDFRepr):
     
@@ -175,24 +157,12 @@ class LinesPDFRepr:
         return len(self.lines) 
 
 class SaleLinesPDFRepr(LinesPDFRepr):
-    
+
     def __init__(self, lines):
-        self.lines , searched = [], set() 
-        for line in sorted(lines, key=lambda l:l.id):
-            if line.mix_id is None:
-                self.lines.append(SaleLinePDFRepr(line))
-            else:
-                if line.mix_id not in searched:
-                    self.lines.append(
-                        SaleLinePDFRepr([l for l in lines if l.mix_id == line.mix_id])
-                    )
-                    searched.add(line.mix_id)
-
-    def __len__(self):
-        return len(self.lines) 
-
-    def __iter__(self):
-        return iter(self.lines)
+        self.lines = [
+            SaleLinePDFRepr([l for l in lines if l.mix_id == mix_id])   
+            for mix_id in list(dict.fromkeys([line.mix_id for line in lines]))
+        ]
 
 class PurchaseLinesPDFRepr(LinesPDFRepr):
     
@@ -529,10 +499,18 @@ if __name__ == '__main__':
     sale = session.query(SaleProforma).first()
     purchase = session.query(PurchaseProforma).first()
 
-    from itertools import product
 
-    for doc, is_invoice in product(
-        [purchase, sale], 
-        [False ,True]
-    ):     
-        build_document(doc, is_invoice=is_invoice)
+    pdf = build_document(sale, is_invoice=False) 
+
+    pdf.output('test.pdf')
+
+
+    # from itertools import product
+
+
+
+    # for doc, is_invoice in product(
+    #     [purchase, sale], 
+    #     [False ,True]
+    # ):     
+    #     build_document(doc, is_invoice=is_invoice)

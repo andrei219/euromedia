@@ -1364,7 +1364,7 @@ def delete_imei_after_mixed_purchase(mapper, connection, target):
 
 
 # Pensar si quiza no interesa mas no hacer esta operacion a traves del evento
-@event.listens_for(ExpeditionSerie, 'before_insert')
+@event.listens_for(ExpeditionSerie, 'after_insert')
 def delete_imei_after_sale(mapper, connection, target):
     condition = target.line.condition 
     spec = target.line.spec 

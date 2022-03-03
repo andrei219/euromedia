@@ -1530,23 +1530,21 @@ class OrganizedLines:
 
 		self.organized_lines = [e for e in self.organized_lines if e]
 
+		db.session.flush() 
+
 		return update_stock_view 
 
 	def append(self, price, ignore_spec, tax, showing, *stocks, row=None):
 		if len(stocks) == 0:
 			raise ValueError("Provide stocks")
-
 		# Update quantity
-
 		hit = False 
-
 		for stock in stocks:
 			for line in self.lines:
 				if stock == line:
 					line.quantity += stock.quantity 
 					hit = True
 					break 
-		
 		if hit:
 			db.session.flush()
 			return 
@@ -1582,18 +1580,18 @@ class OrganizedLines:
 		
 		db.session.flush() 
 	
-	def build_lines_from_stocks(self, price, ignore_spec, tax, showing, *stocks):
+	def build_lines_from_stocks(self, price, ignore_spec, tax, showing, *stocks, mix_id=None):
 		return [
-			self.build_line(price, ignore_spec, tax, showing, stock) for stock in stocks
+			self.build_line(price, ignore_spec, tax, showing, stock, mix_id=mix_id) for stock in stocks
 		]
 
 	def update_organized_lines(self, price, ignore_spec, tax, showing, *stocks, row=-1):
-		# No need for checking 
-		print('model.update_organized_lines')
 		previous_lines = self.organized_lines[row] 
-		print('previous_lines:', previous_lines)
-		new_lines = self.build_lines_from_stocks(price, ignore_spec, tax, showing, *stocks)
+		previous_mix_id = previous_lines[0].mix_id 
+		
+		new_lines = self.build_lines_from_stocks(price, ignore_spec, tax, showing, *stocks, mix_id=previous_mix_id)
 		previous_lines.extend(new_lines)
+		
 		return new_lines
 
 	def backward_compatible(self, stocks, row):
@@ -1634,17 +1632,16 @@ class OrganizedLines:
 		self.instrumented_lines.extend(lines) 
 
 	def organize_lines(self, lines):
-		searched, aux = set(), [] 
-		for line in lines:
-			if line.mix_id is None:
-				aux.append(line) 
-			else:
-				if line.mix_id not in searched:
-					aux.append(
-						[l for l in lines if l.mix_id == line.mix_id]
-					)
-					searched.add(line.mix_id)
-		return aux
+		mix_ids = list(dict.fromkeys([line.mix_id for line in lines])) 
+		matrix = [] 
+		for mix_id in mix_ids:
+			aux = [] 
+			for line in lines:
+				if line.mix_id == mix_id:
+					aux.append(line)
+			matrix.append(aux) 
+		return matrix 
+
 
 	def repr(self, row, col):
 		lines = self.organized_lines[row] 
@@ -3349,45 +3346,6 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
 			self.layoutAboutToBeChanged.emit()
 			self.stocks.sort(key=operator.attrgetter(attr), reverse=reverse)
 			self.layoutChanged.emit() 
-
-	def set_auto(self, rows):
-
-		print('_'*100 	)
-
-		from math import ceil 
-		accum = 0 
-
-		# init first
-		for row in rows:
-			self.stocks[row].request = 0 
-
-		try:
-			self.layoutAboutToBeChanged.emit() 
-			total = sum(self.stocks[row].quantity for row in rows)
-			
-			print('total=', total)
-			
-			for row in rows:
-				stock = self.stocks[row]
-				v = ceil(stock.quantity  / total)
-				print('v=', v)
-				accum += v 
-				print('accum=', accum)
-
-				if accum == total:
-					break 
-    
-
-				stock.request = ceil(v) 
-			
-			self.layoutChanged.emit() 
-
-		except:
-			raise 
-		
-			
-			
-
 
 	@property
 	def requested_stocks(self):
