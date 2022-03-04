@@ -98,6 +98,10 @@ class SaleLinePDFRepr(LinePDFRepr):
             showing_condition = lines[0].showing_condition
             condition = showing_condition or lines[0].condition
 
+            if len({line.condition for line in lines}) > 1:
+                condition = 'Mix Condition'
+
+
             self.description += ', ' + condition 
 
             if not lines[0].ignore_spec:

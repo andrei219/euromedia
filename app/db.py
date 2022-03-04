@@ -987,7 +987,13 @@ class ExpeditionSerie(Base):
     serie = Column(String(50), nullable=False)
     created_on = Column(DateTime, default=datetime.now)
 
-    line = relationship('ExpeditionLine', backref=backref('series')) 
+    line = relationship(
+        'ExpeditionLine', 
+        backref=backref(
+            'series', 
+            cascade='delete-orphan, delete, save-update'
+        )
+    ) 
 
 
     def __init__(self, serie):
@@ -996,6 +1002,20 @@ class ExpeditionSerie(Base):
     __table_args__ = (
         UniqueConstraint('id', 'line_id', 'serie'), 
     )
+
+    def __repr__(self):
+        class_name = self.__class__.__name__
+        return f'{class_name}(id={self.id}, line_id={self.line_id}, serie={self.serie})' 
+
+    def __eq__(self, other):
+        return (self.id, self.line_id, self.serie) == (other.id, other.line_id, other.serie)
+
+    def __hash__(self):
+        return functools.reduce(
+            operator.xor, 
+            (hash(x) for x in(self.id, self.line_id, self.serie)), 
+            0 
+        )
 
 class Imei(Base):
 
@@ -1307,6 +1327,7 @@ def delete_dependant_advanced_sales(mapper, connection, target):
 @event.listens_for(ReceptionSerie, 'after_insert')
 def insert_imei_after_mixed_purchase(mapper, connection, target):
 
+    print('reception serie after insert')
     connection.execute(imei_insert_stmt(target))    
     
     purchase_line_id = get_associated_purchase_line(target) 
@@ -1357,6 +1378,7 @@ def imei_mask_insert_stmt(target, origin_id):
 
 @event.listens_for(ReceptionSerie, 'after_delete')
 def delete_imei_after_mixed_purchase(mapper, connection, target):
+    print('reception serie after delete')
     stmt1 = delete(Imei).where(Imei.imei == target.serie)
     stmt2 = delete(ImeiMask).where(ImeiMask.imei == target.serie)
     connection.execute(stmt1)
@@ -1387,7 +1409,15 @@ def delete_imei_after_sale(mapper, connection, target):
 
 
 @event.listens_for(ExpeditionSerie, 'after_delete')
-def insert_imei_after_sale(mapper, connection, target):
+def insert_imei_after_expedition_delete(mapper, connection, target):
+
+    print('after_delete_fired')
+
+    print('serie:', target.serie)
+    print('item_id:', target.line.item_id, target.line.item.clean_repr)
+    print('spec:', target.line.spec)
+    print('condition:', target.line.condition)
+
     stmt = insert(Imei).values(
         imei = target.serie, 
         item_id = target.line.item_id, 
@@ -1395,9 +1425,13 @@ def insert_imei_after_sale(mapper, connection, target):
         spec = target.line.spec, 
         warehouse_id = target.line.expedition.proforma.warehouse.id
     )
-    
+
+    engine = get_engine()
+    engine.echo = True 
+
     connection.execute(stmt)
 
+    engine.echo=False 
 
 
 class SpecChange(Base):

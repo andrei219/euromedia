@@ -204,16 +204,16 @@ def purchase_overflowed(proforma):
 	# return 0 < purchase_total_quantity(proforma) < purchase_total_processed(proforma) 
 
 
+def sale_completed(proforma):
+	return sale_total_processed(proforma) == sale_total_quantity(proforma) 
+
 def stock_gap():
 	return not all(
-		completed(expedition)
-		for expedition in db.session.query(db.Expedition)
-		.join(db.SaleProforma)
+		sale_completed(proforma)
+		for proforma in db.session.query(db.SaleProforma)
 		.where(db.SaleProforma.cancelled == False)
-		.order_by(db.Expedition.id.desc())
+		.order_by(db.SaleProforma.id.desc())
 	)
-
-
 
 class AgentModel(QtCore.QAbstractTableModel):
 
@@ -2638,6 +2638,20 @@ class ExpenseModel(BaseTable, QtCore.QAbstractTableModel):
 	def spent(self):
 		return sum([expense.amount for expense in self.expenses])
 
+
+from functools import wraps
+
+def change_layout_and_commit(func):
+	wraps(func)
+	def wrapper(self, *args, **kwargs):
+		self.layoutAboutToBeChanged.emit()
+		r = func(self, *args, **kwargs)
+		self.commit() 
+		self.layoutChanged.emit() 
+		return r 
+	return wrapper 
+
+
 class SerieModel(QtCore.QAbstractListModel):
 
 	def __init__(self, line, expedition):
@@ -2646,34 +2660,51 @@ class SerieModel(QtCore.QAbstractListModel):
 		self.line = line 
 		self.series = line.series 
 
-
 	@property
 	def expedition_series(self):
 		for line in self.expedition.lines:
 			for serie in line.series:
 				yield serie 
 
+	@change_layout_and_commit
 	def add(self, serie):
 		if serie in self:
 			raise SeriePresentError 
 
 		self.series.append(db.ExpeditionSerie(serie)) 
-		self.commit() 
+		
+		
+		print('add')
+		for serie in self.series:
+			print(serie)
 
 
+	@change_layout_and_commit
 	def delete_all(self):
 		for o in self.series:
-			self.series.pop(0) 
+			db.session.delete(o) 
 		
-		# self.series.clear()
-		self.commit() 
+		print('delete all')
 
+		for serie in self.series:
+			print(serie)
+		
 
+	@change_layout_and_commit
 	def delete(self, objects):
+		print('delete')
+
+		print('before:')
+		for serie in self.series:
+			print(serie)
+		print('after')
+		for serie in self.series:
+			print(serie)
+
 		for o in objects:
 			self.series.remove(o) 
-		self.commit() 
-
+	
+	@change_layout_and_commit
 	def handle_invented(self, quantity):
 		if qnt > 0:
 			for invented in self.uuid_generator(quantity):
@@ -2685,7 +2716,12 @@ class SerieModel(QtCore.QAbstractListModel):
 				except:
 					raise 
 
-		self.commit() 
+	def uuid_generator(self, quantity):
+		for i in range(quantity):
+			yield str(uuid.uuid4()) 
+
+	def rowCount(self, index):
+		return len(self.series)
 
 	def commit(self):
 		try:
@@ -2693,13 +2729,6 @@ class SerieModel(QtCore.QAbstractListModel):
 		except:
 			db.session.rollback()
 			raise 
-
-	def uuid_generator(self, quantity):
-		for i in range(quantity):
-			yield str(uuid.uuid4()) 
-
-	def rowCount(self, index):
-		return len(self.series)
 
 	def data(self, index, role=Qt.DisplayRole):
 		if not index.isValid():

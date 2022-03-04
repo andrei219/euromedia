@@ -1127,16 +1127,16 @@ class MainGui(Ui_MainGui, QMainWindow):
         d.exec_() 
     
     def tools_change_spec_handler(self):
-        # if models.stock_gap():
-        #     QMessageBox.information(self, 'Information', 'Process all sales first.')
-        #     return 
+        if models.stock_gap():
+            QMessageBox.information(self, 'Information', 'Process all sales first.')
+            return 
         d = spec_change_form.SpecChange(self)
         d.exec_() 
 
     def tools_change_condition_handler(self):
-        # if models.stock_gap():
-        #     QMessageBox.information(self, 'Information', 'Process all sales first.')
-        #     return 
+        if models.stock_gap():
+            QMessageBox.information(self, 'Information', 'Process all sales first.')
+            return 
         d = condition_change_form.ConditionChange(self)
         d.exec_() 
     

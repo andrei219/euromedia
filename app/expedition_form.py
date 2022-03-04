@@ -72,7 +72,6 @@ class Form(Ui_ExpeditionForm, QDialog):
                     return 
                 
                 index = self.view.model().index(index, 0)
-                
    
                 self.view.selectionModel().setCurrentIndex(
                     index, 
@@ -195,6 +194,12 @@ class Form(Ui_ExpeditionForm, QDialog):
         return sum(1 for serie in self.expedition.lines[self.current_index].series) 
 
     def set_model(self, line):
+
+        try:
+            self.model.commit()
+        except AttributeError:
+            pass 
+
         self.model = SerieModel(line, self.expedition) 
         self.view.setModel(self.model) 
 
@@ -205,6 +210,6 @@ class Form(Ui_ExpeditionForm, QDialog):
             if line.quantity == len(line.series) == 0:
                 db.session.delete(line)
 
-        self.model.commit()
+        db.session.commit() 
         super().closeEvent(event)        
         self.parent.set_mv('warehouse_expeditions_')  
