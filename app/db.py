@@ -987,17 +987,7 @@ class ExpeditionSerie(Base):
     serie = Column(String(50), nullable=False)
     created_on = Column(DateTime, default=datetime.now)
 
-    line = relationship(
-        'ExpeditionLine', 
-        backref=backref(
-            'series', 
-            cascade='delete-orphan, delete, save-update'
-        )
-    ) 
-
-
-    def __init__(self, serie):
-        self.serie = serie 
+    line = relationship('ExpeditionLine', backref=backref('series')) 
 
     __table_args__ = (
         UniqueConstraint('id', 'line_id', 'serie'), 
@@ -1007,15 +997,15 @@ class ExpeditionSerie(Base):
         class_name = self.__class__.__name__
         return f'{class_name}(id={self.id}, line_id={self.line_id}, serie={self.serie})' 
 
-    def __eq__(self, other):
-        return (self.id, self.line_id, self.serie) == (other.id, other.line_id, other.serie)
+    # def __eq__(self, other):
+    #     return (self.id, self.line_id, self.serie) == (other.id, other.line_id, other.serie)
 
-    def __hash__(self):
-        return functools.reduce(
-            operator.xor, 
-            (hash(x) for x in(self.id, self.line_id, self.serie)), 
-            0 
-        )
+    # def __hash__(self):
+    #     return functools.reduce(
+    #         operator.xor, 
+    #         (hash(x) for x in(self.id, self.line_id, self.serie)), 
+    #         0 
+    #     )
 
 class Imei(Base):
 
