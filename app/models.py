@@ -1585,7 +1585,7 @@ class OrganizedLines:
 					tax, showing, *stocks, 
 					row=row)
 			else:
-				raise ValueError("Incompatible mixing[1:Updating]")
+				raise ValueError(f"Incompatible mixing with line {row + 1}")
 		
 		self.instrumented_lines.extend(new_lines) 
 		
@@ -1608,23 +1608,19 @@ class OrganizedLines:
 	def backward_compatible(self, stocks, row):
 		previous_lines = self.organized_lines[row]
 		try:
-			print('Executing try:')
 			result = all((
 				utils.mixing_compatible(stock, line)
 				for stock, line in product(previous_lines, stocks)
 
 			))		
-			print('result:', result)
 			return result
 
 		except TypeError:
-			print('except TypeError:')
 			line = previous_lines 
 			result = all((
 				utils.mixing_compatible(stock, line)
 				for stock in stocks
 			))
-			print('result:', result)
 			return result
 
 	def insert_free(self, description, quantity, price, tax):

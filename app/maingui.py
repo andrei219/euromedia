@@ -458,14 +458,28 @@ class MainGui(Ui_MainGui, QMainWindow):
                 filename += '.pdf'
                 pdf = build_document(document, is_invoice=is_invoice)
                 from contextlib import suppress
-                with suppress(FileNotFoundError):
-                    os.remove(filename)
+                
+                
+                
                 pdf.output(filename)
                 import subprocess
                 subprocess.Popen((filename, ), shell=True) 
+
+                # with suppress(FileNotFoundError):
+                #     os.remove(filename)
+
         except:
             QMessageBox.critical(self, 'Error', 'Error viewing the file')
             raise 
+
+
+    
+    def clean_up_directory(self):
+        from contextlib import suppress
+        import os 
+        with suppress(FileNotFoundError):
+            for file in filter(lambda s:s.endswith('.pdf'),os.listdir()):
+                os.remove(file) 
 
     # Proformas purchases handlers:
     def proformas_purchases_view_pdf_handler(self):
@@ -473,6 +487,7 @@ class MainGui(Ui_MainGui, QMainWindow):
             self.proformas_purchases_view, 
             self.proformas_purchases_model
         )
+        
 
     def proformas_purchases_selection_changed(self, selection_model):
         self.selection_changed_generic(self.proformas_purchases_view)
@@ -587,7 +602,6 @@ class MainGui(Ui_MainGui, QMainWindow):
             try:
                 tracking, ok = getTracking(self, proforma) 
                 if ok:
-                    print(ok, tracking)
                     self.proformas_purchases_model.ship(proforma, tracking)
                     mss = 'Updated successfully'
                     if invoice:
@@ -643,6 +657,7 @@ class MainGui(Ui_MainGui, QMainWindow):
             self.proformas_sales_view, 
             self.proformas_sales_model
         )
+        
 
     def proformas_sales_ready_handler(self):
         indexes = self.proformas_sales_view.selectedIndexes()
@@ -911,6 +926,7 @@ class MainGui(Ui_MainGui, QMainWindow):
             self.invoices_purchases_model, 
             is_invoice=True 
         )
+        
 
     def invoices_purchases_selection_changed(self):
         self.selection_changed_generic(self.invoices_purchases_view)
@@ -1110,9 +1126,6 @@ class MainGui(Ui_MainGui, QMainWindow):
             self.warehouse_expeditions_model
         )
         if not expedition:return
-        
-        print('delete expedition with ID:', expedition.id)
-
 
     def get_expedition(self, view, model):
         rows = { index.row() for index in view.selectedIndexes()}
@@ -1187,5 +1200,8 @@ class MainGui(Ui_MainGui, QMainWindow):
         for w in self.opened_windows_instances:
             w.close() 
         
+
+        self.clean_up_directory()
+
         super().closeEvent(event)
 
