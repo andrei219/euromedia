@@ -524,7 +524,7 @@ class SaleProforma(Base):
     number = Column(Integer)
     created_on = Column(DateTime, default=datetime.now)
  
-    date = Column(DateTime, default=datetime.now)
+    date = Column(Date, default=datetime.now)
     warranty = Column(Integer,  default=0)
     eta = Column(Date, default=datetime.now)
 
@@ -551,7 +551,6 @@ class SaleProforma(Base):
 
     ready = Column(Boolean, nullable=False, default=False)
 
-
     partner = relationship('Partner', uselist=False) 
     courier = relationship('Courier', uselist=False)
     warehouse = relationship('Warehouse', uselist=False)
@@ -560,6 +559,11 @@ class SaleProforma(Base):
     expedition = relationship('Expedition', uselist=False, back_populates='proforma')
 
     incoterm = Column(String(3), default='gbc') 
+
+    def __repr__(self):
+        clasname = self.__class__.__name__
+        return f'{clasname}(type={self.type}, number={self.number})'
+    
 
     __table_args__ = (
         UniqueConstraint('type', 'number'), 
@@ -627,7 +631,10 @@ class SaleInvoice(Base):
     number = Column(Integer, nullable=False) 
     date = Column(Date, default=datetime.now)
     eta = Column(Date, default=datetime.now)
-
+    
+    def __repr__(self):
+        clasname = self.__class__.__name__
+        return f'{clasname}(type={self.type}, number={self.number})'
 
 
     def __init__(self, type, number):
@@ -1368,7 +1375,6 @@ def imei_mask_insert_stmt(target, origin_id):
 
 @event.listens_for(ReceptionSerie, 'after_delete')
 def delete_imei_after_mixed_purchase(mapper, connection, target):
-    print('reception serie after delete')
     stmt1 = delete(Imei).where(Imei.imei == target.serie)
     stmt2 = delete(ImeiMask).where(ImeiMask.imei == target.serie)
     connection.execute(stmt1)
@@ -1385,9 +1391,9 @@ def delete_imei_after_sale(mapper, connection, target):
         where(Imei.spec == spec).where(Imei.item_id == item_id)
     result = connection.execute(stmt) 
 
-    print('target.line.condition:', condition)
-    print('target.line.spec:', spec)
-    print('target.line.item_id', item_id, target.line.item.clean_repr)
+    # print('target.line.condition:', condition)
+    # print('target.line.spec:', spec)
+    # print('target.line.item_id', item_id, target.line.item.clean_repr)
 
     if not result.rowcount:
         from exceptions import NotExistingStockOutput
@@ -1401,12 +1407,12 @@ def delete_imei_after_sale(mapper, connection, target):
 @event.listens_for(ExpeditionSerie, 'after_delete')
 def insert_imei_after_expedition_delete(mapper, connection, target):
 
-    print('after_delete_fired')
+    # print('after_delete_fired')
 
-    print('serie:', target.serie)
-    print('item_id:', target.line.item_id, target.line.item.clean_repr)
-    print('spec:', target.line.spec)
-    print('condition:', target.line.condition)
+    # print('serie:', target.serie)
+    # print('item_id:', target.line.item_id, target.line.item.clean_repr)
+    # print('spec:', target.line.spec)
+    # print('condition:', target.line.condition)
 
     stmt = insert(Imei).values(
         imei = target.serie, 

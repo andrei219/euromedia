@@ -673,7 +673,6 @@ class MainGui(Ui_MainGui, QMainWindow):
         self.selection_changed_generic(self.proformas_sales_view)
        
     def proformas_sales_new_handler(self):
-    
         
         correct_imeis_mask()
 
@@ -1010,6 +1009,10 @@ class MainGui(Ui_MainGui, QMainWindow):
         self.sp.show()
 
 
+    def invoices_sales_ready_handler(self):
+        indexes = self.invoices_sales_view.selectedIndexes()
+        self.invoices_sales_model.ready(indexes) 
+
 
     def invoices_sales_export_handler(self):
         self.export_documents(
@@ -1075,9 +1078,8 @@ class MainGui(Ui_MainGui, QMainWindow):
 
     # WAREHOUSE EXPEDITION:
     def warehouse_expeditions_process_handler(self):
-        print('eee')
         expedition = self.get_expedition(
-            self.warehouse_expedition_view, 
+            self.warehouse_expeditions_view, 
             self.warehouse_expeditions_model
         ) 
         if not expedition:return 

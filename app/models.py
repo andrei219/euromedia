@@ -502,7 +502,7 @@ class PartnerModel(QtCore.QAbstractTableModel):
 			self.layoutChanged.emit()
 		except:
 			db.session.rollback()
-			raise 
+			raise
 
 	def col_to_data_map(self, col, partner:db.Partner):
 		return {
@@ -596,7 +596,7 @@ class PartnerContactModel(QtCore.QAbstractTableModel):
 
 class SaleInvoiceModel(QtCore.QAbstractTableModel):
 	 
-	TYPE_NUM, PROFORMA = 0, 12 
+	TYPE_NUM, READY, PROFORMA = 0, 12, 13 
 	
 	def __init__(self, search_key=None, filters=None):
 		super().__init__() 
@@ -624,10 +624,10 @@ class SaleInvoiceModel(QtCore.QAbstractTableModel):
 		row, column = index.row(), index.column() 
 		proforma = self.invoices[row]
 		if role == Qt.DisplayRole:
-			if column == self.__class__.TYPE_NUM:
+			if column == self.TYPE_NUM:
 				return str(proforma.invoice.type) + '-' + \
 					str(proforma.invoice.number).zfill(6) 
-			elif column == self.__class__.PROFORMA:
+			elif column == self.PROFORMA:
 				return str(proforma.type) + '-' + str(proforma.number).zfill(6)
 			else:
 				return self.parent_model.data(index, role) 
@@ -657,6 +657,20 @@ class SaleInvoiceModel(QtCore.QAbstractTableModel):
 			self.parent_model.sort(section, order) 
 			self.layoutChanged.emit() 
 
+
+	def ready(self, indexes):
+		rows = {index.row() for index in indexes}
+		for row in rows:
+			invoice = self[row]
+			invoice.ready = True if not invoice.ready else False 
+
+		try:
+			db.session.commit()
+			self.layoutChanged.emit() 
+		except:
+			db.session.rollback()
+			raise 
+
 	def __getattr__(self, name):
 		if name == 'invoices':
 			return self.parent_model.proformas 
@@ -666,7 +680,7 @@ class SaleInvoiceModel(QtCore.QAbstractTableModel):
 	def __getitem__(self, index):
 		return self.invoices[index] 
 
-	
+
 
 
 class PurchaseInvoiceModel(QtCore.QAbstractTableModel):
@@ -975,7 +989,7 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
 			
 			except:
 				db.session.rollback()
-				raise 
+				raise
 	
 	def nextNumberOfType(self, type):
 		Session = db.sessionmaker(bind=db.get_engine()) 
@@ -1017,7 +1031,7 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
 			# Should reset PurchaseInvoice model through a reference to parent
 		except:
 			db.session.rollback() 
-			raise 
+			raise
 
 	def ship(self, proforma, tracking=None):
 		if tracking:
@@ -1028,7 +1042,7 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
 			db.session.commit()
 		except:
 			db.session.rollback()
-			raise 
+			raise
 
 	def toWarehouse(self, proforma, note):
 		reception = db.Reception(proforma, note)
@@ -1085,7 +1099,7 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
 			db.session.commit()
 		except:
 			db.session.rollback()
-			raise 
+			raise
 		
 import functools
 
@@ -1273,7 +1287,6 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 			elif col == self.READY:
 				return QtGui.QColor(GREEN if proforma.ready else RED) 
 
-
 	def __getitem__(self, index):
 		return self.proformas[index]
 
@@ -1317,8 +1330,7 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 				self.layoutChanged.emit()
 			except:
 				db.session.rollback() 
-				raise 
-		
+				raise
 	
 	def nextNumberOfType(self, type):
 		Session = db.sessionmaker(bind=db.get_engine())
@@ -1327,7 +1339,6 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 				where(db.SaleProforma.type == type).scalar()
 			return 1 if current_num is None else current_num + 1	
 		
-	
 	def cancel(self, indexes):
 		rows = {index.row() for index in indexes}
 		for row in rows:
@@ -1339,7 +1350,7 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 			self.layoutChanged.emit() 
 		except:
 			db.session.rollback() 
-			raise 
+			raise
 
 	def associateInvoice(self, proforma):
 		current_num = db.session.query(func.max(db.SaleInvoice.number)).\
@@ -1354,7 +1365,7 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 			return proforma.invoice 
 		except:
 			db.session.rollback() 
-			raise 
+			raise
 
 	def ready(self, indexes):
 		rows = {index.row() for index in indexes}
@@ -1366,7 +1377,7 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 			self.layoutChanged.emit()
 		except:
 			db.session.rollback()
-			raise 
+			raise
 
 	def ship(self, proforma, tracking):
 		proforma.tracking = tracking
@@ -1375,7 +1386,7 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 			db.session.commit()
 		except:
 			db.session.rollback()
-			raise 
+			raise
 
 	def toWarehouse(self, proforma, note):
 		
@@ -1388,7 +1399,7 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 			]
 
 			if not lines:
-				raise ValueError("Can't send to warehouse undefined advanced sale")
+				raiseValueError("Can't send to warehouse undefined advanced sale")
 		else:
 			lines = [line for line in proforma.lines]
 		
@@ -2750,10 +2761,15 @@ class SerieModel(QtCore.QAbstractListModel):
 	def __init__(self, line, expedition):
 		super().__init__() 
 		self.expedition = expedition
-		self.series = db.session.query(db.ExpeditionSerie).join(db.ExpeditionLine).\
-			where(db.ExpeditionSerie.line_id == line.id).all()
+		self.line = line 
 
-		self.series_at_expedition_level = self.get_series_at_expedition_level() 
+		if not utils.has_serie(line):
+			self.series = []
+		else:
+			self.series = db.session.query(db.ExpeditionSerie).join(db.ExpeditionLine).\
+				where(db.ExpeditionSerie.line_id == line.id).all()
+
+			self.series_at_expedition_level = self.get_series_at_expedition_level() 
 
 	def get_series_at_expedition_level(self):
 		return {
@@ -2790,6 +2806,58 @@ class SerieModel(QtCore.QAbstractListModel):
 		except:
 			db.session.rollback() 
 			raise 
+
+
+	def select_invented_from_imeis(self, limit=0):
+
+		print('select invented')
+		query = db.session.query(db.Imei.imei).where(
+			db.Imei.warehouse_id == self.expedition.proforma.warehouse_id, 
+			db.Imei.spec ==  self.line.spec, 
+			db.Imei.condition == self.line.condition, 
+			db.Imei.item_id == self.line.item_id
+		).limit(limit)
+
+		return [r.imei for r in query]
+
+	def select_from_expedition_series(self, *, limit=0):
+		query = db.session.query(db.ExpeditionSerie).where(
+			db.ExpeditionSerie.line_id == self.line.id
+		).limit(limit)
+
+		return [e for e in query]
+
+	def handle_invented(self, difference):
+		if difference == 0: 
+			return 
+		
+		elif difference < 0: # user wants to correct, invent new series
+			difference = abs(difference) 
+			for expedition_serie in self.select_from_expedition_series(limit=difference):
+				db.session.delete(expedition_serie)
+
+			try:
+				db.session.commit()
+			except:
+				db.session.rollback()
+				raise 
+
+		elif difference > 0 : # User wants to process, select and
+
+			ficticious_series = []
+			for invented in self.select_invented_from_imeis(limit=difference):
+				serie = db.ExpeditionSerie()
+				serie.serie = invented
+				serie.line = self.line  
+				ficticious_series.append(serie) 
+
+			db.session.add_all(ficticious_series) 	   
+
+			try:
+				db.session.commit()
+			except:
+				db.session.rollback()
+				raise 
 
 	def delete(self, series):
 		for serie in series:
@@ -4035,7 +4103,7 @@ class ReceptionSeriesModel:
 				raise 
 
 		elif qnt < 0:
-
+			# No podemos hacer LIMIT en sqlalchemy, damos este rodeo
 			qnt = abs(qnt)
 			counter, targets = 0, [] 
 			for serie in self.reception_series:
@@ -4061,25 +4129,6 @@ class ReceptionSeriesModel:
 				db.session.rollback()
 				raise 
 
-			
-			# reception_series = db.session.query(db.ReceptionSerie).where(
-			# 	db.ReceptionSerie.line_id == line.id, 
-			# 	db.ReceptionSerie.item_id == line.item_id 
-			# )[0:abs(qnt)]
-
-
-
-			# for rs in reception_series:
-			# 	db.session.delete(rs)
-			
-			# try:
-			# 	db.session.commit() 
-			# 	for rs in reception_series:
-			# 		pass 
-
-			# except:
-			# 	db.session.rollback()
-			# 	raise 
 
 	def delete(self, series):
 		delete_targets = [r for r in self.reception_series \

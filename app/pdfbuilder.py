@@ -6,7 +6,7 @@ from copy import deepcopy
 from itertools import chain, product, cycle
 
 # CONSTANTS: 
-LOGO_RELATIVE_PATH = r'.\app\icons\warehouse.png'
+LOGO_RELATIVE_PATH = r'.\app\icons\logo_EIG.png'
 
 BUYER_BASE = (21.99, 38.1)
 SUPPLIER_BASE = (21.99, 78.08)
@@ -97,6 +97,7 @@ class SaleLinePDFRepr(LinePDFRepr):
 
             showing_condition = lines[0].showing_condition
             condition = showing_condition or lines[0].condition
+            condition += ' Condition'
 
             if len({line.condition for line in lines}) > 1:
                 condition = 'Mix Condition'
@@ -110,8 +111,7 @@ class SaleLinePDFRepr(LinePDFRepr):
                     spec = 'Mix Spec'
                 else:
                     spec = lines[0].spec
-                self.description += ', ' + spec 
-
+                self.description += ', ' + spec +' Spec '
 
 
     def set_line_from_line(self, line):
@@ -199,6 +199,7 @@ class We:
 class TableData:
 
     def __init__(self, document, *, is_invoice):
+        print(document.date)
         self.Date = str(document.invoice.date) if is_invoice else str(document.date) 
         self.PO = str(document.invoice.type) + '-' + str(document.invoice.number).\
             zfill(6) if is_invoice else str(document.type) + '-' + str(document.number).zfill(6)

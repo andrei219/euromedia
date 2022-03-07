@@ -11,6 +11,8 @@ from models import (
     sale_total_processed
 )
 
+import utils 
+
 from exceptions import LineCompletedError, SeriePresentError
 
 from sqlalchemy.exc import IntegrityError
@@ -25,12 +27,14 @@ class Form(Ui_ExpeditionForm, QDialog):
         self.expedition = expedition
         self.current_index = 0 
         self.total_lines = len(expedition.lines)
+        self.parent = parent
 
         self.next.clicked.connect(self.next_handler) 
         self.prev.clicked.connect(self.prev_handler) 
         self.imei.textChanged.connect(self.input_text_changed)
         self.delete_imei.clicked.connect(self.delete_handler) 
         self.imei.returnPressed.connect(self.serieInput) 
+        self.processed_line.returnPressed.connect(self.serieInput) 
 
         self.view.setSelectionMode(QAbstractItemView.ExtendedSelection)
 
@@ -44,45 +48,81 @@ class Form(Ui_ExpeditionForm, QDialog):
         self.populateBody() 
         self.imei.setFocus()
 
-    def input_text_changed(self, text):
+    def input_text_changed(self, text):   
         if self.automatic_input.isChecked():
             lenght = self.lenght.value()
             if len(text) == lenght:
                 self.serieInput() 
 
-    def serieInput(self):
-        line = self.expedition.lines[self.current_index]
-        serie = self.imei.text() 
-        if not serie:
-            return 
+    def handle_invented(self):
         try:
-            self.model.add(line, serie) 
-            self.populateBody()
-        except SeriePresentError:
+            new_processed = int(self.processed_line.text())
+
+            if new_processed < 0:
+                raise ValueError
+
+            current_processed = self.processed_in_line
+            difference = new_processed - current_processed
+            self.model.handle_invented(difference)
+        
+        except ValueError:
+            return 
+        except:
+            raise 
+
+    
+    def block_unblock_widgets(self, has_serie):
+
+        for name in [
+            'imei', 'automatic_input', 'view',
+            'delete_imei', 'all' 
+        ]:
             try:
-                if serie and serie in self.view.model():
-                    index = self.view.model().index_of(serie)
-                    index = self.view.model().index(index, 0)
-                    self.view.selectionModel().setCurrentIndex(
-                        index, 
-                        QItemSelectionModel.SelectCurrent
-                    )
-            except AttributeError as ex:
-                print(ex)
-            except TypeError as ex:
-                print(ex)
+                getattr(self, name).setEnabled(has_serie)
+            except:
+                raise 
 
-        except IntegrityError as err:
-            print(err)
+        self.processed_line.setReadOnly(has_serie)
 
-        except NotExistingStockOutput:
-            mss = 'This SN with this spec or condition is not in Stock'
-            mss += mss + 'May be it is in overflow?' 
-            QMessageBox.critical(
-                self, 'Error', 
-                mss
-            )
-        self.imei.clear()
+
+    def serieInput(self):
+
+        if not self.in_serie_state:
+            self.handle_invented()
+            self.populateBody()
+        else:
+            line = self.expedition.lines[self.current_index]
+            serie = self.imei.text() 
+            if not serie:
+                return 
+            try:
+                self.model.add(line, serie) 
+                self.populateBody()
+            except SeriePresentError:
+                try:
+                    if serie and serie in self.view.model():
+                        index = self.view.model().index_of(serie)
+                        index = self.view.model().index(index, 0)
+                        self.view.selectionModel().setCurrentIndex(
+                            index, 
+                            QItemSelectionModel.SelectCurrent
+                        )
+                except AttributeError as ex:
+                    print(ex)
+                except TypeError as ex:
+                    print(ex)
+
+            except IntegrityError as err:
+                print(err)
+
+            except NotExistingStockOutput:
+                mss = 'This SN with this spec or condition is not in Stock'
+                mss += mss + 'May be it is in overflow?' 
+                QMessageBox.critical(
+                    self, 'Error', 
+                    mss
+                )
+            self.imei.clear()
 
     def update_overflow_condition(self):
         processed_in_line = self.processed_in_line
@@ -138,6 +178,11 @@ class Form(Ui_ExpeditionForm, QDialog):
         self.number.setText(str(self.current_index + 1) + '/' + str(self.total_lines))
         self.expedition_total_processed.setText(str(sale_total_processed(self.expedition))) 
 
+
+        has_serie = utils.has_serie(self.expedition.lines[self.current_index])
+        self.block_unblock_widgets(has_serie)
+        self.in_serie_state = has_serie
+
         self.update_overflow_condition() 
 
     def next_handler(self):
@@ -158,9 +203,7 @@ class Form(Ui_ExpeditionForm, QDialog):
 
     @property
     def processed_in_line(self):
-        return sum(
-            [1 for serie in self.expedition.lines[self.current_index].series]
-        ) 
+        return sum(1 for serie in self.expedition.lines[self.current_index].series) 
 
     def set_model(self, line):
         self.model = SerieModel(line, self.expedition) 
@@ -177,4 +220,6 @@ class Form(Ui_ExpeditionForm, QDialog):
         except:
             db.session.rollback()
             raise 
+    
+        self.parent.set_mv('warehouse_expeditions_')
         super().closeEvent(event)             

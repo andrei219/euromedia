@@ -49,8 +49,8 @@ def stock_type(stock):
         return ONLY_COL
     elif cap != '?' and col == '?':
         return ONLY_CAP
-    # else:
-    #     return -1 # No mixing available 
+    else:
+        return -1 # No mixing available 
     
 def is_object_presisted(object):
     from sqlalchemy import inspect
@@ -352,7 +352,6 @@ def build_description(lines):
     # en este otro, pero bueno, esto es menos grave, 
     # toca la parte de representacion
     # no a la parte de gestion del inventario
-    
 
     line = lines[0] 
 
@@ -400,6 +399,7 @@ def build_description(lines):
         return ' '.join((man, cat, mod, capacity))
 
     elif stock_type(line) == -1:
+        print('elif stock_type == -1 ')
         return description_id_map.inverse[lines[0].item_id]
 
 

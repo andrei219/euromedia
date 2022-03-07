@@ -51,7 +51,7 @@
      <number>0</number>
     </property>
     <property name="currentIndex">
-     <number>2</number>
+     <number>3</number>
     </property>
     <property name="iconSize">
      <size>
@@ -4260,6 +4260,41 @@
          <property name="icon">
           <iconset resource="../app/icons.qrc">
            <normaloff>:/icons/view.png</normaloff>:/icons/view.png</iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>40</width>
+           <height>40</height>
+          </size>
+         </property>
+         <property name="toolButtonStyle">
+          <enum>Qt::ToolButtonTextUnderIcon</enum>
+         </property>
+         <property name="autoRaise">
+          <bool>true</bool>
+         </property>
+        </widget>
+        <widget class="QToolButton" name="invoices_sales_ready">
+         <property name="geometry">
+          <rect>
+           <x>810</x>
+           <y>10</y>
+           <width>101</width>
+           <height>60</height>
+          </rect>
+         </property>
+         <property name="toolTip">
+          <string>Add Tracking String</string>
+         </property>
+         <property name="statusTip">
+          <string>Add Tracking String</string>
+         </property>
+         <property name="text">
+          <string>Un/Ready To Go</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../app/icons.qrc">
+           <normaloff>:/ready</normaloff>:/ready</iconset>
          </property>
          <property name="iconSize">
           <size>
