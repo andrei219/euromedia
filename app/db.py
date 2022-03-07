@@ -145,8 +145,20 @@ class Item(Base):
     
     @property
     def clean_repr(self):
-        repr = self.dirty_repr[:-1] # remove y or n 
-        return ' '.join(repr.replace('|', ' ').replace('?', '').strip().split()) 
+        repr = '' 
+
+        if self.mpn: repr += self.mpn + ' '
+        repr += self.manufacturer + ' '
+        repr += self.category + ' '
+        repr += self.model + ' '
+        
+        if self.capacity : repr += self.capacity + ' GB '
+        if self.color: repr += self.color +' '
+
+        return repr 
+
+        # repr = self.dirty_repr[:-1] # remove y or n 
+        # return ' '.join(repr.replace('|', ' ').replace('?', '').strip().split()) 
 
     @property
     def dirty_repr(self):

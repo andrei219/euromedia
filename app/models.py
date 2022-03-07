@@ -1563,7 +1563,7 @@ class OrganizedLines:
 		# Check if stocks are compatible for mixing between them:
 		for a, b in product(stocks, stocks):
 			if not utils.mixing_compatible(a, b):
-				raise ValueError('Incompatible Mixing [0:First check]')
+				raise ValueError('Incompatible Mixing One to One.')
 		
 		# Adding
 		if row is None:

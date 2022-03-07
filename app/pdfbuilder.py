@@ -108,10 +108,11 @@ class SaleLinePDFRepr(LinePDFRepr):
             if not lines[0].ignore_spec:
                 diff_specs = {line.spec for line in lines}
                 if len(diff_specs) > 1:
-                    spec = 'Mix Spec'
+                    spec = 'Mix'
                 else:
                     spec = lines[0].spec
-                self.description += ', ' + spec +' Spec '
+                
+                self.description += ', ' + spec + ' Spec '
 
 
     def set_line_from_line(self, line):
@@ -199,7 +200,6 @@ class We:
 class TableData:
 
     def __init__(self, document, *, is_invoice):
-        print(document.date)
         self.Date = str(document.invoice.date) if is_invoice else str(document.date) 
         self.PO = str(document.invoice.type) + '-' + str(document.invoice.number).\
             zfill(6) if is_invoice else str(document.type) + '-' + str(document.number).zfill(6)

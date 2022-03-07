@@ -364,7 +364,7 @@ def build_description(lines):
     if stock_type(line.item_id) == CAP_COL:
 
         if len(capacities) == 1: 
-            capacity = capacities.pop()
+            capacity = capacities.pop() + ' GB' 
         else:
             capacity = 'Mixed GB'
 
@@ -393,13 +393,12 @@ def build_description(lines):
         _, man, cat, mod, *_ = dirty_map.inverse[line.item_id].split('|')
         
         if len(capacities) == 1:
-            capacity = capacities.pop()
+            capacity = capacities.pop() + 'GB'
         else :
             capacity = 'Mixed GB'     
         return ' '.join((man, cat, mod, capacity))
 
     elif stock_type(line) == -1:
-        print('elif stock_type == -1 ')
         return description_id_map.inverse[lines[0].item_id]
 
 
