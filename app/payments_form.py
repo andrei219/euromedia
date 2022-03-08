@@ -29,6 +29,13 @@ class PaymentForm(Ui_PaymentsForm, QDialog):
 
         self.date_line_edit.setText(today_date())
 
+
+        # enable rate:
+
+        self.rate.setEnabled(not self.proforma.eur_currency)
+        self.rate.setText('0.0')
+
+
     def allclicked(self):
         self.amount.setText(str(self.total - self.paid))
 
@@ -44,15 +51,27 @@ class PaymentForm(Ui_PaymentsForm, QDialog):
             amount = self.amount.text().replace(',', '.') 
 
             float(amount)
+        
         except ValueError:
             QMessageBox.critical(self, 'Error - Update', \
                 'Error amount format. Enter a valid decimal number')
             return 
 
+        try:
+            rate = self.rate.text().replace(',', '.') 
+
+            float(rate)
+        
+        except ValueError:
+            QMessageBox.critical(self, 'Error - Update', \
+                'Error rate format. Enter a valid decimal number')
+            return 
+
+
         info = self.info_lineedit.text() 
 
         try:
-            self.model.add(date, amount, info)
+            self.model.add(date, amount, rate, info)
             self.view.resizeColumnToContents(2) 
             self.updateOwing()
             self.clearFields() 

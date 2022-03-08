@@ -496,14 +496,16 @@ class PurchasePayment(Base):
 
     date = Column(Date)
     amount = Column(Numeric(10, 2, asdecimal=False), default=0.0)
+    rate = Column(Numeric(10, 2, asdecimal=False), default=0.0, nullable=False)
     note = Column(String(255))
     
     proforma = relationship('PurchaseProforma', backref=backref('payments'))
 
-    def __init__(self, date, amount, note, proforma):
+    def __init__(self, date, amount, rate, note, proforma):
         self.date = date 
         self.amount = amount
         self.note = note 
+        self.rate = rate 
         self.proforma = proforma
 
 
@@ -590,11 +592,14 @@ class SalePayment(Base):
 
     date = Column(Date)
     amount = Column(Numeric(10, 2, asdecimal=False), default=0.0, nullable=False)
+    rate = Column(Numeric(10, 2, asdecimal=False), default=0.0, nullable=False)
+    
     note = Column(String(255))
     
-    def __init__(self, date, amount, note, proforma):
+    def __init__(self, date, amount, rate, note, proforma):
         self.date = date 
         self.amount = amount
+        self.rate = rate 
         self.note = note 
         self.proforma = proforma
 
@@ -2092,7 +2097,19 @@ def create_test_data():
 
     session.commit() 
 
+
+def create_init_data():
+
+    spec = Spec('Mix')
+    condition = Condition('Mix')
+
+    session.add(spec)
+    session.add(condition)
+    
+    session.commit()
+
 if __name__ == '__main__':
 
-    Base.metadata.create_all(dev_engine) 
-    create_test_data()
+    Base.metadata.create_all(get_engine()) 
+
+    create_init_data() 

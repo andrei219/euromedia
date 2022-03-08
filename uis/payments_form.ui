@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>764</width>
+    <width>904</width>
     <height>579</height>
    </rect>
   </property>
@@ -31,7 +31,7 @@
     <rect>
      <x>30</x>
      <y>270</y>
-     <width>681</width>
+     <width>831</width>
      <height>251</height>
     </rect>
    </property>
@@ -39,7 +39,7 @@
   <widget class="QToolButton" name="delete_payment_tool_button">
    <property name="geometry">
     <rect>
-     <x>640</x>
+     <x>790</x>
      <y>530</y>
      <width>71</width>
      <height>31</height>
@@ -70,20 +70,20 @@
     <rect>
      <x>30</x>
      <y>160</y>
-     <width>678</width>
+     <width>831</width>
      <height>73</height>
     </rect>
    </property>
    <property name="title">
     <string>ADD PAYMENT:</string>
    </property>
-   <widget class="QWidget" name="layoutWidget">
+   <widget class="QWidget" name="">
     <property name="geometry">
      <rect>
-      <x>12</x>
-      <y>28</y>
-      <width>637</width>
-      <height>35</height>
+      <x>13</x>
+      <y>29</y>
+      <width>800</width>
+      <height>32</height>
      </rect>
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -129,6 +129,16 @@
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_8">
+       <property name="text">
+        <string>Rate:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="rate"/>
      </item>
      <item>
       <widget class="QLabel" name="label_7">
@@ -429,8 +439,8 @@
   <widget class="QPushButton" name="all">
    <property name="geometry">
     <rect>
-     <x>250</x>
-     <y>230</y>
+     <x>350</x>
+     <y>240</y>
      <width>75</width>
      <height>23</height>
     </rect>
@@ -449,15 +459,17 @@
  <tabstops>
   <tabstop>date_line_edit</tabstop>
   <tabstop>amount</tabstop>
+  <tabstop>rate</tabstop>
   <tabstop>info_lineedit</tabstop>
   <tabstop>add_payment_tool_button</tabstop>
-  <tabstop>total_linedit</tabstop>
   <tabstop>owing_lineedit</tabstop>
   <tabstop>partner_line_edit</tabstop>
   <tabstop>document_line_edit</tabstop>
   <tabstop>document_date_line_edit</tabstop>
   <tabstop>view</tabstop>
   <tabstop>delete_payment_tool_button</tabstop>
+  <tabstop>all</tabstop>
+  <tabstop>total_linedit</tabstop>
  </tabstops>
  <resources>
   <include location="../app/icons.qrc"/>

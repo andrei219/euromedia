@@ -2432,12 +2432,12 @@ class PurchaseProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 
 class PaymentModel(BaseTable, QtCore.QAbstractTableModel):
 
-	DATE, AMOUNT, NOTE = 0, 1, 2
+	DATE, AMOUNT, RATE, NOTE = 0, 1, 2, 3
 
 	def __init__(self, proforma, sale, form):
 		super().__init__()
 		self.proforma = proforma 
-		self._headerData = ['Date', 'Amount', 'Info']
+		self._headerData = ['Date', 'Amount', 'Rate', 'Info']
 		self.name = 'payments'
 		self.form = form
 		if sale:
@@ -2455,31 +2455,33 @@ class PaymentModel(BaseTable, QtCore.QAbstractTableModel):
 		column = index.column() 
 
 		if role == Qt.DisplayRole:
-			if column == self.__class__.DATE:
+			if column == self.DATE:
 				return payment.date.strftime('%d/%m/%Y')
-			elif column == self.__class__.AMOUNT:
+			elif column == self.AMOUNT:
 				return str(payment.amount) 
-			elif column == self.__class__.NOTE:
+			elif column == self.NOTE:
 				return payment.note
+
+			elif column == self.RATE:
+				return payment.rate
+
 		elif role == Qt.DecorationRole:
 			if column == self.__class__.DATE:
 				return QtGui.QIcon(':\calendar') 
-		else:
-			return            
 
 	def setData(self, index, value, role = Qt.EditRole):
 		if not index.isValid(): return False
 		row, column = index.row(), index.column()
 		payment = self.payments[row]
 		if role == Qt.EditRole:
-			if column == self.__class__.DATE:
+			if column == self.DATE:
 				try:
 					d = utils.parse_date(value)
 					payment.date = d
 					return True 
 				except ValueError:
 					return False
-			elif column == self.__class__.AMOUNT:
+			elif column == self.AMOUNT:
 				try:
 					v = float(value.replace(',', '.'))
 					payment.amount = v
@@ -2487,9 +2489,17 @@ class PaymentModel(BaseTable, QtCore.QAbstractTableModel):
 					return True 
 				except ValueError:
 					return False
-			elif column == self.__class__.NOTE:
+			elif column == self.NOTE:
 				payment.note = value[0:255]
 				return True 
+			elif column == self.RATE:
+				try:
+					v = float(value.replace(',', '.'))
+					payment.rate = v 
+					self.form.updateOwing() 
+					return True 
+				except ValueError:
+					return False 
 		return False
 
 	def flags(self, index):
@@ -2497,8 +2507,8 @@ class PaymentModel(BaseTable, QtCore.QAbstractTableModel):
 			return Qt.ItemIsEnabled
 		return Qt.ItemFlags(super().flags(index) | Qt.ItemIsEditable)	
 
-	def add(self, date, amount, note):
-		payment = self.Payment(date, amount, note, self.proforma)
+	def add(self, date, amount, rate, note):
+		payment = self.Payment(date, amount, rate, note, self.proforma)
 		db.session.add(payment)
 		try:
 			db.session.commit()

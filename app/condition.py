@@ -27,7 +27,7 @@ class Form(Ui_ConditionForm, QDialog):
             self.model.add(condition_name)
         except ValueError:
             QMessageBox.critical(self, 'Error - Update', \
-                'Warehouse already exists')
+                'Condition already exists')
             return
         else:
             self.input.clear() 
