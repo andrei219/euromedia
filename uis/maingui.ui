@@ -51,7 +51,7 @@
      <number>0</number>
     </property>
     <property name="currentIndex">
-     <number>2</number>
+     <number>4</number>
     </property>
     <property name="iconSize">
      <size>
@@ -4376,7 +4376,7 @@
        </rect>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <property name="iconSize">
        <size>
@@ -4739,7 +4739,7 @@
            <x>170</x>
            <y>10</y>
            <width>51</width>
-           <height>51</height>
+           <height>61</height>
           </rect>
          </property>
          <property name="text">
@@ -4748,6 +4748,35 @@
          <property name="icon">
           <iconset resource="../app/icons.qrc">
            <normaloff>:/delete</normaloff>:/delete</iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>40</width>
+           <height>40</height>
+          </size>
+         </property>
+         <property name="toolButtonStyle">
+          <enum>Qt::ToolButtonTextUnderIcon</enum>
+         </property>
+         <property name="autoRaise">
+          <bool>true</bool>
+         </property>
+        </widget>
+        <widget class="QToolButton" name="warehouse_receptions_import">
+         <property name="geometry">
+          <rect>
+           <x>250</x>
+           <y>10</y>
+           <width>51</width>
+           <height>61</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Import</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../app/icons.qrc">
+           <normaloff>:/excel</normaloff>:/excel</iconset>
          </property>
          <property name="iconSize">
           <size>
