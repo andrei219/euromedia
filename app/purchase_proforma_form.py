@@ -37,7 +37,7 @@ class Form(Ui_PurchaseProformaForm, QWidget):
         self.parent = parent 
         self.model = view.model() 
         self.view = view 
-        self.lines_model = models.PurchaseProformaLineModel() 
+        self.lines_model = models.PurchaseProformaLineModel([]) 
         self.lines_view.setModel(self.lines_model)
         self.title = 'Line - Error'
         self.lines_view.setSelectionBehavior(QTableView.SelectRows)
@@ -208,7 +208,7 @@ class Form(Ui_PurchaseProformaForm, QWidget):
         description = self.description_line_edit.text()
         condition = self.condition_line_edit.text()
         spec = self.spec_line_edit.text()
-
+        
 
         if not description:return 
 

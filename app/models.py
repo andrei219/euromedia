@@ -2246,7 +2246,7 @@ class PurchaseProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 		self._headerData = ['Description', 'Condition', 'Spec', 'Qty.(Editable)', \
 			'Price (Editable)', 'Subtotal', 'Tax (Editable)', 'Total']
 		self.name = 'lines'
-		self.lines = lines or [] 
+		self.lines = lines 
 
 	def data(self, index, role = Qt.DisplayRole):
 		if not index.isValid():
