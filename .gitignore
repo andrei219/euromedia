@@ -3,3 +3,4 @@ virtualenv
 venv 
 *.pdf
 *.xlsx
+app/__pycache__
