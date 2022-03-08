@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1309</width>
+    <width>1308</width>
     <height>878</height>
    </rect>
   </property>
@@ -489,10 +489,10 @@
      <string notr="true">font-weight:normal; </string>
     </property>
     <property name="currentText">
-     <string>21</string>
+     <string>0</string>
     </property>
     <property name="currentIndex">
-     <number>3</number>
+     <number>0</number>
     </property>
     <property name="minimumContentsLength">
      <number>1</number>
@@ -1456,6 +1456,22 @@
    </property>
    <property name="autoRaise">
     <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QLabel" name="quantity">
+   <property name="geometry">
+    <rect>
+     <x>760</x>
+     <y>720</y>
+     <width>221</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">font:bold; </string>
+   </property>
+   <property name="text">
+    <string/>
    </property>
   </widget>
  </widget>

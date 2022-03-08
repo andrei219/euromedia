@@ -37,7 +37,7 @@ class Form(Ui_PurchaseProformaForm, QWidget):
         self.parent = parent 
         self.model = view.model() 
         self.view = view 
-        self.lines_model = models.PurchaseProformaLineModel([]) 
+        self.lines_model = models.PurchaseProformaLineModel(lines=[], form=self) 
         self.lines_view.setModel(self.lines_model)
         self.title = 'Line - Error'
         self.lines_view.setSelectionBehavior(QTableView.SelectRows)
@@ -156,6 +156,7 @@ class Form(Ui_PurchaseProformaForm, QWidget):
         self.total_tax_line_edit.setText(str(self.lines_model.tax))
         self.subtotal_proforma_line_edit.setText(str(self.lines_model.subtotal))
         self.total_proforma_line_edit.setText(str(self.lines_model.total))
+        self.quantity.setText('Quantity:' + str(self.lines_model.quantity))
 
     def _dateFromString(self, date_str):
         return date(int(date_str[4:len(date_str)]), int(date_str[2:4]), int(date_str[0:2])) 
@@ -284,7 +285,10 @@ class EditableForm(Form):
 
         self.disable_things()
         
-        self.lines_model = models.PurchaseProformaLineModel(proforma.lines)
+        self.lines_model = models.PurchaseProformaLineModel(
+            lines = proforma.lines,
+            form = self
+        )
         
         self._updateTotals()
         self.lines_view.setModel(self.lines_model) 
@@ -330,6 +334,7 @@ class EditableForm(Form):
         self.they_pay_they_ship_shipping_radio_button.setChecked(p.they_pay_they_ship)
         self.we_pay_we_ship_shipping_radio_button.setChecked(p.we_pay_we_ship)
         self.we_pay_they_ship_shipping_radio_button.setChecked(p.we_pay_they_ship)
+        self.note.setText(p.note) 
 
     def saveHandler(self):
         if not super()._validHeader():

@@ -410,7 +410,7 @@ class Ui_SalesProformaForm(object):
         self.quantity.setObjectName("quantity")
 
         self.retranslateUi(SalesProformaForm)
-        self.tax.setCurrentIndex(3)
+        self.tax.setCurrentIndex(0)
         self.cancel.clicked.connect(SalesProformaForm.close)
         QtCore.QMetaObject.connectSlotsByName(SalesProformaForm)
         SalesProformaForm.setTabOrder(self.type, self.number)
@@ -518,7 +518,7 @@ class Ui_SalesProformaForm(object):
         self.label.setText(_translate("SalesProformaForm", "Credit N.:"))
         self.label_35.setText(_translate("SalesProformaForm", "Total "))
         self.create_line_frame.setTitle(_translate("SalesProformaForm", "Create Line"))
-        self.tax.setCurrentText(_translate("SalesProformaForm", "21"))
+        self.tax.setCurrentText(_translate("SalesProformaForm", "0"))
         self.tax.setItemText(0, _translate("SalesProformaForm", "0"))
         self.tax.setItemText(1, _translate("SalesProformaForm", "4"))
         self.tax.setItemText(2, _translate("SalesProformaForm", "10"))

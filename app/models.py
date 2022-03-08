@@ -2241,12 +2241,13 @@ class PurchaseProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 	DESCRIPTION, CONDITION, SPEC, QUANTITY, PRICE, SUBTOTAL, \
 		TAX, TOTAL = 0, 1, 2, 3, 4, 5, 6, 7
 
-	def __init__(self, lines=None):
+	def __init__(self, lines=None, form=None):
 		super().__init__()
 		self._headerData = ['Description', 'Condition', 'Spec', 'Qty.(Editable)', \
 			'Price (Editable)', 'Subtotal', 'Tax (Editable)', 'Total']
 		self.name = 'lines'
 		self.lines = lines 
+		self.form = form 
 
 	def data(self, index, role = Qt.DisplayRole):
 		if not index.isValid():
@@ -2291,10 +2292,12 @@ class PurchaseProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 			if column == self.__class__.PRICE:
 				try:
 					value = float(value)
-				except: return False
+				except: 
+					return False
 				else:
 					line.price = value 
-					return False 
+					self.form._updateTotals()
+					return True  
 			elif column == self.__class__.QUANTITY:
 				try:
 					value = int(value)
@@ -2305,6 +2308,7 @@ class PurchaseProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 						update_advanced_line_after_purchase_line_update(value, line.id)					
 
 					line.quantity = value 
+					self.form._updateTotals()
 					return True 
 			elif column == self.__class__.TAX:
 				try:
@@ -2314,6 +2318,7 @@ class PurchaseProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 				except:return False 
 				else:
 					line.tax = value
+					self.form._updateTotals()
 					return True 
 			else: 
 				return False 
@@ -2324,6 +2329,8 @@ class PurchaseProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 			self.__class__.QUANTITY, 
 			self.__class__.TAX
 		)
+
+
 
 	def flags(self, index):
 		if not index.isValid(): 
@@ -2348,6 +2355,10 @@ class PurchaseProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 	def total(self):
 		return self.tax + self.subtotal
 	
+	@property
+	def quantity(self):
+		return sum(line.quantity for line in self.lines)
+
 	def add(self, description, condition, spec, quantity, price, tax):
 		line = db.PurchaseProformaLine() 
 		try:
@@ -4534,10 +4545,24 @@ class BankAccountModel(BaseTable, QtCore.QAbstractTableModel):
 				account.currency = value 
 			return True 
 		return False 
-		
-
 
 	def flags(self, index):
 		if not index.isValid():
 			return Qt.ItemIsEnabled
 		return Qt.ItemFlags(super().flags(index) | Qt.ItemIsEditable)
+
+
+# class ChangeConditionModel(BaseTable, QAbstractTableModel):
+# 	def __init__(self):
+# 		pass
+
+# class ChangeSpecModel(BaseTable, QAbstractTableModel):
+# 	def __init__(self):
+# 		pass 
+
+# class ChangeWarehouseModel(BaseTable, QAbstractTableModel):
+	
+# 	def __init__(self):
+# 		pass 
+
+
