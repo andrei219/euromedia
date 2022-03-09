@@ -23,6 +23,11 @@ from sqlalchemy.sql import select, func
 import db 
 from bidict import bidict
 
+
+
+EXCEL_FILTER = 'Archivos excel (*.xlsx)'
+PDF_FILETR = "Pdf Files (*.pdf)"
+
 def mymap(db_class):
 	return {o.fiscal_name:o.id for o in db.session.query(db_class.fiscal_name, db_class.id).\
 		where(db_class.active == True)}
@@ -262,17 +267,11 @@ def writeBase64Pdf(abspath, base64pdf):
         fd.write(base64.b64decode(base64pdf))
 
 def askSaveFile(parent, filename):
-    defualt_path = None
-    filter = "Pdf Files (*.pdf)"
-    basepath = os.getenv('HOMEPATH')
-    if basepath:
-        defualt_path = os.path.join(basepath, filename)
-    return QFileDialog.getSaveFileName(parent, "Save File", defualt_path, filter=filter)
+    return QFileDialog.getSaveFileName(parent, "Save File", get_desktop(), filter=PDF_FILETR)
 
 def askFilePath(parent):
-    defualt_path = None
-    filter = "Pdf Files (*.pdf)"
-    return QFileDialog.getOpenFileName(parent, "Open File", defualt_path, filter=filter)
+    return QFileDialog.getOpenFileName(parent, "Open File", get_desktop(), filter=PDF_FILETR)
+
 
 
 from PyQt5.QtWidgets import QTableView
@@ -300,7 +299,6 @@ def getTracking(parent, proforma):
         parent, 
         'Tracking', f'Enter tracking number for {type_num}:'
     )
-
     return text, ok
 
 def getNote(parent, proforma):
@@ -309,16 +307,34 @@ def getNote(parent, proforma):
     return ok, text
 
 def get_directory(parent):
-    return QFileDialog.getExistingDirectory(parent, 'Get directory', 'Z:')
+    return QFileDialog.getExistingDirectory(parent, 'Get directory', get_desktop())
 
 def get_file_path(parent):
     file_path , _ = QFileDialog.getSaveFileName(
             parent, 
-            'Abrir  Archivo', 
-            '', 
-            'Archivos excel (*.xlsx)'
+            'Save File', 
+            get_desktop(), 
+            filter=EXCEL_FILTER
         )
     return file_path
+
+def get_open_file_path(parent):
+    filepath, _ = QFileDialog.getOpenFileName(
+        parent, 
+        'Open file', 
+        get_desktop(), 
+        filter=EXCEL_FILTER
+    )
+    return filepath
+    
+
+
+def get_desktop():
+    import os 
+    desktop = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop')
+    if not desktop:
+        desktop = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Escritorio')
+    return desktop or ''
 
 def parse_date(string):
     if len(string) != 8:

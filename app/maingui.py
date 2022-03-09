@@ -79,7 +79,9 @@ ACTIONS = [
     'create_product', 
     'view_pdf', 
     'advnorm', 
-    'ready'
+    'ready', 
+    'import', 
+    'template'
 ]
 
 
@@ -237,7 +239,6 @@ class MainGui(Ui_MainGui, QMainWindow):
             self.warehouse_receptions_view.resizeColumnToContents(7)
             self.warehouse_receptions_view.resizeColumnToContents(8)
             self.warehouse_receptions_view.resizeColumnToContents(4)
-            
             
 
 
@@ -1085,6 +1086,43 @@ class MainGui(Ui_MainGui, QMainWindow):
 
     def warehouse_expeditions_apply_handler(self):
         pass 
+
+    def warehouse_receptions_import_handler(self):
+        from utils import get_open_file_path
+        row = self.get_reception_selected_row()
+        if row is None:
+            return 
+        file_path = get_open_file_path(self)
+        if not file_path:
+            return
+        try:
+            self.warehouse_receptions_model.import_excel(file_path, row)
+        except ValueError as ex:
+            QMessageBox.information(self, 'Error', str(ex))
+        else:
+            QMessageBox.information(self, 'Success', 'Data imported successfully')
+    
+    def warehouse_receptions_template_handler(self):
+        from utils import get_file_path
+        row = self.get_reception_selected_row()
+        if row is None:
+            return 
+            
+        save_file_path = get_file_path(self)
+        if not save_file_path:
+            return
+        try:
+            self.warehouse_receptions_model.generate_template(save_file_path, row)
+        except ValueError as ex:
+            QMessageBox.information(self, 'Error', str(ex))
+        else:
+            QMessageBox.information(self, 'Success', 'Template built successfully') 
+
+    
+    def get_reception_selected_row(self):
+        rows = {index.row() for index in self.warehouse_receptions_view.selectedIndexes()}
+        if len(rows) == 1:
+            return rows.pop()
 
     def get_reception(self, view, model):
         rows = { index.row() for index in view.selectedIndexes()}

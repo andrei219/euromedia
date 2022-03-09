@@ -4679,7 +4679,7 @@
          <property name="geometry">
           <rect>
            <x>20</x>
-           <y>10</y>
+           <y>15</y>
            <width>61</width>
            <height>61</height>
           </rect>
@@ -4737,7 +4737,7 @@
          <property name="geometry">
           <rect>
            <x>170</x>
-           <y>10</y>
+           <y>15</y>
            <width>51</width>
            <height>61</height>
           </rect>
@@ -4762,13 +4762,42 @@
           <bool>true</bool>
          </property>
         </widget>
+        <widget class="QToolButton" name="warehouse_receptions_template">
+         <property name="geometry">
+          <rect>
+           <x>240</x>
+           <y>14</y>
+           <width>71</width>
+           <height>61</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Template</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../app/icons.qrc">
+           <normaloff>:/template</normaloff>:/template</iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>40</width>
+           <height>40</height>
+          </size>
+         </property>
+         <property name="toolButtonStyle">
+          <enum>Qt::ToolButtonTextUnderIcon</enum>
+         </property>
+         <property name="autoRaise">
+          <bool>true</bool>
+         </property>
+        </widget>
         <widget class="QToolButton" name="warehouse_receptions_import">
          <property name="geometry">
           <rect>
-           <x>250</x>
-           <y>10</y>
-           <width>51</width>
-           <height>61</height>
+           <x>320</x>
+           <y>6</y>
+           <width>71</width>
+           <height>71</height>
           </rect>
          </property>
          <property name="text">
@@ -4798,7 +4827,7 @@
           <x>220</x>
           <y>40</y>
           <width>1611</width>
-          <height>571</height>
+          <height>581</height>
          </rect>
         </property>
        </widget>

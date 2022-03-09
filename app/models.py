@@ -3046,7 +3046,6 @@ class ExpeditionModel(BaseTable, QtCore.QAbstractTableModel):
 				self.layoutChanged.emit()
 
 
-
 class ReceptionModel(BaseTable, QtCore.QAbstractTableModel):
 
 	ID, WAREHOUSE, TOTAL, PROCESSED, LOGISTIC, CANCELLED, PARTNER,\
@@ -3174,6 +3173,88 @@ class ReceptionModel(BaseTable, QtCore.QAbstractTableModel):
 				self.receptions = sorted(self.receptions, key=operator.attrgetter(attr), \
 					reverse = True if order == Qt.DescendingOrder else False)
 				self.layoutChanged.emit()
+
+	def generate_template(self, file_path, row):
+		reception = self.receptions[row] 
+		try:	
+			from openpyxl import Workbook
+			book = Workbook()
+			sheet = book.active
+
+			header  = ['Imei/SN', 'Line Nº', 'Description', 'Condition', 'Spec']
+
+			sheet.append([
+				'Reception Id = ' + str(reception.id), 
+				'Partner = ' + reception.proforma.partner.fiscal_name, 
+				'Agent = ' + reception.proforma.agent.fiscal_name, 
+				'Date = ' + str(reception.proforma.date)
+			])
+
+			sheet.append(header) 
+			
+			sheet.append([])
+
+			for row in self.generate_excel_rows(reception):
+				sheet.append(row)
+			
+			book.save(file_path) 
+		
+		except Exception as ex:
+			raise ValueError(str(ex))
+
+	def import_excel(self, file_path, row):
+		reception = self.receptions[row]
+		
+		# First check that template was not altered
+		from openpyxl import load_workbook
+		book = load_workbook(file_path)
+		sheet = book.active
+
+		if sheet['A1'].value != 'Reception Id = ' + str(reception.id):
+			raise ValueError("Reception doesn't match with Template")
+
+		excel_rows = list(sheet.iter_rows(min_row=4, min_col=0, max_col=6, values_only=True))
+
+		for excel_row, rec_row in zip(
+			excel_rows, 
+			list(self.generate_excel_rows(reception))
+		):	
+			if excel_row[1:] != rec_row[1:]:
+				raise ValueError("Reception doesn't match with Template")
+
+		from db import ReceptionSerie
+		for row in excel_rows:
+			# No me queda otra, pa no tocar todas las ocurrencias 
+			# de Reception serie. Debi haber dado flexibilidad a ese
+			# Constructor antes. Ahora tenemos prisa jajaja 
+			line = self.get_line_from_line_id(reception, row[-1])
+			rs = ReceptionSerie.from_excel(*row, line)
+			db.session.add(rs)
+
+		try:
+			db.session.commit()
+		except Exception as ex:
+			db.session.rollback()
+			# raise ValueError(str(ex))
+			raise 
+
+	def get_line_from_line_id(self, reception, line_id):
+		for line in reception.lines:
+			if line.id == line_id:
+				return line 
+
+	def generate_excel_rows(self, reception):
+		for line_no, line in enumerate(reception.lines, start=1):
+			if all((
+				line.item_id, 
+				line.condition != 'Mix', 
+				line.spec != 'Mix', 
+				utils.has_serie(line) 
+			)):
+				for i in range(line.quantity):
+					yield (None, line_no, line.item.clean_repr, \
+						line.condition, line.spec, line.id)
+
 
 
 import operator, functools

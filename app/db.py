@@ -150,10 +150,12 @@ class Item(Base):
         if self.mpn: repr += self.mpn + ' '
         repr += self.manufacturer + ' '
         repr += self.category + ' '
-        repr += self.model + ' '
+        repr += self.model
         
-        if self.capacity : repr += self.capacity + ' GB '
-        if self.color: repr += self.color +' '
+        if self.capacity: 
+            repr += ' ' + self.capacity 
+        if self.color: 
+            repr += ' ' + self.color
 
         return repr 
 
@@ -1001,6 +1003,11 @@ class ReceptionSerie(Base):
         self.condition = condition
         self.spec = spec
 
+    @classmethod
+    def from_excel(cls, serie, _1, description, condition, spec, _2 , line):
+        from utils import description_id_map
+        self = cls(description_id_map[description], line, serie, condition, spec)
+        return self 
 
 class ExpeditionSerie(Base):
     

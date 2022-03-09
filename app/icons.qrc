@@ -51,5 +51,6 @@
         <file alias="mix">.\\icons\\mix.png</file>
         <file alias="ready">.\\icons\\ready.png</file> 
         <file alias="excel">.\\icons\\excel.png</file> 
+        <file alias="template">.\\icons\\template.png</file> 
     </qresource>
 </RCC>
