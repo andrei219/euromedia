@@ -3211,7 +3211,7 @@ class ReceptionModel(BaseTable, QtCore.QAbstractTableModel):
 		sheet = book.active
 
 		if sheet['A1'].value != 'Reception Id = ' + str(reception.id):
-			raise ValueError("Reception doesn't match with Template")
+			raise ValueError("Reception doesn't match with Template") 
 
 		excel_rows = list(sheet.iter_rows(min_row=4, min_col=0, max_col=6, values_only=True))
 
@@ -4106,12 +4106,64 @@ class ConditionListModel(QtCore.QAbstractListModel):
 			db.session.rollback()
 			raise 
 	
+
+class CourierListModel(QtCore.QAbstractListModel):
+
+	def __init__(self):
+		super().__init__() 
+		self.couriers = db.session.query(db.Courier).all()
+
+	def rowCount(self, index=QModelIndex()):
+		return len(self.couriers)
+
+	def data(self, index, role=QModelIndex()):
+		if not index.isValid(): return 
+		if role == Qt.DisplayRole:
+			return self.couriers[index.row()].description
+	
+	def delete(self, row):
+		try:
+			courier = self.couriers[row]
+		except IndexError:
+			return
+		else:
+			db.session.delete(courier)
+			try:
+				db.session.commit()
+				del self.couriers[row]
+				self.layoutChanged.emit()
+			except:
+				db.session.rollback()
+				raise 
+
+	def add(self, name):
+
+		if name in self:
+			raise ValueError
+
+		courier = db.Courier(name)
+		db.session.add(courier)
+		try:
+			db.session.commit()
+			self.couriers.append(courier)
+			self.layoutChanged.emit() 
+		except:
+			db.session.rollback()
+			raise 
+
+	def __contains__(self, name):
+		for e in self.couriers:
+			if name == e.description:
+				return True
+		return False 
+
+
 class SpecListModel(QtCore.QAbstractListModel):
 
 	def __init__(self):
 		super().__init__()
 		self.specs = [s for s in db.session.query(db.Spec)]
-	
+
 	def rowCount(self, index=QModelIndex()):
 		return len(self.specs)
 	
@@ -4633,17 +4685,94 @@ class BankAccountModel(BaseTable, QtCore.QAbstractTableModel):
 		return Qt.ItemFlags(super().flags(index) | Qt.ItemIsEditable)
 
 
-# class ChangeConditionModel(BaseTable, QAbstractTableModel):
-# 	def __init__(self):
-# 		pass
+from db import Spec, Condition, Warehouse
 
-# class ChangeSpecModel(BaseTable, QAbstractTableModel):
-# 	def __init__(self):
-# 		pass 
 
-# class ChangeWarehouseModel(BaseTable, QAbstractTableModel):
-	
-# 	def __init__(self):
-# 		pass 
+class ChangeModel(BaseTable, QtCore.QAbstractTableModel):
+
+	SN, DESCRIPTION, HINT = 0, 1, 2
+
+	def __init__(self, hint=None):
+		super().__init__()
+		self.hint = hint 
+		self._headerData = ['IMEI/SN', 'Description', hint.capitalize()]
+		# self.sns = db.session.query(db.Imei).all() 
+		from importlib import reload
+		global utils
+		utils = reload(utils)
+		self.sns = []
+
+		self.name = 'sns'
+		self.hint = hint
+		
+		self.set_things()
+
+
+	def set_things(self):
+		from operator import attrgetter
+		if self.hint == 'warehouse':
+			self.attrname = 'warehouse.description'
+			self.orm_class = Warehouse
+		elif self.hint == 'spec':
+			self.attrname = 'spec'
+			self.orm_class = Spec
+		elif self.hint == 'condition':
+			self.attrname = 'condition'
+			self.orm_class = Condition 
+
+
+	def data(self, index, role=Qt.DisplayRole):
+		if not index.isValid():
+			return
+		row, column = index.row(), index.column()
+		if role == Qt.DisplayRole:
+			imei_object = self.sns[row]
+			if column == self.SN:
+				return imei_object.imei
+			elif column == self.DESCRIPTION:
+				return imei_object.item.clean_repr
+			elif column == self.HINT:
+				if self.hint == 'warehouse':
+					return imei_object.warehouse.description
+				return getattr(imei_object, self.attrname)
+
+
+	def search(self, sn):
+		if sn in self:
+			return 
+		
+		imei_objects = db.session.query(db.Imei).where(db.Imei.imei == sn).all()
+		self.sns.extend(imei_objects) 
+		self.layoutChanged.emit() 
+		
+	def apply(self, name):
+		if self.hint == 'warehouse':
+			print('wars')
+			for imei_object in self.sns:
+				try:
+					imei_object.warehouse_id = utils.warehouse_id_map.get(name)
+				except:
+					raise 
+		else:
+			print('else')
+			for imei_object in self.sns:
+				setattr(imei_object, self.attrname, name) 
+
+		try:
+			db.session.commit()
+			print('aaaa')
+			self.layoutChanged.emit() 
+		except:
+			raise 
+
+
+	def __contains__(self, sn):
+		sn = sn.lower() 
+		for e in self.sns:
+			if e.imei.lower() == sn:
+				return True 
+		else:
+			return False 
+
 
 

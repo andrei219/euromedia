@@ -51,7 +51,7 @@
      <number>0</number>
     </property>
     <property name="currentIndex">
-     <number>4</number>
+     <number>6</number>
     </property>
     <property name="iconSize">
      <size>
@@ -6272,8 +6272,8 @@
      <widget class="QPushButton" name="tools_check_inventory">
       <property name="geometry">
        <rect>
-        <x>590</x>
-        <y>300</y>
+        <x>850</x>
+        <y>470</y>
         <width>141</width>
         <height>61</height>
        </rect>
@@ -6337,7 +6337,7 @@
       <property name="geometry">
        <rect>
         <x>590</x>
-        <y>380</y>
+        <y>290</y>
         <width>141</width>
         <height>61</height>
        </rect>
@@ -6353,7 +6353,7 @@
       <property name="geometry">
        <rect>
         <x>590</x>
-        <y>470</y>
+        <y>560</y>
         <width>141</width>
         <height>61</height>
        </rect>
@@ -6368,7 +6368,7 @@
      <widget class="QPushButton" name="tools_create_condition">
       <property name="geometry">
        <rect>
-        <x>850</x>
+        <x>590</x>
         <y>470</y>
         <width>141</width>
         <height>61</height>
@@ -6379,6 +6379,22 @@
       </property>
       <property name="text">
        <string>Create Condition</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="tools_create_courier">
+      <property name="geometry">
+       <rect>
+        <x>590</x>
+        <y>380</y>
+        <width>141</width>
+        <height>61</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background:lightgray; </string>
+      </property>
+      <property name="text">
+       <string>Create Courier</string>
       </property>
      </widget>
     </widget>

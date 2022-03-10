@@ -81,7 +81,8 @@ ACTIONS = [
     'advnorm', 
     'ready', 
     'import', 
-    'template'
+    'template', 
+    'create_courier'
 ]
 
 
@@ -1171,6 +1172,13 @@ class MainGui(Ui_MainGui, QMainWindow):
             return model.expeditions[rows.pop()]
 
     # TOOLS HANDLERS:
+
+
+    def tools_create_courier_handler(self):
+        import courier
+        d = courier.CourierForm(self)
+        d.exec_() 
+
     def tools_create_product_handler(self):
         d = product_form.ProductForm(self)  
         d.exec_() 
@@ -1183,23 +1191,36 @@ class MainGui(Ui_MainGui, QMainWindow):
         if models.stock_gap():
             QMessageBox.information(self, 'Information', 'Process all sales first.')
             return 
-        d = spec_change_form.SpecChange(self)
+        # d = spec_change_form.SpecChange(self)
+        # d.exec_() 
+
+        from change_form import ChangeForm 
+        d = ChangeForm(parent=self, hint='spec')
         d.exec_() 
 
     def tools_change_condition_handler(self):
         if models.stock_gap():
             QMessageBox.information(self, 'Information', 'Process all sales first.')
             return 
-        d = condition_change_form.ConditionChange(self)
+        # d = condition_change_form.ConditionChange(self)
+        # d.exec_() 
+
+        from change_form import ChangeForm 
+        d = ChangeForm(parent=self, hint='condition')
         d.exec_() 
-    
+
 
     def tools_change_warehouse_handler(self):
         if models.stock_gap():
             QMessageBox.information(self, 'Information', 'Process all sales first.')
             return 
-        d = warehouse_change_form.WarehouseChange(self)
+        # d = warehouse_change_form.WarehouseChange(self)
+        # d.exec_() 
+
+        from change_form import ChangeForm 
+        d = ChangeForm(parent=self, hint='warehouse')
         d.exec_() 
+
 
     def tools_create_warehouse_handler(self):
         from warehouse import Form
