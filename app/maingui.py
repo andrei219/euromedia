@@ -82,7 +82,8 @@ ACTIONS = [
     'ready', 
     'import', 
     'template', 
-    'create_courier'
+    'create_courier', 
+    'selection_changed'
 ]
 
 
@@ -108,19 +109,19 @@ class MainGui(Ui_MainGui, QMainWindow):
         self.opened_windows_instances = set() 
         # Prevent creating multiple
         self.opened_windows_classes = set() 
-        
+
+        self.init_models() 
+
         self.set_handlers()
         
-        self.init_models() 
+
         self.main_tab.currentChanged.connect(self.tab_changed)
 
+        # self.proformas_purchases_view.selectionModel().\
+        #     selectionChanged.connect(self.proformas_purchases_selection_changed)
 
-        self.proformas_purchases_view.selectionModel().\
-            selectionChanged.connect(self.proformas_purchases_selection_changed)
-
-        self.proformas_sales_view.selectionModel().\
-            selectionChanged.connect(self.proformas_sales_selection_changed)
-
+        # self.proformas_sales_view.selectionModel().\
+        #     selectionChanged.connect(self.proformas_sales_selection_changed)
 
         # self.invoices_sales_view.selectionModel().\
         #     selectionChanged.connect(self.invoices_sales_selection_changed)
@@ -180,6 +181,13 @@ class MainGui(Ui_MainGui, QMainWindow):
             self.proformas_purchases_view.setModel(
                 self.proformas_purchases_model
             )
+
+            # Inmediately after setting model you need to put this code
+            self.proformas_purchases_view.selectionModel().\
+                selectionChanged.connect(self.proformas_purchases_selection_changed)
+
+
+
             self.proformas_purchases_view.setSelectionBehavior(QTableView.SelectRows)
             self.proformas_purchases_view.setSortingEnabled(True)
             self.proformas_purchases_view.setAlternatingRowColors(True)
@@ -192,6 +200,11 @@ class MainGui(Ui_MainGui, QMainWindow):
             self.invoices_purchases_model = \
                 models.PurchaseInvoiceModel(filters=filters, search_key=search_key)
             self.invoices_purchases_view.setModel(self.invoices_purchases_model)
+            
+             
+            self.invoices_purchases_view.selectionModel().\
+                selectionChanged.connect(self.invoices_purchases_selection_changed)
+            
             self.invoices_purchases_view.setSelectionBehavior(QTableView.SelectRows)
             self.invoices_purchases_view.setSortingEnabled(True)
             self.invoices_purchases_view.setAlternatingRowColors(True)
@@ -200,6 +213,10 @@ class MainGui(Ui_MainGui, QMainWindow):
             self.invoices_sales_model = \
                 models.SaleInvoiceModel(filters=filters, search_key=search_key)
             self.invoices_sales_view.setModel(self.invoices_sales_model)
+            
+            self.invoices_sales_view.selectionModel().\
+                selectionChanged.connect(self.invoices_sales_selection_changed)
+        
             self.invoices_sales_view.setSelectionBehavior(QTableView.SelectRows)
             self.invoices_sales_view.setSortingEnabled(True)
             self.invoices_sales_view.setAlternatingRowColors(True)
@@ -217,6 +234,11 @@ class MainGui(Ui_MainGui, QMainWindow):
             self.proformas_sales_view.setModel(
                 self.proformas_sales_model
             )
+
+            self.proformas_sales_view.selectionModel().\
+                selectionChanged.connect(self.proformas_sales_selection_changed)
+
+
             self.proformas_sales_view.setSelectionBehavior(QTableView.SelectRows)
             self.proformas_sales_view.setAlternatingRowColors(True)
             self.proformas_sales_view.setSortingEnabled(True) 
@@ -261,6 +283,8 @@ class MainGui(Ui_MainGui, QMainWindow):
         for prefix, action in product(PREFIXES, ACTIONS):
             try:
                 widget_name = prefix + action
+
+    
                 self.attach_handler(prefix, action)
             except AttributeError:
                 continue  
@@ -493,6 +517,7 @@ class MainGui(Ui_MainGui, QMainWindow):
 
     def proformas_purchases_selection_changed(self, selection_model):
         self.selection_changed_generic(self.proformas_purchases_view)
+
 
     def proformas_purchases_double_click_handler(self, index):
         self.proformas_purchases_launch_form(index)

@@ -1474,6 +1474,22 @@
     <string/>
    </property>
   </widget>
+  <widget class="QLabel" name="selected_quantity">
+   <property name="geometry">
+    <rect>
+     <x>320</x>
+     <y>720</y>
+     <width>221</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">font:bold; </string>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
  </widget>
  <tabstops>
   <tabstop>description_line_edit</tabstop>

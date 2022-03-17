@@ -39,6 +39,10 @@ class Form(Ui_PurchaseProformaForm, QWidget):
         self.view = view 
         self.lines_model = models.PurchaseProformaLineModel(lines=[], form=self) 
         self.lines_view.setModel(self.lines_model)
+
+        self.lines_view.selectionModel().\
+            selectionChanged.connect(self.line_selection_changed)
+
         self.title = 'Line - Error'
         self.lines_view.setSelectionBehavior(QTableView.SelectRows)
         self.setUp() 
@@ -156,7 +160,7 @@ class Form(Ui_PurchaseProformaForm, QWidget):
         self.total_tax_line_edit.setText(str(self.lines_model.tax))
         self.subtotal_proforma_line_edit.setText(str(self.lines_model.subtotal))
         self.total_proforma_line_edit.setText(str(self.lines_model.total))
-        self.quantity.setText('Quantity:' + str(self.lines_model.quantity))
+        self.quantity.setText('Quantity: ' + str(self.lines_model.quantity))
 
     def _dateFromString(self, date_str):
         return date(int(date_str[4:len(date_str)]), int(date_str[2:4]), int(date_str[0:2])) 
@@ -260,6 +264,11 @@ class Form(Ui_PurchaseProformaForm, QWidget):
         self.view.resizeColumnToContents(3)
         self.view.resizeColumnToContents(4) 
 
+    def line_selection_changed(self):
+        rows = {index.row() for index in self.lines_view.selectedIndexes()}            
+        selected_quantity = sum(self.lines_model.lines[row].quantity for row in rows)
+
+        self.selected_quantity.setText('Selected Qnt.: ' + str(selected_quantity))
 
     def closeEvent(self, event):
         db.session.rollback() 
@@ -289,9 +298,13 @@ class EditableForm(Form):
             lines = proforma.lines,
             form = self
         )
-        
         self._updateTotals()
         self.lines_view.setModel(self.lines_model) 
+
+        self.lines_view.selectionModel().\
+            selectionChanged.connect(self.line_selection_changed)
+
+
         self.lines_view.resizeColumnToContents(0)
 
         self.setUp()
@@ -319,7 +332,8 @@ class EditableForm(Form):
         self.number_line_edit.setText(str(p.number))
         
         date = p.invoice.date if self.is_invoice else p.date        
-        self.eta_line_edit.setText(date.strftime('%d%m%Y'))
+        self.date_line_edit.setText(date.strftime('%d%m%Y'))
+        self.eta_line_edit.setText(p.eta.strftime('%d%m%Y'))
         self.partner_line_edit.setText(p.partner.fiscal_name)
         self.agent_combobox.setCurrentText(p.agent.fiscal_name)
         self.warehouse_combobox.setCurrentText(p.warehouse.description)

@@ -438,6 +438,11 @@ class Ui_PurchaseProformaForm(object):
         self.quantity.setStyleSheet("font:bold; ")
         self.quantity.setText("")
         self.quantity.setObjectName("quantity")
+        self.selected_quantity = QtWidgets.QLabel(PurchaseProformaForm)
+        self.selected_quantity.setGeometry(QtCore.QRect(320, 720, 221, 20))
+        self.selected_quantity.setStyleSheet("font:bold; ")
+        self.selected_quantity.setText("")
+        self.selected_quantity.setObjectName("selected_quantity")
 
         self.retranslateUi(PurchaseProformaForm)
         self.tax_combobox.setCurrentIndex(0)
