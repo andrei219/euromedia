@@ -232,11 +232,18 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.deselect.clicked.connect(lambda : self.lines_view.clearSelection())
         self.warehouse.currentTextChanged.connect(self.warehouse_changed)
         
+        self.prop.returnPressed.connect(self.prop_return_pressed)
+
         self.description.editingFinished.connect(self.description_editing_finished)
         self.condition.editingFinished.connect(self.condition_editing_finished)
         self.spec.editingFinished.connect(self.spec_editing_finished)
 
-    
+
+    def prop_return_pressed(self):
+        
+        rows = {index.row() for index in self.stock_view.selectedIndexes()}
+        print(rows)
+
     def warehouse_changed(self, text):
         if hasattr(self, 'stock_model'):
             self.stock_model.reset()

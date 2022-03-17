@@ -3237,10 +3237,30 @@ class ReceptionModel(BaseTable, QtCore.QAbstractTableModel):
 			# raise ValueError(str(ex))
 			raise 
 
+	def export(self, file_path, row):
+		reception = self.receptions[row]
+
+		try:
+			from openpyxl import Workbook
+			book = Workbook()
+			sheet = book.active
+
+			for row in self.generate_export_rows(reception):
+				sheet.append(row)
+			
+			book.save(file_path)
+		except Exception as ex:
+			raise ValueError(str(ex))
+
 	def get_line_from_line_id(self, reception, line_id):
 		for line in reception.lines:
 			if line.id == line_id:
 				return line 
+
+	def generate_export_rows(self, reception):
+		for line in reception.lines:
+			for serie in line.series:
+				yield (serie.serie, serie.item.clean_repr)
 
 	def generate_excel_rows(self, reception):
 		for line_no, line in enumerate(reception.lines, start=1):

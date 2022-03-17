@@ -51,7 +51,7 @@
      <number>0</number>
     </property>
     <property name="currentIndex">
-     <number>2</number>
+     <number>4</number>
     </property>
     <property name="iconSize">
      <size>
@@ -4679,7 +4679,7 @@
          <property name="geometry">
           <rect>
            <x>20</x>
-           <y>15</y>
+           <y>17</y>
            <width>61</width>
            <height>61</height>
           </rect>
@@ -4704,69 +4704,11 @@
           <bool>true</bool>
          </property>
         </widget>
-        <widget class="QToolButton" name="warehouse_receptions_print">
-         <property name="geometry">
-          <rect>
-           <x>100</x>
-           <y>10</y>
-           <width>51</width>
-           <height>61</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Print</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../app/icons.qrc">
-           <normaloff>:/print</normaloff>:/print</iconset>
-         </property>
-         <property name="iconSize">
-          <size>
-           <width>40</width>
-           <height>40</height>
-          </size>
-         </property>
-         <property name="toolButtonStyle">
-          <enum>Qt::ToolButtonTextUnderIcon</enum>
-         </property>
-         <property name="autoRaise">
-          <bool>true</bool>
-         </property>
-        </widget>
-        <widget class="QToolButton" name="warehouse_receptions_delete">
-         <property name="geometry">
-          <rect>
-           <x>170</x>
-           <y>15</y>
-           <width>51</width>
-           <height>61</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Delete</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../app/icons.qrc">
-           <normaloff>:/delete</normaloff>:/delete</iconset>
-         </property>
-         <property name="iconSize">
-          <size>
-           <width>40</width>
-           <height>40</height>
-          </size>
-         </property>
-         <property name="toolButtonStyle">
-          <enum>Qt::ToolButtonTextUnderIcon</enum>
-         </property>
-         <property name="autoRaise">
-          <bool>true</bool>
-         </property>
-        </widget>
         <widget class="QToolButton" name="warehouse_receptions_template">
          <property name="geometry">
           <rect>
-           <x>240</x>
-           <y>14</y>
+           <x>100</x>
+           <y>16</y>
            <width>71</width>
            <height>61</height>
           </rect>
@@ -4794,14 +4736,43 @@
         <widget class="QToolButton" name="warehouse_receptions_import">
          <property name="geometry">
           <rect>
-           <x>320</x>
-           <y>6</y>
+           <x>180</x>
+           <y>8</y>
            <width>71</width>
            <height>71</height>
           </rect>
          </property>
          <property name="text">
           <string>Import</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../app/icons.qrc">
+           <normaloff>:/excel</normaloff>:/excel</iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>40</width>
+           <height>40</height>
+          </size>
+         </property>
+         <property name="toolButtonStyle">
+          <enum>Qt::ToolButtonTextUnderIcon</enum>
+         </property>
+         <property name="autoRaise">
+          <bool>true</bool>
+         </property>
+        </widget>
+        <widget class="QToolButton" name="warehouse_receptions_export">
+         <property name="geometry">
+          <rect>
+           <x>250</x>
+           <y>7</y>
+           <width>71</width>
+           <height>71</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Export</string>
          </property>
          <property name="icon">
           <iconset resource="../app/icons.qrc">
@@ -6404,7 +6375,6 @@
  </widget>
  <resources>
   <include location="../app/icons.qrc"/>
-  <include location="../../../../.designer/app/icons.qrc"/>
  </resources>
  <connections/>
 </ui>

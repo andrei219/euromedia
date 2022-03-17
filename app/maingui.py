@@ -1083,6 +1083,8 @@ class MainGui(Ui_MainGui, QMainWindow):
             return model.invoices[rows.pop()]
 
     # WAREHOUSE RECEPTION HANDLERS:
+
+
     def warehouse_receptions_process_handler(self):
         reception = self.get_reception(
             self.warehouse_receptions_view,
@@ -1104,14 +1106,6 @@ class MainGui(Ui_MainGui, QMainWindow):
     def warehouse_receptions_double_click_handler(self, index):
         self.warehouse_receptions_process_handler()
 
-    def warehouse_receptions_delete_handler(self):
-        print('delete')
-
-    def warehouse_receptions_print_handler(self):
-        print('print')
-
-    def warehouse_expeditions_apply_handler(self):
-        pass 
 
     def warehouse_receptions_import_handler(self):
         from utils import get_open_file_path
@@ -1143,6 +1137,23 @@ class MainGui(Ui_MainGui, QMainWindow):
             QMessageBox.information(self, 'Error', str(ex))
         else:
             QMessageBox.information(self, 'Success', 'Template built successfully') 
+
+    def warehouse_receptions_export_handler(self):
+        from utils import get_file_path
+        row = self.get_reception_selected_row()
+        if row is None:
+            return
+        
+        save_file_path = get_file_path(self)
+        if not save_file_path:
+            return
+        
+        try:
+            self.warehouse_receptions_model.export(save_file_path, row)
+        except ValueError as ex:
+            QMessageBox.information(self, 'Error', str(ex))
+        else:
+            QMessageBox.information(self, 'Success', 'Data exported successfully')
 
     
     def get_reception_selected_row(self):

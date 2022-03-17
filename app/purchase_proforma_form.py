@@ -326,7 +326,7 @@ class EditableForm(Form):
         self.save_button.clicked.connect(self.saveHandler)
 
     def proforma_to_form(self):
-        p = self.proforma
+        p = self.proforma   
         self.type_combo_box.setCurrentText(str(p.type))
         self.number_line_edit.setText(str(p.number))
         
