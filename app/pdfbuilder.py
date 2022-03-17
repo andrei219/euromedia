@@ -6,7 +6,10 @@ from copy import deepcopy
 from itertools import chain, product, cycle
 
 # CONSTANTS: 
-LOGO_RELATIVE_PATH = r'.\app\icons\logo_EIG.png'
+# LOGO_RELATIVE_PATH = r'.\app\icons\logo_EIG.png'
+
+LOGO_RELATIVE_PATH = r'.\app\icons\docus_logo.png'
+
 
 BUYER_BASE = (21.99, 38.1)
 SUPPLIER_BASE = (21.99, 78.08)
@@ -280,7 +283,7 @@ class PDF(FPDF):
 
     def header(self, print_lines_header=True):
         self.set_xy(18.75, 13.53)
-        self.image(LOGO_RELATIVE_PATH)
+        self.image(LOGO_RELATIVE_PATH, w=70, h = 18.2)
         self.set_font('Arial', 'B', 18)
         self.set_xy(127.5, 13.35)
         self.cell(68, 17, self.doc_header , 1, 0, 'C')

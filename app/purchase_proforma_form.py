@@ -224,7 +224,6 @@ class Form(Ui_PurchaseProformaForm, QWidget):
                 return 
         try:
 
-            print('reached, description:', description)
             self.lines_model.add(self.description_line_edit.text(), \
                 self.condition_line_edit.text(), self.spec_line_edit.text(), self.quantity_spinbox.value(),\
                     self.price_spinbox.value(), int(self.tax_combobox.currentText()))

@@ -88,7 +88,6 @@ class Form(QDialog, Ui_Form):
         line = self.reception.lines[self.current_index]
         if line.description is not None:
             data = utils.mixed_to_clean_descriptions(line.description)
-            print(data)
             setCompleter(self.actual_item, data)
 
 
@@ -126,10 +125,7 @@ class Form(QDialog, Ui_Form):
         self.reception_total.setText(str(self._total()))
         self.processed.setReadOnly(True)
     
-
     def block_unblock_widgets(self, has_serie:bool):
-        
-        # self.processed.setReadOnly(has_serie)
         
         for name in [
             'sn', 'snlist', 'delete_button', 
@@ -149,7 +145,6 @@ class Form(QDialog, Ui_Form):
         try:
             self.snlist.model().clear() 
         except AttributeError as ex:
-           # First time model is not set
            pass 
 
 
@@ -392,10 +387,12 @@ class Form(QDialog, Ui_Form):
 
             else:
                 self.snlist.selectionModel().clearSelection()
-        except AttributeError: raise  
-        except TypeError: raise    
-        # If search does not work we dont care
+        except AttributeError: 
+            raise  
+        except TypeError: 
+            raise    
 
+        # If search does not work we dont care
 
     def closeEvent(self, event):
         import db 
