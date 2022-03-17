@@ -1,8 +1,8 @@
-"""price_precision
+"""blob_to_large_binary
 
-Revision ID: 34f86e76e48b
-Revises: e4fb60cedf54
-Create Date: 2022-03-17 09:59:40.802126
+Revision ID: d11b42ff17bb
+Revises: 
+Create Date: 2022-03-17 10:43:56.331074
 
 """
 from alembic import op
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
-revision = '34f86e76e48b'
-down_revision = 'e4fb60cedf54'
+revision = 'd11b42ff17bb'
+down_revision = None
 branch_labels = None
 depends_on = None
 

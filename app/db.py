@@ -194,10 +194,10 @@ class Agent(Base):
 
     # Optional, check when populating form:
 
-    fixed_salary = Column(Float(precision=8), default=1.0, nullable=False)
-    from_profit = Column(Float(precision=8), default=1.0, nullable=False)
-    from_turnover = Column(Float(precision=8), default=1.0, nullable=False)
-    fixed_perpiece = Column(Float(precision=8), default=1.0, nullable=False)
+    fixed_salary = Column(Float(precision=32, decimal_return_scale=None), default=1.0, nullable=False)
+    from_profit = Column(Float(precision=32, decimal_return_scale=None), default=1.0, nullable=False)
+    from_turnover = Column(Float(precision=32, decimal_return_scale=None), default=1.0, nullable=False)
+    fixed_perpiece = Column(Float(precision=32, decimal_return_scale=None), default=1.0, nullable=False)
     bank_name = Column(String(50))
     iban = Column(String(50))
     swift = Column(String(50))
@@ -236,7 +236,7 @@ class Partner(Base):
     trading_name = Column(String(50), nullable=False, unique=True)
     warranty = Column(Integer, default=0)
     note = Column(String(255))
-    amount_credit_limit = Column(Float(precision=8), default=0.0)
+    amount_credit_limit = Column(Float(precision=32, decimal_return_scale=None), default=0.0)
     days_credit_limit = Column(Integer, default=0)
     
     created_on = Column(DateTime, default=datetime.now)
@@ -395,7 +395,7 @@ class PurchaseProforma(Base):
     tracking = Column(String(50))
     external = Column(String(50))
 
-    credit_amount = Column(Float(precision=8), default=0.0)
+    credit_amount = Column(Float(precision=32, decimal_return_scale=None), default=0.0)
     credit_days = Column(Integer, default=0, nullable=False) 
 
     incoterm = Column(String(3), nullable=False)
@@ -417,7 +417,7 @@ class PurchaseProformaLine(Base):
     spec = Column(String(50), nullable=True)
 
     quantity = Column(Integer, default=1, nullable=False)
-    price = Column(Float(precision=8), default=1.0, nullable=False)
+    price = Column(Float(precision=32, decimal_return_scale=None), default=1.0, nullable=False)
     tax = Column(Integer, nullable=False, default=0)
 
     item = relationship('Item', uselist=False)
@@ -497,8 +497,8 @@ class PurchasePayment(Base):
     proforma_id = Column(Integer, ForeignKey('purchase_proformas.id'), index=True)
 
     date = Column(Date)
-    amount = Column(Float(precision=8), default=0.0)
-    rate = Column(Float(precision=8), default=0.0, nullable=False)
+    amount = Column(Float(precision=32, decimal_return_scale=None), default=0.0)
+    rate = Column(Float(precision=32, decimal_return_scale=None), default=0.0, nullable=False)
     note = Column(String(255))
     
     proforma = relationship('PurchaseProforma', backref=backref('payments'))
@@ -519,7 +519,7 @@ class PurchaseExpense(Base):
     proforma_id = Column(Integer, ForeignKey('purchase_proformas.id'))
 
     date = Column(Date)
-    amount = Column(Float(precision=8), default=0.0)
+    amount = Column(Float(precision=32, decimal_return_scale=None), default=0.0)
     note = Column(String(255))
 
     proforma = relationship('PurchaseProforma', backref=backref('expenses'))
@@ -560,7 +560,7 @@ class SaleProforma(Base):
     agent_id = Column(Integer, ForeignKey('agents.id'))
     sale_invoice_id = Column(Integer, ForeignKey('sale_invoices.id'))
 
-    credit_amount = Column(Float(precision=8), default=0.0)
+    credit_amount = Column(Float(precision=32, decimal_return_scale=None), default=0.0)
     credit_days = Column(Integer, default=0)
     tracking = Column(String(50))
     external = Column(String(50))
@@ -593,8 +593,8 @@ class SalePayment(Base):
     proforma_id = Column(Integer, ForeignKey('sale_proformas.id'))
 
     date = Column(Date)
-    amount = Column(Float(precision=8), default=0.0, nullable=False)
-    rate = Column(Float(precision=8), default=0.0, nullable=False)
+    amount = Column(Float(precision=32, decimal_return_scale=None), default=0.0, nullable=False)
+    rate = Column(Float(precision=32, decimal_return_scale=None), default=0.0, nullable=False)
     
     note = Column(String(255))
     
@@ -614,7 +614,7 @@ class SaleExpense(Base):
     proforma_id = Column(Integer, ForeignKey('sale_proformas.id'))
 
     date = Column(Date)
-    amount = Column(Float(precision=8), default=0.0, nullable=False)
+    amount = Column(Float(precision=32, decimal_return_scale=None), default=0.0, nullable=False)
     note = Column(String(255))
 
     def __init__(self, date, amount, note, proforma):
@@ -684,7 +684,7 @@ class SaleProformaLine(Base):
     spec = Column(String(50))
     ignore_spec = Column(Boolean, default=False) 
     quantity = Column(Integer, default=1, nullable=False)
-    price = Column(Float(precision=8), default=0.0, nullable=False)
+    price = Column(Float(precision=32, decimal_return_scale=None), default=0.0, nullable=False)
     tax = Column(Integer, default=0, nullable=False)
     
     item = relationship('Item')
@@ -792,7 +792,7 @@ class AdvancedLine(Base):
     condition = Column(String(50))
     spec = Column(String(50))
     quantity = Column(Integer, nullable=False, default=1) 
-    price = Column(Float(precision=8), default=0.0) 
+    price = Column(Float(precision=32, decimal_return_scale=None), default=0.0) 
     tax = Column(Integer, nullable=False, default=0) 
     ignore_spec = Column(Boolean, default=True, nullable=False)
     showing_condition = Column(String(50), nullable=True)    
