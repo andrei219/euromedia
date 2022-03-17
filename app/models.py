@@ -6,7 +6,6 @@ from functools import wraps
 
 from itertools import groupby, product 
 
-
 from uuid import uuid4
 
 from PyQt5 import QtCore
@@ -3725,12 +3724,19 @@ class IncomingStockModel(BaseTable, QtCore.QAbstractTableModel):
 			query = query.where(db.PurchaseProformaLine.spec == spec)
 
 		stocks =  [IncomingVector(line, session=session) for line in query.all()]
-		
-		return list(filter(lambda s:s.available != 0, stocks))
+
+		print('computeIncomingStockModel.Result:')
+
+		for s in stocks:
+			print(s) 
+
+		r =  list(filter(lambda s:s.available != 0, stocks))
+
+		return r
 
 	def lines_against_stock(self, warehouse_id, lines):
 
-		# Session = db.sessionmaker(bind=db.engine)
+		Session = db.sessionmaker(bind=db.get_engine())
 		session = Session()
 
 		for stock in self.computeIncomingStock(warehouse_id, description=None, \
@@ -3740,7 +3746,6 @@ class IncomingStockModel(BaseTable, QtCore.QAbstractTableModel):
 					return True 
 
 		return False
-
 
 
 	def data(self, index, role = Qt.DisplayRole):
@@ -3774,7 +3779,6 @@ class IncomingStockModel(BaseTable, QtCore.QAbstractTableModel):
 
 	def __getitem__(self, index):
 		return self.stocks[index]
-
 
 class AdvancedLinesModel(BaseTable, QtCore.QAbstractTableModel):
 
@@ -4747,20 +4751,17 @@ class ChangeModel(BaseTable, QtCore.QAbstractTableModel):
 		
 	def apply(self, name):
 		if self.hint == 'warehouse':
-			print('wars')
 			for imei_object in self.sns:
 				try:
 					imei_object.warehouse_id = utils.warehouse_id_map.get(name)
 				except:
 					raise 
 		else:
-			print('else')
 			for imei_object in self.sns:
 				setattr(imei_object, self.attrname, name) 
 
 		try:
 			db.session.commit()
-			print('aaaa')
 			self.layoutChanged.emit() 
 		except:
 			raise 

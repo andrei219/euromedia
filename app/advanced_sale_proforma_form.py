@@ -360,9 +360,6 @@ class EditableForm(Form):
             self.save.setEnabled(False)      
 
 
-
-
-
 def get_form(parent, view, proforma=None):
     return EditableForm(parent, view, proforma) if proforma \
         else Form(parent, view)
