@@ -131,25 +131,20 @@ class MainGui(Ui_MainGui, QMainWindow):
     def selection_changed_generic(self, view):
         rows = {i.row() for i in view.selectedIndexes()}
         total, paid = 0, 0
+
         for row in rows:
             doc = view.model()[row] 
             paid += sum(p.amount for p in doc.payments)
-            try:
-                lines = doc.advanced_lines
-            except AttributeError:
-                lines = doc.lines 
-
-            total += round(
-                sum(
-                line.price * line.quantity 
-                for line in lines
-            ), 2) 
+            total += doc.total_debt
 
         name = view.objectName() 
         prefix = name[0:name.rfind('_') +  1]
 
-        getattr(self, prefix + 'total').setText('Total: ' + str(total))
-        getattr(self, prefix + 'paid').setText('Paid: ' + str(paid))
+        print(prefix + 'total')
+        print(prefix + 'paid')
+
+        getattr(self, prefix + 'total').setText('Total: ' + str(round(total,2)))
+        getattr(self, prefix + 'paid').setText('Paid: ' + str(round(paid,2)))
 
     def init_models(self):
         for prefix in PREFIXES:
@@ -711,6 +706,7 @@ class MainGui(Ui_MainGui, QMainWindow):
 
 
     def proformas_sales_selection_changed(self):
+        print('reached')
         self.selection_changed_generic(self.proformas_sales_view)
        
     def proformas_sales_new_handler(self):
@@ -1007,7 +1003,7 @@ class MainGui(Ui_MainGui, QMainWindow):
         )
 
     def invoices_sales_selection_changed(self):
-        self.selection_changed_generic(self.invoices_purchases_view)
+        self.selection_changed_generic(self.invoices_sales_view)
 
     def invoices_sales_payments_handler(self):
         invoice = self.get_sales_invoice() 

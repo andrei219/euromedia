@@ -663,14 +663,16 @@ class SaleProforma(Base):
 
     @property
     def subtotal(self):
-        return sum(line.price * line.quantity for line in self.lines)
+        return sum(line.price * line.quantity for line in self.lines) or \
+            sum(line.price * line.quantity for line in self.advanced_lines)
 
     @property
     def tax(self):
-        return sum(line.price * line.quantity * line.tax / 100 for line in self.lines)
+        return sum(line.price * line.quantity * line.tax / 100 for line in self.lines) or \
+            sum(line.price * line.quantity * line.tax / 100 for line in self.advanced_lines)    
     
     @property
-    def total(self):
+    def total_debt(self):
         return self.subtotal + self.tax 
 
 
