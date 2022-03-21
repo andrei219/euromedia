@@ -240,9 +240,29 @@ class Form(Ui_SalesProformaForm, QWidget):
 
 
     def prop_return_pressed(self):
-        
+
+        try:
+            value = int(self.prop.text())
+            print('valuer=', value)
+        except ValueError:
+            return 
+
         rows = {index.row() for index in self.stock_view.selectedIndexes()}
-        print(rows)
+        total = 0 
+        try:
+            for row in rows:
+                total += self.stock_model.stocks[row].quantity
+                print('total=', total)
+
+            for row in rows:
+                index = self.stock_model.index(row, 4)
+                perc = self.stock_model.stocks[row].quantity / total
+                self.stock_model.setData(index, round(perc*value))
+
+
+
+        except AttributeError:
+            pass 
 
     def warehouse_changed(self, text):
         if hasattr(self, 'stock_model'):

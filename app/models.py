@@ -924,7 +924,7 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
 					return QtGui.QColor(YELLOW)
 				elif proforma.fully_paid:
 					return QtGui.QColor(GREEN)
-				elif purchase_partially_paid(proforma):
+				elif proforma.partially_paid:
 					return QtGui.QColor(ORANGE)
 				elif proforma.overpaid:
 					return QtGui.QColor(RED) 
@@ -1163,21 +1163,21 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 
 			if filters['financial']:
 				if 'notpaid' in filters['financial']:
-					self.proformas = filter(lambda p: sale_not_paid(p), self.proformas)
+					self.proformas = filter(lambda p: p.not_paid, self.proformas)
 				if 'fullypaid' in filters['financial']:
-					self.proformas = filter(lambda p:sale_fully_paid(p), self.proformas)
+					self.proformas = filter(lambda p:p.fully_paid, self.proformas)
 				if 'partiallypaid' in filters['financial']:
-					self.proformas = filter(lambda p:sale_partially_paid(p) ,self.proformas)
+					self.proformas = filter(lambda p:p.partially_paid ,self.proformas)
 
 			if filters['logistic']:
 				if 'overflowed' in filters['logistic']:
-					self.proformas = filter(lambda p:sale_overflowed(p), self.proformas)
+					self.proformas = filter(lambda p:p.overflowed, self.proformas)
 				if 'empty' in filters['logistic']:
-					self.proformas = filter(lambda p:sale_empty(p), self.proformas)
+					self.proformas = filter(lambda p:p.empty, self.proformas)
 				if 'partially_processed' in filters['logistic']:
-					self.proformas = filter(lambda p:sale_partially_processed(p), self.proformas) 
+					self.proformas = filter(lambda p:p.partially_processed, self.proformas) 
 				if 'completed' in filters['logistic']:
-					self.proformas = filter(lambda p:sale_completed(p), self.proformas)
+					self.proformas = filter(lambda p:p.completed, self.proformas)
 			
 			if filters['shipment']:
 				if 'sent' in filters['shipment']:
@@ -1214,22 +1214,22 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 			elif col == self.AGENT:
 				return proforma.agent.fiscal_name 
 			elif col == self.FINANCIAL:
-				if sale_not_paid(proforma):
+				if proforma.not_paid:
 					return 'Not Paid'
-				elif sale_fully_paid(proforma):
+				elif proforma.fully_paid:
 					return 'Paid' 
-				elif sale_partially_paid(proforma):
+				elif proforma.partially_paid:
 					return 'Partially Paid'
-				elif sale_overpaid(proforma):
+				elif proforma.overpaid:
 					return 'We Owe'
 			elif col == self.LOGISTIC:
-				if sale_empty(proforma):
+				if proforma.empty:
 					return 'Empty'
-				elif sale_overflowed(proforma):
+				elif proforma.overflowed:
 					return 'Overflowed'
-				elif sale_partially_processed(proforma):
+				elif proforma.partially_processed:
 					return 'Partially Prepared'
-				elif sale_completed(proforma):
+				elif proforma.completed:
 					return 'Completed'
 			
 			elif col == self.SENT:
@@ -1262,13 +1262,13 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 				O
 		elif role == Qt.DecorationRole:
 			if col == self.FINANCIAL:
-				if sale_not_paid(proforma):
+				if proforma.not_paid:
 					return QtGui.QColor(YELLOW) 
-				elif sale_fully_paid(proforma):
+				elif proforma.fully_paid:
 					return QtGui.QColor(GREEN)
-				elif sale_partially_paid(proforma):
+				elif proforma.partially_paid:
 					return QtGui.QColor(ORANGE)
-				elif sale_overpaid(proforma):
+				elif proforma.overpaid:
 					return QtGui.QColor(YELLOW)
 
 			elif col == self.DATE:

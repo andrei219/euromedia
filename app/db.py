@@ -675,6 +675,58 @@ class SaleProforma(Base):
     def total_debt(self):
         return self.subtotal + self.tax 
 
+    @property
+    def total_paid(self):
+        return sum(p.amount for p in self.payments)
+
+    @property
+    def not_paid(self):
+        return math.isclose(self.total_paid, 0)
+    
+    @property
+    def partially_paid(self):
+        return 0 < self.total_paid < self.total_debt
+    
+    @property
+    def fully_paid(self):
+        return math.isclose(self.total_debt, self.total_paid)
+    
+    @property
+    def overpaid(self):
+        return 0 < self.total_debt < self.total_paid
+
+    @property
+    def total_quantity(self):
+        return sum(line.quantity for line in self.lines if line.item_id)
+
+    @property
+    def total_processed(self):
+        try:
+            return sum(1 for line in self.expedition.lines for serie in line.series)
+        except AttributeError:
+            return 0 
+
+    @property
+    def empty(self):
+        return self.total_processed == 0
+    
+    @property
+    def partially_processed(self):
+        return 0 < self.total_processed < self.total_quantity
+    
+    @property
+    def completed(self):
+        return self.total_processed == self.total_quantity
+    
+    @property
+    def overflowed(self):
+        try:
+            for line in self.expedition.lines:
+                if len(line.series) > line.quantity:
+                    return True 
+        except AttributeError:
+            return False 
+        return False 
 
 class SalePayment(Base):
     __tablename__ = 'sale_payments'
