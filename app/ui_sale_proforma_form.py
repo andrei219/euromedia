@@ -468,7 +468,7 @@ class Ui_SalesProformaForm(object):
         SalesProformaForm.setToolTip(_translate("SalesProformaForm", "Press Return Key to see the results "))
         self.groupBox_4.setTitle(_translate("SalesProformaForm", "Selected Stock Per Mixed Line:"))
         self.groupBox.setTitle(_translate("SalesProformaForm", "LINES:"))
-        self.cancel.setText(_translate("SalesProformaForm", "Cancel"))
+        self.cancel.setText(_translate("SalesProformaForm", "Exit"))
         self.note.setPlaceholderText(_translate("SalesProformaForm", "Document Note ... ( Max 255 chars) "))
         self.header.setTitle(_translate("SalesProformaForm", "HEADER"))
         self.label_9.setText(_translate("SalesProformaForm", "Tracking:"))

@@ -203,13 +203,15 @@ class We:
 class TableData:
 
     def __init__(self, document, *, is_invoice):
-        self.Date = str(document.invoice.date) if is_invoice else str(document.date) 
+        self.Date = document.invoice.date.strftime('%d-%m-%Y') \
+            if is_invoice else document.date.strftime('%d-%m-%Y') 
         self.PO = str(document.invoice.type) + '-' + str(document.invoice.number).\
             zfill(6) if is_invoice else str(document.type) + '-' + str(document.number).zfill(6)
         self.Agent = document.agent.fiscal_name.split()[0]
         self.Incoterms = document.incoterm
-        self.Delivery_Date = str(document.invoice.eta) if is_invoice \
-            else str(document.eta) 
+        self.Delivery_Date = document.invoice.eta.strftime('%d-%m-%Y') if is_invoice \
+            else document.eta.strftime('%d-%m-%Y')
+
         self.Currency = 'EUR' if document.eur_currency else \
             'USD '
         
@@ -270,8 +272,6 @@ class PDF(FPDF):
                 self.doc_header = 'SALE ORDER'
             else:
                 self.doc_header = 'SALE INVOICE'
-        
-        
         
         elif type(document) == PurchaseProforma:
             self.lines = PurchaseLinesPDFRepr(document.lines) 
@@ -435,7 +435,7 @@ class PDF(FPDF):
             getattr(partner, prefix + 'line2'), 
             getattr(partner, prefix + 'line3'), 
             getattr(partner, prefix + 'country'), 
-            'CIF Nº:' + partner.fiscal_number 
+            'VAT Nº: ' + partner.fiscal_number 
         ]: 
             y += 4
             self.set_xy(x, y)

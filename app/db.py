@@ -6,6 +6,8 @@ engine = create_engine('mysql+mysqlconnector://andrei:hnq#4506@192.168.2.253:330
 dev_engine = create_engine('mysql+mysqlconnector://root:hnq#4506@localhost:3306/appdb', echo=False) 
 
 import sys, os 
+import math 
+
 
 try:
     debug = os.environ['APP_DEBUG'] == 'TRUE'
@@ -405,6 +407,80 @@ class PurchaseProforma(Base):
     )
 
 
+    @property
+    def subtotal(self):
+        return sum(line.price * line.quantity for line in self.lines)
+
+    @property
+    def tax(self):
+        return sum(line.price * line.quantity * line.tax / 100 for line in self.lines)
+    
+    @property
+    def total_debt(self):
+        return self.subtotal + self.tax 
+    
+    @property
+    def total_paid(self):
+        return sum(p.amount for p in self.payments)
+
+    @property
+    def not_paid(self):
+        return math.isclose(self.total_paid, 0)
+    
+    @property
+    def partially_paid(self):
+        return 0 < self.total_paid < self.total_debt
+    
+    @property
+    def fully_paid(self):
+        return math.isclose(self.total_debt, self.total_paid)
+    
+    @property
+    def overpaid(self):
+        return 0 < self.total_debt < self.total_paid
+
+
+    @property
+    def total_quantity(self):
+        import utils
+        return sum(
+            line.quantity for line in self.lines
+            if line.item_id or line.description in utils.descriptions
+        )
+
+    @property
+    def total_processed(self):
+        try:
+            return sum(
+                1 for line in self.reception.lines for serie in line.series
+            )
+        except AttributeError:
+            return 0 
+
+    @property
+    def empty(self):
+        return self.total_processed == 0
+    
+    @property
+    def partially_processed(self):
+        return 0 < self.total_processed < self.total_quantity
+    
+    @property
+    def completed(self):
+        return self.total_processed == self.total_quantity
+    
+    @property
+    def overflowed(self):
+        try:
+            for line in self.reception.lines:
+                if len(line.series) > line.quantity:
+                    return True 
+        except AttributeError:
+            return False 
+        return False 
+
+
+
 class PurchaseProformaLine(Base):
 
     __tablename__ = 'purchase_proforma_lines'
@@ -585,6 +661,18 @@ class SaleProforma(Base):
         UniqueConstraint('type', 'number'), 
     )
 
+    @property
+    def subtotal(self):
+        return sum(line.price * line.quantity for line in self.lines)
+
+    @property
+    def tax(self):
+        return sum(line.price * line.quantity * line.tax / 100 for line in self.lines)
+    
+    @property
+    def total(self):
+        return self.subtotal + self.tax 
+
 
 class SalePayment(Base):
     __tablename__ = 'sale_payments'
@@ -608,6 +696,7 @@ class SalePayment(Base):
     proforma = relationship('SaleProforma', backref=backref('payments'))
     
 class SaleExpense(Base):
+
     __tablename__ = 'sale_expenses'
 
     id = Column(Integer, primary_key=True)

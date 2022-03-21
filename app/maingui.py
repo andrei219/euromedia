@@ -83,7 +83,6 @@ ACTIONS = [
     'import', 
     'template', 
     'create_courier', 
-    'selection_changed'
 ]
 
 
@@ -1153,7 +1152,7 @@ class MainGui(Ui_MainGui, QMainWindow):
         except ValueError as ex:
             QMessageBox.information(self, 'Error', str(ex))
         else:
-            QMessageBox.information(self, 'Success', 'Data exported successfully')
+            QMessageBox.information(self, 'Success', 'Data exported succ')
 
     
     def get_reception_selected_row(self):

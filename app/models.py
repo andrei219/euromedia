@@ -595,7 +595,7 @@ class PartnerContactModel(QtCore.QAbstractTableModel):
 
 class SaleInvoiceModel(QtCore.QAbstractTableModel):
 	 
-	TYPE_NUM, READY, PROFORMA = 0, 12, 13 
+	TYPE_NUM, PROFORMA = 0, 14
 	
 	def __init__(self, search_key=None, filters=None):
 		super().__init__() 
@@ -684,7 +684,7 @@ class SaleInvoiceModel(QtCore.QAbstractTableModel):
 
 class PurchaseInvoiceModel(QtCore.QAbstractTableModel):
 	
-	TYPE_NUM, PROFORMA = 0, 11
+	TYPE_NUM, PROFORMA = 0, 12
 
 	def __init__(self, filters=None, search_key=None):
 		super().__init__()
@@ -761,13 +761,14 @@ class PurchaseInvoiceModel(QtCore.QAbstractTableModel):
 class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
 	
 	TYPE_NUM , DATE, ETA, PARTNER, AGENT, FINANCIAL, LOGISTIC, SENT, CANCELLED, \
-		OWING, TOTAL, PROFORMA = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 
+		OWING, TOTAL, EXTERNAL, PROFORMA = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12
 
 	def __init__(self, filters=None, search_key=None, proxy=False):  
 		super().__init__() 
 		self._headerData = ['Type & Num', 'Date', 'ETA', 'Partner', 'Agent', \
-			'Financial', 'Logistic', 'Sent', 'Cancelled','Owing', 'Total']
+			'Financial', 'Logistic', 'Sent', 'Cancelled','Owing', 'Total', 'External Doc.']
 		self.name = 'proformas'
+		
 		self.proxy = proxy 
 
 		query = db.session.query(db.PurchaseProforma).\
@@ -819,21 +820,21 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
 
 			if filters['financial']:
 				if 'notpaid' in filters['financial']:
-					self.proformas = filter(lambda p: purchase_not_paid(p), self.proformas)
+					self.proformas = filter(lambda p: p.not_paid, self.proformas)
 				if 'fullypaid' in filters['financial']:
-					self.proformas = filter(lambda p:purchase_fully_paid(p), self.proformas)
+					self.proformas = filter(lambda p: p.fully_paid, self.proformas)
 				if 'partiallypaid' in filters['financial']:
-					self.proformas = filter(lambda p:purchase_partially_paid(p) ,self.proformas)
+					self.proformas = filter(lambda p: p.partially_paid ,self.proformas)
 			
 			if filters['logistic']:
 				if 'overflowed' in filters['logistic']:
-					self.proformas = filter(lambda p:purchase_overflowed(p), self.proformas)
+					self.proformas = filter(lambda p:p.overflowed, self.proformas)
 				if 'empty' in filters['logistic']:
-					self.proformas = filter(lambda p:purchase_empty(p), self.proformas)
+					self.proformas = filter(lambda p:p.empty, self.proformas)
 				if 'partially_processed' in filters['logistic']:
-					self.proformas = filter(lambda p:purchase_partially_processed(p), self.proformas) 
+					self.proformas = filter(lambda p:p.partially_processed, self.proformas) 
 				if 'completed' in filters['logistic']:
-					self.proformas = filter(lambda p:purchase_completed(p), self.proformas)
+					self.proformas = filter(lambda p:p.completed, self.proformas)
 				
 
 			if filters['shipment']:
@@ -881,24 +882,24 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
 			elif col == PurchaseProformaModel.AGENT:
 				return proforma.agent.fiscal_name 
 			elif col == PurchaseProformaModel.FINANCIAL:
-				if purchase_not_paid(proforma):
+				if proforma.not_paid:
 					return "Not Paid"
-				elif purchase_fully_paid(proforma):
+				elif proforma.fully_paid:
 					return "Paid"
-				elif purchase_partially_paid(proforma):
+				elif proforma.partially_paid:
 					return "Partially Paid"
-				elif purchase_overpaid(proforma):
+				elif proforma.overpaid:
 					return "They owe"
 			elif col == PurchaseProformaModel.LOGISTIC:
-				if purchase_empty(proforma):
+				if proforma.empty:
 					return "Empty"
-				elif purchase_overflowed(proforma):
-					return "Overflowed"	
-				elif purchase_partially_processed(proforma):
+				elif proforma.overflowed:
+					return "Overflowed"
+				elif proforma.partially_processed:
 					return "Partially Received"
-				elif purchase_completed(proforma):
+				elif proforma.completed:
 					return "Completed"
-			
+
 			elif col == PurchaseProformaModel.SENT:
 				return "Yes" if proforma.sent else "No"
 
@@ -912,19 +913,22 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
 			
 			elif col == PurchaseProformaModel.TOTAL:
 				sign = ' -€' if proforma.eur_currency else ' $'
-				return str(purchase_total_debt(proforma)) + sign
+				return str(proforma.total_debt) + sign
+			
+			elif col == self.EXTERNAL:
+				return str(proforma.external)
+
 		elif role == Qt.DecorationRole:
 			if col == PurchaseProformaModel.FINANCIAL:
-				if purchase_not_paid(proforma):
+				if proforma.not_paid:
 					return QtGui.QColor(YELLOW)
-				elif purchase_fully_paid(proforma):
+				elif proforma.fully_paid:
 					return QtGui.QColor(GREEN)
 				elif purchase_partially_paid(proforma):
 					return QtGui.QColor(ORANGE)
-				elif purchase_overpaid(proforma):
-					return QtGui.QColor(YELLOW)
-				elif purchase_overpaid(proforma):
+				elif proforma.overpaid:
 					return QtGui.QColor(RED) 
+			
 			elif col == PurchaseProformaModel.DATE or col == PurchaseProformaModel.ETA:
 				return QtGui.QIcon(':\calendar')
 			elif col == PurchaseProformaModel.PARTNER:
@@ -1105,12 +1109,13 @@ import functools
 class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 	
 	TYPE_NUM, DATE, PARTNER, AGENT, FINANCIAL, LOGISTIC, SENT, \
-		CANCELLED, OWING, TOTAL, ADVANCED, DEFINED, READY = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12
+		CANCELLED, OWING, TOTAL, ADVANCED, DEFINED, READY, EXTERNAL = \
+			0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13
 
 	def __init__(self, search_key=None, filters=None, proxy=False):
 		super().__init__() 
 		self._headerData = ['Type & Num', 'Date', 'Partner','Agent', \
-			'Financial', 'Logistic','Sent', 'Cancelled', 'Owes', 'Total', 'Advanced', 'Defined', 'Ready To Go']
+			'Financial', 'Logistic','Sent', 'Cancelled', 'Owes', 'Total', 'Advanced', 'Defined', 'Ready To Go', 'External Doc.']
 		self.proformas = [] 
 		self.name = 'proformas'
 		query = db.session.query(db.SaleProforma).\
@@ -1252,7 +1257,9 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 
 			elif col == self.READY:
 				return 'Yes' if proforma.ready else 'No'
-
+			elif col == self.EXTERNAL:
+				return proforma.external or 'Unknown'
+				O
 		elif role == Qt.DecorationRole:
 			if col == self.FINANCIAL:
 				if sale_not_paid(proforma):

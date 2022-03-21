@@ -236,7 +236,7 @@ class Form(Ui_SalesProformaForm, QWidget):
 
         self.description.editingFinished.connect(self.description_editing_finished)
         self.condition.editingFinished.connect(self.condition_editing_finished)
-        self.spec.editingFinished.connect(self.spec_editing_finished)
+        self.spec.editingFinished.connect(self.spec_editing_finished)           
 
 
     def prop_return_pressed(self):
