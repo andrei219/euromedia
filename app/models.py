@@ -1405,7 +1405,7 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 			]
 
 			if not lines:
-				raiseValueError("Can't send to warehouse undefined advanced sale")
+				raise ValueError("Can't send to warehouse undefined advanced sale")
 		else:
 			lines = [line for line in proforma.lines]
 		
@@ -2685,100 +2685,6 @@ def change_layout_and_commit(func):
 		return r 
 	return wrapper 
 
-
-class SerieModel_deadline(QtCore.QAbstractListModel):
-
-	def __init__(self, line, expedition):
-		super().__init__() 
-		self.expedition = expedition
-		self.line = line 
-		self.series = line.series 
-
-	@property
-	def expedition_series(self):
-		for line in self.expedition.lines:
-			for serie in line.series:
-				yield serie 
-
-	@change_layout_and_commit
-	def add(self, serie):
-		if serie in self:
-			raise SeriePresentError 
-
-		self.series.append(db.ExpeditionSerie(serie)) 
-		
-		
-		print('add')
-		for serie in self.series:
-			print(serie)
-
-
-	@change_layout_and_commit
-	def delete_all(self):
-		for o in self.series:
-			db.session.delete(o) 
-		
-		print('delete all')
-
-		for serie in self.series:
-			print(serie)
-		
-
-	@change_layout_and_commit
-	def delete(self, objects):
-		print('delete')
-
-		print('before:')
-		for serie in self.series:
-			print(serie)
-		print('after')
-		for serie in self.series:
-			print(serie)
-
-		for o in objects:
-			self.series.remove(o) 
-	
-	@change_layout_and_commit
-	def handle_invented(self, quantity):
-		if qnt > 0:
-			for invented in self.uuid_generator(quantity):
-				self.series.append(db.ExpeditionSerie(invented)) 
-		elif qnt < 0:
-			for i in range(abs(qnt)):
-				try:
-					self.series.pop(0)
-				except:
-					raise 
-
-	def uuid_generator(self, quantity):
-		for i in range(quantity):
-			yield str(uuid.uuid4()) 
-
-	def rowCount(self, index):
-		return len(self.series)
-
-	def commit(self):
-		try:
-			db.session.commit()
-		except:
-			db.session.rollback()
-			raise 
-
-	def data(self, index, role=Qt.DisplayRole):
-		if not index.isValid():
-			return
-		if role == Qt.DisplayRole:
-			return self.series[index.row()].serie 
-
-	def __contains__(self, serie):
-		return serie in list(self.expedition_series) 
-
-	def index_of(self, key):
-		for index, serie in enumerate(self.series):
-			if key == serie.serie:
-				return index
-
-
 class SerieModel(QtCore.QAbstractListModel):
 
 	def __init__(self, line, expedition):
@@ -2833,7 +2739,6 @@ class SerieModel(QtCore.QAbstractListModel):
 
 	def select_invented_from_imeis(self, limit=0):
 
-		print('select invented')
 		query = db.session.query(db.Imei.imei).where(
 			db.Imei.warehouse_id == self.expedition.proforma.warehouse_id, 
 			db.Imei.spec ==  self.line.spec, 
@@ -2919,12 +2824,12 @@ class SerieModel(QtCore.QAbstractListModel):
 class ExpeditionModel(BaseTable, QtCore.QAbstractTableModel):
 
 	ID, WAREHOUSE, TOTAL, PROCESSED, LOGISTIC ,CANCELLED, PARTNER,\
-		AGENT, WARNING, FROM_PROFORMA, READY = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10
+		AGENT, WARNING, FROM_PROFORMA, READY, EXTERNAL = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11
 
 	def __init__(self, search_key=None, filters=None):
 		super().__init__() 
 		self._headerData = ['Expedition ID', 'Warehouse', 'Total', 'Processed', 
-		'Logistic','Cancelled', 'Partner', 'Agent', 'Warning', 'From Proforma', 'Ready To Go']
+		'Logistic','Cancelled', 'Partner', 'Agent', 'Warning', 'From Proforma', 'Ready To Go', 'External Doc.']
 		self.name = 'expeditions' 
 		query = db.session.query(db.Expedition).\
 			select_from(
@@ -3005,6 +2910,8 @@ class ExpeditionModel(BaseTable, QtCore.QAbstractTableModel):
 				return str(expedition.proforma.type) + '-' + str(expedition.proforma.number).zfill(6)
 			elif column == self.READY:
 				return 'Yes' if expedition.proforma.ready else 'No'
+			elif column == self.EXTERNAL:
+				return expedition.proforma.external or 'Unknown'
 
 		elif role == Qt.DecorationRole:
 			if column == self.AGENT:
@@ -3037,13 +2944,13 @@ class ExpeditionModel(BaseTable, QtCore.QAbstractTableModel):
 			self.layoutChanged.emit()
 		else:
 			attr = {
-				self.ID:'id', 
+				self.ID:'id',           
 				self.WAREHOUSE:'proforma.warehouse_id', 
 				self.CANCELLED:'proforma.cancelled', 
 				self.PARTNER: 'proforma.partner.fiscal_name',
 				self.AGENT: 'proforma.agent.fiscal_name', 
 				self.READY:'proforma.ready'
-			}.get(section) 
+			}.get(section)       
 
 			if attr:
 				self.layoutAboutToBeChanged.emit()
@@ -3055,12 +2962,12 @@ class ExpeditionModel(BaseTable, QtCore.QAbstractTableModel):
 class ReceptionModel(BaseTable, QtCore.QAbstractTableModel):
 
 	ID, WAREHOUSE, TOTAL, PROCESSED, LOGISTIC, CANCELLED, PARTNER,\
-		AGENT, WARNING, FROM_PROFORMA =0, 1, 2, 3, 4, 5, 6, 7, 8, 9
+		AGENT, WARNING, FROM_PROFORMA, EXTERNAL =0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10            
 
 	def __init__(self, search_key=None, filters=None):
 		super().__init__() 
 		self._headerData = ['Reception ID', 'Warehouse', 'Total', 'Processed', 'Logistic', 'Cancelled', \
-			'Partner', 'Agent', 'Warning', 'From Proforma']
+			'Partner', 'Agent', 'Warning', 'From Proforma', 'External Doc.']
 		self.name = 'receptions' 
 		query = db.session.query(db.Reception).\
 			select_from(
@@ -3137,6 +3044,8 @@ class ReceptionModel(BaseTable, QtCore.QAbstractTableModel):
 				return reception.note 
 			elif column == ReceptionModel.FROM_PROFORMA:
 				return str(reception.proforma.type) + '-' + str(reception.proforma.number).zfill(6)
+			elif column == self.EXTERNAL:
+				return reception.proforma.external or 'Unknown'
 
 		elif role == Qt.DecorationRole:
 			if column == ReceptionModel.AGENT:
@@ -3507,7 +3416,7 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
 
 		outputs = {StockEntry(r.item_id, r.condition, r.spec, r.quantity) for r in query}
 
-
+		
 		query = session.query(
 			db.AdvancedLineDefinition.item_id, 
 			db.AdvancedLineDefinition.condition, 
@@ -3679,11 +3588,16 @@ class IncomingVector:
 
 		processed = self.compute_processed(line) 
 
+		print('asked=', asked)
+		print('processed=', processed)
+		print('line=', line)
+		# print('available=', self.available)
+		print('_' * 50)
+
 		self.available = quantity - processed - asked
 
 		if self.available < 0:
 			self.available = 0 
-
 
 
 	def compute_processed(self, line):
@@ -3692,6 +3606,8 @@ class IncomingVector:
 			for line in line.proforma.reception.lines:
 				if line_alias == line:
 					return sum(1 for serie in line.series)
+			else: # Reaches end, does not find it's brother in warehouse
+				return 0 
 
 		except AttributeError as ex:
 			return 0 
@@ -3723,8 +3639,7 @@ class IncomingStockModel(BaseTable, QtCore.QAbstractTableModel):
 			spec = spec
 		) 
 
-	def computeIncomingStock(self, warehouse_id, *, description, condition, spec, \
-		session = db.session):
+	def computeIncomingStock(self, warehouse_id, *, description, condition, spec, session = db.session):
 
 		query = session.query(db.PurchaseProformaLine).\
 			join(db.PurchaseProforma).join(db.Partner).outerjoin(db.Reception).\
@@ -3740,22 +3655,17 @@ class IncomingStockModel(BaseTable, QtCore.QAbstractTableModel):
 			if item_ids:
 				predicates = (
 					db.PurchaseProformaLine.item_id.in_(item_ids), 
-					db.PurchaseProformaLine.description == description 
+					db.PurchaseProformaLine.description == description # ??
 				)
 				query = query.where(or_(*predicates))
 		  
-		if condition:
+		if condition is not None:
 			query = query.where(db.PurchaseProformaLine.condition == condition)
 
-		if spec:
+		if spec is not None:
 			query = query.where(db.PurchaseProformaLine.spec == spec)
 
-		stocks =  [IncomingVector(line, session=session) for line in query.all()]
-
-		print('computeIncomingStockModel.Result:')
-
-		for s in stocks:
-			print(s) 
+		stocks =  [IncomingVector(line, session=session) for line in query]
 
 		r =  list(filter(lambda s:s.available != 0, stocks))
 
@@ -3826,33 +3736,33 @@ class AdvancedLinesModel(BaseTable, QtCore.QAbstractTableModel):
 		row, col = index.row(), index.column()
 		if role == Qt.DisplayRole:
 			line = self._lines[row]
-			if col == self.__class__.DESCRIPTION:
+			if col == self.DESCRIPTION:
 				return line.free_description or line.mixed_description \
 					or utils.description_id_map.inverse.get(line.item_id)
 
-			elif col == self.__class__.CONDITION:
+			elif col == self.CONDITION:
 				try:
 					return line.condition
 				except AttributeError:
 					return '' 
-			elif col == self.__class__.SHOWING_CONDITION:
+			elif col == self.SHOWING_CONDITION:
 				return line.showing_condition or '' 
-			elif col == self.__class__.SPEC:
+			elif col == self.SPEC:
 				try:
 					return line.spec 
 				except AttributeError:
 					return '' 
-			elif col == self.__class__.IGNORING_SPEC:
+			elif col == self.IGNORING_SPEC:
 				return 'Yes' if line.ignore_spec else 'No'
-			elif col == self.__class__.QUANTITY:
+			elif col == self.QUANTITY:
 				return str(line.quantity)
-			elif col == self.__class__.PRICE:
+			elif col == self.PRICE:
 				return str(line.price)
-			elif col == self.__class__.TAX:
+			elif col == self.TAX:
 				return str(line.tax)
-			elif col == self.__class__.SUBTOTAL:
+			elif col == self.SUBTOTAL:
 				return str(line.price * line.quantity)
-			elif col == self.__class__.TOTAL:
+			elif col == self.TOTAL:
 				total = line.quantity * line.price * (1 + line.tax/100)
 				return str(total) 
 
@@ -3940,7 +3850,6 @@ class AdvancedLinesModel(BaseTable, QtCore.QAbstractTableModel):
 
 	def __bool__(self):
 		return bool(self._lines) 
-
 
 
 InventoryEntry = namedtuple('InventoryEntry', 'serie description condition spec warehouse quantity')
@@ -4372,7 +4281,7 @@ class DefinedSeriesModel(QtCore.QAbstractListModel):
 		return False 	
 
 from operator import attrgetter
-
+   
 Group = namedtuple('Group', 'description condition spec quantity')
 class GroupModel(BaseTable, QtCore.QAbstractTableModel):
 
@@ -4389,7 +4298,7 @@ class GroupModel(BaseTable, QtCore.QAbstractTableModel):
 		_filter = lambda o:o.line_id == line.id
 		series = list(filter(_filter, series))
 		series = sorted(series, key=key)
-		
+		          
 		self.groups = [] 
 		for key, group in groupby(iterable=series, key=key):
 			item_id, condition, spec = key

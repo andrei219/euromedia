@@ -11,7 +11,6 @@ from utils import setCommonViewConfig
 
 from sale_proforma_form import Form
 
-
 from models import (
     AdvancedLinesModel, 
     IncomingStockModel, 
@@ -111,9 +110,9 @@ class Form(Ui_Form, QWidget):
         condition = self.condition.text()
         spec = self.spec.text()
 
-        if spec == 'Mix':
+        if spec == 'Mix' or not spec:
             spec = None 
-        if condition == 'Mix':
+        if condition == 'Mix' or not condition:
             condition = None
 
         self.stock_model = IncomingStockModel(
@@ -125,17 +124,7 @@ class Form(Ui_Form, QWidget):
 
         self.stock_view.setModel(self.stock_model) 
 
-    def filters_unset(self):
-        return any((
-            self.description.text() not in utils.descriptions, 
-            self.spec.text() not in utils.specs, 
-            self.condition.text() not in utils.conditions
-        )) 
-
     def search_handler(self):
-        if self.filters_unset():
-            QMessageBox.critical(self, 'Error - Search', 'Set filters.')
-            return 
         self.set_stock_mv()
 
     def warehouse_handler(self):

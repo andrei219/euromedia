@@ -528,8 +528,12 @@ class PurchaseProformaLine(Base):
         ))
         return functools.reduce(operator.xor, hashes, 0)
 
-    def __str__(self):
-        return f"{self.item_id},{self.description},{self.condition},{self.spec}"
+    def __repr__(self):
+        clsname = self.__class__.__name__
+        s = f"{clsname}(item_id={self.item_id}, description={self.description}, condition={self.condition}"
+        s+= f", spec={self.spec})"
+        return s 
+
 
 class PurchaseDocument(Base):
     
@@ -1115,8 +1119,12 @@ class ReceptionLine(Base):
         ))
         return functools.reduce(operator.xor, hashes, 0)
 
-    def __str__(self):
-        return f"{self.item_id},{self.description},{self.condition},{self.spec}"
+    def __repr__(self):
+        clsname = self.__class__.__name__
+        s = f"{clsname}(item_id={self.item_id}, description={self.description}, condition={self.condition}"
+        s+= f", spec={self.spec})"
+        return s 
+
 
     __table_args__ = (
         UniqueConstraint('id', 'reception_id'), 
@@ -1491,36 +1499,48 @@ def delete_dependant_advanced_sales(mapper, connection, target):
 @event.listens_for(ReceptionSerie, 'after_insert')
 def insert_imei_after_mixed_purchase(mapper, connection, target):
 
-    print('reception serie after insert')
     connection.execute(imei_insert_stmt(target))    
     
     purchase_line_id = get_associated_purchase_line(target) 
+    print('purchase_line_id=', purchase_line_id)
 
     if purchase_line_id:
-        advanced_associated = session.query(
-            exists().where(AdvancedLine.origin_id == purchase_line_id)
-        ).scalar()
+        print('\tif purchase_line_id:')
+        advanced_associated = session.query(exists().where(AdvancedLine.origin_id == purchase_line_id)).scalar()
+
+        print('\tadvanced_associated=', advanced_associated)
 
         if advanced_associated:
+            
             query = session.query(
                 func.count(ReceptionSerie.id)
             ).where(
-                ReceptionSerie.line_id == purchase_line_id
+                ReceptionSerie.line_id == purchase_line_id # Error
             )
-            print(query)
+
+            print('\t\tif advanced asociated:')
+            print('\t\t query=', query)
 
             imei_count = query.scalar()
+
+            print('imei_count=', imei_count)
 
             if imei_count and imei_count <= target.line.quantity:
                 connection.execute(imei_mask_insert_stmt(target, purchase_line_id))
 
 def get_associated_purchase_line(reception_serie:ReceptionSerie):
+    print('get_associated_purchase_line')
     line_alias = reception_serie.line 
+    
+    print('line_alias =', line_alias)
+
     for line in reception_serie.line.reception.proforma.lines:
+        print('for:', line)
         if line == line_alias:
+            print('\tline == line_alias')
             return line.id
 
-def imei_insert_stmt(target):
+def imei_insert_stmt(target):  
     return insert(Imei).values(
         imei = target.serie, 
         item_id = target.item_id, 
@@ -1538,7 +1558,8 @@ def imei_mask_insert_stmt(target, origin_id):
         warehouse_id = target.line.reception.proforma.warehouse_id, 
         origin_id = origin_id
     )
-    
+
+
 
 @event.listens_for(ReceptionSerie, 'after_delete')
 def delete_imei_after_mixed_purchase(mapper, connection, target):
@@ -1558,13 +1579,10 @@ def delete_imei_after_sale(mapper, connection, target):
         where(Imei.spec == spec).where(Imei.item_id == item_id)
     result = connection.execute(stmt) 
 
-    # print('target.line.condition:', condition)
-    # print('target.line.spec:', spec)
-    # print('target.line.item_id', item_id, target.line.item.clean_repr)
-
     if not result.rowcount:
-        from exceptions import NotExistingStockOutput
+        from app.exceptions import NotExistingStockOutput
         raise NotExistingStockOutput
+
     else:
         connection.execute(
             delete(ImeiMask).where(ImeiMask.imei == target.serie)
@@ -1574,13 +1592,6 @@ def delete_imei_after_sale(mapper, connection, target):
 @event.listens_for(ExpeditionSerie, 'after_delete')
 def insert_imei_after_expedition_delete(mapper, connection, target):
 
-    # print('after_delete_fired')
-
-    # print('serie:', target.serie)
-    # print('item_id:', target.line.item_id, target.line.item.clean_repr)
-    # print('spec:', target.line.spec)
-    # print('condition:', target.line.condition)
-
     stmt = insert(Imei).values(
         imei = target.serie, 
         item_id = target.line.item_id, 
@@ -1589,12 +1600,7 @@ def insert_imei_after_expedition_delete(mapper, connection, target):
         warehouse_id = target.line.expedition.proforma.warehouse.id
     )
 
-    engine = get_engine()
-    engine.echo = True 
-
     connection.execute(stmt)
-
-    engine.echo=False 
 
 
 class SpecChange(Base):

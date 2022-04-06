@@ -243,23 +243,17 @@ class Form(Ui_SalesProformaForm, QWidget):
 
         try:
             value = int(self.prop.text())
-            print('valuer=', value)
         except ValueError:
             return 
 
         rows = {index.row() for index in self.stock_view.selectedIndexes()}
-        total = 0 
         try:
-            for row in rows:
-                total += self.stock_model.stocks[row].quantity
-                print('total=', total)
-
+            total = sum(self.stock_model.stocks[row].quantity for row in rows)
+            
             for row in rows:
                 index = self.stock_model.index(row, 4)
                 perc = self.stock_model.stocks[row].quantity / total
                 self.stock_model.setData(index, round(perc*value))
-
-
 
         except AttributeError:
             pass 

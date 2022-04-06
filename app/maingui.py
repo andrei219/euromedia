@@ -140,9 +140,6 @@ class MainGui(Ui_MainGui, QMainWindow):
         name = view.objectName() 
         prefix = name[0:name.rfind('_') +  1]
 
-        print(prefix + 'total')
-        print(prefix + 'paid')
-
         getattr(self, prefix + 'total').setText('Total: ' + str(round(total,2)))
         getattr(self, prefix + 'paid').setText('Paid: ' + str(round(paid,2)))
 
@@ -706,7 +703,6 @@ class MainGui(Ui_MainGui, QMainWindow):
 
 
     def proformas_sales_selection_changed(self):
-        print('reached')
         self.selection_changed_generic(self.proformas_sales_view)
        
     def proformas_sales_new_handler(self):
