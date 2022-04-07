@@ -5,6 +5,8 @@ from sqlalchemy.orm import sessionmaker, scoped_session
 engine = create_engine('mysql+mysqlconnector://andrei:hnq#4506@192.168.2.253:3306/appdb', echo=False) 
 dev_engine = create_engine('mysql+mysqlconnector://root:hnq#4506@localhost:3306/appdb', echo=False) 
 
+# ANDREI
+
 import sys, os 
 import math 
 
