@@ -67,6 +67,7 @@ def b(s):
         else:
             return chr(s)
 
+
 def exception():
     "Return the current the exception instance currently being handled"
     # this is needed to support Python 2.5 that lacks "as" syntax

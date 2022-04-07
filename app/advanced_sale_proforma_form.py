@@ -1,88 +1,78 @@
-
-from datetime import date 
-
-from ui_advanced_sale_proforma_form import Ui_Form
+from datetime import date
 
 from PyQt5.QtWidgets import QWidget, QMessageBox
 
-from decorators import ask_save
-
+import db
+from db import Agent, Partner
+from models import (
+    AdvancedLinesModel,
+    IncomingStockModel,
+    computeCreditAvailable
+)
+from sale_proforma_form import Form
+from ui_advanced_sale_proforma_form import Ui_Form
 from utils import setCommonViewConfig
 
-from sale_proforma_form import Form
+import utils
 
-from models import (
-    AdvancedLinesModel, 
-    IncomingStockModel, 
-    computeCreditAvailable
-) 
-
-
-from db import Agent, Partner, SaleProformaLine, SaleProforma,\
-    SalePayment, func
-
-
-import utils, db
 
 def reload_utils():
     global utils
     from importlib import reload
-    utils = reload(utils) 
+    utils = reload(utils)
+
 
 class Form(Ui_Form, QWidget):
     def __init__(self, parent, view):
+        self.proforma = None
         reload_utils()
         super().__init__()
         self.setupUi(self)
-        setCommonViewConfig(self.stock_view) 
+        setCommonViewConfig(self.stock_view)
         self.model = view.model()
         self.init_template()
         self.parent = parent
-        self.lines_model = AdvancedLinesModel(self.proforma) 
+        self.lines_model = AdvancedLinesModel(self.proforma)
         self.lines_view.setModel(self.lines_model)
         self.set_combos()
         self.set_completers()
-        self.set_handlers() 
-
+        self.set_handlers()
 
     def init_template(self):
-        self.proforma = db.SaleProforma() 
+        self.proforma = db.SaleProforma()
         db.session.add(self.proforma)
-        db.session.flush() 
+        db.session.flush()
         self.date.setText(date.today().strftime('%d%m%Y'))
         self.type.setCurrentText('1')
         self.number.setText(str(self.model.nextNumberOfType(1)).zfill(6))
-    
+
     def set_handlers(self):
         self.partner.returnPressed.connect(self.partner_search)
         self.delete_.clicked.connect(self.delete_handler)
-        self.add.clicked.connect(self.add_handler) 
+        self.add.clicked.connect(self.add_handler)
         self.save.clicked.connect(self.save_handler)
-        self.insert.clicked.connect(self.insert_handler) 
+        self.insert.clicked.connect(self.insert_handler)
         self.type.currentTextChanged.connect(self.type_changed)
-        self.search.clicked.connect(self.search_handler) 
-        self.warehouse.currentTextChanged.connect(self.warehouse_handler) 
-
+        self.search.clicked.connect(self.search_handler)
+        self.warehouse.currentTextChanged.connect(self.warehouse_handler)
 
     def set_combos(self):
         for combo, data in [
-            (self.agent, utils.agent_id_map.keys()), 
-            (self.warehouse, utils.warehouse_id_map.keys()), 
+            (self.agent, utils.agent_id_map.keys()),
+            (self.warehouse, utils.warehouse_id_map.keys()),
             (self.courier, utils.courier_id_map.keys())
         ]: combo.addItems(data)
 
     def set_completers(self):
         for field, data in [
-            (self.partner, utils.partner_id_map.keys()), 
-            (self.description, utils.descriptions), 
-            (self.spec, utils.specs), 
+            (self.partner, utils.partner_id_map.keys()),
+            (self.description, utils.descriptions),
+            (self.spec, utils.specs),
             (self.condition, utils.conditions)
         ]: utils.setCompleter(field, data)
 
-
     def proforma_to_form(self):
         p = self.proforma
-
         self.type.setCurrentText(str(p.type))
         self.number.setText(str(p.number))
         self.date.setText(p.date.strftime('%d%m%Y'))
@@ -111,18 +101,18 @@ class Form(Ui_Form, QWidget):
         spec = self.spec.text()
 
         if spec == 'Mix' or not spec:
-            spec = None 
+            spec = None
         if condition == 'Mix' or not condition:
             condition = None
 
         self.stock_model = IncomingStockModel(
-            warehouse_id, 
+            warehouse_id,
             description=description,
-            condition = condition, 
-            spec = spec, 
+            condition=condition,
+            spec=spec,
         )
 
-        self.stock_view.setModel(self.stock_model) 
+        self.stock_view.setModel(self.stock_model)
 
     def search_handler(self):
         self.set_stock_mv()
@@ -132,53 +122,53 @@ class Form(Ui_Form, QWidget):
             self.stock_model.reset()
 
         if hasattr(self, 'lines_model'):
-            self.lines_model.reset()   
+            self.lines_model.reset()
 
-        self.update_totals() 
+        self.update_totals()
         # removing objects in pending state 
-        db.session.rollback() 
-    
+        db.session.rollback()
+
     def update_totals(self):
-        
+
         self.subtotal.setText(str(self.lines_model.subtotal))
         self.sale_tax.setText(str(self.lines_model.tax))
         self.total.setText(str(self.lines_model.total))
 
     def delete_handler(self):
         indexes = self.lines_view.selectedIndexes()
-        if not indexes:return 
+        if not indexes: return
         row = {index.row() for index in indexes}.pop()
         self.lines_model.delete(row)
-        self.lines_view.clearSelection() 
+        self.lines_view.clearSelection()
 
         self.set_stock_mv()
-        self.update_totals() 
+        self.update_totals()
 
     def add_handler(self):
-        if not hasattr(self, 'stock_model'):return 
+        if not hasattr(self, 'stock_model'): return
         indexes = self.stock_view.selectedIndexes()
-        if not indexes: return 
+        if not indexes: return
         row = {i.row() for i in indexes}.pop()
         vector = self.stock_model[row]
 
-        quantity = self.quantity.value() 
+        quantity = self.quantity.value()
         if quantity > vector.available:
             QMessageBox.critical(
-                self, 
-                'Error', 
+                self,
+                'Error',
                 'quantity must be less than available'
             )
-            return 
+            return
 
         price = self.price.value()
         ignore = self.ignore.isChecked()
         tax = int(self.tax.currentText())
-        showing = self.showing_condition.text() 
-        
+        showing = self.showing_condition.text()
+
         try:
             self.lines_model.add(quantity, price, ignore, tax, showing, vector)
         except ValueError as ex:
-            raise 
+            raise
             QMessageBox.critical(self, 'Error', str(ex))
         else:
             self.update_totals()
@@ -189,26 +179,26 @@ class Form(Ui_Form, QWidget):
         if not partner_id:
             return
         try:
-            available_credit = computeCreditAvailable(partner_id) 
+            available_credit = computeCreditAvailable(partner_id)
             self.available_credit.setValue(float(available_credit))
             self.credit.setMaximum(float(available_credit))
-        
+
         except TypeError:
-            raise 
-            
-        result = db.session.query(Agent.fiscal_name, Partner.warranty, Partner.euro,\
-            Partner.they_pay_they_ship, Partner.they_pay_we_ship, Partner.we_pay_we_ship,\
-                Partner.days_credit_limit).join(Agent).where(Partner.id == partner_id).one() 
+            raise
+
+        result = db.session.query(Agent.fiscal_name, Partner.warranty, Partner.euro,
+                                  Partner.they_pay_they_ship, Partner.they_pay_we_ship, Partner.we_pay_we_ship,
+                                  Partner.days_credit_limit).join(Agent).where(Partner.id == partner_id).one()
 
         agent, warranty, euro, they_pay_they_ship, they_pay_we_ship, we_pay_we_ship, days = \
             result
 
         self.agent.setCurrentText(agent)
-        self.warranty.setValue(warranty) 
-        self.eur.setChecked(euro) 
-        self.they_pay_they_ship.setChecked(they_pay_they_ship) 
-        self.they_pay_we_ship.setChecked(they_pay_we_ship) 
-        self.we_pay_we_ship.setChecked(we_pay_we_ship) 
+        self.warranty.setValue(warranty)
+        self.eur.setChecked(euro)
+        self.they_pay_they_ship.setChecked(they_pay_they_ship)
+        self.they_pay_we_ship.setChecked(they_pay_we_ship)
+        self.we_pay_we_ship.setChecked(we_pay_we_ship)
 
     def insert_handler(self):
         from free_line_form import Dialog
@@ -217,19 +207,19 @@ class Form(Ui_Form, QWidget):
             try:
                 description = dialog.description.text()
                 if not description:
-                    return 
+                    return
 
                 self.lines_model.insert_free(
                     description,
                     dialog.quantity.value(),
-                    dialog.price.value() ,
+                    dialog.price.value(),
                     int(dialog.tax.currentText())
                 )
             except:
-                raise 
+                raise
                 QMessageBox.critical(
-                    self, 
-                    'Error', 
+                    self,
+                    'Error',
                     'Error adding free line'
                 )
 
@@ -241,36 +231,36 @@ class Form(Ui_Form, QWidget):
         if not self._valid_header(): return
         if not self.lines_model:
             QMessageBox.critical(self, 'Error', "Can't process empty proforma")
-            return 
+            return
 
         warehouse_id = utils.warehouse_id_map.get(self.warehouse.currentText())
-        lines = self.lines_model.lines 
-        
+        lines = self.lines_model.lines
+
         if hasattr(self, 'stock_model'):
             if self.stock_model.lines_against_stock(warehouse_id, lines):
                 QMessageBox.critical(
-                    self, 
-                    'Error', 
+                    self,
+                    'Error',
                     'Someone took those incoming stocks. Start again.'
                 )
-                self.close() 
-                return   
+                self.close()
+                return
 
-        self._form_to_proforma() 
+        self._form_to_proforma()
         try:
             self.save_template()
             db.session.commit()
 
         except:
-            raise 
-            db.session.rollback() 
+            raise
+            db.session.rollback()
         else:
             QMessageBox.information(self, 'Success', 'Sale saved successfully')
-        
-        self.close() 
+
+        self.close()
 
     def save_template(self):
-        self.model.add(self.proforma) 
+        self.model.add(self.proforma)
         self.proforma.advanced_lines.extend(self.lines_model.lines)
 
     def _valid_header(self):
@@ -286,9 +276,8 @@ class Form(Ui_Form, QWidget):
             return False
         return True
 
-
     def closeEvent(self, event):
-        db.session.rollback() 
+        db.session.rollback()
 
     def _form_to_proforma(self):
 
@@ -297,18 +286,18 @@ class Form(Ui_Form, QWidget):
         self.proforma.date = utils.parse_date(self.date.text())
         self.proforma.warranty = self.warranty.value()
         self.proforma.they_pay_they_ship = self.they_pay_they_ship.isChecked()
-        self.proforma.they_pay_we_ship = self.they_pay_we_ship.isChecked() 
-        self.proforma.we_pay_we_ship = self.we_pay_we_ship.isChecked() 
+        self.proforma.they_pay_we_ship = self.they_pay_we_ship.isChecked()
+        self.proforma.we_pay_we_ship = self.we_pay_we_ship.isChecked()
         self.proforma.agent_id = utils.agent_id_map[self.agent.currentText()]
         self.proforma.partner_id = utils.partner_id_map[self.partner.text()]
         self.proforma.warehouse_id = utils.warehouse_id_map[self.warehouse.currentText()]
         self.proforma.courier_id = utils.courier_id_map[self.courier.currentText()]
         self.proforma.eur_currency = self.eur.isChecked()
         self.proforma.credit_amount = self.credit.value()
-        self.proforma.credit_days = self.days.value() 
-        self.proforma.incoterm = self.incoterms.currentText() 
-        self.proforma.external = self.external.text() 
-        self.proforma.tracking = self.tracking.text() 
+        self.proforma.credit_days = self.days.value()
+        self.proforma.incoterm = self.incoterms.currentText()
+        self.proforma.external = self.external.text()
+        self.proforma.tracking = self.tracking.text()
         self.proforma.note = self.note.toPlainText()[0:255]
 
     def clear_filters(self):
@@ -318,26 +307,23 @@ class Form(Ui_Form, QWidget):
 
 
 class EditableForm(Form):
-    
+
     def __init__(self, parent, view, proforma):
         reload_utils()
-        self.proforma = proforma 
+        self.proforma = proforma
         super().__init__(parent, view)
-        self.update_totals() 
-
+        self.update_totals()
 
     def init_template(self):
-        self.proforma_to_form() 
+        self.proforma_to_form()
         self.warehouse.setEnabled(False)
         self.disable_if_cancelled()
-
 
     def save_template(self):
         for o in db.session:
             if type(o) == db.AdvancedLine:
                 print(o)
 
-    
     def disable_if_cancelled(self):
         if self.proforma.cancelled:
             self.delete_.setEnabled(False)
@@ -346,7 +332,7 @@ class EditableForm(Form):
             self.search.setEnabled(False)
             self.insert.setEnabled(False)
             self.add.setEnabled(False)
-            self.save.setEnabled(False)      
+            self.save.setEnabled(False)
 
 
 def get_form(parent, view, proforma=None):
