@@ -1,5 +1,4 @@
 
-
 class SavingError(Exception):
     pass 
 
@@ -25,4 +24,7 @@ class LineCompletedError(Exception):
     pass 
 
 class NotExistingStockOutput(Exception):
-    pass 
+    pass
+
+class NotExistingStockInMask(Exception):
+    pass

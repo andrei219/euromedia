@@ -12,12 +12,12 @@ from models import (
 )
 
 import utils 
-
-from exceptions import LineCompletedError, SeriePresentError
-
+from exceptions import LineCompletedError
+from exceptions import SeriePresentError
+from exceptions import NotExistingStockInMask
 from sqlalchemy.exc import IntegrityError
-
 from exceptions import NotExistingStockOutput
+
 
 class Form(Ui_ExpeditionForm, QDialog):
 
@@ -116,13 +116,32 @@ class Form(Ui_ExpeditionForm, QDialog):
                 print(err)
 
             except NotExistingStockOutput:
-                mss = 'This SN with this spec or condition is not in Stock'
-                mss += mss + 'May be it is in overflow?' 
-                QMessageBox.critical(
-                    self, 'Error', 
-                    mss
-                )
+                mss = 'This SN with this spec or condition is not in Stock.'
+                mss += ' May be it is in overflow?'
+                QMessageBox.critical(self, 'Error', mss)
+            except NotExistingStockInMask:
+                type, number = self.get_dependant_purchase()
+                doc = str(type) + '-' + str(number).zfill(6)
+                mss = "This expedition must be completed with"
+                mss += f" stock from {doc}. "
+                QMessageBox.critical(self, 'Error', mss)
+
             self.imei.clear()
+
+
+    def get_dependant_purchase(self):
+
+        origin_id = self.expedition.proforma.advanced_lines[0].origin_id
+
+        from db import session
+        from db import PurchaseProforma
+        from db import PurchaseProformaLine
+        type, number = session.query(
+            PurchaseProforma.type,
+            PurchaseProforma.number
+        ).join(PurchaseProformaLine)\
+            .where(PurchaseProformaLine.id == origin_id).one()
+        return type, number
 
     def update_overflow_condition(self):
         processed_in_line = self.processed_in_line
@@ -222,4 +241,4 @@ class Form(Ui_ExpeditionForm, QDialog):
             raise 
     
         self.parent.set_mv('warehouse_expeditions_')
-        super().closeEvent(event)             
+        super().closeEvent(event)

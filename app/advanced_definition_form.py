@@ -2,17 +2,19 @@ from ui_advanced_definition_form import Ui_Form
 
 from PyQt5.QtWidgets import QWidget, QMessageBox, QTableView
 
-import utils, db
+
+import utils
+import db
+
+from models import AdvancedStockModel
+from models import DefinedStockModel
+from models import AdvancedLinesModel
 
 
 def reload_utils():
     from importlib import reload
     global utils
     utils = reload(utils)
-
-
-from models import AdvancedLinesModel, AdvancedStockModel, \
-    AdvancedDefinedModel
 
 
 class Form(Ui_Form, QWidget):
@@ -40,10 +42,11 @@ class Form(Ui_Form, QWidget):
         )
 
         self.stock_view.setSelectionBehavior(QTableView.SelectRows)
-        self.stock_view.setSelectionMode(QTableView.SingleSelection)
+        self.stock_view.setSelectionMode(QTableView.MultiSelection)
         self.stock_view.setAlternatingRowColors(True)
 
         self.saved = False
+
 
     def init_template(self):
         self.init_lines_stock_defined()
@@ -77,16 +80,14 @@ class Form(Ui_Form, QWidget):
     def update_handler(self):
         line = self.get_selected_line()
 
-        if sum(stock.request for stock in self.stock_model.requested_stocks) \
-                != line.quantity:
+        if sum(stock.request for stock in self.stock_model.requested_stocks) > line.quantity:
             QMessageBox.critical(self, 'Error', 'sum(requested) must be equal to line quantity')
-            return
         else:
-            self.defined_model.add(*self.stock_model.requested_stocks)
+            self.defined_model.add(*self.stock_model.requested_stocks, showing_condition=line.showing_condition)
             self.set_stock_mv(line)
 
     def set_defined_mv(self, line):
-        self.defined_model = AdvancedDefinedModel(line)
+        self.defined_model = DefinedStockModel(line)
         self.defined_view.setModel(self.defined_model)
 
     def save_handler(self):
@@ -97,7 +98,6 @@ class Form(Ui_Form, QWidget):
                 if not line.free_description
         )):
             self.lines_model.update_count_relevant()
-            self.lines_model.delete_from_imeis_mask()
 
             try:
                 db.session.commit()
@@ -121,7 +121,8 @@ class Form(Ui_Form, QWidget):
 
     def get_selected_line(self):
         indexes = self.lines_view.selectedIndexes()
-        if not indexes: return
+        if not indexes:
+            return
         row = {i.row() for i in indexes}.pop()
         return self.lines_model[row]
 
@@ -141,6 +142,8 @@ class Form(Ui_Form, QWidget):
             )
 
             db.session.rollback()
+        else:
+            db.session.commit()
 
 
 class EditableForm(Form):
@@ -160,9 +163,6 @@ class EditableForm(Form):
         self.delete_.setDisabled(True)
 
     def init_template(self):
-        pass
-
-    def closeEvent(self, event):
         pass
 
     def lines_view_clicked_handler(self, index):

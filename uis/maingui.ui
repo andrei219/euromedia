@@ -2357,7 +2357,7 @@
           <string notr="true">background:light; </string>
          </property>
          <property name="text">
-          <string>ADV.SALE</string>
+          <string>Presale</string>
          </property>
         </widget>
         <widget class="QToolButton" name="proformas_sales_view_pdf">
@@ -2399,7 +2399,7 @@
           </rect>
          </property>
          <property name="text">
-          <string>DEF. ADV.SALE</string>
+          <string>Define Presale</string>
          </property>
         </widget>
         <widget class="QToolButton" name="proformas_sales_ready">

@@ -20,13 +20,15 @@ from sqlalchemy.orm import relationship, backref
 import functools
 import operator
 
+from sqlalchemy.sql.operators import exists
+
 engine = create_engine('mysql+mysqlconnector://andrei:hnq#4506@192.168.2.253:3306/appdb', echo=False)
 dev_engine = create_engine('mysql+mysqlconnector://root:hnq#4506@localhost:3306/appdb', echo=False)
-
 
 # from sale types:
 
 NORMAL, FAST, DEFINED = 0, 1, 2
+
 
 def get_engine():
     try:
@@ -681,7 +683,8 @@ class SaleProforma(Base):
 
     @property
     def total_quantity(self):
-        return sum(line.quantity for line in self.lines if line.item_id)
+        return sum(line.quantity for line in self.lines if line.item_id) or \
+            sum(line.quantity for line in self.advanced_lines if line.item_id)
 
     @property
     def total_processed(self):
@@ -900,6 +903,7 @@ class SaleProformaLine(Base):
 
 
 class AdvancedLine(Base):
+
     __tablename__ = 'advanced_lines'
 
     id = Column(Integer, primary_key=True)
@@ -963,13 +967,29 @@ class AdvancedLineDefinition(Base):
     spec = Column(String(50), nullable=False)
     quantity = Column(Integer, default=0)
 
+    showing_condition = Column(String(50), nullable=True)
+
     local_count_relevant = Column(Boolean, default=True)
     global_count_relevant = Column(Boolean, default=False)
+
+    item = relationship('Item', uselist=False)
+
+    def __init__(self, item_id, condition, spec, quantity, showing_condition):
+        self.item_id = item_id
+        self.condition = condition
+        self.spec = spec
+        self.quantity = quantity
+        self.showing_condition = showing_condition
 
     def __bool__(self):
         return all((self.item_id, self.spec, self.condition))
 
     def __repr__(self):
+        clsname = self.__class__.__name__
+        s = f"{clsname}(item_id={self.item_id}, condition={self.condition}"
+        s += f", spec={self.spec}, quantity={self.quantity})"
+        return s
+
         return repr(self.__dict__)
 
 
@@ -1158,7 +1178,6 @@ class ExpeditionSerie(Base):
 
 
 class Imei(Base):
-
     __tablename__ = 'imeis'
 
     imei = Column(String(50), primary_key=True, nullable=False)
@@ -1171,8 +1190,8 @@ class Imei(Base):
     warehouse = relationship('Warehouse', uselist=False)
 
 
-class ImeiMask(Base):
 
+class ImeiMask(Base):
     __tablename__ = 'imeis_mask'
 
     imei = Column(String(50), primary_key=True)
@@ -1187,7 +1206,6 @@ class ImeiMask(Base):
 
 
 def create_and_populate():
-
     import sys
     import random
 
@@ -1458,14 +1476,6 @@ def reception_series_after_insert(mapper, connection, target):
     # Execute always
     connection.execute(imei_insert_stmt(target))
 
-    # if mix:
-    # Search sister origin_id 
-    #   A <- get sum of advanced lines with that origin_id 
-    #   B <- get sum or imeis_mask with that origin_id 
-    #       if A < B:
-    #       Añadir el imei a la mascara. 
-    # Apuntar en la mascara el origen facilita este código.
-
     if any((
             target.line.description is not None,
             'Mix' in target.line.condition,
@@ -1474,13 +1484,12 @@ def reception_series_after_insert(mapper, connection, target):
         sister_origin_id = get_sister_origin_id(target)
 
         if sister_origin_id is not None:
-            advanced_quantity = session.query(func.sum(AdvancedLine.quantity)). \
-                where(AdvancedLine.origin_id == sister_origin_id).scalar()
 
-            mask_quantity = session.query(func.count(ImeiMask.imei)). \
-                where(ImeiMask.origin_id == sister_origin_id).scalar()
+            advanced = session.query(AdvancedLine.id).join(SaleProforma). \
+                where(SaleProforma.cancelled == False). \
+                where(AdvancedLine.origin_id == sister_origin_id).all()
 
-            if mask_quantity < advanced_quantity:
+            if len(advanced) > 0:
                 connection.execute(imei_mask_insert_stmt(target, sister_origin_id))
 
 
@@ -1514,40 +1523,154 @@ def imei_mask_insert_stmt(target, origin_id):
 
 @event.listens_for(ReceptionSerie, 'after_delete')
 def reception_series_after_delete(mapper, connection, target):
+    # No puede haber error humano aqui. El programa decide por eso
+    # no es necesario where clause.
     connection.execute(delete(Imei).where(Imei.imei == target.serie))
     connection.execute(delete(ImeiMask).where(ImeiMask.imei == target.serie))
 
 
+def get_linked_proforma_id(expedition_serie):
+    origin_id = expedition_serie.line.expedition.proforma.advanced_lines[0].origin_id
+    return session.query(PurchaseProforma.id).join(PurchaseProformaLine).where(
+        PurchaseProformaLine.id == origin_id
+    ).scalar()
+
+
+def get_linked_origin_id(expedition_serie):
+    return expedition_serie.line.expedition.proforma.advanced_lines[0].origin_id
+
+
+def get_origin_id_from_expedition_serie(target):
+    return session.query(
+        AdvancedLine.origin_id
+    ).join(AdvancedLineDefinition).join(SaleProforma).where(
+        AdvancedLineDefinition.item_id == target.line.item_id,
+        AdvancedLineDefinition.condition == target.line.condition,
+        AdvancedLineDefinition.spec == target.line.spec
+    ).first().origin_id
+
+
 @event.listens_for(ExpeditionSerie, 'after_insert')
 def expedition_series_after_insert(mapper, connection, target):
+    # 1 . Search reception line
+    # origin -> proforma_id -> reception_line
+    # 2 . Build reception series
+    # 3 . Insert reception series
+    # Expedition series already inserted by session api
     condition = target.line.condition
     spec = target.line.spec
     item_id = target.line.item_id
-    stmt = delete(Imei).where(Imei.imei == target.serie).where(Imei.condition == condition). \
-        where(Imei.spec == spec).where(Imei.item_id == item_id)
-    result = connection.execute(stmt)
+    serie = target.serie
 
-    if not result.rowcount:
-        from app.exceptions import NotExistingStockOutput
-        raise NotExistingStockOutput
+    if target.line.expedition.from_sale_type == FAST:
+        try:
+            proforma_id = get_linked_proforma_id(target)
 
-    else:
-        connection.execute(
-            delete(ImeiMask).where(ImeiMask.imei == target.serie)
+            reception_line_id = session.query(ReceptionLine.id).join(Reception) \
+                .where(
+                Reception.proforma_id == proforma_id
+            ).where(
+                ReceptionLine.item_id == item_id,
+                ReceptionLine.condition == condition,
+                ReceptionLine.spec == spec
+            ).scalar()
+
+            connection.execute(
+                reception_series_insert_statement(
+                    serie=serie, item_id=item_id, condition=condition,
+                    spec=spec, reception_line_id=reception_line_id
+                )
+            )
+
+        except IndexError:
+            return
+
+    elif target.line.expedition.from_sale_type == NORMAL:
+
+        condition = target.line.condition
+        spec = target.line.spec
+        item_id = target.line.item_id
+        result = connection.execute(
+            delete(Imei).where(
+                Imei.imei == serie,
+                Imei.item_id == item_id,
+                Imei.condition == condition,
+                Imei.spec == spec
+            )
         )
+        if not result.rowcount:
+            from exceptions import NotExistingStockOutput
+            raise NotExistingStockOutput
+
+    elif target.line.expedition.from_sale_type == DEFINED:
+
+        origin_id = get_origin_id_from_expedition_serie(target)
+
+        result = connection.execute(
+            delete(ImeiMask).where(
+                ImeiMask.imei == serie,
+                ImeiMask.item_id == item_id,
+                ImeiMask.condition == condition,
+                ImeiMask.spec == spec,
+                ImeiMask.origin_id == origin_id
+            )
+        )
+
+        if not result.rowcount:
+            from exceptions import NotExistingStockInMask
+            raise NotExistingStockInMask
+        else:
+            connection.execute(
+                delete(Imei).where(
+                    Imei.imei == serie,
+                    Imei.item_id == item_id,
+                    Imei.condition == condition,
+                    Imei.spec == spec
+                )
+            )
+
+
+def reception_series_insert_statement(item_id, serie, condition, spec, reception_line_id):
+    return insert(ReceptionSerie).values(
+        condition=condition,
+        spec=spec,
+        item_id=item_id,
+        line_id=reception_line_id,
+        serie=serie
+    )
 
 
 @event.listens_for(ExpeditionSerie, 'after_delete')
 def expedition_series_after_delete(mapper, connection, target):
-    stmt = insert(Imei).values(
-        imei=target.serie,
-        item_id=target.line.item_id,
-        condition=target.line.condition,
-        spec=target.line.spec,
-        warehouse_id=target.line.expedition.proforma.warehouse.id
-    )
+    if target.line.expedition.from_sale_type == FAST:
+        connection.execute(
+            delete(ReceptionSerie).where(ReceptionSerie.serie == target.serie)
+        )
 
-    connection.execute(stmt)
+    elif target.line.expedition.from_sale_type == NORMAL:
+        stmt = insert(Imei).values(
+            imei=target.serie,
+            item_id=target.line.item_id,
+            condition=target.line.condition,
+            spec=target.line.spec,
+            warehouse_id=target.line.expedition.proforma.warehouse.id
+        )
+
+        connection.execute(stmt)
+    elif target.line.expedition.from_sale_type == DEFINED:
+
+        origin_id = get_origin_id_from_expedition_serie(target)
+
+        stmt = insert(ImeiMask).values(
+            imei=target.serie,
+            item_id=target.line.item_id,
+            condition=target.line.condition,
+            spec=target.line.spec,
+            warehouse_id=target.line.expedition.proforma.warehouse_id,
+            origin_id=origin_id
+        )
+
+        connection.execute(stmt)
 
 
 class SpecChange(Base):
@@ -2195,6 +2318,26 @@ def create_init_data():
     session.add(condition)
 
     session.commit()
+
+
+def correct_mask():
+
+    for row in session.query(ImeiMask.origin_id).distinct():
+        purchase_proforma = session.query(PurchaseProforma).join(PurchaseProformaLine).\
+            where(PurchaseProformaLine.id == row.origin_id).first()
+        if purchase_proforma.completed:
+            if all((
+                sale.completed for sale in session.query(SaleProforma).join(AdvancedLine).\
+                    where(AdvancedLine.origin_id == row.origin_id)
+            )):
+                stmt = delete(ImeiMask).where(ImeiMask.origin_id == row.origin_id)
+                session.execute(stmt)
+
+    try:
+        session.commit()
+    except:
+        session.rollback()
+        raise
 
 
 if __name__ == '__main__':

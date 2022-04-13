@@ -3,6 +3,8 @@ from datetime import date
 from PyQt5.QtWidgets import QWidget, QMessageBox
 
 import db
+import utils
+
 from db import Agent, Partner
 from models import (
     AdvancedLinesModel,
@@ -13,7 +15,7 @@ from sale_proforma_form import Form
 from ui_advanced_sale_proforma_form import Ui_Form
 from utils import setCommonViewConfig
 
-import utils
+MESSAGE = "This presale is only for incoming stock \n {}. For others stocks create new presale"
 
 
 def reload_utils():
@@ -24,7 +26,7 @@ def reload_utils():
 
 class Form(Ui_Form, QWidget):
     def __init__(self, parent, view):
-        self.proforma = None
+        self.stock_model = None
         reload_utils()
         super().__init__()
         self.setupUi(self)
@@ -32,11 +34,15 @@ class Form(Ui_Form, QWidget):
         self.model = view.model()
         self.init_template()
         self.parent = parent
-        self.lines_model = AdvancedLinesModel(self.proforma)
+        self.lines_model = AdvancedLinesModel(self.proforma, self)
         self.lines_view.setModel(self.lines_model)
+
         self.set_combos()
         self.set_completers()
         self.set_handlers()
+
+        self.type_filter = None
+        self.number_filter = None
 
     def init_template(self):
         self.proforma = db.SaleProforma()
@@ -72,7 +78,9 @@ class Form(Ui_Form, QWidget):
         ]: utils.setCompleter(field, data)
 
     def proforma_to_form(self):
+
         p = self.proforma
+
         self.type.setCurrentText(str(p.type))
         self.number.setText(str(p.number))
         self.date.setText(p.date.strftime('%d%m%Y'))
@@ -90,6 +98,7 @@ class Form(Ui_Form, QWidget):
         self.they_pay_we_ship.setChecked(p.they_pay_we_ship)
         self.they_pay_they_ship.setChecked(p.they_pay_they_ship)
         self.we_pay_we_ship.setChecked(p.we_pay_we_ship)
+        self.note.setText(p.note)
 
     def set_stock_mv(self):
         warehouse_id = utils.warehouse_id_map.get(
@@ -110,6 +119,9 @@ class Form(Ui_Form, QWidget):
             description=description,
             condition=condition,
             spec=spec,
+            type=self.type_filter,
+            number=self.number_filter
+
         )
 
         self.stock_view.setModel(self.stock_model)
@@ -118,11 +130,12 @@ class Form(Ui_Form, QWidget):
         self.set_stock_mv()
 
     def warehouse_handler(self):
-        if hasattr(self, 'stock_model'):
-            self.stock_model.reset()
 
-        if hasattr(self, 'lines_model'):
+        try:
+            self.stock_model.reset()
             self.lines_model.reset()
+        except AttributeError:
+            pass
 
         self.update_totals()
         # removing objects in pending state 
@@ -134,20 +147,36 @@ class Form(Ui_Form, QWidget):
         self.sale_tax.setText(str(self.lines_model.tax))
         self.total.setText(str(self.lines_model.total))
 
+    def set_stock_message(self, empty=False):
+        print('set_stock_message')
+        if empty:
+            print('if empty')
+            self.stock_message.setText('')
+            self.stock_message.setStyleSheet('')
+        else:
+            print('else')
+            s = str(self.type_filter) + '-' + str(self.number_filter).zfill(6)
+            self.stock_message.setText(MESSAGE.format(s))
+            self.stock_message.setStyleSheet('background-color:"#FF7F7F"')
+
     def delete_handler(self):
         indexes = self.lines_view.selectedIndexes()
-        if not indexes: return
+        if not indexes:
+            return
         row = {index.row() for index in indexes}.pop()
         self.lines_model.delete(row)
         self.lines_view.clearSelection()
-
+        self.set_stock_message(empty=not self.lines_model)
+        self.update_global_filters()
         self.set_stock_mv()
         self.update_totals()
 
     def add_handler(self):
-        if not hasattr(self, 'stock_model'): return
+        if not hasattr(self, 'stock_model'):
+            return
         indexes = self.stock_view.selectedIndexes()
-        if not indexes: return
+        if not indexes:
+            return
         row = {i.row() for i in indexes}.pop()
         vector = self.stock_model[row]
 
@@ -172,7 +201,20 @@ class Form(Ui_Form, QWidget):
             QMessageBox.critical(self, 'Error', str(ex))
         else:
             self.update_totals()
+
+            # set filters before compute stocks:
+            self.update_global_filters(vector=vector)
+
             self.set_stock_mv()
+            self.set_stock_message()
+
+    def update_global_filters(self, vector=None):
+        if vector:
+            self.type_filter = vector.type
+            self.number_filter  = vector.number
+        else:
+            self.type_filter = None
+            self.number_filter = None
 
     def partner_search(self):
         partner_id = utils.partner_id_map.get(self.partner.text())
@@ -186,9 +228,11 @@ class Form(Ui_Form, QWidget):
         except TypeError:
             raise
 
-        result = db.session.query(Agent.fiscal_name, Partner.warranty, Partner.euro,
-                                  Partner.they_pay_they_ship, Partner.they_pay_we_ship, Partner.we_pay_we_ship,
-                                  Partner.days_credit_limit).join(Agent).where(Partner.id == partner_id).one()
+        result = db.session.query(Agent.fiscal_name,
+                                  Partner.warranty, Partner.euro, Partner.they_pay_they_ship,
+                                  Partner.they_pay_we_ship, Partner.we_pay_we_ship,
+                                  Partner.days_credit_limit).join(Agent)\
+            .where(Partner.id == partner_id).one()
 
         agent, warranty, euro, they_pay_they_ship, they_pay_we_ship, we_pay_we_ship, days = \
             result
@@ -228,7 +272,8 @@ class Form(Ui_Form, QWidget):
         self.number.setText(str(next_num).zfill(6))
 
     def save_handler(self):
-        if not self._valid_header(): return
+        if not self._valid_header():
+            return
         if not self.lines_model:
             QMessageBox.critical(self, 'Error', "Can't process empty proforma")
             return
@@ -236,15 +281,11 @@ class Form(Ui_Form, QWidget):
         warehouse_id = utils.warehouse_id_map.get(self.warehouse.currentText())
         lines = self.lines_model.lines
 
-        if hasattr(self, 'stock_model'):
+        if self.stock_model is not None:
             if self.stock_model.lines_against_stock(warehouse_id, lines):
-                QMessageBox.critical(
-                    self,
-                    'Error',
-                    'Someone took those incoming stocks. Start again.'
-                )
+                QMessageBox.critical(self, 'Error', 'Someone took those incoming stocks. Start again.')
                 self.close()
-                return
+                # return
 
         self._form_to_proforma()
         try:
@@ -310,6 +351,7 @@ class EditableForm(Form):
 
     def __init__(self, parent, view, proforma):
         reload_utils()
+        print(proforma)
         self.proforma = proforma
         super().__init__(parent, view)
         self.update_totals()
@@ -319,10 +361,14 @@ class EditableForm(Form):
         self.warehouse.setEnabled(False)
         self.disable_if_cancelled()
 
+    # Solo necsita commit en editable. Pero aun asi necesitamos
+    # este metodo por seguir el template pattern
+    # aunque este vacio.
     def save_template(self):
-        for o in db.session:
-            if type(o) == db.AdvancedLine:
-                print(o)
+        pass
+        # for o in db.session:
+        #     if type(o) == db.AdvancedLine:
+        #         print(o)
 
     def disable_if_cancelled(self):
         if self.proforma.cancelled:

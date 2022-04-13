@@ -1,3 +1,8 @@
+
+
+
+
+# -*- coding: utf-8 -*-
 # -*- coding: utf-8 -*-
 
 # Form implementation generated from reading ui file '.\uis\advanced_definition_form.ui'

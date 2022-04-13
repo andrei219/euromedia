@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1215</width>
+    <width>1261</width>
     <height>1040</height>
    </rect>
   </property>
@@ -490,7 +490,7 @@
      </size>
     </property>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>41</x>
@@ -784,7 +784,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>Cancel</string>
+    <string>Exit</string>
    </property>
   </widget>
   <widget class="QPushButton" name="save">
@@ -947,10 +947,10 @@
      </rect>
     </property>
     <property name="currentText">
-     <string>21</string>
+     <string>0</string>
     </property>
     <property name="currentIndex">
-     <number>3</number>
+     <number>0</number>
     </property>
     <item>
      <property name="text">
@@ -1091,7 +1091,7 @@
     </property>
    </widget>
   </widget>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>510</x>
@@ -1191,6 +1191,19 @@
      </widget>
     </item>
    </layout>
+  </widget>
+  <widget class="QLabel" name="stock_message">
+   <property name="geometry">
+    <rect>
+     <x>960</x>
+     <y>710</y>
+     <width>231</width>
+     <height>91</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
   </widget>
  </widget>
  <resources/>

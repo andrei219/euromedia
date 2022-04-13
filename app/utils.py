@@ -28,6 +28,7 @@ from bidict import bidict
 EXCEL_FILTER = 'Archivos excel (*.xlsx)'
 PDF_FILETR = "Pdf Files (*.pdf)"
 
+
 def mymap(db_class):
 	return {o.fiscal_name:o.id for o in db.session.query(db_class.fiscal_name, db_class.id).\
 		where(db_class.active == True)}
@@ -171,11 +172,14 @@ def mixed_to_clean_descriptions(mixed_description):
 
     return clean_descriptions
 
+
 descriptions = complete_descriptions(description_id_map, dirty_map) 
+
 
 @functools.cache
 def get_itemids_from_mixed_description(mixed_description):
-    if not mixed_description:return
+    if not mixed_description:
+        return
     ids = [] 
     if mixed_description.count('Mixed') == 2:
         for dirty_desc in dirty_map:
@@ -210,10 +214,12 @@ def get_itemids_from_mixed_description(mixed_description):
                     ids.append(dirty_map[dirty_desc])
     return ids 
 
+
 def compute_available_descriptions(available_item_ids):
     cmap = bidict({k:v for k, v in description_id_map.items() if v in available_item_ids})
     dmap = bidict({k:v for k, v in dirty_map.items() if v in available_item_ids})
     return complete_descriptions(cmap, dmap)
+
 
 def has_serie(line):
     try:
@@ -227,8 +233,6 @@ def has_serie(line):
             for id in get_itemids_from_mixed_description(line.description)
         ))
 
-
-
 def get_items_ids_by_keyword(keyword):
     return [description_id_map[k] for k in description_id_map if keyword in k.lower()]
 
@@ -240,12 +244,14 @@ def validSwift(bic):
         return False
     return True
 
+
 def validIban(iban):
     try:
         IBAN(iban)
     except ValueError:
         return False
     return True
+
 
 # Let the user pass a string or an IBAN object 
 # If the iban is not valid, do nothing
@@ -420,5 +426,7 @@ def build_description(lines):
 
 if __name__ == '__main__':
 
-    for k, v in description_id_map.items():
-        print(k, ':', stock_type(v)) 
+
+    for d in descriptions:
+        print(d)
+

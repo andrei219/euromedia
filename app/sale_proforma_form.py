@@ -397,6 +397,7 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.they_pay_we_ship.setChecked(p.they_pay_we_ship)
         self.they_pay_they_ship.setChecked(p.they_pay_they_ship)
         self.we_pay_we_ship.setChecked(p.we_pay_we_ship)
+        self.note.setText(p.note)
 
     def lines_view_clicked_handler(self):
         self.set_selected_stock_mv() 
