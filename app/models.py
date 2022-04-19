@@ -1123,6 +1123,10 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
             raise
 
 
+def export_expedition(expediton, file_path):
+    pass
+
+
 def item_key(line):
     return line.item_id in utils.description_id_map.inverse
 
@@ -2924,7 +2928,7 @@ class ReceptionModel(BaseTable, QtCore.QAbstractTableModel):
 
     def __init__(self, search_key=None, filters=None):
         super().__init__()
-        self._headerData = ['Reception ID', 'Warehouse', 'Total', 'Processed', 'Logistic', 'Cancelled', \
+        self._headerData = ['Reception ID', 'Warehouse', 'Total', 'Processed', 'Logistic', 'Cancelled',
                             'Partner', 'Agent', 'Warning', 'From Proforma', 'External Doc.']
         self.name = 'receptions'
         query = db.session.query(db.Reception). \
@@ -4699,6 +4703,66 @@ class ChangeModel(BaseTable, QtCore.QAbstractTableModel):
             return False
 
 
+def export_sale_excel(proforma, file_path):
+
+    from openpyxl import Workbook
+    from utils import build_description
+
+    book = Workbook()
+    sheet = book.active
+
+    header = ['Imei/SN', 'Description', 'Condition', 'Spec']
+
+    # Document Date
+    # Customer
+    # Supplpier
+    # Agente primera parte
+
+    try:
+        type_num = str(proforma.invoice.type)+'-' + str(proforma.invoice.number).zfill(6)
+        document_date = str(proforma.invoice.date)
+
+    except AttributeError:
+        type_num = ''
+        document_date = ''
+
+    sheet.append([
+        'Document Date = ' + document_date,
+        'Customer = ' + proforma.partner.trading_name,
+        'Supplier = ' + 'Euromedia Investment Group S.L. ',
+        'Agent = ' + proforma.agent.fiscal_name.split()[0]
+    ])
+
+    sheet.append([])
+
+    sheet.append(header)
+
+    for row in generate_excel_rows(proforma):
+        sheet.append(list(row))
+
+    book.save(file_path)
+
+
+def generate_excel_rows(proforma):
+    for eline in proforma.expedition.lines:
+        condition = eline.showing_condition or eline.condition
+        spec = get_spec(eline)
+        description = eline.item.clean_repr
+        for serie in eline.series:
+            yield serie.serie, description, condition, spec
+
+
+def get_spec(eline: db.ExpeditionLine):
+    for pline in eline.expedition.proforma.lines:
+        if all((
+            eline.item_id == pline.item_id,
+            eline.condition == eline.condition,
+            eline.spec == eline.spec
+        )):
+            if pline.ignore_spec:
+                return ''
+            else:
+                return pline.spec
 
 class RmaIncomingMoldel(BaseTable, QtCore.QAbstractTableModel):
     pass

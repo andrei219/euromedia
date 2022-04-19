@@ -85,6 +85,7 @@ ACTIONS = [
     'import',
     'template',
     'create_courier',
+    'export_excel'
 ]
 
 
@@ -428,7 +429,8 @@ class MainGui(Ui_MainGui, QMainWindow):
         ixs = view.selectedIndexes()
         if not ixs: return
         directory = get_directory(self)
-        if not directory: return
+        if not directory:
+            return
         rows = {i.row() for i in ixs}
         try:
             for row in rows:
@@ -655,6 +657,27 @@ class MainGui(Ui_MainGui, QMainWindow):
             self.proformas_sales_view,
             self.proformas_sales_model
         )
+
+
+    def proformas_sales_export_excel_handler(self):
+
+        proforma = self.get_sale_proforma()
+        from models import export_sale_excel
+        from utils import get_file_path
+        save_file_path = get_file_path(self)
+
+        if not save_file_path:
+            return
+
+
+        try:
+            export_sale_excel(proforma, save_file_path)
+        except:
+            QMessageBox.critical(self, 'Error', 'Error exporting data')
+            raise
+        else:
+            QMessageBox.information(self, 'Success', 'Data exported successfully')
+
 
     def proformas_sales_ready_handler(self):
         indexes = self.proformas_sales_view.selectedIndexes()
@@ -1023,6 +1046,28 @@ class MainGui(Ui_MainGui, QMainWindow):
             is_invoice=True
         )
 
+    def invoices_sales_export_excel_handler(self):
+
+        proforma = self.get_sales_invoice()
+
+        from models import export_sale_excel
+        from utils import get_file_path
+
+        save_file_path = get_file_path(self)
+        if not save_file_path:
+            return
+
+
+        try:
+            export_sale_excel(proforma, save_file_path)
+        except:
+            QMessageBox.critical(self, 'Error', 'Error exporting data')
+            raise
+        else:
+            QMessageBox.information(self, 'Success', 'Data exported successfully')
+
+
+
     def invoices_sales_print_handler(self):
         print('print to printer')
 
@@ -1121,6 +1166,29 @@ class MainGui(Ui_MainGui, QMainWindow):
             return model.receptions[rows.pop()]
 
     # WAREHOUSE EXPEDITION:
+
+    def warehouse_expeditions_export_handler(self):
+        expedition = self.get_expedition(
+            self.warehouse_expeditions_view,
+            self.warehouse_expeditions_model
+        )
+        from models import export_sale_excel
+        from utils import get_file_path
+
+        save_file_path = get_file_path(self)
+
+        if not save_file_path:
+            return
+
+        try:
+            export_sale_excel(expedition.proforma, save_file_path)
+        except:
+            QMessageBox.critical(self, 'Error', 'Error exporting data')
+            raise
+        else:
+            QMessageBox.information(self, 'Success', 'Data exported successfully')
+
+
     def warehouse_expeditions_process_handler(self):
         expedition = self.get_expedition(
             self.warehouse_expeditions_view,

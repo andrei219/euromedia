@@ -142,24 +142,6 @@ class SaleLinePDFRepr(LinePDFRepr):
 
                 self.description += ', ' + spec + ' Spec.'
 
-    # def set_line_from_line(self, line):
-    #     description = line.description or utils.description_id_map.inverse[line.item_id]
-    #
-    #     condition = line.showing_condition or line.condition or ''
-    #     spec = line.spec if not line.ignore_spec else None
-    #
-    #     if condition:
-    #         description += f', {condition}'
-    #
-    #     if spec:
-    #         description += f', {spec}'
-    #
-    #     self.description = description
-    #     self.quantity = line.quantity
-    #     self.total = '{:,.2f}'.format(round(line.price * line.quantity, 2))
-    #     self.price = '{:,.2f}'.format(round(line.price, 2))
-    #     self.total = dot_comma_number_repr(self.total)
-    #     self.price = dot_comma_number_repr(self.price)
 
 
 class AdvancedSaleLinePDFRepr(LinePDFRepr):

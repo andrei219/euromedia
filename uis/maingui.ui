@@ -51,7 +51,7 @@
      <number>0</number>
     </property>
     <property name="currentIndex">
-     <number>5</number>
+     <number>3</number>
     </property>
     <property name="iconSize">
      <size>
@@ -403,7 +403,7 @@
        </rect>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <property name="iconSize">
        <size>
@@ -2073,7 +2073,7 @@
         <widget class="QToolButton" name="proformas_sales_payments">
          <property name="geometry">
           <rect>
-           <x>800</x>
+           <x>780</x>
            <y>10</y>
            <width>75</width>
            <height>60</height>
@@ -2108,7 +2108,7 @@
         <widget class="QToolButton" name="proformas_sales_expenses">
          <property name="geometry">
           <rect>
-           <x>900</x>
+           <x>880</x>
            <y>10</y>
            <width>75</width>
            <height>60</height>
@@ -2312,7 +2312,7 @@
         <widget class="QToolButton" name="proformas_sales_docs">
          <property name="geometry">
           <rect>
-           <x>990</x>
+           <x>980</x>
            <y>10</y>
            <width>75</width>
            <height>60</height>
@@ -2423,6 +2423,35 @@
          <property name="icon">
           <iconset resource="../app/icons.qrc">
            <normaloff>:/ready</normaloff>:/ready</iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>40</width>
+           <height>40</height>
+          </size>
+         </property>
+         <property name="toolButtonStyle">
+          <enum>Qt::ToolButtonTextUnderIcon</enum>
+         </property>
+         <property name="autoRaise">
+          <bool>true</bool>
+         </property>
+        </widget>
+        <widget class="QToolButton" name="proformas_sales_export_excel">
+         <property name="geometry">
+          <rect>
+           <x>1440</x>
+           <y>1</y>
+           <width>71</width>
+           <height>71</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Export</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../app/icons.qrc">
+           <normaloff>:/excel</normaloff>:/excel</iconset>
          </property>
          <property name="iconSize">
           <size>
@@ -4309,6 +4338,35 @@
           <bool>true</bool>
          </property>
         </widget>
+        <widget class="QToolButton" name="invoices_sales_export_excel">
+         <property name="geometry">
+          <rect>
+           <x>940</x>
+           <y>0</y>
+           <width>71</width>
+           <height>71</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Export</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../app/icons.qrc">
+           <normaloff>:/excel</normaloff>:/excel</iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>40</width>
+           <height>40</height>
+          </size>
+         </property>
+         <property name="toolButtonStyle">
+          <enum>Qt::ToolButtonTextUnderIcon</enum>
+         </property>
+         <property name="autoRaise">
+          <bool>true</bool>
+         </property>
+        </widget>
        </widget>
        <widget class="QTableView" name="invoices_sales_view">
         <property name="geometry">
@@ -4376,7 +4434,7 @@
        </rect>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <property name="iconSize">
        <size>
@@ -5120,50 +5178,21 @@
           <bool>true</bool>
          </property>
         </widget>
-        <widget class="QToolButton" name="warehouse_expeditions_print">
+        <widget class="QToolButton" name="warehouse_expeditions_export">
          <property name="geometry">
           <rect>
-           <x>120</x>
-           <y>10</y>
-           <width>51</width>
-           <height>61</height>
+           <x>100</x>
+           <y>3</y>
+           <width>71</width>
+           <height>71</height>
           </rect>
          </property>
          <property name="text">
-          <string>Print</string>
+          <string>Export</string>
          </property>
          <property name="icon">
           <iconset resource="../app/icons.qrc">
-           <normaloff>:/print</normaloff>:/print</iconset>
-         </property>
-         <property name="iconSize">
-          <size>
-           <width>40</width>
-           <height>40</height>
-          </size>
-         </property>
-         <property name="toolButtonStyle">
-          <enum>Qt::ToolButtonTextUnderIcon</enum>
-         </property>
-         <property name="autoRaise">
-          <bool>true</bool>
-         </property>
-        </widget>
-        <widget class="QToolButton" name="warehouse_expeditions_delete">
-         <property name="geometry">
-          <rect>
-           <x>200</x>
-           <y>10</y>
-           <width>61</width>
-           <height>61</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Delete</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../app/icons.qrc">
-           <normaloff>:/delete</normaloff>:/delete</iconset>
+           <normaloff>:/excel</normaloff>:/excel</iconset>
          </property>
          <property name="iconSize">
           <size>
