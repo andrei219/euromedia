@@ -3341,6 +3341,25 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
         sales = {StockEntry(r.item_id, r.condition, r.spec, r.quantity) for r in query}
 
         query = session.query(
+            db.AdvancedLine.item_id,
+            db.AdvancedLine.condition,
+            db.AdvancedLine.spec,
+            func.sum(db.AdvancedLine.quantity).label('quantity')
+        ).join(
+            db.SaleProforma
+        ).group_by(
+            db.SaleProformaLine.item_id,
+            db.SaleProformaLine.condition,
+            db.SaleProformaLine.spec
+        ).where(
+            db.SaleProforma.warehouse_id == warehouse_id,
+            db.SaleProforma.cancelled == False,
+            db.AdvancedLine.item_id != None
+        )
+
+        advanced_sales = {StockEntry(r.item_id, r.condition, r.spec, r.quantity) for r in query}
+
+        query = session.query(
             db.ExpeditionLine.item_id,
             db.ExpeditionLine.condition,
             db.ExpeditionLine.spec,
@@ -3398,10 +3417,19 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
 
         # combine sales and definitions:
         r = sales.symmetric_difference(defined_sales)
-
         for sale in sales:
             for defined_sale in defined_sales:
                 if sale == defined_sale:
+                    sale += defined_sale
+                    r.add(sale)
+        sales = r
+
+
+        # Combine sales and advanced sales:
+        r = sales.symmetric_difference(advanced_sales)
+        for sale in sales:
+            for advanced_sale in advanced_sales:
+                if sale == advanced_sale:
                     sale += defined_sale
                     r.add(sale)
         sales = r
