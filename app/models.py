@@ -3348,9 +3348,9 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
         ).join(
             db.SaleProforma
         ).group_by(
-            db.SaleProformaLine.item_id,
-            db.SaleProformaLine.condition,
-            db.SaleProformaLine.spec
+            db.AdvancedLine.item_id,
+            db.AdvancedLine.condition,
+            db.AdvancedLine.spec
         ).where(
             db.SaleProforma.warehouse_id == warehouse_id,
             db.SaleProforma.cancelled == False,
