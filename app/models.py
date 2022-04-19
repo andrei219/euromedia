@@ -3424,13 +3424,12 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
                     r.add(sale)
         sales = r
 
-
         # Combine sales and advanced sales:
         r = sales.symmetric_difference(advanced_sales)
         for sale in sales:
             for advanced_sale in advanced_sales:
                 if sale == advanced_sale:
-                    sale += defined_sale
+                    sale += advanced_sale
                     r.add(sale)
         sales = r
 
