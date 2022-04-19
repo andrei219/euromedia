@@ -614,7 +614,7 @@ class PartnerContactModel(QtCore.QAbstractTableModel):
 
 
 class SaleInvoiceModel(QtCore.QAbstractTableModel):
-    TYPE_NUM, PROFORMA = 0, 15
+    TYPE_NUM, PROFORMA = 0, 14
 
     def __init__(self, search_key=None, filters=None):
         super().__init__()
@@ -623,6 +623,8 @@ class SaleInvoiceModel(QtCore.QAbstractTableModel):
             search_key=search_key,
             proxy=True
         )
+
+        self.parent_model._headerData.remove('Invoiced')
 
     def rowCount(self, index=QModelIndex()):
         return self.parent_model.rowCount(index)
@@ -709,6 +711,8 @@ class PurchaseInvoiceModel(QtCore.QAbstractTableModel):
             proxy=True
         )
 
+        self.parent_model._headerData.remove('Invoiced')
+
     def rowCount(self, index=QModelIndex()):
         return self.parent_model.rowCount(index)
 
@@ -788,12 +792,13 @@ def buildReceptionLine(line, reception):
 
 class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
     TYPE_NUM, DATE, ETA, PARTNER, AGENT, FINANCIAL, LOGISTIC, SENT, CANCELLED, \
-    OWING, TOTAL, EXTERNAL, PROFORMA = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12
+        OWING, TOTAL, EXTERNAL, INVOICED = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12
 
     def __init__(self, filters=None, search_key=None, proxy=False):
         super().__init__()
         self._headerData = ['Type & Num', 'Date', 'ETA', 'Partner', 'Agent', \
-                            'Financial', 'Logistic', 'Sent', 'Cancelled', 'Owing', 'Total', 'External Doc.']
+                            'Financial', 'Logistic', 'Sent', 'Cancelled', 'Owing', 'Total', 'External Doc.',
+                            'Invoiced']
         self.name = 'proformas'
 
         self.proxy = proxy
@@ -889,6 +894,7 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
         row, col = index.row(), index.column()
         proforma = self.proformas[row]
 
+
         if role == Qt.DisplayRole:
             if col == PurchaseProformaModel.TYPE_NUM:
                 s = str(proforma.type) + '-' + str(proforma.number).zfill(6)
@@ -903,6 +909,10 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
                     return proforma.invoice.eta.strftime('%d/%m/%Y')
                 else:
                     return proforma.eta.strftime('%d/%m/%Y')
+
+            elif col == self.INVOICED:
+                return 'Yes' if proforma.invoice is not None else 'No'
+
             elif col == PurchaseProformaModel.PARTNER:
                 return proforma.partner.fiscal_name
             elif col == PurchaseProformaModel.AGENT:
@@ -1149,8 +1159,8 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
     def __init__(self, search_key=None, filters=None, proxy=False):
         super().__init__()
         self._headerData = ['Type & Num', 'Date', 'Partner', 'Agent', \
-                            'Financial', 'Logistic', 'Sent', 'Cancelled', 'Owes', 'Total', 'Presale', 'Defined',
-                            'Ready To Go', 'External Doc.', 'Invoiced']
+                            'Financial', 'Logistic', 'Sent', 'Cancelled', 'Owes', 'Total', 'Presale',
+                            'Defined','Ready To Go', 'External Doc.', 'Invoiced']
         self.proformas = []
         self.name = 'proformas'
         query = db.session.query(db.SaleProforma). \
