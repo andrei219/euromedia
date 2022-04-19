@@ -353,7 +353,7 @@ class Ui_PurchaseProformaForm(object):
         self.number_line_edit.setMaximumSize(QtCore.QSize(81, 22))
         self.number_line_edit.setLayoutDirection(QtCore.Qt.LeftToRight)
         self.number_line_edit.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
-        self.number_line_edit.setReadOnly(True)
+        self.number_line_edit.setReadOnly(False)
         self.number_line_edit.setObjectName("number_line_edit")
         self.horizontalLayout_2.addWidget(self.number_line_edit)
         spacerItem6 = QtWidgets.QSpacerItem(50, 22, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)

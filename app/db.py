@@ -486,6 +486,7 @@ class PurchaseProformaLine(Base):
     tax = Column(Integer, nullable=False, default=0)
 
     item = relationship('Item', uselist=False)
+
     proforma = relationship(
         'PurchaseProforma',
         backref=backref(
@@ -1673,6 +1674,8 @@ def expedition_series_after_delete(mapper, connection, target):
         connection.execute(stmt)
 
 
+
+
 class SpecChange(Base):
     __tablename__ = 'spec_changes'
 
@@ -1701,6 +1704,43 @@ class ConditionChange(Base):
     before = Column(String(50), nullable=False)
     after = Column(String(50), nullable=False)
     created_on = Column(DateTime, default=datetime.now)
+
+
+
+class IncomingRma(Base):
+
+    __tablename__ = 'incoming_rmas'
+
+    id = Column(Integer, primary_key=True)
+    partner_id = Column(Integer, ForeignKey('partners.id'))
+    date = Column(Date, nullable=True)
+
+    partner = relationship('Partner', uselist=False)
+
+
+class IncomingRmaLine(Base):
+
+    __tablename__ = 'incoming_rma_lines'
+
+    id = Column(Integer, primary_key=True)
+    incoming_rma_id = Column(Integer, ForeignKey('incoming_rmas.id'))
+
+    sn = Column(String(50), nullable=False)
+    purchase_date = Column(Date, nullable=False)
+    purchase_description = Column(String(100), nullable=False)
+    arrival_date = Column(DateTime,  nullable=False)
+    defined_as = Column(String(100), nullable=False)
+    sold_as = Column(String(100), nullable=False)
+    sale_date = Column(Date, nullable=False)
+    warehouse_picking_datetime = Column(DateTime, nullable=False)
+
+    incoming_rma = relationship(
+        'IncomingRma',
+        backref=backref(
+            'lines',
+            cascade='delete-orphan, delete, save-update'
+        )
+    )
 
 
 def create_lines():

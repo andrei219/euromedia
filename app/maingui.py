@@ -32,7 +32,6 @@ from utils import (
 )
 
 
-
 PASSWORD = '0010'
 
 PREFIXES = [
@@ -44,7 +43,12 @@ PREFIXES = [
     'invoices_sales_',
     'warehouse_expeditions_',
     'warehouse_receptions_',
-    'tools_'
+    'warehouse_incoming_rmas',
+    'warehouse_outgoing_rmas',
+    'tools_',
+    'rmas_incoming_',
+    'rmas_outgoing_'
+
 ]
 
 ACTIONS = [
@@ -948,7 +952,7 @@ class MainGui(Ui_MainGui, QMainWindow):
         )
 
     def invoices_purchases_print_handler(self):
-        print('print to printer')
+        print('print ')
 
     def get_purchases_invoice(self):
         return self.get_invoice(
@@ -1155,6 +1159,21 @@ class MainGui(Ui_MainGui, QMainWindow):
         rows = {index.row() for index in view.selectedIndexes()}
         if len(rows) == 1:
             return model.expeditions[rows.pop()]
+
+
+
+    # RMAS HANDLERS:
+
+    def rmas_incoming_new_handler(self):
+
+        from rmas_incoming_form import Form
+
+        self.f = Form(self)
+        self.f.show()
+
+    def rmas_incoming_towh_handler(self):
+        print('¡eeee')
+
 
     # TOOLS HANDLERS:
 

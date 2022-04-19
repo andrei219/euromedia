@@ -132,7 +132,7 @@ class Ui_SalesProformaForm(object):
         self.number.setMaximumSize(QtCore.QSize(81, 22))
         self.number.setLayoutDirection(QtCore.Qt.LeftToRight)
         self.number.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
-        self.number.setReadOnly(True)
+        self.number.setReadOnly(False)
         self.number.setObjectName("number")
         self.horizontalLayout_9.addWidget(self.number)
         spacerItem2 = QtWidgets.QSpacerItem(28, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)

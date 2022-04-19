@@ -51,7 +51,7 @@
      <number>0</number>
     </property>
     <property name="currentIndex">
-     <number>2</number>
+     <number>5</number>
     </property>
     <property name="iconSize">
      <size>
@@ -5565,7 +5565,7 @@
        </rect>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <property name="iconSize">
        <size>
@@ -5637,45 +5637,10 @@
         <property name="frameShadow">
          <enum>QFrame::Sunken</enum>
         </property>
-        <widget class="QToolButton" name="rma_incoming_print_button">
+        <widget class="QToolButton" name="rmas_incoming_towh">
          <property name="geometry">
           <rect>
-           <x>250</x>
-           <y>10</y>
-           <width>51</width>
-           <height>61</height>
-          </rect>
-         </property>
-         <property name="toolTip">
-          <string>Print RMA Order</string>
-         </property>
-         <property name="statusTip">
-          <string>Print RMA Order</string>
-         </property>
-         <property name="text">
-          <string>Print</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../app/icons.qrc">
-           <normaloff>:/print</normaloff>:/print</iconset>
-         </property>
-         <property name="iconSize">
-          <size>
-           <width>40</width>
-           <height>40</height>
-          </size>
-         </property>
-         <property name="toolButtonStyle">
-          <enum>Qt::ToolButtonTextUnderIcon</enum>
-         </property>
-         <property name="autoRaise">
-          <bool>true</bool>
-         </property>
-        </widget>
-        <widget class="QToolButton" name="rma_incoming_warehouse_button">
-         <property name="geometry">
-          <rect>
-           <x>150</x>
+           <x>80</x>
            <y>10</y>
            <width>91</width>
            <height>61</height>
@@ -5707,7 +5672,7 @@
           <bool>true</bool>
          </property>
         </widget>
-        <widget class="QToolButton" name="rma_incoming_new_button">
+        <widget class="QToolButton" name="rmas_incoming_new">
          <property name="geometry">
           <rect>
            <x>20</x>
@@ -5728,76 +5693,6 @@
          <property name="icon">
           <iconset resource="../app/icons.qrc">
            <normaloff>:/new</normaloff>:/new</iconset>
-         </property>
-         <property name="iconSize">
-          <size>
-           <width>40</width>
-           <height>40</height>
-          </size>
-         </property>
-         <property name="toolButtonStyle">
-          <enum>Qt::ToolButtonTextUnderIcon</enum>
-         </property>
-         <property name="autoRaise">
-          <bool>true</bool>
-         </property>
-        </widget>
-        <widget class="QToolButton" name="rma_incoming_open_button">
-         <property name="geometry">
-          <rect>
-           <x>90</x>
-           <y>10</y>
-           <width>51</width>
-           <height>61</height>
-          </rect>
-         </property>
-         <property name="toolTip">
-          <string>Open Selected RMA Order</string>
-         </property>
-         <property name="statusTip">
-          <string>Open Selected RMA Order</string>
-         </property>
-         <property name="text">
-          <string>Open</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../app/icons.qrc">
-           <normaloff>:/open</normaloff>:/open</iconset>
-         </property>
-         <property name="iconSize">
-          <size>
-           <width>40</width>
-           <height>40</height>
-          </size>
-         </property>
-         <property name="toolButtonStyle">
-          <enum>Qt::ToolButtonTextUnderIcon</enum>
-         </property>
-         <property name="autoRaise">
-          <bool>true</bool>
-         </property>
-        </widget>
-        <widget class="QToolButton" name="rma_incoming_print_button_2">
-         <property name="geometry">
-          <rect>
-           <x>320</x>
-           <y>10</y>
-           <width>51</width>
-           <height>61</height>
-          </rect>
-         </property>
-         <property name="toolTip">
-          <string>Mail Rma Response </string>
-         </property>
-         <property name="statusTip">
-          <string>Mail Rma Response</string>
-         </property>
-         <property name="text">
-          <string>E-Mail</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../app/icons.qrc">
-           <normaloff>:/email</normaloff>:/email</iconset>
          </property>
          <property name="iconSize">
           <size>

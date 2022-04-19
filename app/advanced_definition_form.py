@@ -2,6 +2,7 @@ from ui_advanced_definition_form import Ui_Form
 
 from PyQt5.QtWidgets import QWidget, QMessageBox, QTableView
 
+import lxml
 
 import utils
 import db

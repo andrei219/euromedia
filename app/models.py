@@ -614,7 +614,7 @@ class PartnerContactModel(QtCore.QAbstractTableModel):
 
 
 class SaleInvoiceModel(QtCore.QAbstractTableModel):
-    TYPE_NUM, PROFORMA = 0, 14
+    TYPE_NUM, PROFORMA = 0, 15
 
     def __init__(self, search_key=None, filters=None):
         super().__init__()
@@ -1143,14 +1143,14 @@ def build_associated_reception(sale_proforma):
 
 class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
     TYPE_NUM, DATE, PARTNER, AGENT, FINANCIAL, LOGISTIC, SENT, \
-    CANCELLED, OWING, TOTAL, ADVANCED, DEFINED, READY, EXTERNAL = \
-        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13
+    CANCELLED, OWING, TOTAL, ADVANCED, DEFINED, READY, EXTERNAL, INVOICED = \
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14
 
     def __init__(self, search_key=None, filters=None, proxy=False):
         super().__init__()
         self._headerData = ['Type & Num', 'Date', 'Partner', 'Agent', \
                             'Financial', 'Logistic', 'Sent', 'Cancelled', 'Owes', 'Total', 'Presale', 'Defined',
-                            'Ready To Go', 'External Doc.']
+                            'Ready To Go', 'External Doc.', 'Invoiced']
         self.proformas = []
         self.name = 'proformas'
         query = db.session.query(db.SaleProforma). \
@@ -1248,6 +1248,10 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
                 return proforma.partner.fiscal_name
             elif col == self.AGENT:
                 return proforma.agent.fiscal_name
+
+            elif col == self.INVOICED:
+                return 'Yes' if proforma.invoice is not None else 'No'
+
             elif col == self.FINANCIAL:
                 if proforma.not_paid:
                     return 'Not Paid'
@@ -1985,7 +1989,6 @@ class SaleProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
         if not index.isValid():
             return Qt.ItemIsEnabled
         if self.editable_column(index.column()):
-            # return Qt.ItemFlags(super().flags(index) | Qt.ItemIsEditable)
             return Qt.ItemFlags(super().flags(index) | Qt.ItemIsEditable)
         else:
             return Qt.ItemFlags(~Qt.ItemIsEditable)
@@ -4684,3 +4687,87 @@ class ChangeModel(BaseTable, QtCore.QAbstractTableModel):
                 return True
         else:
             return False
+
+
+
+class RmaIncomingMoldel(BaseTable, QtCore.QAbstractTableModel):
+    pass
+
+class RmaIncomingLineModel(BaseTable, QtCore.QAbstractTableModel):
+
+    SN, PURCHASE_DATE, PURCHASE_DESCRIPTION, ARRIVAL_DATETIME, \
+        DEFINED_AS, SALE_DATE, SOLD_AS, WAREHOUSE_PICKING_DATETIME, ACCEPT = \
+        0, 1, 2, 3, 4, 5, 6, 7, 8
+
+    def __init__(self, lines):
+        super().__init__()
+        self._headerData = ['Sn/Imei', 'Purchase Date', 'Arrival Datetime',
+                           'Defined as', 'Sale Date', 'Sold as',
+                           'Warehouse Picking Datetime', 'Accept (Editable: y/n)']
+
+        self.name = 'lines'
+        self.lines = lines
+
+    def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
+        return 'a'
+
+    def add(self, sn):
+
+        print(get_sn_rma_info(sn))
+
+
+
+def get_partner_warranty(partner_id):
+    try:
+        return db.session.query(db.Partner.warranty).\
+            where(db.Partner.id == partner_id).scalar()
+    except:
+        db.session.rollback()
+        raise
+
+
+def get_sn_rma_info(sn):
+    reception_serie = db.session.query(db.ReceptionSerie).where(db.ReceptionSerie.serie == sn).first()
+    purchase_date = reception_serie.line.reception.proforma.date
+
+
+
+    # IMEI
+    # ARRIVAL DATETIME
+    # WARRANTY END (SUPPLIER) COMPUTE ARRIVAL DATE + INVOICE WARRANTY
+    # PURCHASED AS
+    # DEFINED AS
+    # SOLD AS
+    # SOLD AS (PUBLIC CONDITION)
+    # SALE DATE
+    # WARRANTY END (CUSTOMER) COMPUTE SALE DATE + INVOICE WARRANTY DAYS
+    # PROBELM
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
