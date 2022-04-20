@@ -4656,15 +4656,17 @@ class ChangeModel(BaseTable, QtCore.QAbstractTableModel):
     SN, DESCRIPTION, HINT = 0, 1, 2
 
     def __init__(self, hint=None):
-        super().__init__()
-        self.hint = hint
-        self._headerData = ['IMEI/SN', 'Description', hint.capitalize()]
-        # self.sns = db.session.query(db.Imei).all()
+
         from importlib import reload
         global utils
         utils = reload(utils)
-        self.sns = []
 
+        super().__init__()
+        self.hint = hint
+        self._headerData = ['IMEI/SN', 'Description', hint.capitalize()]
+
+
+        self.sns = []
         self.name = 'sns'
         self.hint = hint
 
@@ -4674,12 +4676,15 @@ class ChangeModel(BaseTable, QtCore.QAbstractTableModel):
         if self.hint == 'warehouse':
             self.attrname = 'warehouse.description'
             self.orm_class = Warehouse
+            self.orm_change_class = db.WarehouseChange
         elif self.hint == 'spec':
             self.attrname = 'spec'
             self.orm_class = Spec
+            self.orm_change_class = db.SpecChange
         elif self.hint == 'condition':
             self.attrname = 'condition'
             self.orm_class = Condition
+            self.orm_change_class = db.ConditionChange
 
     def data(self, index, role=Qt.DisplayRole):
         if not index.isValid():
@@ -4704,16 +4709,23 @@ class ChangeModel(BaseTable, QtCore.QAbstractTableModel):
         self.sns.extend(imei_objects)
         self.layoutChanged.emit()
 
-    def apply(self, name):
+    def apply(self, name, comment):
+
         if self.hint == 'warehouse':
+
             for imei_object in self.sns:
-                try:
-                    imei_object.warehouse_id = utils.warehouse_id_map.get(name)
-                except:
-                    raise
+                before = imei_object.warehouse.description
+                after = name
+                db.session.add(db.WarehouseChange(imei_object.imei, before, after, comment))
+                imei_object.warehouse_id = utils.warehouse_id_map.get(name)
         else:
+
             for imei_object in self.sns:
+                before = getattr(imei_object, self.attrname)
+                after = name
+                db.session.add(self.orm_change_class(imei_object.imei, before, after, comment))
                 setattr(imei_object, self.attrname, name)
+
 
         try:
             db.session.commit()

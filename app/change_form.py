@@ -22,9 +22,6 @@ from db import Spec, Condition, Warehouse
 
 import utils
 
-
-
-
 class ChangeForm(Ui_ChangeForm, QDialog):
     
     def __init__(self, parent, hint=None):
@@ -35,8 +32,7 @@ class ChangeForm(Ui_ChangeForm, QDialog):
         from importlib import reload
         global utils
         utils = reload(utils)
-        
-        
+
         self.attr_name = 'description'
         self.model = ChangeModel(hint=hint) 
         self.view.setModel(self.model)
@@ -59,8 +55,9 @@ class ChangeForm(Ui_ChangeForm, QDialog):
 
     def apply_handler(self):
         name = self.new_.text().strip()
+        comment = self.comment.text()[:50]
         try:
-            self.model.apply(name)
+            self.model.apply(name, comment)
         except:
             raise 
 

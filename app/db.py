@@ -1673,9 +1673,6 @@ def expedition_series_after_delete(mapper, connection, target):
 
         connection.execute(stmt)
 
-
-
-
 class SpecChange(Base):
     __tablename__ = 'spec_changes'
 
@@ -1683,8 +1680,14 @@ class SpecChange(Base):
     sn = Column(String(50), nullable=False)
     before = Column(String(50), nullable=False)
     after = Column(String(50), nullable=False)
+    comment = Column(String(50), nullable=True)
     created_on = Column(DateTime, default=datetime.now)
 
+    def __init__(self, sn, before, after, comment=None):
+        self.sn = sn
+        self.before = before
+        self.after = after
+        self.comment = comment
 
 class WarehouseChange(Base):
     __tablename__ = 'warehouse_changes'
@@ -1693,7 +1696,15 @@ class WarehouseChange(Base):
     sn = Column(String(50), nullable=False)
     before = Column(String(50), nullable=False)
     after = Column(String(50), nullable=False)
+    comment = Column(String(50), nullable=True)
     created_on = Column(DateTime, default=datetime.now)
+
+    def __init__(self, sn, before, after, comment=None):
+        self.sn = sn
+        self.before = before
+        self.after = after
+        self.comment = comment
+
 
 
 class ConditionChange(Base):
@@ -1704,6 +1715,13 @@ class ConditionChange(Base):
     before = Column(String(50), nullable=False)
     after = Column(String(50), nullable=False)
     created_on = Column(DateTime, default=datetime.now)
+    comment = Column(String(50), nullable=True)
+
+    def __init__(self, sn, before, after, comment=None):
+        self.sn = sn
+        self.before = before
+        self.after = after
+        self.comment = comment
 
 
 

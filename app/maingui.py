@@ -1260,7 +1260,15 @@ class MainGui(Ui_MainGui, QMainWindow):
         d.exec_()
 
     def tools_change_spec_handler(self):
-        # if models.stock_gap():
+
+        from utils import getPassword
+
+        password = getPassword(self)
+
+        if password != PASSWORD:
+            return
+
+            # if models.stock_gap():
         #     QMessageBox.information(self, 'Information', 'Process all sales first.')
         #     return
             # d = spec_change_form.SpecChange(self)
@@ -1271,6 +1279,14 @@ class MainGui(Ui_MainGui, QMainWindow):
         d.exec_()
 
     def tools_change_condition_handler(self):
+
+        from utils import getPassword
+
+        password = getPassword(self)
+
+        if password != PASSWORD:
+            return
+
         # if models.stock_gap():
         #     QMessageBox.information(self, 'Information', 'Process all sales first.')
         #     return
@@ -1282,7 +1298,14 @@ class MainGui(Ui_MainGui, QMainWindow):
         d.exec_()
 
     def tools_change_warehouse_handler(self):
-        # if models.stock_gap():
+
+        from utils import getPassword
+
+        password = getPassword(self)
+
+        if password != PASSWORD:
+            return
+            # if models.stock_gap():
         #     QMessageBox.information(self, 'Information', 'Process all sales first.')
         #     return
             # d = warehouse_change_form.WarehouseChange(self)
