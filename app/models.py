@@ -1169,7 +1169,7 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
         self._headerData = ['Type & Num', 'Date', 'Partner', 'Agent', \
                             'Financial', 'Logistic', 'Sent', 'Cancelled',
                             'Owes', 'Total', 'Presale','Defined','Ready To Go',
-                            'External Doc.', 'Invoiced', 'In Warehouse', 'Warning'
+                            'External Doc.', 'Inv.', 'In WH', 'Warning'
                             ]
         self.proformas = []
         self.name = 'proformas'
@@ -1267,7 +1267,7 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
             elif col == self.PARTNER:
                 return proforma.partner.fiscal_name
             elif col == self.AGENT:
-                return proforma.agent.fiscal_name
+                return proforma.agent.fiscal_name.split()[0]
 
             elif col == self.WARNING:
                 return proforma.warning

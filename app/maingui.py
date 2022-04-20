@@ -188,6 +188,8 @@ class MainGui(Ui_MainGui, QMainWindow):
             self.invoices_purchases_view.setSortingEnabled(True)
             self.invoices_purchases_view.setAlternatingRowColors(True)
 
+
+
         elif prefix == 'invoices_sales_':
             self.invoices_sales_model = \
                 models.SaleInvoiceModel(filters=filters, search_key=search_key)
@@ -200,11 +202,13 @@ class MainGui(Ui_MainGui, QMainWindow):
             self.invoices_sales_view.setSortingEnabled(True)
             self.invoices_sales_view.setAlternatingRowColors(True)
 
-            self.invoices_sales_view.resizeColumnToContents(2)
-            self.invoices_sales_view.resizeColumnToContents(3)
+            self.invoices_sales_view.resizeColumnsToContents()
 
-            self.invoices_sales_view.resizeColumnToContents(4)
-            self.invoices_sales_view.resizeColumnToContents(5)
+            # self.invoices_sales_view.resizeColumnToContents(2)
+            # self.invoices_sales_view.resizeColumnToContents(3)
+            #
+            # self.invoices_sales_view.resizeColumnToContents(4)
+            # self.invoices_sales_view.resizeColumnToContents(5)
 
 
         elif prefix == 'proformas_sales_':
@@ -221,11 +225,13 @@ class MainGui(Ui_MainGui, QMainWindow):
             self.proformas_sales_view.setAlternatingRowColors(True)
             self.proformas_sales_view.setSortingEnabled(True)
 
-            self.proformas_sales_view.resizeColumnToContents(2)
-            self.proformas_sales_view.resizeColumnToContents(3)
+            self.proformas_sales_view.resizeColumnsToContents()
 
-            self.proformas_sales_view.resizeColumnToContents(4)
-            self.proformas_sales_view.resizeColumnToContents(5)
+            # self.proformas_sales_view.resizeColumnToContents(2)
+            # self.proformas_sales_view.resizeColumnToContents(3)
+            #
+            # self.proformas_sales_view.resizeColumnToContents(4)
+            # self.proformas_sales_view.resizeColumnToContents(5)
 
             correct_mask()
 

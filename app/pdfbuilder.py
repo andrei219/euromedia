@@ -239,20 +239,18 @@ class TotalsData:
             lines = document.lines
 
         self.Total_excl_VAT = sum(line.price * line.quantity for line in lines)
-        self.Shipping = 0.0
         self.Total_VAT = sum(line.quantity * line.price * line.tax / 100 for line in lines)
 
-        self.Total = '{:,.2f}'.format(round(self.Total_excl_VAT + self.Shipping + self.Total_VAT, 2))
+        self.Total = '{:,.2f}'.format(round(self.Total_excl_VAT + self.Total_VAT, 2))
 
         self.Total_excl_VAT = '{:,.2f}'.format(round(self.Total_excl_VAT, 2))
-        self.Shipping = '{:,.2f}'.format(round(self.Shipping, 2))
         self.Total_VAT = '{:,.2f}'.format(round(self.Total_VAT, 2))
 
         self.Total = dot_comma_number_repr(self.Total)
         self.Total_excl_VAT = dot_comma_number_repr(self.Total_excl_VAT)
         self.Total_VAT = dot_comma_number_repr(self.Total_VAT)
 
-        self.Shipping = dot_comma_number_repr(self.Shipping)
+        # self.Shipping = dot_comma_number_repr(self.Shipping)
 
     def __len__(self):
         return len(self.__dict__)

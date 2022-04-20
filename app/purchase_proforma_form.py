@@ -34,8 +34,8 @@ class Form(Ui_PurchaseProformaForm, QWidget):
         reload_utils()
         super().__init__() 
         self.setupUi(self)
-        self.parent = parent 
-        self.model = view.model() 
+        self.parent = parent
+        self.model = view.model()
         self.view = view 
         self.lines_model = models.PurchaseProformaLineModel(lines=[], form=self) 
         self.lines_view.setModel(self.lines_model)
@@ -180,10 +180,9 @@ class Form(Ui_PurchaseProformaForm, QWidget):
         else:
             proforma = input_proforma
 
-        proforma.type = int(self.type_combo_box.currentText())
-        proforma.number = int(self.number_line_edit.text())
-        
         if self.is_invoice:
+
+            proforma.invoice.type = int(self.type_combo_box.currentText())
             proforma.invoice.date = self._dateFromString(self.date_line_edit.text())
             proforma.invoice.eta = self._dateFromString(self.eta_line_edit.text())
         else:
@@ -327,12 +326,17 @@ class EditableForm(Form):
 
     def proforma_to_form(self):
         p = self.proforma   
-        self.type_combo_box.setCurrentText(str(p.type))
-        self.number_line_edit.setText(str(p.number))
-        
-        date = p.invoice.date if self.is_invoice else p.date        
-        self.date_line_edit.setText(date.strftime('%d%m%Y'))
-        self.eta_line_edit.setText(p.eta.strftime('%d%m%Y'))
+
+        if self.is_invoice:
+
+            self.type_combo_box.setCurrentText(str(p.invoice.type))
+            self.number_line_edit.setText((str(p.invoice.number)))
+            self.date_line_edit.setText(str(p.invoice.date.strftime('%d%m%Y')))
+        else:
+            self.type_combo_box.setCurrentText(str(p.type))
+            self.number_line_edit.setText(str(p.number))
+            self.date_line_edit.setText(str(p.date.strftime('%d%m%Y')))
+
         self.partner_line_edit.setText(p.partner.fiscal_name)
         self.agent_combobox.setCurrentText(p.agent.fiscal_name)
         self.warehouse_combobox.setCurrentText(p.warehouse.description)
