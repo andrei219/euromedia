@@ -614,7 +614,7 @@ class PartnerContactModel(QtCore.QAbstractTableModel):
 
 
 class SaleInvoiceModel(QtCore.QAbstractTableModel):
-    TYPE_NUM, PROFORMA = 0, 16
+    TYPE_NUM, DATE, PROFORMA = 0, 1, 16
 
     def __init__(self, search_key=None, filters=None):
         super().__init__()
@@ -649,6 +649,10 @@ class SaleInvoiceModel(QtCore.QAbstractTableModel):
                        str(proforma.invoice.number).zfill(6)
             elif column == self.PROFORMA:
                 return str(proforma.type) + '-' + str(proforma.number).zfill(6)
+
+            elif column == self.DATE:
+                return proforma.invoice.date.strftime('%d/%m/%Y')
+
             else:
                 return self.parent_model.data(index, role)
 
@@ -1159,9 +1163,10 @@ def build_associated_reception(sale_proforma):
 
 
 class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
+
     TYPE_NUM, DATE, PARTNER, AGENT, FINANCIAL, LOGISTIC, SENT, \
-    CANCELLED, OWING, TOTAL, ADVANCED, DEFINED, READY, EXTERNAL, INVOICED, IN_WAREHOUSE, \
-        WARNING = \
+    CANCELLED, OWING, TOTAL, ADVANCED, DEFINED, READY, EXTERNAL, IN_WAREHOUSE, \
+        WARNING, INVOICED = \
         0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16
 
     def __init__(self, search_key=None, filters=None, proxy=False):
@@ -1169,7 +1174,7 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
         self._headerData = ['Type & Num', 'Date', 'Partner', 'Agent', \
                             'Financial', 'Logistic', 'Sent', 'Cancelled',
                             'Owes', 'Total', 'Presale','Defined','Ready To Go',
-                            'External Doc.', 'Inv.', 'In WH', 'Warning'
+                            'External Doc.', 'In WH', 'Warning', 'Inv.'
                             ]
         self.proformas = []
         self.name = 'proformas'

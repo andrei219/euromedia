@@ -22,6 +22,8 @@ from db import Partner, PurchaseProformaLine, PurchaseProforma, \
     PurchasePayment, func, Agent
 
 
+from sqlalchemy.exc import IntegrityError
+
 def reload_utils():
     from importlib import reload 
     global utils
@@ -192,7 +194,6 @@ class Form(Ui_PurchaseProformaForm, QWidget):
             proforma.type = int(self.type_combo_box.currentText())
             proforma.number = int(self.number_line_edit.text())
 
-        
         proforma.warranty = self.warranty_spinbox.value()
         proforma.eta = self._dateFromString(self.eta_line_edit.text())
         proforma.they_pay_they_ship = self.they_pay_they_ship_shipping_radio_button.isChecked() 
@@ -252,11 +253,12 @@ class Form(Ui_PurchaseProformaForm, QWidget):
        
         proforma = self._formToProforma() 
         try:
-            
-            self.model.add(proforma) 
+            self.model.add(proforma)
             self.lines_model.save(proforma) 
-        except:
-            raise 
+        except IntegrityError:
+            QMessageBox.critical(self, 'Error', 'Document with that type / number already exists')
+            db.session.rollback()
+
         else:
             QMessageBox.information(self, 'Information','Purchase saved successfully')
             self.adjust_view()
@@ -284,7 +286,6 @@ class EditableForm(Form):
         self.parent = parent
         self.proforma = proforma 
         self.view = view 
-        self.type_combo_box.setEnabled(False) 
         self.lines_view.setSelectionBehavior(QTableView.SelectRows)
         self.title = 'Line - Error'
         self.model = view.model() 
@@ -373,8 +374,9 @@ class EditableForm(Form):
             try:
                 warehouse_updated = self.model.updateWarehouse(self.proforma) 
                 # advance_sale_updated = self.model.updateAdvancedSale(self.proforma) 
-            except:
-                raise 
+            except IntegrityError:
+                QMessageBox.critical(self, 'Error', 'Document with that type / number already exists')
+                db.session.rollback()
             else:
                 message = "Proforma saved successfully."
                 if warehouse_updated:

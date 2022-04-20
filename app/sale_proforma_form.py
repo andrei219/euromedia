@@ -13,6 +13,7 @@ from db import (Agent, Partner, SaleProforma, SaleProformaLine,
 from models import ActualLinesFromMixedModel, SaleProformaLineModel, StockModel
 from ui_sale_proforma_form import Ui_SalesProformaForm
 
+from sqlalchemy.exc import IntegrityError
 
 
 # Pruebas:
@@ -160,8 +161,9 @@ class Form(Ui_SalesProformaForm, QWidget):
         from importlib import reload
         global utils
         utils = reload(utils)
-        super().__init__() 
-        self.setupUi(self) 
+        super().__init__()
+        self.is_invoice = False
+        self.setupUi(self)
         self.setCombos()
         
         self.model = view.model() 
@@ -184,6 +186,7 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.selected_stock_view.setSelectionBehavior(QTableView.SelectRows)
         self.selected_stock_view.setAlternatingRowColors(True)
         self.selected_stock_view.setSelectionMode(QTableView.SingleSelection)
+
 
 
         self.set_partner_completer()
@@ -380,13 +383,17 @@ class Form(Ui_SalesProformaForm, QWidget):
     def proforma_to_form(self):
         p = self.proforma
 
+        if self.is_invoice:
+            print('proforma to form.is invoice')
+            self.type.setCurrentText(str(p.invoice.type))
+            self.number.setText(str(p.invoice.number))
+            self.date.setText(str(p.invoice.date.strftime('%d%m%Y')))
+        else:
+            print('proforma to form is not invoice')
+            self.type.setCurrentText(str(p.type))
+            self.number.setText(str(p.number))
+            self.date.setText(str(p.date.strftime('%d%m%Y')))
 
-
-
-
-        self.type.setCurrentText(str(p.type))
-        self.number.setText(str(p.number))
-        self.date.setText(p.date.strftime('%d%m%Y'))
         self.partner.setText(p.partner.fiscal_name)
         self.agent.setCurrentText(p.agent.fiscal_name)
         self.warehouse.setCurrentText(p.warehouse.description)
@@ -565,7 +572,8 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.description.setFocus(True)
 
     def save_handler(self):
-        if not self._valid_header(): return
+        if not self._valid_header():
+            return
         warehouse_id = utils.warehouse_id_map.get(self.warehouse.currentText())
         if hasattr(self, 'stock_model'):
             
@@ -587,9 +595,9 @@ class Form(Ui_SalesProformaForm, QWidget):
             self.save_template()
             db.session.commit()
             self.parent.set_mv('proformas_sales_')
-        except:
-            raise 
-            db.session.rollback() 
+        except IntegrityError:
+            QMessageBox.critical(self, 'Error', 'Document with that type and number already exists')
+            db.session.rollback()
         else:
             QMessageBox.information(self, 'Success', 'Sale saved successfully')
             self.adjust_view()
@@ -623,11 +631,18 @@ class Form(Ui_SalesProformaForm, QWidget):
         return True
 
     def _form_to_proforma(self):
+        print('_form_to_proforma')
+        if self.is_invoice:
+            print('if form to proforma self.is_invoice:')
+            self.proforma.invoice.type = int(self.type.currentText())
+            self.proforma.invoice.number = int(self.number.text())
+            self.proforma.invoice.date = utils.parse_date(self.date.text())
+        else:
+            print('form to proforma is not invoice')
+            self.proforma.type = int(self.type.currentText())
+            self.proforma.number = int(self.number.text())
+            self.proforma.date = utils.parse_date(self.date.text())
 
-
-        self.proforma.type = int(self.type.currentText())
-        self.proforma.number = int(self.number.text())
-        self.proforma.date = utils.parse_date(self.date.text())
         self.proforma.warranty = self.warranty.value()
         self.proforma.they_pay_they_ship = self.they_pay_they_ship.isChecked()
         self.proforma.they_pay_we_ship = self.they_pay_we_ship.isChecked() 
@@ -651,15 +666,22 @@ class Form(Ui_SalesProformaForm, QWidget):
 
 class EditableForm(Form):
     
-    def __init__(self, parent, view, proforma, is_invoice = False):
+    def __init__(self, parent, view, proforma, is_invoice=False):
         self.proforma = proforma
         super().__init__(parent, view)
-        self.update_totals()
         self.is_invoice = is_invoice
+        self.update_totals()
+
+        if self.is_invoice:
+            self.setWindowTitle('Proforma / Invoice Edit')
+        else:
+            self.setWindowTitle('Proforma Edit')
+
+        self.proforma_to_form()
+        self.disable_warehouse()
 
     def init_template(self): 
-        self.proforma_to_form() 
-        self.disable_warehouse() 
+        pass 
     
     def save_template(self):
         self.model.updateWarehouse(self.proforma)
@@ -675,6 +697,7 @@ class EditableForm(Form):
 
         self.warehouse.setEnabled(False)
 
-def get_form(parent, view, proforma=None, is_invoice = False):
+
+def get_form(parent, view, proforma=None, is_invoice=False):
     return EditableForm(parent, view, proforma, is_invoice=is_invoice) \
         if proforma else Form(parent, view)

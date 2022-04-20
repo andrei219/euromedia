@@ -675,7 +675,6 @@ class MainGui(Ui_MainGui, QMainWindow):
         if not save_file_path:
             return
 
-
         try:
             export_sale_excel(proforma, save_file_path)
         except:
@@ -694,7 +693,8 @@ class MainGui(Ui_MainGui, QMainWindow):
     def proformas_sales_advnorm_handler(self):
         indexes = self.proformas_sales_view.selectedIndexes()
         rows = {i.row() for i in indexes}
-        if len(rows) != 1: return
+        if len(rows) != 1:
+            return
         row = rows.pop()
         try:
             proforma = self.proformas_sales_model[row]
@@ -702,6 +702,7 @@ class MainGui(Ui_MainGui, QMainWindow):
             return
         if not proforma.advanced_lines:
             return
+
         self.advnorm_form = advanced_definition_form.get_form(
             self,
             self.proformas_sales_view,
@@ -1031,13 +1032,14 @@ class MainGui(Ui_MainGui, QMainWindow):
             self.sp = advanced_sale_proforma_form.get_form(
                 self,
                 self.proformas_sales_view,
-                proforma
+                proforma,
             )
         else:
             self.sp = sale_proforma_form.get_form(
                 self,
                 self.proformas_sales_view,
-                proforma
+                proforma,
+                is_invoice=True
             )
 
         self.sp.show()
