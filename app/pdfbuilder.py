@@ -291,7 +291,7 @@ class PDF(FPDF):
             '1 - For RMA Enquires: rma@euromediagroup.es',
             '2 - RMA requests will be answered within 48 hours from Monday to Friday.',
             '3 - Before return any device, you must have our approval for each one.',
-            '4 - Approved devices must be send back within 5 days.'
+            '4 - Approved devices must be sent back within 5 days.'
         ]
 
     def resolve_header_and_lines_repr(self, document, is_invoice):
