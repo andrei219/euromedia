@@ -380,6 +380,10 @@ class Form(Ui_SalesProformaForm, QWidget):
     def proforma_to_form(self):
         p = self.proforma
 
+
+
+
+
         self.type.setCurrentText(str(p.type))
         self.number.setText(str(p.number))
         self.date.setText(p.date.strftime('%d%m%Y'))
@@ -620,6 +624,7 @@ class Form(Ui_SalesProformaForm, QWidget):
 
     def _form_to_proforma(self):
 
+
         self.proforma.type = int(self.type.currentText())
         self.proforma.number = int(self.number.text())
         self.proforma.date = utils.parse_date(self.date.text())
@@ -646,10 +651,11 @@ class Form(Ui_SalesProformaForm, QWidget):
 
 class EditableForm(Form):
     
-    def __init__(self, parent, view, proforma):
+    def __init__(self, parent, view, proforma, is_invoice = False):
         self.proforma = proforma
         super().__init__(parent, view)
-        self.update_totals() 
+        self.update_totals()
+        self.is_invoice = is_invoice
 
     def init_template(self): 
         self.proforma_to_form() 
@@ -669,6 +675,6 @@ class EditableForm(Form):
 
         self.warehouse.setEnabled(False)
 
-def get_form(parent, view, proforma=None):
-    return EditableForm(parent, view, proforma) \
+def get_form(parent, view, proforma=None, is_invoice = False):
+    return EditableForm(parent, view, proforma, is_invoice=is_invoice) \
         if proforma else Form(parent, view)

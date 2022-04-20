@@ -183,11 +183,15 @@ class Form(Ui_PurchaseProformaForm, QWidget):
         if self.is_invoice:
 
             proforma.invoice.type = int(self.type_combo_box.currentText())
+            proforma.invoice.number = int(self.number_line_edit.text())
             proforma.invoice.date = self._dateFromString(self.date_line_edit.text())
             proforma.invoice.eta = self._dateFromString(self.eta_line_edit.text())
         else:
             proforma.date = self._dateFromString(self.date_line_edit.text())
             proforma.eta = self._dateFromString(self.date_line_edit.text())
+            proforma.type = int(self.type_combo_box.currentText())
+            proforma.number = int(self.number_line_edit.text())
+
         
         proforma.warranty = self.warranty_spinbox.value()
         proforma.eta = self._dateFromString(self.eta_line_edit.text())
@@ -332,10 +336,12 @@ class EditableForm(Form):
             self.type_combo_box.setCurrentText(str(p.invoice.type))
             self.number_line_edit.setText((str(p.invoice.number)))
             self.date_line_edit.setText(str(p.invoice.date.strftime('%d%m%Y')))
+            self.eta_line_edit.setText(str(p.invoice.eta.strftime('%d%m%Y')))
         else:
             self.type_combo_box.setCurrentText(str(p.type))
             self.number_line_edit.setText(str(p.number))
             self.date_line_edit.setText(str(p.date.strftime('%d%m%Y')))
+            self.eta_line_edit.setText(str(p.eta.strftime('%d%m%Y')))
 
         self.partner_line_edit.setText(p.partner.fiscal_name)
         self.agent_combobox.setCurrentText(p.agent.fiscal_name)
