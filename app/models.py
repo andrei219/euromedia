@@ -614,7 +614,7 @@ class PartnerContactModel(QtCore.QAbstractTableModel):
 
 
 class SaleInvoiceModel(QtCore.QAbstractTableModel):
-    TYPE_NUM, PROFORMA = 0, 14
+    TYPE_NUM, PROFORMA = 0, 16
 
     def __init__(self, search_key=None, filters=None):
         super().__init__()
@@ -701,7 +701,7 @@ class SaleInvoiceModel(QtCore.QAbstractTableModel):
 
 
 class PurchaseInvoiceModel(QtCore.QAbstractTableModel):
-    TYPE_NUM, PROFORMA = 0, 12
+    TYPE_NUM, PROFORMA = 0, 13
 
     def __init__(self, filters=None, search_key=None):
         super().__init__()
@@ -792,13 +792,13 @@ def buildReceptionLine(line, reception):
 
 class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
     TYPE_NUM, DATE, ETA, PARTNER, AGENT, FINANCIAL, LOGISTIC, SENT, CANCELLED, \
-        OWING, TOTAL, EXTERNAL, INVOICED = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12
+        OWING, TOTAL, EXTERNAL, INVOICED, IN_WAREHOUSE = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13
 
     def __init__(self, filters=None, search_key=None, proxy=False):
         super().__init__()
         self._headerData = ['Type & Num', 'Date', 'ETA', 'Partner', 'Agent', \
                             'Financial', 'Logistic', 'Sent', 'Cancelled', 'Owing', 'Total', 'External Doc.',
-                            'Invoiced']
+                            'Invoiced', 'In Warehouse']
         self.name = 'proformas'
 
         self.proxy = proxy
@@ -912,6 +912,9 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
 
             elif col == self.INVOICED:
                 return 'Yes' if proforma.invoice is not None else 'No'
+
+            elif col == self.IN_WAREHOUSE:
+                return 'Yes' if proforma.reception is not None else 'No'
 
             elif col == PurchaseProformaModel.PARTNER:
                 return proforma.partner.fiscal_name
@@ -1157,14 +1160,17 @@ def build_associated_reception(sale_proforma):
 
 class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
     TYPE_NUM, DATE, PARTNER, AGENT, FINANCIAL, LOGISTIC, SENT, \
-    CANCELLED, OWING, TOTAL, ADVANCED, DEFINED, READY, EXTERNAL, INVOICED = \
-        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14
+    CANCELLED, OWING, TOTAL, ADVANCED, DEFINED, READY, EXTERNAL, INVOICED, IN_WAREHOUSE, \
+        WARNING = \
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16
 
     def __init__(self, search_key=None, filters=None, proxy=False):
         super().__init__()
         self._headerData = ['Type & Num', 'Date', 'Partner', 'Agent', \
-                            'Financial', 'Logistic', 'Sent', 'Cancelled', 'Owes', 'Total', 'Presale',
-                            'Defined','Ready To Go', 'External Doc.', 'Invoiced']
+                            'Financial', 'Logistic', 'Sent', 'Cancelled',
+                            'Owes', 'Total', 'Presale','Defined','Ready To Go',
+                            'External Doc.', 'Invoiced', 'In Warehouse', 'Warning'
+                            ]
         self.proformas = []
         self.name = 'proformas'
         query = db.session.query(db.SaleProforma). \
@@ -1263,8 +1269,14 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
             elif col == self.AGENT:
                 return proforma.agent.fiscal_name
 
+            elif col == self.WARNING:
+                return proforma.warning
+
             elif col == self.INVOICED:
                 return 'Yes' if proforma.invoice is not None else 'No'
+
+            elif col == self.IN_WAREHOUSE:
+                return 'Yes' if proforma.expedition is not None else 'No'
 
             elif col == self.FINANCIAL:
                 if proforma.not_paid:
@@ -1345,6 +1357,21 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
                 return QtGui.QColor(RED if proforma.cancelled else GREEN)
             elif col == self.READY:
                 return QtGui.QColor(GREEN if proforma.ready else RED)
+
+    def flags(self, index):
+        if not index.isValid():
+            return Qt.ItemIsEnabled
+        if index.column() == self.WARNING:
+            return Qt.ItemFlags(super().flags(index) | Qt.ItemIsEditable)
+        else:
+            return Qt.ItemFlags(~Qt.ItemIsEditable)
+
+    def setData(self, index: QModelIndex, value: typing.Any, role: int = ...) -> bool:
+        if not index.isValid():
+            return
+        proforma = self.proformas[index.row()]
+        proforma.warning = value
+        return True
 
     def __getitem__(self, index):
         return self.proformas[index]
@@ -1450,8 +1477,8 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
     def toWarehouse(self, proforma, note):
 
         fast = True
-
-        expedition = db.Expedition(proforma, note)
+        expedition = db.Expedition(proforma)
+        proforma.warning = note
 
         if proforma.advanced_lines:
             for line in proforma.advanced_lines:
@@ -2868,7 +2895,7 @@ class ExpeditionModel(BaseTable, QtCore.QAbstractTableModel):
             elif column == self.AGENT:
                 return expedition.proforma.agent.fiscal_name
             elif column == self.WARNING:
-                return expedition.note
+                return expedition.proforma.warning
             elif column == self.FROM_PROFORMA:
                 return str(expedition.proforma.type) + '-' + str(expedition.proforma.number).zfill(6)
             elif column == self.READY:

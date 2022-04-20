@@ -638,6 +638,8 @@ class SaleProforma(Base):
     invoice = relationship('SaleInvoice', uselist=False)
     expedition = relationship('Expedition', uselist=False, back_populates='proforma')
 
+    warning = Column(String(50), nullable=True)
+
     incoterm = Column(String(3), default='gbc')
 
     def __repr__(self):
@@ -999,13 +1001,11 @@ class Expedition(Base):
 
     id = Column(Integer, primary_key=True)
     proforma_id = Column(Integer, ForeignKey('sale_proformas.id'), nullable=False)
-    note = Column(String(50))
     created_on = Column(DateTime, default=datetime.now)
     from_sale_type = Column(Integer, nullable=False)
 
-    def __init__(self, proforma, note, from_sale_type=NORMAL):
+    def __init__(self, proforma, from_sale_type=NORMAL):
         self.proforma = proforma
-        self.note = note
         self.from_sale_type = from_sale_type
 
     proforma = relationship('SaleProforma', back_populates='expedition')
