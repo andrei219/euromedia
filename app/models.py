@@ -624,7 +624,7 @@ class SaleInvoiceModel(QtCore.QAbstractTableModel):
             proxy=True
         )
 
-        self.parent_model._headerData.remove('Invoiced')
+        self.parent_model._headerData.remove('Inv.')
 
     def rowCount(self, index=QModelIndex()):
         return self.parent_model.rowCount(index)
