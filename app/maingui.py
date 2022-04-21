@@ -472,6 +472,8 @@ class MainGui(Ui_MainGui, QMainWindow):
                 from contextlib import suppress
 
                 pdf.output(filename)
+
+                print(filename)
                 import subprocess
                 subprocess.Popen((filename,), shell=True)
 
