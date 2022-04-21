@@ -1700,7 +1700,7 @@ class Ui_MainGui(object):
 
         self.retranslateUi(MainGui)
         self.main_tab.setCurrentIndex(2)
-        self.proformastab.setCurrentIndex(0)
+        self.proformastab.setCurrentIndex(1)
         self.invoicestab.setCurrentIndex(1)
         self.warehouse.setCurrentIndex(3)
         self.rmastab.setCurrentIndex(0)
@@ -1847,7 +1847,7 @@ class Ui_MainGui(object):
         self.proformas_sales_ready.setStatusTip(_translate("MainGui", "Add Tracking String"))
         self.proformas_sales_ready.setText(_translate("MainGui", "Un/Ready To Go"))
         self.proformas_sales_export_excel.setText(_translate("MainGui", "Export"))
-        self.proformas_sales_newadv.setText(_translate("MainGui", "Presale"))
+        self.proformas_sales_newadv.setText(_translate("MainGui", "Preorder"))
         self.proformas_sales_advnorm.setToolTip(_translate("MainGui", "Cancel Purchase Proforma"))
         self.proformas_sales_advnorm.setStatusTip(_translate("MainGui", "Cancel Purchase Proforma"))
         self.proformas_sales_advnorm.setText(_translate("MainGui", "Define"))

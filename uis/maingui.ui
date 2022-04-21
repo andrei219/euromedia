@@ -403,7 +403,7 @@
        </rect>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <property name="iconSize">
        <size>
@@ -2447,7 +2447,7 @@
           </rect>
          </property>
          <property name="text">
-          <string>Presale</string>
+          <string>Preorder</string>
          </property>
          <property name="icon">
           <iconset resource="../app/icons.qrc">
