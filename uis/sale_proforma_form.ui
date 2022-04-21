@@ -688,6 +688,9 @@
       <height>22</height>
      </size>
     </property>
+    <property name="currentIndex">
+     <number>1</number>
+    </property>
     <property name="iconSize">
      <size>
       <width>16</width>
@@ -700,6 +703,11 @@
     <item>
      <property name="text">
       <string>EXW</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string/>
      </property>
     </item>
     <item>
