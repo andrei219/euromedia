@@ -827,6 +827,15 @@ class SaleProformaLine(Base):
         UniqueConstraint('id', 'proforma_id'),
     )
 
+
+    @property
+    def defined(self):
+        return all((
+            self.item_id is not None,
+            self.condition != 'Mix',
+            self.spec != 'Mix'
+        ))
+
     def __eq__(self, other):
         description = False
         if hasattr(other, 'description') and hasattr(self, 'description'):
@@ -919,6 +928,14 @@ class AdvancedLine(Base):
     tax = Column(Integer, nullable=False, default=0)
     ignore_spec = Column(Boolean, default=True, nullable=False)
     showing_condition = Column(String(50), nullable=True)
+
+    @property
+    def defined(self):
+        return all((
+            self.item_id is not None,
+            self.condition != 'Mix',
+            self.spec != 'Mix'
+        ))
 
     def __eq__(self, other):
         return all((

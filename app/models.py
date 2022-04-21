@@ -1145,6 +1145,17 @@ def item_key(line):
     return line.item_id in utils.description_id_map.inverse
 
 
+def line_with_stock_key(line):
+    if line.item_id:
+        return True
+    else:
+        if isinstance(line, db.AdvancedLine):
+            if line.free_description:
+                return False
+            else:
+                return True
+    return False
+
 def build_associated_reception(sale_proforma):
     try:
         origin_id = line = sale_proforma.advanced_lines[0].origin_id
@@ -1325,18 +1336,14 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
                 return 'Yes' if proforma.advanced_lines else 'No'
 
             elif col == self.DEFINED:
-                for line in proforma.advanced_lines:
-                    for definition in line.definitions:
-                        if definition:
-                            return 'Yes'  # All or None defined.
-                else:
-                    return 'No'
+                line_iter = filter(line_with_stock_key,iter(proforma.lines or proforma.advanced_lines))
+                return 'Yes' if all([line.defined for line in line_iter]) else 'No'
 
             elif col == self.READY:
                 return 'Yes' if proforma.ready else 'No'
             elif col == self.EXTERNAL:
                 return proforma.external or 'Unknown'
-                O
+
         elif role == Qt.DecorationRole:
             if col == self.FINANCIAL:
                 if proforma.not_paid:

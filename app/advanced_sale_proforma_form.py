@@ -44,6 +44,8 @@ class Form(Ui_Form, QWidget):
         self.type_filter = None
         self.number_filter = None
 
+        self.is_invoice = False
+
     def init_template(self):
         self.proforma = db.SaleProforma()
         db.session.add(self.proforma)
