@@ -17,12 +17,12 @@ from utils import setCommonViewConfig
 
 MESSAGE = "This presale is only for incoming stock \n {}. For others stocks create new presale"
 
+from sqlalchemy.exc import IntegrityError
 
 def reload_utils():
     global utils
     from importlib import reload
     utils = reload(utils)
-
 
 class Form(Ui_Form, QWidget):
     def __init__(self, parent, view):
@@ -298,13 +298,12 @@ class Form(Ui_Form, QWidget):
             self.save_template()
             db.session.commit()
 
-        except:
-            raise
+        except IntegrityError:
             db.session.rollback()
+            QMessageBox.critical(self, 'Error', 'Document with that type and number already exists')
         else:
             QMessageBox.information(self, 'Success', 'Sale saved successfully')
-
-        self.close()
+            self.close()
 
     def save_template(self):
         self.model.add(self.proforma)

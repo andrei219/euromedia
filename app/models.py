@@ -19,6 +19,9 @@ from sqlalchemy.exc import IntegrityError
 import db
 from exceptions import SeriePresentError
 
+from sqlalchemy.exc import InvalidRequestError
+
+
 # COLORS:
 # RED FOR CANCELLED
 # GREEN FOR COMPLETED
@@ -1583,7 +1586,22 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
         for line in deleted_lines:
             line.quantity = 0
             if len(line.series) == 0:
-                db.session.delete(line)
+
+                # Corner case:
+                # Solo hay 1
+                # Borras la serie en el almacen
+                # y se queda a 0
+                # borras la linea en la factura
+                # entonces queda
+                try:
+                    db.session.delete(line)
+                except InvalidRequestError:
+                    print('Invalid Request Error')
+                    pass
+
+        for line in added_lines:
+            self.build_expedition_line(line, proforma.expedition)
+
 
             # Update quantity
         # Update showing condition

@@ -596,8 +596,8 @@ class Form(Ui_SalesProformaForm, QWidget):
             db.session.commit()
             self.parent.set_mv('proformas_sales_')
         except IntegrityError:
-            QMessageBox.critical(self, 'Error', 'Document with that type and number already exists')
             db.session.rollback()
+            QMessageBox.critical(self, 'Error', 'Document with that type and number already exists')
         else:
             QMessageBox.information(self, 'Success', 'Sale saved successfully')
             self.adjust_view()
