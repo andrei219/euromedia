@@ -13,10 +13,8 @@
         <file alias="check">.\\icons\\check.png</file>
         <file alias="courier">.\\icons\\courier.png</file>
         <file alias="delete">.\\icons\\delete.png</file>
-        <file alias="disable">.\\icons\\disable.png</file>
         <file alias="edit">.\\icons\\edit.png</file>
         <file alias="email">.\\icons\\email.png</file>
-        <file alias="enable">.\\icons\\enable.png</file>
         <file alias="euromedia">.\\icons\\euromedia.png</file>
         <file alias="expense">.\\icons\\expense.png</file>
         <file alias="invoices">.\\icons\\invoices.png</file>
