@@ -74,4 +74,6 @@ class ChangeForm(Ui_ChangeForm, QDialog):
             raise 
 
 
+        self.sn.clear()
+
 
