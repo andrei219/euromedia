@@ -218,7 +218,7 @@ class AgentDocument(Base):
     __tablename__ = 'agent_documents'
     id = Column(Integer, primary_key=True)
     agent_id = Column(Integer, ForeignKey('agents.id'))
-    name = Column(String(50), unique=True)
+    name = Column(String(50))
     document = Column(LargeBinary(length=(2 ** 32) - 1))
 
     agent = relationship('Agent', backref=backref('documents'))
@@ -281,13 +281,12 @@ class Partner(Base):
         CheckConstraint('trading_name != ""', name='no_empty_partner_trading_name')
     )
 
-
 class PartnerDocument(Base):
     __tablename__ = 'partner_documents'
 
     id = Column(Integer, primary_key=True)
     partner_id = Column(Integer, ForeignKey('partners.id'))
-    name = Column(String(50), unique=True)
+    name = Column(String(50))
     document = Column(LargeBinary(length=(2 ** 32) - 1))
     created_on = Column(DateTime, default=datetime.now)
     partner = relationship('Partner', backref=backref('documents'))

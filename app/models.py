@@ -434,6 +434,9 @@ class DocumentModel(QtCore.QAbstractListModel):
             db.session.rollback()
             raise
 
+    def get_document(self, index):
+        return self.documents[index.row()]
+
 
 class PartnerModel(QtCore.QAbstractTableModel):
     CODE, TRADING_NAME, FISCAL_NAME, FISCAL_NUMBER, COUNTRY, CONTACT, PHONE, EMAIL, ACTIVE = \
@@ -3782,7 +3785,8 @@ class AdvancedLinesModel(BaseTable, QtCore.QAbstractTableModel):
             self._lines = [line for line in self._lines if not line.free_description]
 
     def data(self, index, role=Qt.DisplayRole):
-        if not index.isValid(): return
+        if not index.isValid():
+            return
         row, col = index.row(), index.column()
         if role == Qt.DisplayRole:
             line = self._lines[row]

@@ -22,7 +22,19 @@ class DocumentForm(Ui_DocumentsForm, QDialog):
         self.document_view.doubleClicked.connect(self.viewPdf) 
 
     def viewPdf(self, index):
-        pass   
+        import subprocess
+
+        file = 'x.pdf'
+
+        document = self.document_view.model().documents[index.row()]
+        utils.writeBase64Pdf(file, document.document)
+
+        subprocess.Popen((file,), shell=True)
+
+        # from contextlib import suppress
+        #
+        # with suppress(FileNotFoundError):
+        #     os.remove(file)
 
     def export(self):
         indexes = self.document_view.selectedIndexes() 
