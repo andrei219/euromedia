@@ -1364,11 +1364,11 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
                 elif sale_completed(proforma):
                     return QtGui.QColor(GREEN)
             elif col == self.SENT:
-                return QtGui.QColor(GREEN if proforma.sent else RED)
+                return QtGui.QColor(GREEN if proforma.sent else YELLOW)
             elif col == self.CANCELLED:
                 return QtGui.QColor(RED if proforma.cancelled else GREEN)
             elif col == self.READY:
-                return QtGui.QColor(GREEN if proforma.ready else RED)
+                return QtGui.QColor(GREEN if proforma.ready else YELLOW)
 
     def flags(self, index):
         if not index.isValid():
