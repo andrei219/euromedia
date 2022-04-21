@@ -82,12 +82,10 @@ class Form(Ui_Form, QWidget):
         p = self.proforma
 
         if self.is_invoice:
-            print('proforma to form.is invoice')
             self.type.setCurrentText(str(p.invoice.type))
             self.number.setText(str(p.invoice.number))
             self.date.setText(str(p.invoice.date.strftime('%d%m%Y')))
         else:
-            print('proforma to form is not invoice')
             self.type.setCurrentText(str(p.type))
             self.number.setText(str(p.number))
             self.date.setText(str(p.date.strftime('%d%m%Y')))
@@ -336,7 +334,6 @@ class Form(Ui_Form, QWidget):
             self.proforma.invoice.number = int(self.number.text())
             self.proforma.invoice.date = utils.parse_date(self.date.text())
         else:
-            print('form to proforma is not invoice')
             self.proforma.type = int(self.type.currentText())
             self.proforma.number = int(self.number.text())
             self.proforma.date = utils.parse_date(self.date.text())
@@ -413,5 +410,8 @@ class EditableForm(Form):
 
 
 def get_form(parent, view, proforma=None, is_invoice=False):
+
+    print('is_invoice =', is_invoice)
+
     return EditableForm(parent, view, proforma, is_invoice=is_invoice) if proforma \
         else Form(parent, view)

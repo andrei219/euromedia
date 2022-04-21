@@ -614,6 +614,7 @@ class PartnerContactModel(QtCore.QAbstractTableModel):
 
 
 class SaleInvoiceModel(QtCore.QAbstractTableModel):
+
     TYPE_NUM, DATE, PROFORMA = 0, 1, 16
 
     def __init__(self, search_key=None, filters=None):
@@ -4866,9 +4867,7 @@ class RmaIncomingLineModel(BaseTable, QtCore.QAbstractTableModel):
         return 'a'
 
     def add(self, sn):
-
         print(get_sn_rma_info(sn))
-
 
 
 def get_partner_warranty(partner_id):
@@ -4895,7 +4894,7 @@ def get_sn_rma_info(sn):
     # SOLD AS (PUBLIC CONDITION)
     # SALE DATE
     # WARRANTY END (CUSTOMER) COMPUTE SALE DATE + INVOICE WARRANTY DAYS
-    # PROBELM
+    # PROBLEM
 
 
 

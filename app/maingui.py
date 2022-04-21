@@ -1033,6 +1033,7 @@ class MainGui(Ui_MainGui, QMainWindow):
                 self,
                 self.proformas_sales_view,
                 proforma,
+                is_invoice=True
             )
         else:
             self.sp = sale_proforma_form.get_form(
