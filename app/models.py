@@ -2818,12 +2818,12 @@ class SerieModel(QtCore.QAbstractListModel):
 
 
 class ExpeditionModel(BaseTable, QtCore.QAbstractTableModel):
-    ID, WAREHOUSE, TOTAL, PROCESSED, LOGISTIC, CANCELLED, PARTNER, \
-    AGENT, WARNING, FROM_PROFORMA, READY, EXTERNAL = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11
+    ID, WAREHOUSE, DATE, TOTAL, PROCESSED, LOGISTIC, CANCELLED, PARTNER, \
+    AGENT, WARNING, FROM_PROFORMA, READY, EXTERNAL = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12
 
     def __init__(self, search_key=None, filters=None):
         super().__init__()
-        self._headerData = ['Expedition ID', 'Warehouse', 'Total', 'Processed',
+        self._headerData = ['Expedition ID', 'Warehouse', 'Date', 'Total', 'Processed',
                             'Logistic', 'Cancelled', 'Partner', 'Agent', 'Warning', 'From Proforma', 'Ready To Go',
                             'External Doc.']
         self.name = 'expeditions'
@@ -2895,6 +2895,9 @@ class ExpeditionModel(BaseTable, QtCore.QAbstractTableModel):
                 elif sale_completed(expedition):
                     return 'Completed'
 
+            elif column == self.DATE:
+                return expedition.proforma.date.strftime('%d/%m/%Y')
+
             elif column == self.CANCELLED:
                 return 'Yes' if expedition.proforma.cancelled else 'No'
             elif column == self.AGENT:
@@ -2909,8 +2912,13 @@ class ExpeditionModel(BaseTable, QtCore.QAbstractTableModel):
                 return expedition.proforma.external or 'Unknown'
 
         elif role == Qt.DecorationRole:
+
             if column == self.AGENT:
                 return QtGui.QIcon(':\\agents')
+
+            elif column == self.DATE:
+                return QtGui.QIcon(':\calendar')
+
             elif column == self.PARTNER:
                 return QtGui.QIcon(':\partners')
             elif column == self.LOGISTIC:
@@ -2944,7 +2952,8 @@ class ExpeditionModel(BaseTable, QtCore.QAbstractTableModel):
                 self.CANCELLED: 'proforma.cancelled',
                 self.PARTNER: 'proforma.partner.fiscal_name',
                 self.AGENT: 'proforma.agent.fiscal_name',
-                self.READY: 'proforma.ready'
+                self.READY: 'proforma.ready',
+                self.DATE:'proforma.date'
             }.get(section)
 
             if attr:
