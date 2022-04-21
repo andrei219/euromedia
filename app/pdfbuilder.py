@@ -197,17 +197,25 @@ class AdvancedLinesPDFRepr(LinesPDFRepr):
 class We:
     def __init__(self):
         self.fiscal_name = 'Euromedia Investment Group, S.L.'
-        self.billing_line1 = 'Calle Camino Real, Nº22, Bajo Izq'
-        self.billing_line2 = '46900 Torrente'
-        self.billing_line3 = 'Valencia'
+        self.billing_line1 = 'Calle Camino Real Nº22'
+        self.billing_line2 = 'Local Bajo Izq.'
+        self.billing_city  = 'Torrente'
+        self.billing_postcode = '46900'
+        self.billing_state = 'Valencia'
         self.billing_country = 'Spain'
         self.registerd = 'Registered on 22/03/2016'
         self.fiscal_number = 'B98815608'
         self.vat = 'VAT Nº:ESB98815608'
-        self.shipping_line1 = 'Calle Camino Real, Nº22, Bajo Izq'
-        self.shipping_line2 = '46900 Torrente'
-        self.shipping_line3 = 'Valencia'
+
+
+        self.shipping_line1 = 'Calle Camino Real Nº22'
+        self.shipping_line2 = 'Local Bajo Izq.'
+        self.shipping_city = 'Torrente'
+        self.shipping_postcode = '46900'
+        self.shipping_state = 'Valencia'
         self.shipping_country = 'Spain'
+
+
         self.phone = '+34 633 333 973'
 
 
@@ -578,7 +586,10 @@ class PDF(FPDF):
             partner.fiscal_name,
             getattr(partner, prefix + 'line1'),
             getattr(partner, prefix + 'line2'),
-            getattr(partner, prefix + 'line3'),
+            # getattr(partner, prefix + 'line3'),
+            ' '.join([getattr(partner, prefix+'postcode'), getattr(partner, prefix + 'city'),
+                      getattr(partner, prefix + 'state')]),
+
             getattr(partner, prefix + 'country'),
             'VAT Nº: ' + partner.fiscal_number
         ]:

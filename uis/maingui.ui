@@ -403,7 +403,7 @@
        </rect>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <property name="iconSize">
        <size>
@@ -2143,7 +2143,7 @@
         <widget class="QToolButton" name="proformas_sales_toinv">
          <property name="geometry">
           <rect>
-           <x>1010</x>
+           <x>1000</x>
            <y>10</y>
            <width>75</width>
            <height>60</height>
@@ -2213,7 +2213,7 @@
         <widget class="QToolButton" name="proformas_sales_mail">
          <property name="geometry">
           <rect>
-           <x>640</x>
+           <x>630</x>
            <y>10</y>
            <width>75</width>
            <height>60</height>
@@ -2412,9 +2412,9 @@
          <property name="geometry">
           <rect>
            <x>1390</x>
-           <y>1</y>
+           <y>11</y>
            <width>71</width>
-           <height>71</height>
+           <height>61</height>
           </rect>
          </property>
          <property name="text">
@@ -2441,7 +2441,7 @@
          <property name="geometry">
           <rect>
            <x>87</x>
-           <y>10</y>
+           <y>5</y>
            <width>71</width>
            <height>61</height>
           </rect>
@@ -4469,7 +4469,7 @@
        </rect>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>3</number>
       </property>
       <property name="iconSize">
        <size>

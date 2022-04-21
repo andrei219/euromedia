@@ -255,7 +255,6 @@ class Partner(Base):
     # Addresses:
     shipping_line1 = Column(String(50))
     shipping_line2 = Column(String(50))
-    shipping_line3 = Column(String(50))
 
     shipping_city = Column(String(50))
     shipping_state = Column(String(50))
@@ -264,7 +263,6 @@ class Partner(Base):
 
     billing_line1 = Column(String(50))
     billing_line2 = Column(String(50))
-    billing_line3 = Column(String(50))
 
     billing_city = Column(String(50))
     billing_state = Column(String(50))

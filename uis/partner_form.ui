@@ -176,34 +176,6 @@
    <property name="checkable">
     <bool>false</bool>
    </property>
-   <widget class="QLineEdit" name="billing_address3_line_edit">
-    <property name="geometry">
-     <rect>
-      <x>110</x>
-      <y>90</y>
-      <width>261</width>
-      <height>22</height>
-     </rect>
-    </property>
-    <property name="minimumSize">
-     <size>
-      <width>241</width>
-      <height>22</height>
-     </size>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-    <property name="maxLength">
-     <number>35</number>
-    </property>
-    <property name="alignment">
-     <set>Qt::AlignCenter</set>
-    </property>
-    <property name="placeholderText">
-     <string>Max 35 characters</string>
-    </property>
-   </widget>
    <widget class="QLineEdit" name="billing_postcode_line_edit">
     <property name="geometry">
      <rect>
@@ -308,7 +280,7 @@
     <property name="geometry">
      <rect>
       <x>110</x>
-      <y>60</y>
+      <y>70</y>
       <width>261</width>
       <height>22</height>
      </rect>
@@ -393,40 +365,6 @@
    <property name="checkable">
     <bool>false</bool>
    </property>
-   <widget class="QLineEdit" name="shipment_address3_line_edit">
-    <property name="geometry">
-     <rect>
-      <x>110</x>
-      <y>90</y>
-      <width>261</width>
-      <height>22</height>
-     </rect>
-    </property>
-    <property name="minimumSize">
-     <size>
-      <width>241</width>
-      <height>22</height>
-     </size>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-    <property name="maxLength">
-     <number>35</number>
-    </property>
-    <property name="cursorPosition">
-     <number>0</number>
-    </property>
-    <property name="alignment">
-     <set>Qt::AlignCenter</set>
-    </property>
-    <property name="placeholderText">
-     <string>Max 35 characters</string>
-    </property>
-    <property name="cursorMoveStyle">
-     <enum>Qt::LogicalMoveStyle</enum>
-    </property>
-   </widget>
    <widget class="QLineEdit" name="shipment_postcode_line_edit">
     <property name="geometry">
      <rect>
@@ -531,7 +469,7 @@
     <property name="geometry">
      <rect>
       <x>110</x>
-      <y>60</y>
+      <y>70</y>
       <width>261</width>
       <height>22</height>
      </rect>
@@ -1316,7 +1254,6 @@ p, li { white-space: pre-wrap; }
   <tabstop>warranty_spinbox</tabstop>
   <tabstop>billing_address1_line_edit</tabstop>
   <tabstop>billing_address2_line_edit</tabstop>
-  <tabstop>billing_address3_line_edit</tabstop>
   <tabstop>billing_postcode_line_edit</tabstop>
   <tabstop>billing_city_line_edit</tabstop>
   <tabstop>billing_state_line_edit</tabstop>
@@ -1324,7 +1261,6 @@ p, li { white-space: pre-wrap; }
   <tabstop>copy_address_button</tabstop>
   <tabstop>shipment_address_line_edit</tabstop>
   <tabstop>shipment_address2_line_edit</tabstop>
-  <tabstop>shipment_address3_line_edit</tabstop>
   <tabstop>shipment_postcode_line_edit</tabstop>
   <tabstop>shipment_city_line_edit</tabstop>
   <tabstop>shipment_state_line_edit</tabstop>
