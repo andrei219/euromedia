@@ -51,7 +51,7 @@
      <number>0</number>
     </property>
     <property name="currentIndex">
-     <number>2</number>
+     <number>5</number>
     </property>
     <property name="iconSize">
      <size>
@@ -4469,7 +4469,7 @@
        </rect>
       </property>
       <property name="currentIndex">
-       <number>3</number>
+       <number>0</number>
       </property>
       <property name="iconSize">
        <size>
@@ -5619,7 +5619,7 @@
      <attribute name="toolTip">
       <string>Work on RMAs</string>
      </attribute>
-     <widget class="QTabWidget" name="rmastab">
+     <widget class="QTabWidget" name="rmas_outgoing_">
       <property name="geometry">
        <rect>
         <x>0</x>
@@ -5651,7 +5651,7 @@
        <attribute name="toolTip">
         <string>They are returning to us.</string>
        </attribute>
-       <widget class="QLineEdit" name="rma_incoming_search_edit">
+       <widget class="QLineEdit" name="rmas_incoming_search">
         <property name="geometry">
          <rect>
           <x>1130</x>
@@ -5772,7 +5772,7 @@
          </property>
         </widget>
        </widget>
-       <widget class="QTableView" name="rma_incoming_view">
+       <widget class="QTableView" name="rmas_incoming_view">
         <property name="geometry">
          <rect>
           <x>200</x>
@@ -5794,7 +5794,7 @@
         <property name="title">
          <string>FILTERS</string>
         </property>
-        <widget class="QToolButton" name="warehouse_expeditions_apply_5">
+        <widget class="QToolButton" name="rmas_incoming_apply">
          <property name="geometry">
           <rect>
            <x>30</x>
@@ -5816,7 +5816,7 @@
           <bool>true</bool>
          </property>
         </widget>
-        <widget class="QCheckBox" name="checkBox_13">
+        <widget class="QCheckBox" name="rmas_incoming_rejected">
          <property name="geometry">
           <rect>
            <x>30</x>
@@ -5829,7 +5829,7 @@
           <string>Rejected</string>
          </property>
         </widget>
-        <widget class="QCheckBox" name="checkBox_14">
+        <widget class="QCheckBox" name="rmas_incoming_accepted">
          <property name="geometry">
           <rect>
            <x>30</x>
@@ -5839,10 +5839,10 @@
           </rect>
          </property>
          <property name="text">
-          <string>Fully accepted</string>
+          <string>Accepted</string>
          </property>
         </widget>
-        <widget class="QCheckBox" name="checkBox_15">
+        <widget class="QCheckBox" name="rmas_incoming_partially_accepted">
          <property name="geometry">
           <rect>
            <x>30</x>
@@ -5852,10 +5852,10 @@
           </rect>
          </property>
          <property name="text">
-          <string>Partially accepted</string>
+          <string>Partially Accepted</string>
          </property>
         </widget>
-        <widget class="QCheckBox" name="checkBox_16">
+        <widget class="QCheckBox" name="rmas_incoming_empty">
          <property name="geometry">
           <rect>
            <x>30</x>
@@ -5865,7 +5865,7 @@
           </rect>
          </property>
          <property name="text">
-          <string>New</string>
+          <string>Empty</string>
          </property>
         </widget>
        </widget>

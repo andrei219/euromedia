@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1055</width>
+    <width>1298</width>
     <height>861</height>
    </rect>
   </property>
@@ -39,7 +39,7 @@
   <widget class="QToolButton" name="save">
    <property name="geometry">
     <rect>
-     <x>850</x>
+     <x>1100</x>
      <y>770</y>
      <width>81</width>
      <height>61</height>
@@ -71,7 +71,7 @@
   <widget class="QToolButton" name="exit">
    <property name="geometry">
     <rect>
-     <x>950</x>
+     <x>1200</x>
      <y>770</y>
      <width>71</width>
      <height>61</height>
@@ -105,7 +105,7 @@
     <rect>
      <x>40</x>
      <y>230</y>
-     <width>981</width>
+     <width>1231</width>
      <height>461</height>
     </rect>
    </property>
@@ -155,7 +155,7 @@
   <widget class="QPushButton" name="pushButton_2">
    <property name="geometry">
     <rect>
-     <x>940</x>
+     <x>1190</x>
      <y>700</y>
      <width>75</width>
      <height>23</height>
@@ -188,7 +188,7 @@
     </rect>
    </property>
   </widget>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>710</x>

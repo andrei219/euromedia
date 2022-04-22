@@ -1339,6 +1339,7 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
                 line_iter = filter(line_with_stock_key,iter(proforma.lines or proforma.advanced_lines))
                 return 'Yes' if all([line.defined for line in line_iter]) else 'No'
 
+
             elif col == self.READY:
                 return 'Yes' if proforma.ready else 'No'
             elif col == self.EXTERNAL:
@@ -4874,8 +4875,65 @@ def get_spec(eline: db.ExpeditionLine):
             else:
                 return pline.spec
 
-class RmaIncomingMoldel(BaseTable, QtCore.QAbstractTableModel):
-    pass
+class RmaIncomingModel(BaseTable, QtCore.QAbstractTableModel):
+
+    ID, PARTNER, DATE, STATUS = 0, 1, 2, 3
+
+    def __init__(self, search_key=None, filters=None):
+        print('search_key=', search_key, 'filters=', filters)
+        super().__init__()
+        self.orders = db.session.query(db.IncomingRma).all()
+        self.name = 'orders'
+        self._headerData = ['ID', 'Partner', 'Date', 'Status']
+
+    def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
+
+        if not index.isValid():
+            return
+
+        row, column = index.row(), index.column()
+        rma_order = self.orders[row]
+        if role == Qt.DisplayRole:
+            if column == self.ID:
+                return str(rma_order.id).zfill(6)
+            elif column == self.DATE:
+                return rma_order.date.strftime('%d/%m/%Y')
+            elif column == self.PARTNER:
+                return rma_order.partner.trading_name
+            elif column == self.STATUS:
+                return 'Status'
+
+        elif role == Qt.DecorationRole:
+            if column == self.DATE:
+                return QtGui.QIcon('\calendar')
+            elif column == self.STATUS:
+                return QtGui.QColor(RED)
+
+    def sort(self, column: int, order: Qt.SortOrder = ...) -> None:
+        reverse = True if order == Qt.AscendingOrder else False
+        attr = {
+            self.ID:'id',
+            self.PARTNER:'partner.trading_name',
+            self.DATE:'date'
+        }.get(column)
+        if attr:
+            self.layoutAboutToBeChanged.emit()
+            self.orders.sort(key=operator.attrgetter(attr), reverse=reverse)
+            self.layoutChanged.emit()
+
+    def __getitem__(self, row):
+        return self.orders[row]
+
+
+
+# aceptado verde
+# partial naranja
+# rejected rojo
+# yellow empty
+
+
+
+
 
 class RmaIncomingLineModel(BaseTable, QtCore.QAbstractTableModel):
 
@@ -4885,34 +4943,51 @@ class RmaIncomingLineModel(BaseTable, QtCore.QAbstractTableModel):
 
     def __init__(self, lines):
         super().__init__()
-        self._headerData = ['Sn/Imei', 'Purchase Date', 'Arrival Datetime',
-                           'Defined as', 'Sale Date', 'Sold as',
-                           'Warehouse Picking Datetime', 'Accept (Editable: y/n)']
-
+        self._headerData = [
+            'Imei/SN', 'Reception Datetime', 'Warranty End (Supplier)',
+            'Purchased as', 'Defined as', 'Sold as', 'Sold As(Public Condition)',
+            'Sale Date', 'Expedition Datetime', 'Warranty End Customer', 'Problem',
+            'Accepted (y/n)'
+        ]
         self.name = 'lines'
         self.lines = lines
 
     def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
         return 'a'
 
+    def setData(self, index: QModelIndex, value: typing.Any, role: int = ...) -> bool:
+        return True
+
     def add(self, sn):
+
         print(get_sn_rma_info(sn))
 
 
+
 def get_partner_warranty(partner_id):
-    try:
-        return db.session.query(db.Partner.warranty).\
-            where(db.Partner.id == partner_id).scalar()
-    except:
-        db.session.rollback()
-        raise
+    return db.session.query(db.Partner.warranty).where(db.Partner.id == partner_id).scalar()
 
 
 def get_sn_rma_info(sn):
+
     reception_serie = db.session.query(db.ReceptionSerie).where(db.ReceptionSerie.serie == sn).first()
-    purchase_date = reception_serie.line.reception.proforma.date
 
+    if reception_serie is None:
+        raise ValueError('This Imei/Sn is not found in reception')
 
+    print(get_defined_as(reception_serie))
+
+    # purchase_date = reception_serie.line.reception.proforma.date
+
+def get_defined_as(reception_serie:db.ReceptionSerie):
+    return ', '.join((reception_serie.item.clean_repr, reception_serie.condition, reception_serie.spec))
+
+def get_purchased_as(reception_serie:db.ReceptionSerie):
+    line = reception_serie.line
+    return ', '.join(line.description or line.item.clean_repr)
+
+def get_warranty_end(reception_serie:db.ReceptionSerie):
+    pass 
 
     # IMEI
     # ARRIVAL DATETIME

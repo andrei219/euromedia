@@ -1,6 +1,6 @@
 
 
-from PyQt5.QtWidgets import QWidget
+from PyQt5.QtWidgets import QWidget, QMessageBox
 from ui_rmas_incoming_form import Ui_Form
 
 
@@ -15,10 +15,17 @@ from db import session
 from models import RmaIncomingLineModel
 from models import get_sn_rma_info
 
+import utils
+
 class Form(Ui_Form, QWidget):
 
     def __init__(self, parent, order=None):
-        super(Form, self).__init__()
+
+        from importlib import  reload
+        global utils
+        utils = reload(utils)
+        super().__init__()
+        self.parent = parent
         self.order = None
         self.lines_model = None
         self.setupUi(self)
@@ -37,6 +44,7 @@ class Form(Ui_Form, QWidget):
     def set_model(self):
         self.lines_model = RmaIncomingLineModel(self.order.lines)
         self.view.setModel(self.lines_model)
+        self.view.resizeColumnsToContents()
 
     def set_completer(self):
         setCompleter(self.partner, partner_id_map.keys())
@@ -46,6 +54,7 @@ class Form(Ui_Form, QWidget):
         self.partner.editingFinished.connect(self.search_partner_warranty)
         self.check.clicked.connect(self.search_sn)
         self.exit.clicked.connect(self.exit_handler)
+        self.save.clicked.connect(self.save_handler)
 
     def search_partner_warranty(self):
         try:
@@ -59,7 +68,30 @@ class Form(Ui_Form, QWidget):
 
     def search_sn(self):
         sn = self.sn.text()
-        self.lines_model.add(sn)
+
+        if not sn:
+            return
+
+        try:
+            self.lines_model.add(sn)
+
+        except ValueError as ex:
+            QMessageBox.critical(self, 'Error', str(ex))
+
+    def save_handler(self):
+        try:
+            self.order.date = utils.parse_date(self.date.text())
+        except ValueError:
+            QMessageBox.critical(self, 'Error', 'Invalid date format. It is ddmmyyyy')
+            return
+        try:
+            self.order.partner_id = utils.partner_id_map[self.partner.text()]
+        except KeyError:
+            QMessageBox.critical(self, 'Error', 'Invalid Partner')
+            return
+
+        session.commit()
+        QMessageBox.information(self, 'Success', 'Rma order saved successfully')
 
 
     def exit_handler(self):
@@ -67,6 +99,7 @@ class Form(Ui_Form, QWidget):
 
     def closeEvent(self, event) -> None:
         session.rollback()
+        self.parent.set_mv('rmas_incoming_')
 
 
 

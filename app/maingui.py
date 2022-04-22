@@ -264,6 +264,16 @@ class MainGui(Ui_MainGui, QMainWindow):
             self.warehouse_expeditions_view.resizeColumnToContents(8)
             self.warehouse_expeditions_view.resizeColumnToContents(4)
 
+        elif prefix == 'rmas_incoming_':
+            self.rmas_incoming_model = models.RmaIncomingModel(
+                search_key=search_key, filters=filters)
+            self.rmas_incoming_view.setModel(self.rmas_incoming_model)
+
+            self.rmas_incoming_view.setSelectionBehavior(QTableView.SelectRows)
+            self.rmas_incoming_view.setSortingEnabled(True)
+            self.rmas_incoming_view.setAlternatingRowColors(True)
+
+
     def set_handlers(self):
         from itertools import product
         for prefix, action in product(PREFIXES, ACTIONS):
@@ -300,13 +310,21 @@ class MainGui(Ui_MainGui, QMainWindow):
         filters = {}
         for name in [
             'types', 'financial', 'shipment',
-            'logistic', 'cancelled'
+            'logistic', 'cancelled', 'rmas_incoming'
         ]:
             try:
                 filters[name] = getattr(self, name)(prefix=prefix)
             except AttributeError:
                 continue
         return filters
+
+    def rmas_incoming(self, prefix):
+        return [
+            name for name in (
+                'empty', 'rejected', 'partially_accepted',
+                'accepted'
+            ) if getattr(self, prefix + name).isChecked()
+        ]
 
     def cancelled(self, prefix):
         return [
@@ -342,6 +360,7 @@ class MainGui(Ui_MainGui, QMainWindow):
             ) if getattr(self, prefix + name).isChecked()
         ]
 
+
     def apply_handler(self):
         object_name = self.sender().objectName()
         prefix = object_name[0:object_name.rfind('_') + 1]
@@ -356,7 +375,7 @@ class MainGui(Ui_MainGui, QMainWindow):
         search_key = widget.text()
         self.set_mv(prefix, filters=filters, search_key=search_key)
 
-        # Agents Handlers:
+     # Agents Handlers:
 
     def agents_double_click_handler(self, index):
         self.launch_agent_form(index)
@@ -1254,6 +1273,10 @@ class MainGui(Ui_MainGui, QMainWindow):
     def rmas_incoming_towh_handler(self):
         print('¡eeee')
 
+    def rmas_incoming_double_click_handler(self, index):
+        rma_order = self.rmas_incoming_model[index.row()]
+        print('eee')
+
 
     # TOOLS HANDLERS:
 
@@ -1351,8 +1374,6 @@ class MainGui(Ui_MainGui, QMainWindow):
             self.set_mv('proformas_purchases_')
             self.set_mv('proformas_sales_')
 
-
-
         elif index == 3:
             self.set_mv('invoices_purchases_')
             self.set_mv('invoices_sales_')
@@ -1361,6 +1382,8 @@ class MainGui(Ui_MainGui, QMainWindow):
             self.set_mv('warehouse_receptions_')
             self.set_mv('warehouse_incoming_rmas_')
             self.set_mv('warehouse_outgoing_rmas_')
+        elif index == 5:
+            self.set_mv('rmas_incoming_')
 
     def closeEvent(self, event):
         for w in self.opened_windows_instances:
