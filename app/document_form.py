@@ -24,9 +24,11 @@ class DocumentForm(Ui_DocumentsForm, QDialog):
     def viewPdf(self, index):
         import subprocess
 
-        file = 'x.pdf'
 
         document = self.document_view.model().documents[index.row()]
+
+        file = document.name
+
         utils.writeBase64Pdf(file, document.document)
 
         subprocess.Popen((file,), shell=True)
