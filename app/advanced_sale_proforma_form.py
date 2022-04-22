@@ -339,9 +339,6 @@ class Form(Ui_Form, QWidget):
             self.proforma.number = int(self.number.text())
             self.proforma.date = utils.parse_date(self.date.text())
 
-        self.proforma.type = int(self.type.currentText())
-        self.proforma.number = int(self.number.text())
-        self.proforma.date = utils.parse_date(self.date.text())
         self.proforma.warranty = self.warranty.value()
         self.proforma.they_pay_they_ship = self.they_pay_they_ship.isChecked()
         self.proforma.they_pay_we_ship = self.they_pay_we_ship.isChecked()

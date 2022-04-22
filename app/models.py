@@ -4937,15 +4937,15 @@ class RmaIncomingModel(BaseTable, QtCore.QAbstractTableModel):
 
 class RmaIncomingLineModel(BaseTable, QtCore.QAbstractTableModel):
 
-    SN, PURCHASE_DATE, PURCHASE_DESCRIPTION, ARRIVAL_DATETIME, \
-        DEFINED_AS, SALE_DATE, SOLD_AS, WAREHOUSE_PICKING_DATETIME, ACCEPT = \
-        0, 1, 2, 3, 4, 5, 6, 7, 8
+    IMEI, RECEPTION_DATETIME, WARRANTY_END_SUPP, PURCHASED_AS, DEFINED_AS,\
+    SOLD_AS, SOLD_AS_PUBLIC, SOLD_TO, SALE_DATE, EXPEDITION_PICKING, WARRANTY_END_CUST, \
+    PROBLEM, ACCEPTED = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12
 
     def __init__(self, lines):
         super().__init__()
         self._headerData = [
             'Imei/SN', 'Reception Datetime', 'Warranty End (Supplier)',
-            'Purchased as', 'Defined as', 'Sold as', 'Sold As(Public Condition)',
+            'Purchased as', 'Defined as', 'Sold as', 'Sold As(Public Condition)', 'Sold to',
             'Sale Date', 'Expedition Datetime', 'Warranty End Customer', 'Problem',
             'Accepted (y/n)'
         ]
@@ -4953,14 +4953,20 @@ class RmaIncomingLineModel(BaseTable, QtCore.QAbstractTableModel):
         self.lines = lines
 
     def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
-        return 'a'
+        if not index.isValid():
+            return
+
 
     def setData(self, index: QModelIndex, value: typing.Any, role: int = ...) -> bool:
         return True
 
-    def add(self, sn):
-
-        print(get_sn_rma_info(sn))
+    def add(self, sn, partner_id):
+        try:
+            self.layoutAboutToBeChanged.emit()
+            line = db.IncomingRmaLine(sn, partner_id)
+            self.layoutChanged.emit()
+        except ValueError:
+            raise
 
 
 
@@ -4968,26 +4974,26 @@ def get_partner_warranty(partner_id):
     return db.session.query(db.Partner.warranty).where(db.Partner.id == partner_id).scalar()
 
 
-def get_sn_rma_info(sn):
 
-    reception_serie = db.session.query(db.ReceptionSerie).where(db.ReceptionSerie.serie == sn).first()
-
-    if reception_serie is None:
-        raise ValueError('This Imei/Sn is not found in reception')
-
-    print(get_defined_as(reception_serie))
-
-    # purchase_date = reception_serie.line.reception.proforma.date
+# 350038440123384
 
 def get_defined_as(reception_serie:db.ReceptionSerie):
     return ', '.join((reception_serie.item.clean_repr, reception_serie.condition, reception_serie.spec))
 
-def get_purchased_as(reception_serie:db.ReceptionSerie):
-    line = reception_serie.line
-    return ', '.join(line.description or line.item.clean_repr)
 
-def get_warranty_end(reception_serie:db.ReceptionSerie):
-    pass 
+def get_purchased_as(reception_serie: db.ReceptionSerie):
+    line = reception_serie.line
+    return ', '.join((line.description or line.item.clean_repr, line.condition, line.spec))
+
+
+def get_warranty_end(reception_serie: db.ReceptionSerie):
+    created_on = reception_serie.created_on
+
+    print('created_on:', created_on.date())
+
+
+
+
 
     # IMEI
     # ARRIVAL DATETIME

@@ -1754,17 +1754,35 @@ class IncomingRmaLine(Base):
 
     __tablename__ = 'incoming_rma_lines'
 
+    # id = Column(Integer, primary_key=True)
+    # incoming_rma_id = Column(Integer, ForeignKey('incoming_rmas.id'))
+    #
+    # sn = Column(String(50), nullable=False)
+    #
+    # reception_datetime = Column(DateTime, nullable=False)
+    # purchase_date = Column(Date, nullable=False)
+    # purchase_description = Column(String(100), nullable=False)
+    # arrival_date = Column(DateTime,  nullable=False)
+    # defined_as = Column(String(100), nullable=False)
+    # sold_as = Column(String(100), nullable=False)
+    # sale_date = Column(Date, nullable=False)
+    # warehouse_picking_datetime = Column(DateTime, nullable=False)
+    #
+
     id = Column(Integer, primary_key=True)
     incoming_rma_id = Column(Integer, ForeignKey('incoming_rmas.id'))
 
-    sn = Column(String(50), nullable=False)
-    purchase_date = Column(Date, nullable=False)
-    purchase_description = Column(String(100), nullable=False)
-    arrival_date = Column(DateTime,  nullable=False)
-    defined_as = Column(String(100), nullable=False)
-    sold_as = Column(String(100), nullable=False)
-    sale_date = Column(Date, nullable=False)
-    warehouse_picking_datetime = Column(DateTime, nullable=False)
+    reception_datetime = Column(DateTime, nullable=True)
+    purchase_date = Column(Date, nullable=True)
+    purchased_as = Column(String(100), nullable=True)
+    defined_as = Column(String(100), nullable=True)
+    sold_as = Column(String(100), nullable=True)
+    public_condition = Column(String(100), nullable=True)
+    sale_date = Column(Date, nullable=True)
+    expedition_datetime = Column(DateTime, nullable=True)
+    sold_to_id = Column(Integer, ForeignKey('partners.id'))
+    problem = Column(String(100), nullable=False)
+    accepted = Column(Boolean, default=False, nullable=False)
 
     incoming_rma = relationship(
         'IncomingRma',
@@ -1773,6 +1791,35 @@ class IncomingRmaLine(Base):
             cascade='delete-orphan, delete, save-update'
         )
     )
+
+    sold_to = relationship('Partner', uselist=False)
+
+    def __init__(self, sn, partner_id):
+        reception_serie = session.query(ReceptionSerie).\
+            where(ReceptionSerie.serie == sn).all()[-1]
+
+        self.sn = sn
+
+        if reception_serie is not None:
+            self.reception_datetime = reception_serie.created_on
+            self.purchase_date = reception_serie.line.reception.proforma.date
+            line = reception_serie.line
+            self.purchased_as = ', '.join((
+                line.description or line.item.clean_repr,
+                line.condition,
+                line.spec
+                )
+            )
+            self.defined_as = ', '.join((
+                reception_serie.item.clean_repr,
+                reception_serie.condition,
+                reception_serie.spec
+                )
+            )
+            expedition_serie = session.query(ExpeditionSerie).join(ExpeditionLine).all()[-1]
+            self.sold_to = expedition_serie.line.expedition.proforma.partner
+
+
 
 
 def create_lines():
