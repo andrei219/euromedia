@@ -20,6 +20,8 @@ from sqlalchemy.orm import relationship, backref
 import functools
 import operator
 
+from datetime import timedelta
+
 from sqlalchemy.sql.operators import exists
 
 engine = create_engine('mysql+mysqlconnector://andrei:hnq#4506@192.168.2.253:3306/appdb', echo=False)
@@ -278,6 +280,7 @@ class Partner(Base):
         CheckConstraint('fiscal_number != ""', name='no_empty_partner_fiscal_number'),
         CheckConstraint('trading_name != ""', name='no_empty_partner_trading_name')
     )
+
 
 class PartnerDocument(Base):
     __tablename__ = 'partner_documents'
@@ -684,7 +687,7 @@ class SaleProforma(Base):
     @property
     def total_quantity(self):
         return sum(line.quantity for line in self.lines if line.item_id) or \
-            sum(line.quantity for line in self.advanced_lines if line.item_id)
+               sum(line.quantity for line in self.advanced_lines if line.item_id)
 
     @property
     def total_processed(self):
@@ -827,7 +830,6 @@ class SaleProformaLine(Base):
         UniqueConstraint('id', 'proforma_id'),
     )
 
-
     @property
     def defined(self):
         return all((
@@ -912,7 +914,6 @@ class SaleProformaLine(Base):
 
 
 class AdvancedLine(Base):
-
     __tablename__ = 'advanced_lines'
 
     id = Column(Integer, primary_key=True)
@@ -1203,7 +1204,6 @@ class Imei(Base):
 
     item = relationship('Item', uselist=False)
     warehouse = relationship('Warehouse', uselist=False)
-
 
 
 class ImeiMask(Base):
@@ -1687,6 +1687,7 @@ def expedition_series_after_delete(mapper, connection, target):
 
         connection.execute(stmt)
 
+
 class SpecChange(Base):
     __tablename__ = 'spec_changes'
 
@@ -1703,6 +1704,7 @@ class SpecChange(Base):
         self.after = after
         self.comment = comment
 
+
 class WarehouseChange(Base):
     __tablename__ = 'warehouse_changes'
 
@@ -1718,7 +1720,6 @@ class WarehouseChange(Base):
         self.before = before
         self.after = after
         self.comment = comment
-
 
 
 class ConditionChange(Base):
@@ -1738,9 +1739,7 @@ class ConditionChange(Base):
         self.comment = comment
 
 
-
 class IncomingRma(Base):
-
     __tablename__ = 'incoming_rmas'
 
     id = Column(Integer, primary_key=True)
@@ -1751,7 +1750,6 @@ class IncomingRma(Base):
 
 
 class IncomingRmaLine(Base):
-
     __tablename__ = 'incoming_rma_lines'
 
     # id = Column(Integer, primary_key=True)
@@ -1771,18 +1769,20 @@ class IncomingRmaLine(Base):
 
     id = Column(Integer, primary_key=True)
     incoming_rma_id = Column(Integer, ForeignKey('incoming_rmas.id'))
-
+    sn = Column(String(50), nullable=False)
     reception_datetime = Column(DateTime, nullable=True)
-    purchase_date = Column(Date, nullable=True)
+    warranty_end_sup = Column(Date, nullable=False)
     purchased_as = Column(String(100), nullable=True)
     defined_as = Column(String(100), nullable=True)
     sold_as = Column(String(100), nullable=True)
     public_condition = Column(String(100), nullable=True)
     sale_date = Column(Date, nullable=True)
     expedition_datetime = Column(DateTime, nullable=True)
+    warranty_end_cust = Column(Date, nullable=True)
     sold_to_id = Column(Integer, ForeignKey('partners.id'))
-    problem = Column(String(100), nullable=False)
-    accepted = Column(Boolean, default=False, nullable=False)
+    problem = Column(String(100), nullable=True)
+    accepted = Column(Boolean, default=False, nullable=True)
+    why = Column(String(100), nullable=True)
 
     incoming_rma = relationship(
         'IncomingRma',
@@ -1794,32 +1794,69 @@ class IncomingRmaLine(Base):
 
     sold_to = relationship('Partner', uselist=False)
 
-    def __init__(self, sn, partner_id):
-        reception_serie = session.query(ReceptionSerie).\
-            where(ReceptionSerie.serie == sn).all()[-1]
-
+    @classmethod
+    def from_sn(cls, sn, partner_id):
+        print('aaaa')
+        self = cls()
         self.sn = sn
+        try:
+            reception_serie = session.query(ReceptionSerie). \
+                where(ReceptionSerie.serie == sn).all()[-1]
+        except IndexError:
+            reception_serie = None
 
         if reception_serie is not None:
             self.reception_datetime = reception_serie.created_on
-            self.purchase_date = reception_serie.line.reception.proforma.date
+
+            self.warranty_end_sup = self.reception_datetime.date() + \
+                timedelta(reception_serie.line.reception.proforma.warranty)
+
             line = reception_serie.line
             self.purchased_as = ', '.join((
                 line.description or line.item.clean_repr,
                 line.condition,
                 line.spec
-                )
             )
+            )
+
             self.defined_as = ', '.join((
                 reception_serie.item.clean_repr,
                 reception_serie.condition,
                 reception_serie.spec
                 )
             )
-            expedition_serie = session.query(ExpeditionSerie).join(ExpeditionLine).all()[-1]
-            self.sold_to = expedition_serie.line.expedition.proforma.partner
+            expedition_serie = session.query(ExpeditionSerie).join(ExpeditionLine)\
+                .where(ExpeditionSerie.serie == sn).all()[-1]
+
+            if expedition_serie is not None:
+                self.expedition_datetime = expedition_serie.created_on
+                self.sold_as = ', '.join((
+                    expedition_serie.line.item.clean_repr,
+                    expedition_serie.line.condition,
+                    expedition_serie.line.spec
+                    )
+                )
+
+                self.public_condition = expedition_serie.line.showing_condition
 
 
+                self.expedition_datetime = expedition_serie.created_on
+                self.sold_to = expedition_serie.line.expedition.proforma.partner
+                try:
+                    self.sale_date = expedition_serie.line.expedition.proforma.invoice.date
+                except AttributeError:
+                    self.sale_date = expedition_serie.line.expedition.proforma.date
+
+                cust_warranty = expedition_serie.line.expedition.proforma.warranty
+
+                self.warranty_end_cust = self.expedition_datetime.date() + \
+                    timedelta(expedition_serie.line.expedition.proforma.warranty)
+
+                self.problem = ''
+                self.why = ''
+                self.accepted = False
+
+        return self
 
 
 def create_lines():
@@ -2440,13 +2477,12 @@ def create_init_data():
 
 
 def correct_mask():
-
     for row in session.query(ImeiMask.origin_id).distinct():
-        purchase_proforma = session.query(PurchaseProforma).join(PurchaseProformaLine).\
+        purchase_proforma = session.query(PurchaseProforma).join(PurchaseProformaLine). \
             where(PurchaseProformaLine.id == row.origin_id).first()
         if purchase_proforma.completed:
             if all((
-                sale.completed for sale in session.query(SaleProforma).join(AdvancedLine).\
+                    sale.completed for sale in session.query(SaleProforma).join(AdvancedLine). \
                     where(AdvancedLine.origin_id == row.origin_id)
             )):
                 stmt = delete(ImeiMask).where(ImeiMask.origin_id == row.origin_id)

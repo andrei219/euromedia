@@ -4933,13 +4933,13 @@ class RmaIncomingModel(BaseTable, QtCore.QAbstractTableModel):
 
 
 
-
+from datetime import timedelta
 
 class RmaIncomingLineModel(BaseTable, QtCore.QAbstractTableModel):
 
     IMEI, RECEPTION_DATETIME, WARRANTY_END_SUPP, PURCHASED_AS, DEFINED_AS,\
     SOLD_AS, SOLD_AS_PUBLIC, SOLD_TO, SALE_DATE, EXPEDITION_PICKING, WARRANTY_END_CUST, \
-    PROBLEM, ACCEPTED = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12
+    PROBLEM, ACCEPTED, WHY = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13
 
     def __init__(self, lines):
         super().__init__()
@@ -4947,49 +4947,74 @@ class RmaIncomingLineModel(BaseTable, QtCore.QAbstractTableModel):
             'Imei/SN', 'Reception Datetime', 'Warranty End (Supplier)',
             'Purchased as', 'Defined as', 'Sold as', 'Sold As(Public Condition)', 'Sold to',
             'Sale Date', 'Expedition Datetime', 'Warranty End Customer', 'Problem',
-            'Accepted (y/n)'
+            'Accepted (y/n)', 'Why'
         ]
         self.name = 'lines'
         self.lines = lines
 
     def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
         if not index.isValid():
-            return
-
+            return 
+        row, column = index.row(), index.column()
+        line = self.lines[row]
+        if role == Qt.DisplayRole:
+            if column == self.IMEI:
+                return line.sn
+            elif column == self.RECEPTION_DATETIME:
+                return str(line.reception_datetime)
+            elif column == self.WARRANTY_END_SUPP:
+                return str(line.warranty_end_sup)
+            elif column == self.PURCHASED_AS:
+                return line.purchased_as
+            elif column == self.DEFINED_AS:
+                return line.defined_as
+            elif column == self.SOLD_AS:
+                return line.sold_as
+            elif column == self.SOLD_TO:
+                return line.sold_to.trading_name
+            elif column == self.SALE_DATE:
+                return str(line.sale_date)
+            elif column == self.EXPEDITION_PICKING:
+                return str(line.expedition_datetime)
+            elif column == self.WARRANTY_END_CUST:
+                return str(line.warranty_end_cust)
+            elif column == self.PROBLEM:
+                return line.problem
+            elif column == self.ACCEPTED:
+                return 'y' if line.accepted else 'n'
+            elif column == self.SOLD_AS_PUBLIC:
+                return line.public_condition
+            elif column == self.WHY:
+                return line.why
 
     def setData(self, index: QModelIndex, value: typing.Any, role: int = ...) -> bool:
         return True
 
+
+    def serie_processed(self, sn):
+        for line in self.lines:
+            if line.sn == sn:
+                return True
+        else:
+            return False
+
     def add(self, sn, partner_id):
+
+        if self.serie_processed(sn):
+            raise ValueError('Imei/Sn already processed')
+
         try:
             self.layoutAboutToBeChanged.emit()
-            line = db.IncomingRmaLine(sn, partner_id)
+            self.lines.append(db.IncomingRmaLine.from_sn(sn, partner_id))
+            # db.session.flush()
             self.layoutChanged.emit()
         except ValueError:
             raise
 
 
-
 def get_partner_warranty(partner_id):
     return db.session.query(db.Partner.warranty).where(db.Partner.id == partner_id).scalar()
 
-
-
-# 350038440123384
-
-def get_defined_as(reception_serie:db.ReceptionSerie):
-    return ', '.join((reception_serie.item.clean_repr, reception_serie.condition, reception_serie.spec))
-
-
-def get_purchased_as(reception_serie: db.ReceptionSerie):
-    line = reception_serie.line
-    return ', '.join((line.description or line.item.clean_repr, line.condition, line.spec))
-
-
-def get_warranty_end(reception_serie: db.ReceptionSerie):
-    created_on = reception_serie.created_on
-
-    print('created_on:', created_on.date())
 
 
 
@@ -5008,7 +5033,7 @@ def get_warranty_end(reception_serie: db.ReceptionSerie):
 
 
 
-
+# 351133750108601
 
 
 

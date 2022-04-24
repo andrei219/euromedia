@@ -13,7 +13,6 @@ from db import IncomingRma
 from db import session
 
 from models import RmaIncomingLineModel
-from models import get_sn_rma_info
 
 import utils
 
@@ -67,14 +66,21 @@ class Form(Ui_Form, QWidget):
 
 
     def search_sn(self):
-        sn = self.sn.text()
+
+        sn = self.sn.text().strip()
+
+        try:
+            partner_id = partner_id_map[self.partner.text()]
+        except KeyError:
+            QMessageBox.critical(self, 'Error', 'Set partner correctly')
+            return
 
         if not sn:
             return
 
         try:
-            self.lines_model.add(sn)
-
+            self.lines_model.add(sn, partner_id)
+            self.view.resizeColumnsToContents()
         except ValueError as ex:
             QMessageBox.critical(self, 'Error', str(ex))
 

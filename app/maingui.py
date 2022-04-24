@@ -8,6 +8,7 @@ from PyQt5.QtWidgets import (
 from sqlalchemy.exc import IntegrityError
 
 import advanced_definition_form
+import rmas_incoming_form
 import advanced_sale_proforma_form
 import agentgui
 import db
@@ -1275,8 +1276,10 @@ class MainGui(Ui_MainGui, QMainWindow):
 
     def rmas_incoming_double_click_handler(self, index):
         rma_order = self.rmas_incoming_model[index.row()]
-        print('eee')
 
+        self.f = rmas_incoming_form.Form(self, order=rma_order)
+
+        self.f.show()
 
     # TOOLS HANDLERS:
 
