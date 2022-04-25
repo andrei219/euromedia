@@ -26,6 +26,7 @@ class Form(Ui_Form, QDialog):
         try:
             warehouse_id = warehouse_id_map[warehouse]
         except KeyError:
+            QMessageBox.critical(self, 'Error', 'Specify warehouse')
             return
 
         spec = self.spec.text()
