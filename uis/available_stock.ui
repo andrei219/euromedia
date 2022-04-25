@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>InventoryForm</class>
+ <widget class="QDialog" name="InventoryForm">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1027</width>
+    <height>831</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Inventory</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="../app/icons.qrc">
+    <normaloff>:/warehouse</normaloff>:/warehouse</iconset>
+  </property>
+  <property name="styleSheet">
+   <string notr="true"/>
+  </property>
+  <widget class="QTableView" name="view">
+   <property name="geometry">
+    <rect>
+     <x>50</x>
+     <y>120</y>
+     <width>941</width>
+     <height>611</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QToolButton" name="exit">
+   <property name="geometry">
+    <rect>
+     <x>920</x>
+     <y>750</y>
+     <width>70</width>
+     <height>60</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Exit</string>
+   </property>
+   <property name="icon">
+    <iconset resource="../app/icons.qrc">
+     <normaloff>:/exit</normaloff>:/exit</iconset>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>32</width>
+     <height>32</height>
+    </size>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonTextUnderIcon</enum>
+   </property>
+   <property name="autoRaise">
+    <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QGroupBox" name="groupBox">
+   <property name="geometry">
+    <rect>
+     <x>50</x>
+     <y>20</y>
+     <width>941</width>
+     <height>81</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>FILTERS:</string>
+   </property>
+   <widget class="QLineEdit" name="description">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>20</y>
+      <width>330</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+    <property name="placeholderText">
+     <string>Description...</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="condition">
+    <property name="geometry">
+     <rect>
+      <x>370</x>
+      <y>20</y>
+      <width>130</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+    <property name="placeholderText">
+     <string>Condition...</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="spec">
+    <property name="geometry">
+     <rect>
+      <x>510</x>
+      <y>20</y>
+      <width>130</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+    <property name="placeholderText">
+     <string>Spec...</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="warehouse">
+    <property name="geometry">
+     <rect>
+      <x>650</x>
+      <y>20</y>
+      <width>130</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+    <property name="placeholderText">
+     <string>Warehouse...</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="apply">
+    <property name="geometry">
+     <rect>
+      <x>811</x>
+      <y>16</y>
+      <width>110</width>
+      <height>45</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Apply</string>
+    </property>
+    <property name="default">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="incoming">
+    <property name="geometry">
+     <rect>
+      <x>710</x>
+      <y>50</y>
+      <width>70</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Incoming</string>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="physical">
+    <property name="geometry">
+     <rect>
+      <x>630</x>
+      <y>50</y>
+      <width>70</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Physical</string>
+    </property>
+    <property name="checkable">
+     <bool>true</bool>
+    </property>
+    <property name="checked">
+     <bool>true</bool>
+    </property>
+    <property name="autoExclusive">
+     <bool>true</bool>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QToolButton" name="excel">
+   <property name="geometry">
+    <rect>
+     <x>830</x>
+     <y>750</y>
+     <width>70</width>
+     <height>60</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Excel</string>
+   </property>
+   <property name="icon">
+    <iconset resource="../app/icons.qrc">
+     <normaloff>:/excel</normaloff>:/excel</iconset>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>32</width>
+     <height>32</height>
+    </size>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonTextUnderIcon</enum>
+   </property>
+   <property name="autoRaise">
+    <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QToolButton" name="whatsapp">
+   <property name="geometry">
+    <rect>
+     <x>740</x>
+     <y>750</y>
+     <width>70</width>
+     <height>60</height>
+    </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>70</width>
+     <height>60</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>70</width>
+     <height>60</height>
+    </size>
+   </property>
+   <property name="text">
+    <string>WhatsApp</string>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>../app/icons/whatsapp.png</normaloff>../app/icons/whatsapp.png</iconset>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>40</width>
+     <height>40</height>
+    </size>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonTextUnderIcon</enum>
+   </property>
+   <property name="autoRaise">
+    <bool>true</bool>
+   </property>
+  </widget>
+ </widget>
+ <resources>
+  <include location="../app/icons.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>exit</sender>
+   <signal>clicked()</signal>
+   <receiver>InventoryForm</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>923</x>
+     <y>778</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>757</x>
+     <y>766</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>
