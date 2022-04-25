@@ -225,7 +225,7 @@
      <item>
       <widget class="QLabel" name="label_19">
        <property name="text">
-        <string>Warehouse:</string>
+        <string>WH:</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
