@@ -477,7 +477,7 @@ class Ui_SalesProformaForm(object):
         self.label_9.setText(_translate("SalesProformaForm", "Tracking:"))
         self.label_17.setText(_translate("SalesProformaForm", "External Nº:"))
         self.label_18.setText(_translate("SalesProformaForm", "Partner:"))
-        self.label_19.setText(_translate("SalesProformaForm", "Warehouse:"))
+        self.label_19.setText(_translate("SalesProformaForm", "WH:"))
         self.label_20.setText(_translate("SalesProformaForm", "Courier:"))
         self.label_21.setText(_translate("SalesProformaForm", "Type"))
         self.type.setItemText(0, _translate("SalesProformaForm", "1"))
