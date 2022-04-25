@@ -86,7 +86,8 @@ ACTIONS = [
     'import',
     'template',
     'create_courier',
-    'export_excel'
+    'export_excel',
+    'available_stock'
 ]
 
 
@@ -1265,9 +1266,7 @@ class MainGui(Ui_MainGui, QMainWindow):
     # RMAS HANDLERS:
 
     def rmas_incoming_new_handler(self):
-
         from rmas_incoming_form import Form
-
         self.f = Form(self)
         self.f.show()
 
@@ -1276,12 +1275,15 @@ class MainGui(Ui_MainGui, QMainWindow):
 
     def rmas_incoming_double_click_handler(self, index):
         rma_order = self.rmas_incoming_model[index.row()]
-
         self.f = rmas_incoming_form.Form(self, order=rma_order)
-
         self.f.show()
 
     # TOOLS HANDLERS:
+
+    def tools_available_stock_handler(self):
+        import available_stock
+        self.f = available_stock.Form(self)
+        self.f.exec_()
 
     def tools_create_courier_handler(self):
         import courier
@@ -1297,11 +1299,8 @@ class MainGui(Ui_MainGui, QMainWindow):
         d.exec_()
 
     def tools_change_spec_handler(self):
-
         from utils import getPassword
-
         password = getPassword(self)
-
         if password != PASSWORD:
             return
 
@@ -1316,37 +1315,21 @@ class MainGui(Ui_MainGui, QMainWindow):
         d.exec_()
 
     def tools_change_condition_handler(self):
-
         from utils import getPassword
-
         password = getPassword(self)
-
         if password != PASSWORD:
             return
 
-        # if models.stock_gap():
-        #     QMessageBox.information(self, 'Information', 'Process all sales first.')
-        #     return
-            # d = condition_change_form.ConditionChange(self)
-        # d.exec_() 
 
         from change_form import ChangeForm
         d = ChangeForm(parent=self, hint='condition')
         d.exec_()
 
     def tools_change_warehouse_handler(self):
-
         from utils import getPassword
-
         password = getPassword(self)
-
         if password != PASSWORD:
             return
-            # if models.stock_gap():
-        #     QMessageBox.information(self, 'Information', 'Process all sales first.')
-        #     return
-            # d = warehouse_change_form.WarehouseChange(self)
-        # d.exec_() 
 
         from change_form import ChangeForm
         d = ChangeForm(parent=self, hint='warehouse')

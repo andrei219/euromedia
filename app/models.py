@@ -3238,6 +3238,11 @@ class StockEntry:
         # Make self.__eq__ with saleproformaline.__eq__ compatible
         self.description = None
 
+    @property
+    def excel_row(self):
+        from utils import description_id_map
+        return description_id_map.inverse.get(self.item_id), self.condition, self.spec, self.quantity
+
     @classmethod
     def fake(cls, item_id):
         return cls(item_id, '', '', 10)
@@ -3314,10 +3319,16 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
     DESCRIPTION, CONDITION, SPEC, QUANTITY, REQUEST = \
         0, 1, 2, 3, 4
 
-    def __init__(self, warehouse_id, description, condition, spec):
+    def __init__(self, warehouse_id, description, condition, spec, check=False):
         super().__init__()
         self._headerData = ['Description', 'Condition', 'Spec', 'Quantity avail. ', 'Requested quant.']
+
+        if check: # For checking only
+            self._headerData.remove('Requested quant.')
+
         self.name = 'stocks'
+
+        self.warehouse_id = warehouse_id
 
         self.stocks = self.computeStock(
             warehouse_id,
@@ -3325,6 +3336,7 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
             condition,
             spec
         )
+
 
     @classmethod
     def stocks(cls, warehouse_id, description=None, condition=None, spec=None):
@@ -3616,6 +3628,30 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
         return list(filter(lambda s: s.request > 0, self.stocks))
 
 
+    def excel_export(self, file_path):
+        from utils import warehouse_id_map
+        from utils import description_id_map
+        from openpyxl import Workbook
+
+        wb = Workbook()
+        ws = wb.active
+
+        header = ['WH', 'Description', 'Condition', 'Spec', 'Quantity']
+
+        ws.append(header)
+
+        warehouse = warehouse_id_map.inverse.get(self.warehouse_id)
+        for stock in self.stocks:
+            ws.append((warehouse, ) + stock.excel_row)
+
+        wb.save(file_path)
+
+    def whatsapp_export(self, file_path):
+
+        print('whatsapp_export')
+
+
+
 class IncomingVector:
 
     def __init__(self, line, session=db.session):
@@ -3645,6 +3681,17 @@ class IncomingVector:
         else:
             self.available = quantity - asked
 
+
+
+    @property
+    def excel_row(self):
+        description = self.description or utils.description_id_map.inverse.get(self.item_id)
+        return self.document, self.eta, description, self.condition, self.spec, self.available
+
+    @property
+    def document(self):
+        return str(self.type) + '-' + str(self.number).zfill(6)
+
     @staticmethod
     def compute_processed(line):
         line_alias = line
@@ -3673,18 +3720,21 @@ class IncomingStockModel(BaseTable, QtCore.QAbstractTableModel):
 
     DOCUMENT, ETA, DESC, CONDITION, SPEC, AVAILABLE = 0, 1, 2, 3, 4, 5
 
-    def __init__(self, warehouse, *, description, condition, spec, type=None, number=None):
+    # check arg , make compatible with stock model init call
+    def __init__(self, warehouse_id, *, description, condition, spec, type=None, number=None, check=False):
         super().__init__()
         self._headerData = ['Document', 'ETA', 'Description', 'Condition', 'Spec', 'Available']
         self.name = 'stocks'
+        self.warehouse_id = warehouse_id
         self.stocks = self.computeIncomingStock(
-            warehouse,
+            warehouse_id,
             description=description,
             condition=condition,
             spec=spec,
             type=type,
             number=number
         )
+
 
     def computeIncomingStock(self, warehouse_id, *, description, condition, spec,
                              type=None, number=None, session=db.session):
@@ -3754,7 +3804,7 @@ class IncomingStockModel(BaseTable, QtCore.QAbstractTableModel):
         if role == Qt.DisplayRole:
             vector = self.stocks[row]
             if col == self.__class__.DOCUMENT:
-                return str(vector.type) + '-' + str(vector.number).zfill(6)
+                return vector.document
             elif col == self.__class__.ETA:
                 return vector.eta
             elif col == self.__class__.DESC:
@@ -3775,6 +3825,29 @@ class IncomingStockModel(BaseTable, QtCore.QAbstractTableModel):
 
     def __getitem__(self, index):
         return self.stocks[index]
+
+
+    def whatsapp_export(self):
+        print('aaaaa')
+
+    def excel_export(self, file_path):
+
+
+        header = ['WH','Document', 'ETA', 'Description', 'Condition', 'Spec', 'Available']
+        from openpyxl import Workbook
+        from utils import warehouse_id_map
+
+        warehouse = warehouse_id_map.inverse.get(self.warehouse_id)
+
+        wb = Workbook()
+        ws = wb.active
+        
+        ws.append(header)
+        
+        for vector in self.stocks:
+            ws.append((warehouse, ) + vector.excel_row)
+
+        wb.save(file_path)
 
 
 class AdvancedLinesModel(BaseTable, QtCore.QAbstractTableModel):
@@ -5019,6 +5092,19 @@ def get_partner_warranty(partner_id):
 
 
 
+def export_available_stock_in_excel():
+
+    from utils import warehouse_id_map
+    from utils import description_id_map
+
+    warehouses_id = db.session.query(Warehouse.id).distinct().all()
+
+    for row in db.session.query(Warehouse.id).distinct().all():
+        warehouse_id = row.id
+
+
+
+
 
     # IMEI
     # ARRIVAL DATETIME
@@ -5031,22 +5117,7 @@ def get_partner_warranty(partner_id):
     # WARRANTY END (CUSTOMER) COMPUTE SALE DATE + INVOICE WARRANTY DAYS
     # PROBLEM
 
-
-
 # 351133750108601
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

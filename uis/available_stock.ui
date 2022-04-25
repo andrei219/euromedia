@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>InventoryForm</class>
- <widget class="QDialog" name="InventoryForm">
+ <class>Form</class>
+ <widget class="QDialog" name="Form">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -268,7 +268,7 @@
   <connection>
    <sender>exit</sender>
    <signal>clicked()</signal>
-   <receiver>InventoryForm</receiver>
+   <receiver>Form</receiver>
    <slot>close()</slot>
    <hints>
     <hint type="sourcelabel">

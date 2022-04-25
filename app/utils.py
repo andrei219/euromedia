@@ -290,8 +290,7 @@ def setCommonViewConfig(view):
     view.setSortingEnabled(True)
     
     view.setAlternatingRowColors(True)
-    
-    
+
     view.setEditTriggers(QTableView.NoEditTriggers)
 
 

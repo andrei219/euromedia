@@ -2517,8 +2517,8 @@
              <string>WhatsApp</string>
             </property>
             <property name="icon">
-             <iconset>
-              <normaloff>../app/icons/whatsapp.png</normaloff>../app/icons/whatsapp.png</iconset>
+             <iconset resource="../app/icons.qrc">
+              <normaloff>:/whatsapp</normaloff>:/whatsapp</iconset>
             </property>
             <property name="iconSize">
              <size>
@@ -4708,8 +4708,8 @@
              <string>WhatsApp</string>
             </property>
             <property name="icon">
-             <iconset>
-              <normaloff>../app/icons/whatsapp.png</normaloff>../app/icons/whatsapp.png</iconset>
+             <iconset resource="../app/icons.qrc">
+              <normaloff>:/whatsapp</normaloff>:/whatsapp</iconset>
             </property>
             <property name="iconSize">
              <size>
@@ -5113,7 +5113,7 @@
        </rect>
       </property>
       <property name="currentIndex">
-       <number>3</number>
+       <number>2</number>
       </property>
       <property name="iconSize">
        <size>
@@ -7180,7 +7180,7 @@
        <enum>Qt::Vertical</enum>
       </property>
      </widget>
-     <widget class="QPushButton" name="tools_avaialable_stock">
+     <widget class="QPushButton" name="tools_available_stock">
       <property name="geometry">
        <rect>
         <x>510</x>
@@ -7237,8 +7237,8 @@
        <string>AEAT - SII</string>
       </property>
       <property name="icon">
-       <iconset>
-        <normaloff>../app/icons/sii.png</normaloff>../app/icons/sii.png</iconset>
+       <iconset resource="../app/icons.qrc">
+        <normaloff>:/sii</normaloff>:/sii</iconset>
       </property>
       <property name="iconSize">
        <size>
