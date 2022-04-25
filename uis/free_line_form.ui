@@ -39,7 +39,7 @@
     <string>Cancel</string>
    </property>
   </widget>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>71</x>
@@ -93,6 +93,9 @@
       <property name="alignment">
        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
       </property>
+      <property name="minimum">
+       <number>-99999</number>
+      </property>
       <property name="maximum">
        <number>99999</number>
       </property>
@@ -121,6 +124,9 @@
       </property>
       <property name="alignment">
        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      </property>
+      <property name="minimum">
+       <double>-99999999.000000000000000</double>
       </property>
       <property name="maximum">
        <double>99999999.000000000000000</double>
