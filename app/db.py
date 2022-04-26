@@ -1765,7 +1765,6 @@ class IncomingRmaLine(Base):
     # sold_as = Column(String(100), nullable=False)
     # sale_date = Column(Date, nullable=False)
     # warehouse_picking_datetime = Column(DateTime, nullable=False)
-    #
 
     id = Column(Integer, primary_key=True)
     incoming_rma_id = Column(Integer, ForeignKey('incoming_rmas.id'))

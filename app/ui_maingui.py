@@ -2024,11 +2024,11 @@ class Ui_MainGui(object):
         MainGui.setStatusBar(self.statusBar)
 
         self.retranslateUi(MainGui)
-        self.main_tab.setCurrentIndex(6)
+        self.main_tab.setCurrentIndex(2)
         self.proformastab.setCurrentIndex(1)
         self.invoicestab.setCurrentIndex(1)
         self.warehouse.setCurrentIndex(2)
-        self.rmas_outgoing_.setCurrentIndex(1)
+        self.rmas_outgoing_.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainGui)
 
     def retranslateUi(self, MainGui):
