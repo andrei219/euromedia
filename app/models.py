@@ -437,6 +437,13 @@ class DocumentModel(QtCore.QAbstractListModel):
     def get_document(self, index):
         return self.documents[index.row()]
 
+#
+# class DocumentModel(QtCore.QAbstractListModel):
+#
+#     def __init__(self):
+#         pass
+
+
 
 class PartnerModel(QtCore.QAbstractTableModel):
     CODE, TRADING_NAME, FISCAL_NAME, FISCAL_NUMBER, COUNTRY, CONTACT, PHONE, EMAIL, ACTIVE = \
@@ -3289,6 +3296,7 @@ class StockEntry:
         class_name = self.__class__.__name__
         return '{}({!r}, {!r}, {!r}, {!r}, {!r})'.format(class_name, *self)
 
+
     def __eq__(self, other):
         if id(self) == id(other):
             return True
@@ -3635,11 +3643,8 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
 
         wb = Workbook()
         ws = wb.active
-
         header = ['WH', 'Description', 'Condition', 'Spec', 'Quantity']
-
         ws.append(header)
-
         warehouse = warehouse_id_map.inverse.get(self.warehouse_id)
         for stock in self.stocks:
             ws.append((warehouse, ) + stock.excel_row)
@@ -3647,9 +3652,7 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
         wb.save(file_path)
 
     def whatsapp_export(self, file_path):
-
         print('whatsapp_export')
-
 
 
 class IncomingVector:
@@ -4953,7 +4956,6 @@ class RmaIncomingModel(BaseTable, QtCore.QAbstractTableModel):
     ID, PARTNER, DATE, STATUS = 0, 1, 2, 3
 
     def __init__(self, search_key=None, filters=None):
-        print('search_key=', search_key, 'filters=', filters)
         super().__init__()
         self.orders = db.session.query(db.IncomingRma).all()
         self.name = 'orders'
@@ -4971,6 +4973,7 @@ class RmaIncomingModel(BaseTable, QtCore.QAbstractTableModel):
                 return str(rma_order.id).zfill(6)
             elif column == self.DATE:
                 return rma_order.date.strftime('%d/%m/%Y')
+                return rma_order.date.strftime('%d/%m/%Y')
             elif column == self.PARTNER:
                 return rma_order.partner.trading_name
             elif column == self.STATUS:
@@ -4985,9 +4988,9 @@ class RmaIncomingModel(BaseTable, QtCore.QAbstractTableModel):
     def sort(self, column: int, order: Qt.SortOrder = ...) -> None:
         reverse = True if order == Qt.AscendingOrder else False
         attr = {
-            self.ID:'id',
-            self.PARTNER:'partner.trading_name',
-            self.DATE:'date'
+            self.ID: 'id',
+            self.PARTNER: 'partner.trading_name',
+            self.DATE: 'date'
         }.get(column)
         if attr:
             self.layoutAboutToBeChanged.emit()
@@ -5004,9 +5007,6 @@ class RmaIncomingModel(BaseTable, QtCore.QAbstractTableModel):
 # rejected rojo
 # yellow empty
 
-
-
-from datetime import timedelta
 
 class RmaIncomingLineModel(BaseTable, QtCore.QAbstractTableModel):
 
@@ -5087,9 +5087,6 @@ class RmaIncomingLineModel(BaseTable, QtCore.QAbstractTableModel):
 
 def get_partner_warranty(partner_id):
     return db.session.query(db.Partner.warranty).where(db.Partner.id == partner_id).scalar()
-
-
-
 
 
 def export_available_stock_in_excel():
