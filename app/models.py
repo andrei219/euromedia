@@ -437,6 +437,13 @@ class DocumentModel(QtCore.QAbstractListModel):
     def get_document(self, index):
         return self.documents[index.row()]
 
+#
+# class DocumentModel(QtCore.QAbstractListModel):
+#
+#     def __init__(self):
+#         pass
+
+
 
 class PartnerModel(QtCore.QAbstractTableModel):
     CODE, TRADING_NAME, FISCAL_NAME, FISCAL_NUMBER, COUNTRY, CONTACT, PHONE, EMAIL, ACTIVE = \
@@ -3289,6 +3296,7 @@ class StockEntry:
         class_name = self.__class__.__name__
         return '{}({!r}, {!r}, {!r}, {!r}, {!r})'.format(class_name, *self)
 
+
     def __eq__(self, other):
         if id(self) == id(other):
             return True
@@ -4964,6 +4972,7 @@ class RmaIncomingModel(BaseTable, QtCore.QAbstractTableModel):
             if column == self.ID:
                 return str(rma_order.id).zfill(6)
             elif column == self.DATE:
+                return rma_order.date.strftime('%d/%m/%Y')
                 return rma_order.date.strftime('%d/%m/%Y')
             elif column == self.PARTNER:
                 return rma_order.partner.trading_name

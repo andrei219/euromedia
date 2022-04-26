@@ -17,7 +17,7 @@ if __name__ == '__main__':
         "identifier": f"{channel_uuid}:{recipient}",
         "payload": {
             "type": "text",
-            "text": "Hi from python 2!",
+            "text": "Hi from python 3!",
         }
     }
 

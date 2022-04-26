@@ -4,10 +4,14 @@ import os
 from ui_document_form import Ui_DocumentsForm
 from PyQt5.QtWidgets import QDialog, QMessageBox
 
-
-import db, utils
+import db
+import utils
+import os
 
 from models import DocumentModel
+
+DROP_BOX_BASE_PATH = r'C:\Users\Andrei\Dropbox\Programa'
+
 
 class DocumentForm(Ui_DocumentsForm, QDialog):
     
@@ -23,16 +27,11 @@ class DocumentForm(Ui_DocumentsForm, QDialog):
 
     def viewPdf(self, index):
         import subprocess
-
-
         document = self.document_view.model().documents[index.row()]
 
         file = document.name
-
         utils.writeBase64Pdf(file, document.document)
-
         subprocess.Popen((file,), shell=True)
-
         # from contextlib import suppress
         #
         # with suppress(FileNotFoundError):
