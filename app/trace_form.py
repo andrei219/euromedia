@@ -19,7 +19,7 @@ class Form(Ui_Form, QDialog):
     def __init__(self, parent):
         super(Form, self).__init__(parent)
         self.setupUi(self)
-        self.search_button.clicked.connect(self.search_handler)+
+        self.search_button.clicked.connect(self.search_handler)
         self.sn.setFocus()
 
     def search_handler(self):
