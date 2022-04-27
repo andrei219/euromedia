@@ -11,6 +11,7 @@ import advanced_definition_form
 import rmas_incoming_form
 import advanced_sale_proforma_form
 import agentgui
+import agentgui
 import db
 import expedition_form
 import expenses_form
@@ -453,7 +454,8 @@ class MainGui(Ui_MainGui, QMainWindow):
 
     def export_documents(self, view, model, is_invoice=False):
         ixs = view.selectedIndexes()
-        if not ixs: return
+        if not ixs:
+            return
         directory = get_directory(self)
         if not directory:
             return
@@ -493,7 +495,6 @@ class MainGui(Ui_MainGui, QMainWindow):
 
                 pdf.output(filename)
 
-                print(filename)
                 import subprocess
                 subprocess.Popen((filename,), shell=True)
 

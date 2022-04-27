@@ -43,7 +43,7 @@ class AgentGui(QWidget, Ui_AgentGui):
             self.swift_line_edit.setText(utils.swiftFromIban(text))        
 
     def docsButtonHandler(self):
-        from agents_document_form import Form
+        from documents_form import Form
         f = Form(self, self.agent)
         f.exec_()
 

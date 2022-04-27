@@ -96,6 +96,9 @@
    <property name="text">
     <string>Exit</string>
    </property>
+   <property name="autoDefault">
+    <bool>false</bool>
+   </property>
   </widget>
   <widget class="QLineEdit" name="new_">
    <property name="geometry">

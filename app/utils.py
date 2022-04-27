@@ -323,12 +323,14 @@ def get_file_path(parent, pdf_filter=False):
         )
     return file_path
 
-def get_open_file_path(parent):
+def get_open_file_path(parent, pdf_filter=False):
+    _filter = PDF_FILETR if pdf_filter else EXCEL_FILTER
+
     filepath, _ = QFileDialog.getOpenFileName(
         parent, 
         'Open file', 
         get_desktop(), 
-        filter=EXCEL_FILTER
+        filter=_filter
     )
     return filepath
     

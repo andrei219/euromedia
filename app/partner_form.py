@@ -73,8 +73,8 @@ class PartnerForm(Ui_Partner_Form, QWidget):
             self.re_checkbox.setEnabled(False)
 
     def docsButtonHandler(self):
-        from partners_document_form import Form
-        f = Form(self.partner)
+        from documents_form import Form
+        f = Form(self, self.partner)
         f.exec_()
 
     def saveButtonHandler(self):

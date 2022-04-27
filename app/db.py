@@ -2507,3 +2507,5 @@ if __name__ == '__main__':
     # Base.metadata.create_all(get_engine())
     # create_init_data()
 
+    # with open(file_path, "rb") as origin, open(new_location, "wb") as dest:
+    #     dest.write(origin.read())

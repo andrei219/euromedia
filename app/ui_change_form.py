@@ -36,6 +36,7 @@ class Ui_ChangeForm(object):
         self.label_2.setObjectName("label_2")
         self.exit = QtWidgets.QPushButton(ChangeForm)
         self.exit.setGeometry(QtCore.QRect(760, 430, 91, 31))
+        self.exit.setAutoDefault(False)
         self.exit.setObjectName("exit")
         self.new_ = QtWidgets.QLineEdit(ChangeForm)
         self.new_.setGeometry(QtCore.QRect(602, 70, 133, 20))
