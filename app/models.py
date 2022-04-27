@@ -395,6 +395,7 @@ class DocumentModel(QtCore.QAbstractListModel):
 
     def __init__(self):
         super().__init__()
+        self.build_path_if_not_exists()
         self.document_names = list(filter(self.key, os.listdir(self.path)))
 
     def rowCount(self, parent: QModelIndex = ...) -> int:
@@ -441,6 +442,10 @@ class DocumentModel(QtCore.QAbstractListModel):
     def company(self):
         return db.company_name()
 
+    @property
+    def year(self):
+        return '2022'
+
     def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
         if not index.isValid():
             return
@@ -455,6 +460,7 @@ class DocumentModel(QtCore.QAbstractListModel):
         filename = self.document_names[row]
         filepath = os.path.join(self.path, filename)
         subprocess.Popen((filename, ), shell=True)
+
 
 
 class AgentsDocumentModel(DocumentModel):
@@ -494,14 +500,39 @@ class PartnersDocumentModel(DocumentModel):
     def path(self):
         return os.path.join(self.dropbox_base, self.company, 'Partners')
 
+number_month_dict = {
+    1:'Enero',
+    2:'Febrero',
+    3:'Marzo',
+    4:'Abril',
+    5:'Mayo',
+    6:'Junio',
+    7:'Julio',
+    8:'Agosto',
+    9:'Septiembre',
+    10:'Octubre',
+    11:'Noviembre',
+    12:'Diciembre'
+}
 
 class ProformasSalesDocumentModel(DocumentModel):
 
-    def __init__(self, proforma):
+    def __init__(self, proforma:db.SaleProforma):
         self.proforma = proforma
         super().__init__()
 
-        
+
+    def build_path_if_not_exists(self):
+        month = self.proforma.date.month
+        month_name = number_month_dict[month]
+        path = os.path.join(
+            self.dropbox_base,
+            'Proformas Emitidas',
+            self.year,
+            month_name,
+        )
+
+
 
 class ProformasPurchasesDocumentModel(DocumentModel):
 
@@ -509,13 +540,16 @@ class ProformasPurchasesDocumentModel(DocumentModel):
         self.proforma = proforma
         super().__init__()
 
+    def build_path_if_not_exists(self):
+        pass
 
 class InvoicesPurchasesDocumentModel(DocumentModel):
 
     def __init__(self, invoice):
         self.invoice = invoice
         super().__init__()
-
+    def build_path_if_not_exists(self):
+        pass
 
 class InvoicesSalesDocumentModel(DocumentModel):
 
@@ -523,6 +557,8 @@ class InvoicesSalesDocumentModel(DocumentModel):
         self.invoice = invoice
         super().__init__()
 
+    def build_path_if_not_exists(self):
+        pass
 
 class PartnerModel(QtCore.QAbstractTableModel):
     CODE, TRADING_NAME, FISCAL_NAME, FISCAL_NUMBER, COUNTRY, CONTACT, PHONE, EMAIL, ACTIVE = \

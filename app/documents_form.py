@@ -7,11 +7,11 @@ import models
 
 class Form(Ui_DocumentsForm, QDialog):
 
-    def __init__(self, parent, object):
+    def __init__(self, parent, obj):
         super(Form, self).__init__(parent=parent)
         self.setupUi(self)
-        Model = self.decide_model(object)
-        self.model = Model(object)
+        Model = self.decide_model(obj)
+        self.model = Model(obj)
         self.document_view.setModel(self.model)
         self.set_handlers()
 
