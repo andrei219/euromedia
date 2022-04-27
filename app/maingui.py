@@ -12,7 +12,6 @@ import rmas_incoming_form
 import advanced_sale_proforma_form
 import agentgui
 import db
-import document_form
 import expedition_form
 import expenses_form
 import inventory_form
@@ -568,18 +567,7 @@ class MainGui(Ui_MainGui, QMainWindow):
             expenses_form.ExpenseForm(self, proforma).exec_()
 
     def proformas_purchases_docs_handler(self, invoice=None):
-        if invoice:
-            proforma = invoice
-        else:
-            proforma = self.get_proforma_purchase()
-        if proforma:
-            document_form.DocumentForm(
-                self,
-                'proforma_id',
-                proforma.id,
-                PurchaseProforma,
-                PurchaseDocument
-            ).exec_()
+        pass
 
     def proformas_purchases_toinv_handler(self):
         proforma = self.get_proforma_purchase()
@@ -812,18 +800,7 @@ class MainGui(Ui_MainGui, QMainWindow):
             expenses_form.ExpenseForm(self, proforma, sale=True).exec_()
 
     def proformas_sales_docs_handler(self, invoice=None):
-        if invoice:
-            proforma = invoice
-        else:
-            proforma = self.get_sale_proforma('Documents')
-        if proforma:
-            document_form.DocumentForm(
-                self,
-                'proforma_id',
-                proforma.id,
-                SaleProforma,
-                SaleDocument
-            ).exec_()
+        pass
 
     def proformas_sales_toinv_handler(self):
         proforma = self.get_sale_proforma('Invoice')

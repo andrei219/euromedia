@@ -4,7 +4,6 @@ from PyQt5.QtWidgets import QWidget, QMessageBox
 from PyQt5.QtCore import QModelIndex
 
 from ui_agentgui import Ui_AgentGui
-from document_form import DocumentForm
 
 from db import Agent, AgentDocument
 
@@ -44,8 +43,10 @@ class AgentGui(QWidget, Ui_AgentGui):
             self.swift_line_edit.setText(utils.swiftFromIban(text))        
 
     def docsButtonHandler(self):
-        form = DocumentForm(self, 'agent_id', self.agent.id , Agent, AgentDocument)
-        form.exec_() 
+        from agents_document_form import Form
+        f = Form(self, self.agent)
+        f.exec_()
+
 
     def saveButtonHandler(self): 
         if self.mode == AgentGui.NEW_MODE:

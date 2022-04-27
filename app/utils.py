@@ -267,7 +267,7 @@ def swiftFromIban(iban):
 
 def base64Pdf(abspath):
     with open(abspath, "rb") as fd:
-        return base64.b64encode(fd.read()) 
+        return base64.b64encode(fd.read())
 
 def writeBase64Pdf(abspath, base64pdf):
     with open(abspath, "wb") as fd:
@@ -278,8 +278,6 @@ def askSaveFile(parent, filename):
 
 def askFilePath(parent):
     return QFileDialog.getOpenFileName(parent, "Open File", get_desktop(), filter=PDF_FILETR)
-
-
 
 from PyQt5.QtWidgets import QTableView
 
@@ -315,12 +313,13 @@ def getNote(parent, proforma):
 def get_directory(parent):
     return QFileDialog.getExistingDirectory(parent, 'Get directory', get_desktop())
 
-def get_file_path(parent):
-    file_path , _ = QFileDialog.getSaveFileName(
+def get_file_path(parent, pdf_filter=False):
+    _filter = PDF_FILETR if pdf_filter else EXCEL_FILTER
+    file_path, _ = QFileDialog.getSaveFileName(
             parent, 
             'Save File', 
             get_desktop(), 
-            filter=EXCEL_FILTER
+            filter=_filter
         )
     return file_path
 

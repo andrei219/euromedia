@@ -3,7 +3,8 @@ import typing
 from uuid import uuid4
 
 import utils
-
+import os
+from pathlib import Path
 from collections import namedtuple
 from itertools import groupby, product
 from operator import attrgetter
@@ -389,53 +390,98 @@ class AgentModel(QtCore.QAbstractTableModel):
             self.layoutChanged.emit()
 
 
+
 class DocumentModel(QtCore.QAbstractListModel):
-    EDITABLE_MODE, NEW_MODE = 0, 1
 
-    def __init__(self, key, value, sqlAlchemyChildClass, sqlAlchemyParentClass):
+    dropbox_base = r'C:\Users\Andrei\Dropbox\Programa'
+    
+    def __init__(self):
+        self.document_paths = list(filter(self.key, os.listdir(self.path)))
+
+
+    def add(self, file_path):
+        name = Path(file_path).name
+        new_location = os.path.join(self.path, self.prefix + name)
+        self.layoutAboutToBeChanged.emit()
+        print('new_location:', new_location)
+
+        # with open(file_path, "rb") as origin, open(new_location, "wb") as dest:
+        #     dest.write(origin.read())
+        # self.layoutChanged.emit()
+        # os.remove(file_path)
+
+    def delete(self, row):
+        os.remove(self.document_paths[row])
+
+    def export(self, new_file_path):
+        pass
+
+    def copy_file(self):
+        pass
+
+    def key(self, filename):
+        return self.prefix in filename
+
+    @property
+    def company(self):
+        return db.company_name()
+
+    def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
+        pass
+
+
+class AgentsDocumentModel(DocumentModel):
+
+    def __init__(self, agent):
         super().__init__()
-        self.key = key
-        self.value = value
-        self.sqlAlchemyChildClass = sqlAlchemyChildClass
-        self.sqlAlchemyParentClass = sqlAlchemyParentClass
-        self.documents = db.session.query(sqlAlchemyChildClass). \
-            join(sqlAlchemyParentClass).where(getattr(sqlAlchemyChildClass, key) == value).all()
 
-    def data(self, index, role=Qt.DisplayRole):
-        if index.isValid() and 0 <= index.row() < len(self.documents):
-            if role == Qt.DecorationRole:
-                return QtGui.QIcon(':\pdf')
-            if role == Qt.DisplayRole:
-                return self.documents[index.row()].name
+    @property
+    def prefix(self):
+        prefix = str(self.agent.id).zfill(3) + '_'
+        for word in self.agent.fiscal_name.split():
+            word += word[0]
+        prefix += '_'
+        return prefix
 
-    def rowCount(self, index):
-        return len(self.documents)
+    @property
+    def path(self):
+        return os.path.join(self.dropbox_base, self.company, 'Agents')
 
-    def delete(self, index):
-        document = self.documents[index.row()]
-        db.session.delete(document)
-        try:
-            db.session.commit()
-            del self.documents[index.row()]
-            self.layoutChanged.emit()
-        except:
-            db.session.rollback()
-            raise
+    @property
+    def doc_name(self):
+        # Difference between absolute string and prfix, last part of the string 
+        pass
 
-    def add(self, filename, base64Pdf):
-        document = self.sqlAlchemyChildClass(name=filename, document=base64Pdf)
-        setattr(document, self.key, self.value)
-        db.session.add(document)
-        try:
-            db.session.commit()
-            self.documents.append(document)
-            self.layoutChanged.emit()
-        except:
-            db.session.rollback()
-            raise
 
-    def get_document(self, index):
-        return self.documents[index.row()]
+class PartnersDocumentModel(DocumentModel):
+
+    def __init__(self, partner):
+        pass 
+
+
+class ProformasSalesDocumentModel(DocumentModel):
+    def __init__(self, proforma):
+        pass
+
+
+class ProformasPurchasesDocumentModel(DocumentModel):
+
+    def __init__(self, proforma):
+        pass
+
+
+class InvoicesPurchasesDocumentModel(DocumentModel):
+
+    def __init__(self, invoice):
+        pass
+
+
+
+class InvoicesSalesDocumentModel(DocumentModel):
+
+    def __init__(self, invoice):
+        pass
+
 
 
 class PartnerModel(QtCore.QAbstractTableModel):

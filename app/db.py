@@ -160,8 +160,8 @@ class Item(Base):
 
         return repr
 
-        # repr = self.dirty_repr[:-1] # remove y or n 
-        # return ' '.join(repr.replace('|', ' ').replace('?', '').strip().split()) 
+        # repr = self.dirty_repr[:-1] # remove y or n
+        # return ' '.join(repr.replace('|', ' ').replace('?', '').strip().split())
 
     @property
     def dirty_repr(self):
@@ -496,10 +496,10 @@ class PurchaseProformaLine(Base):
     )
 
     # This __eq__ method is a callback
-    # For the set difference between reception lines 
+    # For the set difference between reception lines
     # and proforma purchase lines, in order to update the
-    # receptions when they are already created and user 
-    # wants the update proforma. 
+    # receptions when they are already created and user
+    # wants the update proforma.
 
     def __eq__(self, other):
         return all((
@@ -806,7 +806,7 @@ class SaleProformaLine(Base):
     item_id = Column(Integer, ForeignKey('items.id'), nullable=True)
     mix_id = Column(String(36), nullable=True)
 
-    # No stock related line 
+    # No stock related line
     description = Column(String(100))
 
     condition = Column(String(50))
@@ -825,7 +825,7 @@ class SaleProformaLine(Base):
                         # lazy = 'joined'
                         )
     )
-    # options lazyjoined to the query 
+    # options lazyjoined to the query
     __table_args__ = (
         UniqueConstraint('id', 'proforma_id'),
     )
@@ -1187,9 +1187,9 @@ class ExpeditionSerie(Base):
 
     # def __hash__(self):
     #     return functools.reduce(
-    #         operator.xor, 
-    #         (hash(x) for x in(self.id, self.line_id, self.serie)), 
-    #         0 
+    #         operator.xor,
+    #         (hash(x) for x in(self.id, self.line_id, self.serie)),
+    #         0
     #     )
 
 
@@ -1986,63 +1986,63 @@ def create_test_data():
     import random
     # session.add_all([
     #     Item(
-    #         mpn = '', 
-    #         manufacturer = 'AMD', 
-    #         category='Graphic Card', 
-    #         model = 'x11', 
+    #         mpn = '',
+    #         manufacturer = 'AMD',
+    #         category='Graphic Card',
+    #         model = 'x11',
     #         color='',
-    #         capacity='', 
+    #         capacity='',
     #         has_serie=True
     #     ), Item(
-    #         mpn='', 
-    #         manufacturer = 'INTEL', 
-    #         category='microprocesor', 
-    #         model = 'x86_64', 
-    #         color='', 
-    #         capacity='', 
+    #         mpn='',
+    #         manufacturer = 'INTEL',
+    #         category='microprocesor',
+    #         model = 'x86_64',
+    #         color='',
+    #         capacity='',
     #         has_serie=True
-    #     ), 
+    #     ),
 
     #     #  CAP=0 COL=0 SERIE=0
     #     Item(
-    #         mpn='MPN1231', 
-    #         manufacturer='Apple', 
-    #         category='cable', 
-    #         model = 'coco', 
-    #         color='', 
-    #         capacity='', 
+    #         mpn='MPN1231',
+    #         manufacturer='Apple',
+    #         category='cable',
+    #         model = 'coco',
+    #         color='',
+    #         capacity='',
     #         has_serie=False
-    #     ), 
+    #     ),
     #     Item(
-    #         mpn='', 
-    #         manufacturer='Apple', 
-    #         category='Charger', 
-    #         model='lol', 
-    #         capacity='', 
-    #         color='', 
+    #         mpn='',
+    #         manufacturer='Apple',
+    #         category='Charger',
+    #         model='lol',
+    #         capacity='',
+    #         color='',
     #         has_serie=False
     #     )
     # ])
 
-    # # STOCK_TYPE = -1 
+    # # STOCK_TYPE = -1
 
     # session.add_all([
     #     Item(
-    #         mpn = 'MPN1', 
-    #         manufacturer = 'Apple', 
-    #         category='iPhone', 
-    #         model = 'xs pro', 
-    #         capacity='433', 
-    #         color='yellow', 
-    #         has_serie=True  
-    #     ), 
+    #         mpn = 'MPN1',
+    #         manufacturer = 'Apple',
+    #         category='iPhone',
+    #         model = 'xs pro',
+    #         capacity='433',
+    #         color='yellow',
+    #         has_serie=True
+    #     ),
     #     Item(
-    #         mpn = 'MPN2', 
-    #         manufacturer='Samsung', 
-    #         category='Phone', 
-    #         model = 'galaxy', 
-    #         capacity='22', 
-    #         color='blue', 
+    #         mpn = 'MPN2',
+    #         manufacturer='Samsung',
+    #         category='Phone',
+    #         model = 'galaxy',
+    #         capacity='22',
+    #         color='blue',
     #         has_serie=True
     #     )
     # ])
@@ -2051,57 +2051,57 @@ def create_test_data():
 
     # session.add_all([
     #     Item(
-    #         mpn='', 
-    #         manufacturer='Apple', 
-    #         category= 'Airpods', 
+    #         mpn='',
+    #         manufacturer='Apple',
+    #         category= 'Airpods',
     #         model = 'model1',
-    #         capacity='', 
-    #         color='yellow', 
-    #         has_serie=False
-    #     ), 
-    #     Item(
-    #         mpn='', 
-    #         manufacturer='Apple', 
-    #         category= 'Airpods', 
-    #         model = 'model1',
-    #         capacity='', 
-    #         color='blue', 
+    #         capacity='',
+    #         color='yellow',
     #         has_serie=False
     #     ),
     #     Item(
-    #         mpn='', 
-    #         manufacturer='Apple', 
-    #         category= 'Airpods', 
+    #         mpn='',
+    #         manufacturer='Apple',
+    #         category= 'Airpods',
     #         model = 'model1',
-    #         capacity='', 
-    #         color='orange', 
+    #         capacity='',
+    #         color='blue',
     #         has_serie=False
     #     ),
     #     Item(
-    #         mpn='', 
-    #         manufacturer='Apple', 
-    #         category= 'Airpods', 
+    #         mpn='',
+    #         manufacturer='Apple',
+    #         category= 'Airpods',
     #         model = 'model1',
-    #         capacity='', 
-    #         color='brown', 
+    #         capacity='',
+    #         color='orange',
     #         has_serie=False
-    #     ), 
+    #     ),
     #     Item(
-    #         mpn='', 
-    #         manufacturer='Samsung', 
-    #         category='Headphones', 
-    #         model='themodel', 
-    #         capacity='', 
-    #         color='purple', 
+    #         mpn='',
+    #         manufacturer='Apple',
+    #         category= 'Airpods',
+    #         model = 'model1',
+    #         capacity='',
+    #         color='brown',
     #         has_serie=False
-    #     ), 
+    #     ),
     #     Item(
-    #         mpn='', 
-    #         manufacturer='Samsung', 
-    #         category='Headphones', 
-    #         model='themodel', 
-    #         capacity='', 
-    #         color='gray', 
+    #         mpn='',
+    #         manufacturer='Samsung',
+    #         category='Headphones',
+    #         model='themodel',
+    #         capacity='',
+    #         color='purple',
+    #         has_serie=False
+    #     ),
+    #     Item(
+    #         mpn='',
+    #         manufacturer='Samsung',
+    #         category='Headphones',
+    #         model='themodel',
+    #         capacity='',
+    #         color='gray',
     #         has_serie=False
     #     )
     # ])
@@ -2109,57 +2109,57 @@ def create_test_data():
     # # CAP = 0 COL=1 SERIE=1
     # session.add_all([
     #     Item(
-    #         mpn='', 
-    #         manufacturer='Apple', 
-    #         category='iPad', 
-    #         model = 'wer', 
-    #         capacity='', 
-    #         color='brown', 
+    #         mpn='',
+    #         manufacturer='Apple',
+    #         category='iPad',
+    #         model = 'wer',
+    #         capacity='',
+    #         color='brown',
     #         has_serie=True
-    #     ), 
+    #     ),
     #     Item(
-    #         mpn='', 
-    #         manufacturer='Apple', 
-    #         category='iPad', 
-    #         model = 'wer', 
-    #         capacity='', 
+    #         mpn='',
+    #         manufacturer='Apple',
+    #         category='iPad',
+    #         model = 'wer',
+    #         capacity='',
     #         color='yellow',
-    #         has_serie=True 
-    #     ), 
-    #     Item(
-    #         mpn='', 
-    #         manufacturer='Apple', 
-    #         category='iPad', 
-    #         model = 'wer', 
-    #         capacity='', 
-    #         color='gray', 
     #         has_serie=True
-    #     ), 
+    #     ),
     #     Item(
-    #         mpn='', 
-    #         manufacturer='Apple', 
-    #         category='iPad', 
-    #         model = 'wer', 
-    #         capacity='', 
+    #         mpn='',
+    #         manufacturer='Apple',
+    #         category='iPad',
+    #         model = 'wer',
+    #         capacity='',
+    #         color='gray',
+    #         has_serie=True
+    #     ),
+    #     Item(
+    #         mpn='',
+    #         manufacturer='Apple',
+    #         category='iPad',
+    #         model = 'wer',
+    #         capacity='',
     #         color='purple',
-    #         has_serie=True 
-    #     ), 
-    #     Item(
-    #         mpn='', 
-    #         manufacturer='Xiamoi', 
-    #         category='Tv', 
-    #         model = 'wgdf', 
-    #         capacity='', 
-    #         color='black', 
     #         has_serie=True
-    #     ), 
+    #     ),
     #     Item(
-    #         mpn='', 
-    #         manufacturer='Xiaomi', 
-    #         category='Tv', 
-    #         model = 'wgdf', 
-    #         capacity='', 
-    #         color='white', 
+    #         mpn='',
+    #         manufacturer='Xiamoi',
+    #         category='Tv',
+    #         model = 'wgdf',
+    #         capacity='',
+    #         color='black',
+    #         has_serie=True
+    #     ),
+    #     Item(
+    #         mpn='',
+    #         manufacturer='Xiaomi',
+    #         category='Tv',
+    #         model = 'wgdf',
+    #         capacity='',
+    #         color='white',
     #         has_serie=True
     #     )
     # ])
@@ -2167,52 +2167,52 @@ def create_test_data():
     # # CAP = 1 COL = 0 SERIE=1
     # session.add_all([
     #     Item(
-    #         mpn = '', 
-    #         manufacturer='Samsung', 
+    #         mpn = '',
+    #         manufacturer='Samsung',
     #         category='Watch',
-    #         model='wam', 
-    #         capacity = '13', 
-    #         color='', 
+    #         model='wam',
+    #         capacity = '13',
+    #         color='',
     #         has_serie=True
     #     ),Item(
-    #         mpn = '', 
-    #         manufacturer='Samsung', 
+    #         mpn = '',
+    #         manufacturer='Samsung',
     #         category='Watch',
-    #         model='wam', 
-    #         capacity = '43', 
-    #         color='',  
+    #         model='wam',
+    #         capacity = '43',
+    #         color='',
     #         has_serie=True
     #     ),Item(
-    #         mpn = '', 
-    #         manufacturer='Samsung', 
+    #         mpn = '',
+    #         manufacturer='Samsung',
     #         category='Watch',
-    #         model='wam', 
-    #         capacity = '54', 
-    #         color='',  
+    #         model='wam',
+    #         capacity = '54',
+    #         color='',
     #         has_serie=True
     #     ),Item(
-    #         mpn = '', 
-    #         manufacturer='Samsung', 
+    #         mpn = '',
+    #         manufacturer='Samsung',
     #         category='Watch',
-    #         model='wam', 
-    #         capacity = '65', 
-    #         color='',  
+    #         model='wam',
+    #         capacity = '65',
+    #         color='',
     #         has_serie=True
     #     ),Item(
-    #         mpn = '', 
-    #         manufacturer='Huawey', 
+    #         mpn = '',
+    #         manufacturer='Huawey',
     #         category='Watch',
-    #         model='wam', 
-    #         capacity = '10', 
-    #         color='',  
+    #         model='wam',
+    #         capacity = '10',
+    #         color='',
     #         has_serie=True
     #     ),Item(
-    #         mpn = '', 
-    #         manufacturer='Huawey', 
+    #         mpn = '',
+    #         manufacturer='Huawey',
     #         category='Watch',
-    #         model='wam', 
-    #         capacity = '33', 
-    #         color='',  
+    #         model='wam',
+    #         capacity = '33',
+    #         color='',
     #         has_serie=True
     #     )
     # ])
@@ -2221,92 +2221,92 @@ def create_test_data():
 
     # session.add_all([
     #     Item(
-    #         mpn = '', 
-    #         manufacturer='Apple', 
-    #         category='iPhone',
-    #         model='xs', 
-    #         capacity = '10', 
-    #         color='yellow', 
-    #         has_serie=True
-    #     ),Item(
-    #         mpn = '', 
-    #         manufacturer='Apple', 
-    #         category='iPhone',
-    #         model='xs', 
-    #         capacity = '10', 
-    #         color='blue',  
-    #         has_serie=True
-    #     ),Item(
-    #         mpn = '', 
-    #         manufacturer='Apple', 
-    #         category='iPhone',
-    #         model='xs', 
-    #         capacity = '10', 
-    #         color='green',  
-    #         has_serie=True
-    #     ),Item(
-    #         mpn = '', 
-    #         manufacturer='Apple', 
-    #         category='iPhone',
-    #         model='xs', 
-    #         capacity = '12', 
-    #         color='black',  
-    #         has_serie=True
-    #     ),Item(
-    #         mpn = '', 
-    #         manufacturer='Apple', 
+    #         mpn = '',
+    #         manufacturer='Apple',
     #         category='iPhone',
     #         model='xs',
-    #         capacity = '14', 
-    #         color='white',  
+    #         capacity = '10',
+    #         color='yellow',
     #         has_serie=True
     #     ),Item(
-    #         mpn = '', 
-    #         manufacturer='Huawey', 
+    #         mpn = '',
+    #         manufacturer='Apple',
+    #         category='iPhone',
+    #         model='xs',
+    #         capacity = '10',
+    #         color='blue',
+    #         has_serie=True
+    #     ),Item(
+    #         mpn = '',
+    #         manufacturer='Apple',
+    #         category='iPhone',
+    #         model='xs',
+    #         capacity = '10',
+    #         color='green',
+    #         has_serie=True
+    #     ),Item(
+    #         mpn = '',
+    #         manufacturer='Apple',
+    #         category='iPhone',
+    #         model='xs',
+    #         capacity = '12',
+    #         color='black',
+    #         has_serie=True
+    #     ),Item(
+    #         mpn = '',
+    #         manufacturer='Apple',
+    #         category='iPhone',
+    #         model='xs',
+    #         capacity = '14',
+    #         color='white',
+    #         has_serie=True
+    #     ),Item(
+    #         mpn = '',
+    #         manufacturer='Huawey',
     #         category='Watch',
-    #         model='wam', 
-    #         capacity = '16', 
-    #         color='black',  
+    #         model='wam',
+    #         capacity = '16',
+    #         color='black',
     #         has_serie=True
     #     ),Item(
-    #         mpn = '', 
-    #         manufacturer='Huawey', 
+    #         mpn = '',
+    #         manufacturer='Huawey',
     #         category='Watch',
-    #         model='wam', 
-    #         capacity = '33', 
-    #         color='gray',  
+    #         model='wam',
+    #         capacity = '33',
+    #         color='gray',
     #         has_serie=True
     #     ),Item(
-    #         mpn = '', 
-    #         manufacturer='Huawey', 
+    #         mpn = '',
+    #         manufacturer='Huawey',
     #         category='Watch',
-    #         model='wam', 
-    #         capacity = '55', 
-    #         color='yellow',  
+    #         model='wam',
+    #         capacity = '55',
+    #         color='yellow',
     #         has_serie=True
     #     ),Item(
-    #         mpn = '', 
-    #         manufacturer='Samsung', 
+    #         mpn = '',
+    #         manufacturer='Samsung',
     #         category='Watch',
-    #         model='wam', 
-    #         capacity = '10', 
-    #         color='nocolor',  
+    #         model='wam',
+    #         capacity = '10',
+    #         color='nocolor',
     #         has_serie=True
     #     ),Item(
-    #         mpn = '', 
-    #         manufacturer='Samsung', 
+    #         mpn = '',
+    #         manufacturer='Samsung',
     #         category='Dron',
-    #         model='sdr', 
-    #         capacity = '130', 
-    #         color='black',  
+    #         model='sdr',
+    #         capacity = '130',
+    #         color='black',
     #         has_series=True
     #     ),Item(
-    #         mpn = '', 
-    #         manufacturer='Samsung', 
+    #         mpn = '',
+    #         manufacturer='Samsung',
     #         category='Drone',
-    #         model='sdr', 
-    #         capacity = '421', 
-    #         color='red',  
+    #         model='sdr',
+    #         capacity = '421',
+    #         color='red',
     #         has_serie=True
     #     )
     # ])
@@ -2486,7 +2486,6 @@ def correct_mask():
             )):
                 stmt = delete(ImeiMask).where(ImeiMask.origin_id == row.origin_id)
                 session.execute(stmt)
-
     try:
         session.commit()
     except:
@@ -2494,7 +2493,17 @@ def correct_mask():
         raise
 
 
-if __name__ == '__main__':
-    Base.metadata.create_all(get_engine())
+def company_name():
+    return 'Euromedia'
 
-    create_init_data()
+if __name__ == '__main__':
+
+    path = r'C:\Users\Andrei\Desktop\1-000013.pdf'
+
+    from pathlib import Path
+
+    print(Path(path).name)
+
+    # Base.metadata.create_all(get_engine())
+    # create_init_data()
+

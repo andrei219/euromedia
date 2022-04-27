@@ -8,7 +8,6 @@ from db import Partner, PartnerDocument, Agent, engine, Courier
 
 from models import PartnerContactModel
 
-from document_form import DocumentForm
 
 import utils
 
@@ -42,7 +41,7 @@ class PartnerForm(Ui_Partner_Form, QWidget):
 
         self.associated_agent_combobox.addItems(agent_names)
         
-        if index :
+        if index:
             self.mode = PartnerForm.EDITABLE_MODE
             self.partner = self.partner_model.partners[index.row()]
             self.partnerToForm() 
@@ -74,8 +73,9 @@ class PartnerForm(Ui_Partner_Form, QWidget):
             self.re_checkbox.setEnabled(False)
 
     def docsButtonHandler(self):
-        f = DocumentForm(self, 'partner_id', self.partner.id, Partner, PartnerDocument)
-        f.exec_() 
+        from partners_document_form import Form
+        f = Form(self.partner)
+        f.exec_()
 
     def saveButtonHandler(self):
         if not self.partner.contacts:
