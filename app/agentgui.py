@@ -68,8 +68,7 @@ class AgentGui(QWidget, Ui_AgentGui):
                 self.model.update(self.agent)
                 QMessageBox.information(self, 'Agent - Update ', 'Agent updated successfully') 
             except:
-                raise
-                # QMessageBox.critical(self, 'Agent - Update', 'Fields fiscal name, name and email are mandatory')
+                QMessageBox.critical(self, 'Agent - Update', 'Fields fiscal name, name and email are mandatory')
     
     def formToAgent(self):
             self.agent.fiscal_name = self.fiscal_name_line_edit.text()
