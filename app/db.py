@@ -400,6 +400,11 @@ class PurchaseProforma(Base):
     )
 
     @property
+    def doc_repr(self):
+        return str(self.type) + '-' + str(self.number).zfill(6)
+
+
+    @property
     def subtotal(self):
         return sum(line.price * line.quantity for line in self.lines)
 
@@ -524,6 +529,7 @@ class PurchaseProformaLine(Base):
 
 
 class PurchaseDocument(Base):
+
     __tablename__ = 'purchase_documents'
 
     id = Column(Integer, primary_key=True)
@@ -551,6 +557,12 @@ class PurchaseInvoice(Base):
         self.type = type
         self.number = number
 
+
+    @property
+    def doc_repr(self):
+        return str(self.type) + '-' + str(self.number).zfill(6)
+
+
     __table_args__ = (
         UniqueConstraint('type', 'number'),
     )
@@ -568,6 +580,8 @@ class PurchasePayment(Base):
     note = Column(String(255))
 
     proforma = relationship('PurchaseProforma', backref=backref('payments'))
+
+
 
     def __init__(self, date, amount, rate, note, proforma):
         self.date = date
@@ -649,6 +663,10 @@ class SaleProforma(Base):
     __table_args__ = (
         UniqueConstraint('type', 'number'),
     )
+
+    @property
+    def doc_repr(self):
+        return str(self.type) + '-' + str(self.number).zfill(6)
 
     @property
     def subtotal(self):
@@ -795,6 +813,10 @@ class SaleInvoice(Base):
     __table_args__ = (
         UniqueConstraint('type', 'number', name='unique_sales_sale_invoices'),
     )
+
+    @property
+    def doc_repr(self):
+        return str(self.type) + '-' + str(self.number).zfill(6)
 
 
 class SaleProformaLine(Base):

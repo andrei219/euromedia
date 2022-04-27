@@ -32,7 +32,7 @@ class Ui_ChangeForm(object):
         self.comment.setGeometry(QtCore.QRect(602, 110, 271, 20))
         self.comment.setObjectName("comment")
         self.label_2 = QtWidgets.QLabel(ChangeForm)
-        self.label_2.setGeometry(QtCore.QRect(547, 110, 49, 16))
+        self.label_2.setGeometry(QtCore.QRect(540, 110, 61, 16))
         self.label_2.setObjectName("label_2")
         self.exit = QtWidgets.QPushButton(ChangeForm)
         self.exit.setGeometry(QtCore.QRect(760, 430, 91, 31))

@@ -14,7 +14,8 @@ from PyQt5.QtCore import QModelIndex
 from PyQt5.QtCore import Qt
 from sqlalchemy import func
 from sqlalchemy import or_
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError, MultipleResultsFound
+from sqlalchemy.exc import NoResultFound
 
 import db
 from exceptions import SeriePresentError
@@ -3844,9 +3845,9 @@ class IncomingStockModel(BaseTable, QtCore.QAbstractTableModel):
 
         wb = Workbook()
         ws = wb.active
-        
+
         ws.append(header)
-        
+
         for vector in self.stocks:
             ws.append((warehouse, ) + vector.excel_row)
 
@@ -4864,6 +4865,8 @@ class ChangeModel(BaseTable, QtCore.QAbstractTableModel):
             for imei_object in self.sns:
                 before = imei_object.warehouse.description
                 after = name
+                if before == after:
+                    return
                 db.session.add(db.WarehouseChange(imei_object.imei, before, after, comment))
                 imei_object.warehouse_id = utils.warehouse_id_map.get(name)
         else:
@@ -4871,9 +4874,10 @@ class ChangeModel(BaseTable, QtCore.QAbstractTableModel):
             for imei_object in self.sns:
                 before = getattr(imei_object, self.attrname)
                 after = name
+                if before == after:
+                    return
                 db.session.add(self.orm_change_class(imei_object.imei, before, after, comment))
                 setattr(imei_object, self.attrname, name)
-
 
         try:
             db.session.commit()
@@ -5027,7 +5031,7 @@ class RmaIncomingLineModel(BaseTable, QtCore.QAbstractTableModel):
 
     def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
         if not index.isValid():
-            return 
+            return
         row, column = index.row(), index.column()
         line = self.lines[row]
         if role == Qt.DisplayRole:
@@ -5115,6 +5119,152 @@ def export_available_stock_in_excel():
     # PROBLEM
 
 # 351133750108601
+
+
+class ChangeModelTrace(BaseTable, QtCore.QAbstractTableModel):
+
+    FROM, TO, WHEN, COMMENT = 0, 1, 2, 3
+
+    def __init__(self, Sqlalchemy_cls, imei):
+        super().__init__()
+        self._headerData = ['FROM', 'TO', 'WHEN', 'COMMENT']
+        self.registers = db.session.query(Sqlalchemy_cls).\
+            where(Sqlalchemy_cls.sn == imei).all()
+        self.name = 'registers'
+
+    def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
+        if not index.isValid():
+            return
+        row, col = index.row(), index.column()
+        r = self.registers[row]
+
+        if role == Qt.DisplayRole:
+            if col == self.FROM:
+                return  r.before
+            elif col == self.TO:
+                return r.after
+            elif col == self.WHEN:
+                return str(r.created_on)
+            elif col == self.COMMENT:
+                return str(r.comment)
+
+class TraceEntry:
+
+    def __str__(self):
+        return str(self.__dict__)
+
+
+class OperationModel(BaseTable, QtCore.QAbstractTableModel):
+
+    OPERATION, DOC, DATE, PARTNER, PICKING = 0, 1, 2, 3, 4
+
+    def __init__(self, imei):
+        super().__init__()
+        self._headerData = ['Operation', 'Doc', 'Date', 'Partner', 'Picking']
+        self.name = 'entries'
+        self.entries = []
+
+        query = db.session.query(db.ReceptionSerie).\
+            join(db.ReceptionLine).join(db.Reception).\
+            join(db.PurchaseProforma).\
+            where(db.ReceptionSerie.serie == imei)
+
+        for r in query:
+            te = TraceEntry()
+            te.operation = 'Purchase'
+            # Get doc
+            try:
+                te.doc = 'FR ' + r.line.reception.proforma.invoice.doc_repr
+            except AttributeError:
+                te.doc = 'PR ' + r.line.reception.proforma.doc_repr
+
+            # Get date:
+            try:
+                te.date = r.line.reception.proforma.invoice.date
+            except AttributeError:
+                te.date = r.line.reception.proforma.date
+
+            te.partner = r.line.reception.proforma.partner.fiscal_name
+            te.picking = r.created_on
+
+            self.entries.append(te)
+
+        query = db.session.query(db.ExpeditionSerie).join(db.ExpeditionLine).\
+            join(db.Expedition).join(db.SaleProforma).where(db.ExpeditionSerie.serie == imei)
+
+        for r in query:
+            te = TraceEntry()
+            te.operation = 'Sale'
+            try:
+                te.doc = 'FR ' + r.line.expedition.proforma.invoice.doc_repr
+            except AttributeError:
+                te.doc = 'PR ' + r.line.expedition.proforma.doc_repr
+
+            try:
+                te.date = r.line.expedition.proforma.invoice.date
+            except AttributeError:
+                te.date = r.line.expedition.proforma.date
+
+            te.partner = r.line.expedition.proforma.partner.fiscal_name
+            te.picking = r.created_on
+
+            self.entries.append(te)
+
+            print('self.entries=', self.entries)
+
+    def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
+
+        if not index.isValid():
+            return
+        row, col = index.row(), index.column()
+        if role == Qt.DisplayRole:
+            te = self.entries[row]
+            if col == self.OPERATION:
+                return te.operation
+            elif col == self.DOC:
+                return te.doc
+            elif col == self.DATE:
+                return str(te.date)
+            elif col == self.PARTNER:
+                return te.partner
+            elif col == self.PICKING:
+                return str(te.picking)
+
+
+def find_last_description(sn):
+    try:
+        obj = db.session.query(db.Imei).where(db.Imei.imei == sn).one()
+        obj: db.Imei
+    except NoResultFound:
+        obj = None
+
+    if obj:
+        return ', '.join((obj.item.clean_repr, obj.condition + ' Condt.',
+                          obj.spec + ' Spec'))
+    else:
+        exp_series = db.session.query(db.ExpeditionSerie).\
+            join(db.ExpeditionLine).where(db.ExpeditionSerie.serie == sn).all()
+
+        try:
+            exp_serie = exp_series[-1]
+        except IndexError:
+            return "Not found neither in stock nor in sales."
+        else:
+            line = exp_serie.line
+            return ', '.join(
+                (
+                    line.item.clean_repr,
+                    line.condition + ' Condt.',
+                    line.spec + ' Spec'
+                )
+            )
+
+
+
+
+
+
+
 
 
 

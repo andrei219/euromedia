@@ -87,7 +87,8 @@ ACTIONS = [
     'template',
     'create_courier',
     'export_excel',
-    'available_stock'
+    'available_stock',
+    'trace'
 ]
 
 
@@ -1279,6 +1280,11 @@ class MainGui(Ui_MainGui, QMainWindow):
         self.f.show()
 
     # TOOLS HANDLERS:
+
+    def tools_trace_handler(self):
+        from trace_form import Form
+        f = Form(self)
+        f.exec_()
 
     def tools_available_stock_handler(self):
         import available_stock

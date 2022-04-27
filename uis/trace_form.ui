@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>trace_form</class>
- <widget class="QDialog" name="trace_form">
+ <class>Form</class>
+ <widget class="QDialog" name="Form">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1022</width>
+    <width>1392</width>
     <height>604</height>
    </rect>
   </property>
@@ -16,14 +16,17 @@
   <widget class="QPushButton" name="exit">
    <property name="geometry">
     <rect>
-     <x>913</x>
-     <y>551</y>
+     <x>1300</x>
+     <y>558</y>
      <width>78</width>
      <height>30</height>
     </rect>
    </property>
    <property name="text">
     <string>Exit</string>
+   </property>
+   <property name="autoDefault">
+    <bool>false</bool>
    </property>
   </widget>
   <widget class="QPushButton" name="search_button">
@@ -38,13 +41,19 @@
    <property name="text">
     <string>Search</string>
    </property>
+   <property name="autoDefault">
+    <bool>false</bool>
+   </property>
+   <property name="default">
+    <bool>true</bool>
+   </property>
   </widget>
   <widget class="QTableView" name="wh_view">
    <property name="geometry">
     <rect>
-     <x>30</x>
-     <y>382</y>
-     <width>300</width>
+     <x>10</x>
+     <y>380</y>
+     <width>450</width>
      <height>150</height>
     </rect>
    </property>
@@ -52,19 +61,19 @@
   <widget class="QTableView" name="condition_view">
    <property name="geometry">
     <rect>
-     <x>360</x>
-     <y>382</y>
-     <width>300</width>
+     <x>470</x>
+     <y>380</y>
+     <width>450</width>
      <height>150</height>
     </rect>
    </property>
   </widget>
-  <widget class="QTableView" name="spac_view">
+  <widget class="QTableView" name="spec_view">
    <property name="geometry">
     <rect>
-     <x>690</x>
-     <y>382</y>
-     <width>300</width>
+     <x>930</x>
+     <y>380</y>
+     <width>450</width>
      <height>150</height>
     </rect>
    </property>
@@ -72,14 +81,14 @@
   <widget class="QTableView" name="trace_view">
    <property name="geometry">
     <rect>
-     <x>30</x>
+     <x>10</x>
      <y>112</y>
-     <width>961</width>
+     <width>1371</width>
      <height>241</height>
     </rect>
    </property>
   </widget>
-  <widget class="QLineEdit" name="lineEdit">
+  <widget class="QLineEdit" name="sn">
    <property name="geometry">
     <rect>
      <x>30</x>
@@ -104,9 +113,9 @@
   <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>
-     <x>30</x>
-     <y>362</y>
-     <width>120</width>
+     <x>10</x>
+     <y>360</y>
+     <width>121</width>
      <height>20</height>
     </rect>
    </property>
@@ -117,8 +126,8 @@
   <widget class="QLabel" name="label_2">
    <property name="geometry">
     <rect>
-     <x>360</x>
-     <y>362</y>
+     <x>470</x>
+     <y>360</y>
      <width>120</width>
      <height>20</height>
     </rect>
@@ -130,8 +139,8 @@
   <widget class="QLabel" name="label_3">
    <property name="geometry">
     <rect>
-     <x>690</x>
-     <y>362</y>
+     <x>930</x>
+     <y>360</y>
      <width>120</width>
      <height>20</height>
     </rect>
@@ -143,7 +152,7 @@
   <widget class="QLabel" name="label_4">
    <property name="geometry">
     <rect>
-     <x>30</x>
+     <x>10</x>
      <y>92</y>
      <width>191</width>
      <height>20</height>
@@ -166,7 +175,7 @@
     <string>Description:</string>
    </property>
   </widget>
-  <widget class="QLabel" name="description_label">
+  <widget class="QLabel" name="last_description">
    <property name="geometry">
     <rect>
      <x>100</x>
@@ -185,7 +194,7 @@
   <connection>
    <sender>exit</sender>
    <signal>clicked()</signal>
-   <receiver>trace_form</receiver>
+   <receiver>Form</receiver>
    <slot>close()</slot>
    <hints>
     <hint type="sourcelabel">
