@@ -400,6 +400,10 @@ class PurchaseProforma(Base):
     )
 
     @property
+    def doc_repr(self):
+        return str(self.type) + '-' + str(self.number).zfill(6)
+
+    @property
     def subtotal(self):
         return sum(line.price * line.quantity for line in self.lines)
 
@@ -547,6 +551,10 @@ class PurchaseInvoice(Base):
     date = Column(Date, default=datetime.now)
     eta = Column(Date, default=datetime.now)
 
+    @property
+    def doc_repr(self):
+        return str(self.type) + '-' + str(self.number).zfill(6)
+
     def __init__(self, type, number):
         self.type = type
         self.number = number
@@ -641,6 +649,10 @@ class SaleProforma(Base):
     warning = Column(String(50), nullable=True)
 
     incoterm = Column(String(3), default='gbc')
+
+    @property
+    def doc_repr(self):
+        return str(self.type) + '-' + str(self.number).zfill(6)
 
     def __repr__(self):
         clasname = self.__class__.__name__
@@ -784,7 +796,9 @@ class SaleInvoice(Base):
     date = Column(Date, default=datetime.now)
     eta = Column(Date, default=datetime.now)
 
-
+    @property
+    def doc_repr(self):
+        return str(self.type) + '-' + str(self.number).zfill(6)
 
     def __repr__(self):
         clasname = self.__class__.__name__
@@ -2498,7 +2512,7 @@ def correct_mask():
 
 
 def company_name():
-    return 'Euromedia'
+    return 'Euromedia Investment Group'
 
 def year():
     return '2022'

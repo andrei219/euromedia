@@ -599,7 +599,7 @@ class InvoicesPurchasesDocumentModel(DocumentModel):
 
     @property
     def prefix(self):
-        return self.invoice.doc_repr + '-'
+        return self.invoice.doc_repr + '_'
 
 
 class InvoicesSalesDocumentModel(DocumentModel):
@@ -1272,7 +1272,6 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
         try:
             db.session.commit()
             return proforma.invoice
-        # Should reset PurchaseInvoice model through a reference to parent
         except:
             db.session.rollback()
             raise
@@ -5275,3 +5274,13 @@ def export_available_stock_in_excel():
     # PROBLEM
 
 # 351133750108601
+
+def fix_dropbox_purchases(proforma):
+    doc_model = DocumentModel()
+
+    pdm = ProformasPurchasesDocumentModel(proforma)
+    idm = InvoicesPurchasesDocumentModel(proforma)
+
+    for file in os.listdir(pdm.path):
+        doc_model.move(file.replace(pdm.prefix, idm.prefix))
+

@@ -11,7 +11,6 @@ import advanced_definition_form
 import rmas_incoming_form
 import advanced_sale_proforma_form
 import agentgui
-import agentgui
 import db
 import expedition_form
 import expenses_form
@@ -23,6 +22,7 @@ import product_form
 import purchase_proforma_form
 import reception_order
 import sale_proforma_form
+import documents_form
 from db import PurchaseProforma, PurchaseDocument, SaleDocument, SaleProforma, correct_mask
 from pdfbuilder import build_document
 from ui_maingui import Ui_MainGui
@@ -87,7 +87,8 @@ ACTIONS = [
     'template',
     'create_courier',
     'export_excel',
-    'available_stock'
+    'available_stock',
+    'trace'
 ]
 
 
@@ -98,7 +99,7 @@ class MainGui(Ui_MainGui, QMainWindow):
         self.setupUi(self)
         self.setCentralWidget(self.main_tab)
 
-        # For closing 
+        # For closing
         self.opened_windows_instances = set()
         # Prevent creating multiple
         self.opened_windows_classes = set()
@@ -454,8 +455,7 @@ class MainGui(Ui_MainGui, QMainWindow):
 
     def export_documents(self, view, model, is_invoice=False):
         ixs = view.selectedIndexes()
-        if not ixs:
-            return
+        if not ixs: return
         directory = get_directory(self)
         if not directory:
             return
@@ -495,6 +495,7 @@ class MainGui(Ui_MainGui, QMainWindow):
 
                 pdf.output(filename)
 
+                print(filename)
                 import subprocess
                 subprocess.Popen((filename,), shell=True)
 
@@ -568,35 +569,22 @@ class MainGui(Ui_MainGui, QMainWindow):
             expenses_form.ExpenseForm(self, proforma).exec_()
 
     def proformas_purchases_docs_handler(self):
-        from documents_form import Form
-        proforma = self.get_proforma_purchase()
-        if not proforma:
-            return
-        Form(self, proforma).exec_()
+        documents_form.Form(self, self.get_proforma_purchase()).exec_()
 
     def proformas_purchases_toinv_handler(self):
         proforma = self.get_proforma_purchase()
-        if proforma:
-            if proforma.cancelled:
-                QMessageBox.information(self, 'Information', \
-                                        "Cannot build invoice from cancelled proforma")
-                return
-            try:
-                proforma.invoice.type
-                type_num = str(proforma.invoice.type) + '-' \
-                           + str(proforma.invoice.number).zfill(6)
-                QMessageBox.information(self, 'Information', \
-                                        f"Invoice already associated: {type_num}")
-            except AttributeError:
-                try:
-                    invoice = self.proformas_purchases_model.associateInvoice(proforma)
-                    type_num = str(invoice.type) + '-' + str(invoice.number).zfill(6)
-                    QMessageBox.information(self, 'Information', \
-                                            f"Invoice {type_num} created")
-                except:
-                    raise
-                    QMessageBox.critical(self, 'Update - Error',\
-                                         'Could not build Invoice From Proforma')
+        if proforma.cancelled:
+            QMessageBox.critical(self, 'Error', 'Cancelled proforma')
+            return
+        if proforma.invoice is not None:
+            QMessageBox.critical(self, 'Error', f'Invoice {proforma.invoice.doc_repr} already associated')
+            return
+        invoice = self.proformas_purchases_model.associateInvoice(proforma)
+
+        from models import fix_dropbox_purchases
+        fix_dropbox_purchases(proforma)
+        QMessageBox.information(self, 'Success', f'{invoice.doc_repr} created. Dropbox updated')
+
 
     def proformas_purchases_towh_handler(self, invoice=None):
         if invoice:
@@ -792,7 +780,7 @@ class MainGui(Ui_MainGui, QMainWindow):
         if invoice:
             proforma = invoice
         else:
-            proforma = self.get_sale_proforma()
+            proforma = self.get_sale_proforma('Payments')
         if proforma:
             payments_form.PaymentForm(self, proforma, sale=True).exec_()
 
@@ -800,19 +788,15 @@ class MainGui(Ui_MainGui, QMainWindow):
         if invoice:
             proforma = invoice
         else:
-            proforma = self.get_sale_proforma()
+            proforma = self.get_sale_proforma('Expenses')
         if proforma:
             expenses_form.ExpenseForm(self, proforma, sale=True).exec_()
 
-    def proformas_sales_docs_handler(self):
-        obj = self.get_sale_proforma()
-        if not obj:
-            return
-        from documents_form import Form
-        Form(self, obj).exec_()
+    def proformas_sales_docs_handler(self, invoice=None):
+        documents_form.Form(self, self.get_sale_proforma()).exec_()
 
     def proformas_sales_toinv_handler(self):
-        proforma = self.get_sale_proforma()
+        proforma = self.get_sale_proforma('Invoice')
         if proforma:
             if proforma.cancelled:
                 QMessageBox.information(
@@ -849,7 +833,7 @@ class MainGui(Ui_MainGui, QMainWindow):
         if invoice:
             proforma = invoice
         else:
-            proforma = self.get_sale_proforma()
+            proforma = self.get_sale_proforma('Warehouse')
         if not proforma:
             return
         try:
@@ -872,7 +856,7 @@ class MainGui(Ui_MainGui, QMainWindow):
         if invoice:
             proforma = invoice
         else:
-            proforma = self.get_sale_proforma()
+            proforma = self.get_sale_proforma('Shipment')
         if not proforma:
             return
         try:
@@ -888,7 +872,7 @@ class MainGui(Ui_MainGui, QMainWindow):
         except:
             raise
 
-    def get_sale_proforma(self):
+    def get_sale_proforma(self,):
         rows = {index.row() for index in \
                 self.proformas_sales_view.selectedIndexes()}
         if len(rows) == 1:
@@ -918,17 +902,17 @@ class MainGui(Ui_MainGui, QMainWindow):
 
     #     if proforma.advanced_lines:
     #         self.sp = advanced_sale_proforma_form.get_form(
-    #             self, 
-    #             self.proformas_sales_view, 
+    #             self,
+    #             self.proformas_sales_view,
     #             proforma
     #         )
     #     else:
     #         self.sp = sale_proforma_form.get_form(
-    #             self, 
-    #             self.proformas_sales_view, 
+    #             self,
+    #             self.proformas_sales_view,
     #             proforma
     #         )
-    #     self.sp.show() 
+    #     self.sp.show()
 
     def launch_sale_proforma_form(self, index=None):
         if index:
@@ -973,12 +957,8 @@ class MainGui(Ui_MainGui, QMainWindow):
         self.proformas_purchases_towh_handler(invoice)
 
     def invoices_purchases_docs_handler(self):
-        obj = self.get_purchases_invoice()
-        from documents_form import Form
-        if not obj:
-            return
-        Form(self, obj, is_invoice=True).exec_()
-
+        invoice = self.get_purchases_invoice()
+        documents_form.Form(self, invoice, is_invoice=True).exec_()
 
     def invoices_purchases_expenses_handler(self):
         invoice = self.get_purchases_invoice()
@@ -1028,13 +1008,8 @@ class MainGui(Ui_MainGui, QMainWindow):
         self.proformas_sales_towh_handler(invoice=invoice)
 
     def invoices_sales_docs_handler(self):
-        obj = self.get_sales_invoice()
-
-        if not obj:
-            return
-        from documents_form import Form
-
-        Form(self, obj, is_invoice=True).exec_()
+        invoice = self.get_sales_invoice()
+        documents_form.Form(self, invoice, is_invoice=True).exec_()
 
     def invoices_sales_expenses_handler(self):
         invoice = self.get_sales_invoice()
@@ -1274,6 +1249,11 @@ class MainGui(Ui_MainGui, QMainWindow):
         self.f.show()
 
     # TOOLS HANDLERS:
+
+    def tools_trace_handler(self):
+        from trace_form import Form
+        f = Form(self)
+        f.exec_()
 
     def tools_available_stock_handler(self):
         import available_stock
