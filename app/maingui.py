@@ -780,7 +780,7 @@ class MainGui(Ui_MainGui, QMainWindow):
         if invoice:
             proforma = invoice
         else:
-            proforma = self.get_sale_proforma('Payments')
+            proforma = self.get_sale_proforma()
         if proforma:
             payments_form.PaymentForm(self, proforma, sale=True).exec_()
 
@@ -788,7 +788,7 @@ class MainGui(Ui_MainGui, QMainWindow):
         if invoice:
             proforma = invoice
         else:
-            proforma = self.get_sale_proforma('Expenses')
+            proforma = self.get_sale_proforma()
         if proforma:
             expenses_form.ExpenseForm(self, proforma, sale=True).exec_()
 
@@ -796,7 +796,7 @@ class MainGui(Ui_MainGui, QMainWindow):
         documents_form.Form(self, self.get_sale_proforma()).exec_()
 
     def proformas_sales_toinv_handler(self):
-        proforma = self.get_sale_proforma('Invoice')
+        proforma = self.get_sale_proforma()
         if proforma:
             if proforma.cancelled:
                 QMessageBox.information(
@@ -816,12 +816,9 @@ class MainGui(Ui_MainGui, QMainWindow):
             except AttributeError:
                 try:
                     invoice = self.proformas_sales_model.associateInvoice(proforma)
-                    type_num = str(invoice.type) + '-' \
-                               + str(invoice.number).zfill(6)
-                    QMessageBox.information(
-                        self,
-                        'Information',
-                        f"Invoice {type_num} created")
+                    QMessageBox.information(self, 'Information',f"Invoice {invoice.doc_repr} created")
+                    from models import fix_dropbox_sales
+                    fix_dropbox_sales(proforma)
                 except:
                     raise
                     QMessageBox.critical(
@@ -833,7 +830,7 @@ class MainGui(Ui_MainGui, QMainWindow):
         if invoice:
             proforma = invoice
         else:
-            proforma = self.get_sale_proforma('Warehouse')
+            proforma = self.get_sale_proforma()
         if not proforma:
             return
         try:
@@ -856,7 +853,7 @@ class MainGui(Ui_MainGui, QMainWindow):
         if invoice:
             proforma = invoice
         else:
-            proforma = self.get_sale_proforma('Shipment')
+            proforma = self.get_sale_proforma()
         if not proforma:
             return
         try:
@@ -873,8 +870,7 @@ class MainGui(Ui_MainGui, QMainWindow):
             raise
 
     def get_sale_proforma(self,):
-        rows = {index.row() for index in \
-                self.proformas_sales_view.selectedIndexes()}
+        rows = {index.row() for index in self.proformas_sales_view.selectedIndexes()}
         if len(rows) == 1:
             return self.proformas_sales_model.proformas[rows.pop()]
 

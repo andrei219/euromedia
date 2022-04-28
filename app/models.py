@@ -392,6 +392,16 @@ class AgentModel(QtCore.QAbstractTableModel):
 
 dropbox_base = r'C:\Users\Andrei\Dropbox\Programa'
 
+
+def move(origin, dest, copy=False):
+    origin = origin.replace('/', '\\')
+    dest = dest.replace('/', '\\')
+    with open(origin, "rb") as od, open(dest, "wb") as dd:
+        dd.write(od.read())
+    if not copy:
+        os.remove(origin)
+
+
 class DocumentModel(QtCore.QAbstractListModel):
 
     def __init__(self):
@@ -406,18 +416,9 @@ class DocumentModel(QtCore.QAbstractListModel):
         filename = self.prefix + name
         new_location = os.path.join(self.path, filename)
         self.layoutAboutToBeChanged.emit()
-        self.move(file_path, new_location)
+        move(file_path, new_location)
         self.document_names.append(filename)
         self.layoutChanged.emit()
-
-    @staticmethod
-    def move(origin, dest, copy=False):
-        origin = origin.replace('/', '\\')
-        dest = dest.replace('/', '\\')
-        with open(origin, "rb") as od, open(dest, "wb") as dd:
-            dd.write(od.read())
-        if not copy:
-            os.remove(origin)
 
     def delete(self, row):
         file = self.document_names[row]
@@ -433,7 +434,7 @@ class DocumentModel(QtCore.QAbstractListModel):
         filename = self.document_names[row]
         origin = os.path.join(self.path, filename)
         dest = os.path.join(directory, filename.replace(self.prefix, ''))
-        self.move(origin, dest, copy=True)
+        move(origin, dest, copy=True)
 
     def key(self, filename: str):
         return filename.startswith(self.prefix)
@@ -5275,12 +5276,21 @@ def export_available_stock_in_excel():
 
 # 351133750108601
 
-def fix_dropbox_purchases(proforma):
-    doc_model = DocumentModel()
 
+def fix_dropbox_purchases(proforma):
     pdm = ProformasPurchasesDocumentModel(proforma)
     idm = InvoicesPurchasesDocumentModel(proforma)
 
-    for file in os.listdir(pdm.path):
-        doc_model.move(file.replace(pdm.prefix, idm.prefix))
+    for file in filter(pdm.key, os.listdir(pdm.path)):
+        origin = os.path.join(pdm.path, file)
+        dest = os.path.join(idm.path, file.replace(pdm.prefix, idm.prefix))
+        move(origin, dest)
 
+
+def fix_dropbox_sales(proforma):
+    pdm = ProformasSalesDocumentModel(proforma)
+    idm = InvoicesSalesDocumentModel(proforma)
+    for file in filter(pdm.key, os.listdir(pdm.path)):
+        origin = os.path.join(pdm.path, file)
+        dest = os.path.join(idm.path, file.replace(pdm.prefix, idm.prefix))
+        move(origin, dest)
