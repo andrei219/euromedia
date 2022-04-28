@@ -784,6 +784,8 @@ class SaleInvoice(Base):
     date = Column(Date, default=datetime.now)
     eta = Column(Date, default=datetime.now)
 
+
+
     def __repr__(self):
         clasname = self.__class__.__name__
         return f'{clasname}(type={self.type}, number={self.number})'
@@ -791,6 +793,8 @@ class SaleInvoice(Base):
     def __init__(self, type, number):
         self.type = type
         self.number = number
+
+
 
     __table_args__ = (
         UniqueConstraint('type', 'number', name='unique_sales_sale_invoices'),
@@ -2495,6 +2499,9 @@ def correct_mask():
 
 def company_name():
     return 'Euromedia'
+
+def year():
+    return '2022'
 
 if __name__ == '__main__':
 

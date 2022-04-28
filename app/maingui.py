@@ -567,8 +567,12 @@ class MainGui(Ui_MainGui, QMainWindow):
         if proforma:
             expenses_form.ExpenseForm(self, proforma).exec_()
 
-    def proformas_purchases_docs_handler(self, invoice=None):
-        pass
+    def proformas_purchases_docs_handler(self):
+        from documents_form import Form
+        proforma = self.get_proforma_purchase()
+        if not proforma:
+            return
+        Form(self, proforma).exec_()
 
     def proformas_purchases_toinv_handler(self):
         proforma = self.get_proforma_purchase()
@@ -591,7 +595,7 @@ class MainGui(Ui_MainGui, QMainWindow):
                                             f"Invoice {type_num} created")
                 except:
                     raise
-                    QMessageBox.critical(self, 'Update - Error', \
+                    QMessageBox.critical(self, 'Update - Error',\
                                          'Could not build Invoice From Proforma')
 
     def proformas_purchases_towh_handler(self, invoice=None):
@@ -788,7 +792,7 @@ class MainGui(Ui_MainGui, QMainWindow):
         if invoice:
             proforma = invoice
         else:
-            proforma = self.get_sale_proforma('Payments')
+            proforma = self.get_sale_proforma()
         if proforma:
             payments_form.PaymentForm(self, proforma, sale=True).exec_()
 
@@ -796,15 +800,19 @@ class MainGui(Ui_MainGui, QMainWindow):
         if invoice:
             proforma = invoice
         else:
-            proforma = self.get_sale_proforma('Expenses')
+            proforma = self.get_sale_proforma()
         if proforma:
             expenses_form.ExpenseForm(self, proforma, sale=True).exec_()
 
-    def proformas_sales_docs_handler(self, invoice=None):
-        pass
+    def proformas_sales_docs_handler(self):
+        obj = self.get_sale_proforma()
+        if not obj:
+            return
+        from documents_form import Form
+        Form(self, obj).exec_()
 
     def proformas_sales_toinv_handler(self):
-        proforma = self.get_sale_proforma('Invoice')
+        proforma = self.get_sale_proforma()
         if proforma:
             if proforma.cancelled:
                 QMessageBox.information(
@@ -841,7 +849,7 @@ class MainGui(Ui_MainGui, QMainWindow):
         if invoice:
             proforma = invoice
         else:
-            proforma = self.get_sale_proforma('Warehouse')
+            proforma = self.get_sale_proforma()
         if not proforma:
             return
         try:
@@ -864,7 +872,7 @@ class MainGui(Ui_MainGui, QMainWindow):
         if invoice:
             proforma = invoice
         else:
-            proforma = self.get_sale_proforma('Shipment')
+            proforma = self.get_sale_proforma()
         if not proforma:
             return
         try:
@@ -880,7 +888,7 @@ class MainGui(Ui_MainGui, QMainWindow):
         except:
             raise
 
-    def get_sale_proforma(self, s=None):
+    def get_sale_proforma(self):
         rows = {index.row() for index in \
                 self.proformas_sales_view.selectedIndexes()}
         if len(rows) == 1:
@@ -965,8 +973,12 @@ class MainGui(Ui_MainGui, QMainWindow):
         self.proformas_purchases_towh_handler(invoice)
 
     def invoices_purchases_docs_handler(self):
-        invoice = self.get_purchases_invoice()
-        self.proformas_purchases_docs_handler(invoice=invoice)
+        obj = self.get_purchases_invoice()
+        from documents_form import Form
+        if not obj:
+            return
+        Form(self, obj, is_invoice=True).exec_()
+
 
     def invoices_purchases_expenses_handler(self):
         invoice = self.get_purchases_invoice()
@@ -1016,8 +1028,13 @@ class MainGui(Ui_MainGui, QMainWindow):
         self.proformas_sales_towh_handler(invoice=invoice)
 
     def invoices_sales_docs_handler(self):
-        invoice = self.get_sales_invoice()
-        self.proformas_sales_docs_handler(invoice=invoice)
+        obj = self.get_sales_invoice()
+
+        if not obj:
+            return
+        from documents_form import Form
+
+        Form(self, obj, is_invoice=True).exec_()
 
     def invoices_sales_expenses_handler(self):
         invoice = self.get_sales_invoice()

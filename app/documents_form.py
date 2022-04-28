@@ -7,26 +7,31 @@ import models
 
 class Form(Ui_DocumentsForm, QDialog):
 
-    def __init__(self, parent, obj):
+    def __init__(self, parent, obj, is_invoice=False):
         super(Form, self).__init__(parent=parent)
         self.setupUi(self)
-        Model = self.decide_model(obj)
+        Model = self.decide_model(obj, is_invoice)
         self.model = Model(obj)
         self.document_view.setModel(self.model)
         self.set_handlers()
 
     @staticmethod
-    def decide_model(obj):
+    def decide_model(obj, is_invoice):
         import db
-        cls = obj.__class__
-        return {
-            db.SaleProforma: models.ProformasSalesDocumentModel,
-            db.PurchaseProforma: models.ProformasPurchasesDocumentModel,
-            db.Agent: models.AgentsDocumentModel,
-            db.Partner: models.PartnersDocumentModel,
-            db.SaleInvoice: models.InvoicesSalesDocumentModel,
-            db.PurchaseInvoice: models.InvoicesPurchasesDocumentModel
-        }.get(cls)
+        if isinstance(obj, db.SaleProforma) and is_invoice:
+            return models.InvoicesSalesDocumentModel
+        elif isinstance(obj, db.SaleProforma) and not is_invoice:
+            return models.ProformasSalesDocumentModel
+        elif isinstance(obj, db.PurchaseProforma) and is_invoice:
+            return models.InvoicesPurchasesDocumentModel
+        elif isinstance(obj, db.PurchaseProforma) and not is_invoice:
+            return models.ProformasPurchasesDocumentModel
+        elif isinstance(obj, db.Agent):
+            return models.AgentsDocumentModel
+        elif isinstance(obj, db.Partner):
+            return models.PartnersDocumentModel
+
+
 
     def set_handlers(self):
         self.add_button.clicked.connect(self.add_handler)

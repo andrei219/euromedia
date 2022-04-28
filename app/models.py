@@ -390,12 +390,12 @@ class AgentModel(QtCore.QAbstractTableModel):
             self.layoutChanged.emit()
 
 
+dropbox_base = r'C:\Users\Andrei\Dropbox\Programa'
+
 class DocumentModel(QtCore.QAbstractListModel):
-    dropbox_base = r'C:\Users\Andrei\Dropbox\Programa'
 
     def __init__(self):
         super().__init__()
-        self.build_path_if_not_exists()
         self.document_names = list(filter(self.key, os.listdir(self.path)))
 
     def rowCount(self, parent: QModelIndex = ...) -> int:
@@ -438,14 +438,6 @@ class DocumentModel(QtCore.QAbstractListModel):
     def key(self, filename: str):
         return filename.startswith(self.prefix)
 
-    @property
-    def company(self):
-        return db.company_name()
-
-    @property
-    def year(self):
-        return '2022'
-
     def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
         if not index.isValid():
             return
@@ -459,8 +451,7 @@ class DocumentModel(QtCore.QAbstractListModel):
         import subprocess
         filename = self.document_names[row]
         filepath = os.path.join(self.path, filename)
-        subprocess.Popen((filename, ), shell=True)
-
+        subprocess.Popen((filename,), shell=True)
 
 
 class AgentsDocumentModel(DocumentModel):
@@ -470,16 +461,19 @@ class AgentsDocumentModel(DocumentModel):
         super().__init__()
 
     @property
+    def path(self):
+        path = os.path.join(dropbox_base, db.company_name(), 'Agents')
+        if not os.path.exists(path):
+            os.makedirs(path)
+        return path
+
+    @property
     def prefix(self):
         prefix = str(self.agent.id).zfill(3) + '_'
         for word in self.agent.fiscal_name.split():
             prefix += word[0]
         prefix += '_'
         return prefix
-
-    @property
-    def path(self):
-        return os.path.join(self.dropbox_base, self.company, 'Agents')
 
 
 class PartnersDocumentModel(DocumentModel):
@@ -498,67 +492,144 @@ class PartnersDocumentModel(DocumentModel):
 
     @property
     def path(self):
-        return os.path.join(self.dropbox_base, self.company, 'Partners')
+        path = os.path.join(dropbox_base, db.company_name(), 'Partners')
+        if not os.path.exists(path):
+            os.makedirs(path)
+        return path
+
 
 number_month_dict = {
-    1:'Enero',
-    2:'Febrero',
-    3:'Marzo',
-    4:'Abril',
-    5:'Mayo',
-    6:'Junio',
-    7:'Julio',
-    8:'Agosto',
-    9:'Septiembre',
-    10:'Octubre',
-    11:'Noviembre',
-    12:'Diciembre'
+    1: 'Enero',
+    2: 'Febrero',
+    3: 'Marzo',
+    4: 'Abril',
+    5: 'Mayo',
+    6: 'Junio',
+    7: 'Julio',
+    8: 'Agosto',
+    9: 'Septiembre',
+    10: 'Octubre',
+    11: 'Noviembre',
+    12: 'Diciembre'
 }
+
+
+end_path = {
+    1: os.path.join('Interior', 'Reg. General'),
+    2: os.path.join('Interior', 'ISP'),
+    5: os.path.join('Interior', 'REBU'),
+    3: os.path.join('Importacion'),
+    4: os.path.join('Intracomunitaria', 'Regimen General'),
+    6: os.path.join('Intracomunitaria', 'Marginal VAT')
+}
+
 
 class ProformasSalesDocumentModel(DocumentModel):
 
-    def __init__(self, proforma:db.SaleProforma):
-        self.proforma = proforma
+    def __init__(self, obj):
+        self.proforma = obj
         super().__init__()
 
-
-    def build_path_if_not_exists(self):
-        month = self.proforma.date.month
-        month_name = number_month_dict[month]
+    @property
+    def path(self):
+        _type = self.proforma.type
         path = os.path.join(
-            self.dropbox_base,
+            dropbox_base,
+            db.company_name(),
             'Proformas Emitidas',
-            self.year,
-            month_name,
+            db.year(),
+            number_month_dict[self.proforma.date.month],
+            'Exportacion' if _type == 3 else end_path[_type]
         )
 
+        if not os.path.exists(path):
+            os.makedirs(path)
+        return path
+
+    @property
+    def prefix(self):
+        return self.proforma.doc_repr + '_'
 
 
 class ProformasPurchasesDocumentModel(DocumentModel):
 
-    def __init__(self, proforma):
-        self.proforma = proforma
+    def __init__(self, obj):
+        self.proforma = obj
         super().__init__()
 
-    def build_path_if_not_exists(self):
-        pass
+    @property
+    def path(self):
+        path = os.path.join(
+            dropbox_base,
+            db.company_name(),
+            'Proformas Recibidas',
+            db.year(),
+            number_month_dict[self.proforma.date.month],
+            end_path[self.proforma.type]
+        )
+
+        if not os.path.exists(path):
+            os.makedirs(path)
+        return path
+
+    @property
+    def prefix(self):
+        return self.proforma.doc_repr + '_'
+
 
 class InvoicesPurchasesDocumentModel(DocumentModel):
 
-    def __init__(self, invoice):
-        self.invoice = invoice
+    def __init__(self, obj):
+        self.invoice = obj.invoice
         super().__init__()
-    def build_path_if_not_exists(self):
-        pass
+
+    @property
+    def path(self):
+        path = os.path.join(
+            dropbox_base,
+            db.company_name(),
+            'Facturas Recibidas',
+            db.year(),
+            number_month_dict[self.invoice.date.month],
+            end_path[self.invoice.type]
+        )
+        if not os.path.exists(path):
+            os.makedirs(path)
+        return path
+
+    @property
+    def prefix(self):
+        return self.invoice.doc_repr + '-'
+
 
 class InvoicesSalesDocumentModel(DocumentModel):
 
-    def __init__(self, invoice):
-        self.invoice = invoice
+    def __init__(self, obj):
+        self.invoice = obj.invoice
         super().__init__()
 
-    def build_path_if_not_exists(self):
-        pass
+        print(self.invoice.doc_repr)
+
+    @property
+    def path(self):
+        _type = self.invoice.type
+        path = os.path.join(
+            dropbox_base,
+            db.company_name(),
+            'Facturas Emitidas',
+            db.year(),
+            number_month_dict[self.invoice.date.month],
+            'Exportacion' if _type == 3 else end_path[_type]
+        )
+
+        if not os.path.exists(path):
+            os.makedirs(path)
+        return path
+
+    @property
+    def prefix(self):
+        return self.invoice.doc_repr
+
 
 class PartnerModel(QtCore.QAbstractTableModel):
     CODE, TRADING_NAME, FISCAL_NAME, FISCAL_NUMBER, COUNTRY, CONTACT, PHONE, EMAIL, ACTIVE = \
