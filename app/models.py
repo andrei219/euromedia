@@ -1695,6 +1695,10 @@ class OrganizedLines:
 
         return update_stock_view
 
+    def delete_all(self):
+        for i in range(len(self.organized_lines)):
+            self.delete(i)
+
     def append(self, price, ignore_spec, tax, showing, *stocks, row=None):
         if len(stocks) == 0:
             raise ValueError("Provide stocks")
@@ -1979,6 +1983,11 @@ class SaleProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
     @property
     def total(self):
         return self.tax + self.subtotal
+
+    def delete_all(self):
+        self.layoutAboutToBeChanged.emit()
+        self.organized_lines.delete_all()
+        self.layoutChanged.emit()
 
     def add(self, price, ignore_spec, tax, showing, *stocks, row=None):
         self.organized_lines.append(
