@@ -399,9 +399,6 @@ class PurchaseProforma(Base):
         UniqueConstraint('type', 'number'),
     )
 
-    @property
-    def doc_repr(self):
-        return str(self.type) + '-' + str(self.number).zfill(6)
 
 
     @property
@@ -558,11 +555,6 @@ class PurchaseInvoice(Base):
         self.number = number
 
 
-    @property
-    def doc_repr(self):
-        return str(self.type) + '-' + str(self.number).zfill(6)
-
-
     __table_args__ = (
         UniqueConstraint('type', 'number'),
     )
@@ -664,9 +656,6 @@ class SaleProforma(Base):
         UniqueConstraint('type', 'number'),
     )
 
-    @property
-    def doc_repr(self):
-        return str(self.type) + '-' + str(self.number).zfill(6)
 
     @property
     def subtotal(self):
@@ -814,9 +803,7 @@ class SaleInvoice(Base):
         UniqueConstraint('type', 'number', name='unique_sales_sale_invoices'),
     )
 
-    @property
-    def doc_repr(self):
-        return str(self.type) + '-' + str(self.number).zfill(6)
+
 
 
 class SaleProformaLine(Base):
