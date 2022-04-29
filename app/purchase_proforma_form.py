@@ -284,7 +284,11 @@ class EditableForm(Form):
         super(QWidget, Form).__init__(self) 
         self.setupUi(self)
         self.parent = parent
-        self.proforma = proforma 
+        self.proforma = proforma
+
+        self.old_type = proforma.type
+        self.old_number = proforma.number
+
         self.view = view 
         self.lines_view.setSelectionBehavior(QTableView.SelectRows)
         self.title = 'Line - Error'
@@ -372,17 +376,21 @@ class EditableForm(Form):
             raise 
         else:
             try:
-                warehouse_updated = self.model.updateWarehouse(self.proforma) 
+                from models import update_purchase_invoice_when_editing
+                warehouse_updated = self.model.updateWarehouse(self.proforma)
+                update_purchase_invoice_when_editing(self.old_type, self.old_number, self.proforma)
+
                 # advance_sale_updated = self.model.updateAdvancedSale(self.proforma) 
             except IntegrityError:
                 QMessageBox.critical(self, 'Error', 'Document with that type / number already exists')
                 db.session.rollback()
-            else:
-                message = "Proforma saved successfully."
-                if warehouse_updated:
-                    message += 'Warehouse Updated' 
 
-                QMessageBox.information(self, "Information", message) 
+            except:
+                QMessageBox.critical(self, 'Error', 'Proforma saved correctly but Error updating dropbox')
+                raise
+            else:
+                message = "Proforma saved successfully. Dropbox updated"
+                QMessageBox.information(self, "Information", message)
 
             self.adjust_view() 
             # self.close()

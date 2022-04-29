@@ -3,7 +3,10 @@ import typing
 from uuid import uuid4
 
 import utils
+import os
+import shutil
 
+from pathlib import Path
 from collections import namedtuple
 from itertools import groupby, product
 from operator import attrgetter
@@ -14,14 +17,12 @@ from PyQt5.QtCore import QModelIndex
 from PyQt5.QtCore import Qt
 from sqlalchemy import func
 from sqlalchemy import or_
-from sqlalchemy.exc import IntegrityError, SQLAlchemyError, MultipleResultsFound
-from sqlalchemy.exc import NoResultFound
+from sqlalchemy.exc import IntegrityError
 
 import db
 from exceptions import SeriePresentError
 
 from sqlalchemy.exc import InvalidRequestError
-
 
 # COLORS:
 # RED FOR CANCELLED
@@ -29,7 +30,6 @@ from sqlalchemy.exc import InvalidRequestError
 # ORANGE FOR EMPTY OR PARTIAL
 # YELLOW FOR OVERFLOW
 RED, GREEN, YELLOW, ORANGE = '#FF7F7F', '#90EE90', '#FFFF66', '#FFD580'
-
 
 
 class BaseTable:
@@ -390,60 +390,245 @@ class AgentModel(QtCore.QAbstractTableModel):
             self.layoutChanged.emit()
 
 
+dropbox_base = r'C:\Users\Andrei\Dropbox\Programa'
+
+
+def move(origin, dest, copy=False):
+    origin = origin.replace('/', '\\')
+    dest = dest.replace('/', '\\')
+    with open(origin, "rb") as od, open(dest, "wb") as dd:
+        dd.write(od.read())
+    if not copy:
+        os.remove(origin)
+
+
 class DocumentModel(QtCore.QAbstractListModel):
-    EDITABLE_MODE, NEW_MODE = 0, 1
 
-    def __init__(self, key, value, sqlAlchemyChildClass, sqlAlchemyParentClass):
+    def __init__(self):
         super().__init__()
-        self.key = key
-        self.value = value
-        self.sqlAlchemyChildClass = sqlAlchemyChildClass
-        self.sqlAlchemyParentClass = sqlAlchemyParentClass
-        self.documents = db.session.query(sqlAlchemyChildClass). \
-            join(sqlAlchemyParentClass).where(getattr(sqlAlchemyChildClass, key) == value).all()
+        self.document_names = list(filter(self.key, os.listdir(self.path)))
 
-    def data(self, index, role=Qt.DisplayRole):
-        if index.isValid() and 0 <= index.row() < len(self.documents):
-            if role == Qt.DecorationRole:
-                return QtGui.QIcon(':\pdf')
-            if role == Qt.DisplayRole:
-                return self.documents[index.row()].name
+    def rowCount(self, parent: QModelIndex = ...) -> int:
+        return len(self.document_names)
 
-    def rowCount(self, index):
-        return len(self.documents)
+    def add(self, file_path):
+        name = Path(file_path).name
+        filename = self.prefix + name
+        new_location = os.path.join(self.path, filename)
+        self.layoutAboutToBeChanged.emit()
+        move(file_path, new_location)
+        self.document_names.append(filename)
+        self.layoutChanged.emit()
 
-    def delete(self, index):
-        document = self.documents[index.row()]
-        db.session.delete(document)
+    def delete(self, row):
+        file = self.document_names[row]
+        path = os.path.join(self.path, file)
         try:
-            db.session.commit()
-            del self.documents[index.row()]
+            os.remove(path)
+            self.document_names.pop(row)
             self.layoutChanged.emit()
-        except:
-            db.session.rollback()
-            raise
+        except FileNotFoundError:
+            pass
 
-    def add(self, filename, base64Pdf):
-        document = self.sqlAlchemyChildClass(name=filename, document=base64Pdf)
-        setattr(document, self.key, self.value)
-        db.session.add(document)
-        try:
-            db.session.commit()
-            self.documents.append(document)
-            self.layoutChanged.emit()
-        except:
-            db.session.rollback()
-            raise
+    def export(self, directory, row):
+        filename = self.document_names[row]
+        origin = os.path.join(self.path, filename)
+        dest = os.path.join(directory, filename.replace(self.prefix, ''))
+        move(origin, dest, copy=True)
 
-    def get_document(self, index):
-        return self.documents[index.row()]
+    def key(self, filename: str):
+        return filename.startswith(self.prefix)
 
-#
-# class DocumentModel(QtCore.QAbstractListModel):
-#
-#     def __init__(self):
-#         pass
+    def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
+        if not index.isValid():
+            return
+        filename = self.document_names[index.row()]
+        if role == Qt.DisplayRole:
+            return filename.replace(self.prefix, '')
+        elif role == Qt.DecorationRole:
+            return QtGui.QIcon(':\pdf')
 
+    def view(self, row):
+        import subprocess
+        filename = self.document_names[row]
+        filepath = os.path.join(self.path, filename)
+        subprocess.Popen((filename,), shell=True)
+
+
+class AgentsDocumentModel(DocumentModel):
+
+    def __init__(self, agent):
+        self.agent = agent
+        super().__init__()
+
+    @property
+    def path(self):
+        path = os.path.join(dropbox_base, db.company_name(), 'Agents')
+        if not os.path.exists(path):
+            os.makedirs(path)
+        return path
+
+    @property
+    def prefix(self):
+        prefix = str(self.agent.id).zfill(3) + '_'
+        for word in self.agent.fiscal_name.split():
+            prefix += word[0]
+        prefix += '_'
+        return prefix
+
+
+class PartnersDocumentModel(DocumentModel):
+
+    def __init__(self, partner):
+        self.partner = partner
+        super().__init__()
+
+    @property
+    def prefix(self):
+        prefix = str(self.partner.id).zfill(6) + '_'
+        for word in self.partner.fiscal_name.split():
+            prefix += word[0]
+        prefix += '_'
+        return prefix
+
+    @property
+    def path(self):
+        path = os.path.join(dropbox_base, db.company_name(), 'Partners')
+        if not os.path.exists(path):
+            os.makedirs(path)
+        return path
+
+
+number_month_dict = {
+    1: 'Enero',
+    2: 'Febrero',
+    3: 'Marzo',
+    4: 'Abril',
+    5: 'Mayo',
+    6: 'Junio',
+    7: 'Julio',
+    8: 'Agosto',
+    9: 'Septiembre',
+    10: 'Octubre',
+    11: 'Noviembre',
+    12: 'Diciembre'
+}
+
+end_path = {
+    1: os.path.join('Interior', 'Reg. General'),
+    2: os.path.join('Interior', 'ISP'),
+    5: os.path.join('Interior', 'REBU'),
+    3: os.path.join('Importacion'),
+    4: os.path.join('Intracomunitaria', 'Regimen General'),
+    6: os.path.join('Intracomunitaria', 'Marginal VAT')
+}
+
+
+class ProformasSalesDocumentModel(DocumentModel):
+
+    def __init__(self, obj):
+        self.proforma = obj
+        super().__init__()
+
+    @property
+    def path(self):
+        _type = self.proforma.type
+        path = os.path.join(
+            dropbox_base,
+            db.company_name(),
+            'Proformas Emitidas',
+            db.year(),
+            number_month_dict[self.proforma.date.month],
+            'Exportacion' if _type == 3 else end_path[_type]
+        )
+
+        if not os.path.exists(path):
+            os.makedirs(path)
+        return path
+
+    @property
+    def prefix(self):
+        return self.proforma.doc_repr + '_'
+
+
+class ProformasPurchasesDocumentModel(DocumentModel):
+
+    def __init__(self, obj):
+        self.proforma = obj
+        super().__init__()
+
+    @property
+    def path(self):
+        path = os.path.join(
+            dropbox_base,
+            db.company_name(),
+            'Proformas Recibidas',
+            db.year(),
+            number_month_dict[self.proforma.date.month],
+            end_path[self.proforma.type]
+        )
+
+        if not os.path.exists(path):
+            os.makedirs(path)
+        return path
+
+    @property
+    def prefix(self):
+        return self.proforma.doc_repr + '_'
+
+
+class InvoicesPurchasesDocumentModel(DocumentModel):
+
+    def __init__(self, obj):
+        self.invoice = obj.invoice
+        super().__init__()
+
+    @property
+    def path(self):
+        path = os.path.join(
+            dropbox_base,
+            db.company_name(),
+            'Facturas Recibidas',
+            db.year(),
+            number_month_dict[self.invoice.date.month],
+            end_path[self.invoice.type]
+        )
+        if not os.path.exists(path):
+            os.makedirs(path)
+        return path
+
+    @property
+    def prefix(self):
+        return self.invoice.doc_repr + '_'
+
+
+class InvoicesSalesDocumentModel(DocumentModel):
+
+    def __init__(self, obj):
+        self.invoice = obj.invoice
+        super().__init__()
+
+        print(self.invoice.doc_repr)
+
+    @property
+    def path(self):
+        _type = self.invoice.type
+        path = os.path.join(
+            dropbox_base,
+            db.company_name(),
+            'Facturas Emitidas',
+            db.year(),
+            number_month_dict[self.invoice.date.month],
+            'Exportacion' if _type == 3 else end_path[_type]
+        )
+
+        if not os.path.exists(path):
+            os.makedirs(path)
+        return path
+
+    @property
+    def prefix(self):
+        return self.invoice.doc_repr
 
 
 class PartnerModel(QtCore.QAbstractTableModel):
@@ -628,7 +813,6 @@ class PartnerContactModel(QtCore.QAbstractTableModel):
 
 
 class SaleInvoiceModel(QtCore.QAbstractTableModel):
-
     TYPE_NUM, DATE, PROFORMA = 0, 1, 16
 
     def __init__(self, search_key=None, filters=None):
@@ -811,7 +995,7 @@ def buildReceptionLine(line, reception):
 
 class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
     TYPE_NUM, DATE, ETA, PARTNER, AGENT, FINANCIAL, LOGISTIC, SENT, CANCELLED, \
-        OWING, TOTAL, EXTERNAL, INVOICED, IN_WAREHOUSE = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13
+    OWING, TOTAL, EXTERNAL, INVOICED, IN_WAREHOUSE = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13
 
     def __init__(self, filters=None, search_key=None, proxy=False):
         super().__init__()
@@ -912,7 +1096,6 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
             return
         row, col = index.row(), index.column()
         proforma = self.proformas[row]
-
 
         if role == Qt.DisplayRole:
             if col == PurchaseProformaModel.TYPE_NUM:
@@ -1089,7 +1272,6 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
         try:
             db.session.commit()
             return proforma.invoice
-        # Should reset PurchaseInvoice model through a reference to parent
         except:
             db.session.rollback()
             raise
@@ -1164,6 +1346,7 @@ def line_with_stock_key(line):
                 return True
     return False
 
+
 def build_associated_reception(sale_proforma):
     try:
         origin_id = line = sale_proforma.advanced_lines[0].origin_id
@@ -1189,17 +1372,16 @@ def build_associated_reception(sale_proforma):
 
 
 class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
-
     TYPE_NUM, DATE, PARTNER, AGENT, FINANCIAL, LOGISTIC, SENT, \
     CANCELLED, OWING, TOTAL, ADVANCED, DEFINED, READY, EXTERNAL, IN_WAREHOUSE, \
-        WARNING, INVOICED = \
+    WARNING, INVOICED = \
         0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16
 
     def __init__(self, search_key=None, filters=None, proxy=False):
         super().__init__()
         self._headerData = ['Type & Num', 'Date', 'Partner', 'Agent', \
                             'Financial', 'Logistic', 'Sent', 'Cancelled',
-                            'Owes', 'Total', 'Presale','Defined','Ready To Go',
+                            'Owes', 'Total', 'Presale', 'Defined', 'Ready To Go',
                             'External Doc.', 'In WH', 'Warning', 'Inv.'
                             ]
         self.proformas = []
@@ -1344,7 +1526,7 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
                 return 'Yes' if proforma.advanced_lines else 'No'
 
             elif col == self.DEFINED:
-                line_iter = filter(line_with_stock_key,iter(proforma.lines or proforma.advanced_lines))
+                line_iter = filter(line_with_stock_key, iter(proforma.lines or proforma.advanced_lines))
                 return 'Yes' if all([line.defined for line in line_iter]) else 'No'
 
 
@@ -1621,7 +1803,6 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
         for line in added_lines:
             self.build_expedition_line(line, proforma.expedition)
 
-
             # Update quantity
         # Update showing condition
         for pline in filter(item_key, proforma.lines):
@@ -1694,10 +1875,6 @@ class OrganizedLines:
         db.session.flush()
 
         return update_stock_view
-
-    def delete_all(self):
-        for i in range(len(self.organized_lines)):
-            self.delete(i)
 
     def append(self, price, ignore_spec, tax, showing, *stocks, row=None):
         if len(stocks) == 0:
@@ -1896,7 +2073,6 @@ class OrganizedLines:
             lines.showing_condition = condition
         return True
 
-
     # Segun la nueva ultima actualizcion
     # todas son iterables, el check sobra
     # pero no vamos a testear eso ahora
@@ -1945,7 +2121,7 @@ class OrganizedLines:
 
 class SaleProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
     DESCRIPTION, CONDITION, SHOWING_CONDITION, SPEC, IGNORING_SPEC, \
-        QUANTITY, PRICE, SUBTOTAL, TAX, TOTAL = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
+    QUANTITY, PRICE, SUBTOTAL, TAX, TOTAL = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
 
     def __init__(self, proforma, form):
         super().__init__()
@@ -1983,11 +2159,6 @@ class SaleProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
     @property
     def total(self):
         return self.tax + self.subtotal
-
-    def delete_all(self):
-        self.layoutAboutToBeChanged.emit()
-        self.organized_lines.delete_all()
-        self.layoutChanged.emit()
 
     def add(self, price, ignore_spec, tax, showing, *stocks, row=None):
         self.organized_lines.append(
@@ -2866,13 +3037,13 @@ class SerieModel(QtCore.QAbstractListModel):
 
 class ExpeditionModel(BaseTable, QtCore.QAbstractTableModel):
     ID, WAREHOUSE, DATE, TOTAL, PROCESSED, LOGISTIC, CANCELLED, PARTNER, \
-    AGENT, WARNING, FROM_PROFORMA, READY, EXTERNAL = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12
+    AGENT, WARNING, FROM_PROFORMA, READY, EXTERNAL, PRESALE = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13
 
     def __init__(self, search_key=None, filters=None):
         super().__init__()
         self._headerData = ['Expedition ID', 'Warehouse', 'Date', 'Total', 'Processed',
                             'Logistic', 'Cancelled', 'Partner', 'Agent', 'Warning', 'From Proforma', 'Ready To Go',
-                            'External Doc.']
+                            'External Doc.', 'Presale']
         self.name = 'expeditions'
         query = db.session.query(db.Expedition). \
             select_from(
@@ -2942,6 +3113,9 @@ class ExpeditionModel(BaseTable, QtCore.QAbstractTableModel):
                 elif sale_completed(expedition):
                     return 'Completed'
 
+            elif column == self.PRESALE:
+                return 'Yes' if expedition.proforma.advanced_lines else 'No'
+
             elif column == self.DATE:
                 return expedition.proforma.date.strftime('%d/%m/%Y')
 
@@ -3000,7 +3174,7 @@ class ExpeditionModel(BaseTable, QtCore.QAbstractTableModel):
                 self.PARTNER: 'proforma.partner.fiscal_name',
                 self.AGENT: 'proforma.agent.fiscal_name',
                 self.READY: 'proforma.ready',
-                self.DATE:'proforma.date'
+                self.DATE: 'proforma.date'
             }.get(section)
 
             if attr:
@@ -3306,7 +3480,6 @@ class StockEntry:
         class_name = self.__class__.__name__
         return '{}({!r}, {!r}, {!r}, {!r}, {!r})'.format(class_name, *self)
 
-
     def __eq__(self, other):
         if id(self) == id(other):
             return True
@@ -3341,7 +3514,7 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
         super().__init__()
         self._headerData = ['Description', 'Condition', 'Spec', 'Quantity avail. ', 'Requested quant.']
 
-        if check: # For checking only
+        if check:  # For checking only
             self._headerData.remove('Requested quant.')
 
         self.name = 'stocks'
@@ -3354,7 +3527,6 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
             condition,
             spec
         )
-
 
     @classmethod
     def stocks(cls, warehouse_id, description=None, condition=None, spec=None):
@@ -3645,7 +3817,6 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
     def requested_stocks(self):
         return list(filter(lambda s: s.request > 0, self.stocks))
 
-
     def excel_export(self, file_path):
         from utils import warehouse_id_map
         from utils import description_id_map
@@ -3657,7 +3828,7 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
         ws.append(header)
         warehouse = warehouse_id_map.inverse.get(self.warehouse_id)
         for stock in self.stocks:
-            ws.append((warehouse, ) + stock.excel_row)
+            ws.append((warehouse,) + stock.excel_row)
 
         wb.save(file_path)
 
@@ -3683,8 +3854,8 @@ class IncomingVector:
 
         asked = sum(
             line.quantity for line in session.query(db.AdvancedLine.quantity).
-            join(db.SaleProforma).where(db.SaleProforma.cancelled == False).
-            where(db.AdvancedLine.origin_id == line.id)
+                join(db.SaleProforma).where(db.SaleProforma.cancelled == False).
+                where(db.AdvancedLine.origin_id == line.id)
         )
 
         processed = self.compute_processed(line)
@@ -3693,8 +3864,6 @@ class IncomingVector:
             self.available = 0
         else:
             self.available = quantity - asked
-
-
 
     @property
     def excel_row(self):
@@ -3730,7 +3899,6 @@ class IncomingVector:
 
 
 class IncomingStockModel(BaseTable, QtCore.QAbstractTableModel):
-
     DOCUMENT, ETA, DESC, CONDITION, SPEC, AVAILABLE = 0, 1, 2, 3, 4, 5
 
     # check arg , make compatible with stock model init call
@@ -3747,7 +3915,6 @@ class IncomingStockModel(BaseTable, QtCore.QAbstractTableModel):
             type=type,
             number=number
         )
-
 
     def computeIncomingStock(self, warehouse_id, *, description, condition, spec,
                              type=None, number=None, session=db.session):
@@ -3839,14 +4006,12 @@ class IncomingStockModel(BaseTable, QtCore.QAbstractTableModel):
     def __getitem__(self, index):
         return self.stocks[index]
 
-
     def whatsapp_export(self):
         print('aaaaa')
 
     def excel_export(self, file_path):
 
-
-        header = ['WH','Document', 'ETA', 'Description', 'Condition', 'Spec', 'Available']
+        header = ['WH', 'Document', 'ETA', 'Description', 'Condition', 'Spec', 'Available']
         from openpyxl import Workbook
         from utils import warehouse_id_map
 
@@ -3858,14 +4023,14 @@ class IncomingStockModel(BaseTable, QtCore.QAbstractTableModel):
         ws.append(header)
 
         for vector in self.stocks:
-            ws.append((warehouse, ) + vector.excel_row)
+            ws.append((warehouse,) + vector.excel_row)
 
         wb.save(file_path)
 
 
 class AdvancedLinesModel(BaseTable, QtCore.QAbstractTableModel):
     DESCRIPTION, CONDITION, SHOWING_CONDITION, SPEC, IGNORING_SPEC, \
-        QUANTITY, PRICE, SUBTOTAL, TAX, TOTAL = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
+    QUANTITY, PRICE, SUBTOTAL, TAX, TOTAL = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
 
     def __init__(self, proforma, form=None, show_free=True):
         super().__init__()
@@ -3964,7 +4129,6 @@ class AdvancedLinesModel(BaseTable, QtCore.QAbstractTableModel):
         else:
             return Qt.ItemFlags(~Qt.ItemIsEditable)
 
-
     def editable_column(self, column):
         return column in (
             self.PRICE, self.IGNORING_SPEC, self.SHOWING_CONDITION, self.PRICE,
@@ -3996,13 +4160,13 @@ class AdvancedLinesModel(BaseTable, QtCore.QAbstractTableModel):
         db.session.flush()
         self.layoutChanged.emit()
 
-    def update_if_preexists(self, vector:IncomingVector, quantity):
+    def update_if_preexists(self, vector: IncomingVector, quantity):
         for line in self.lines:
             if all((
-                vector.item_id == line.item_id,
-                vector.description == line.mixed_description,
-                vector.condition == line.condition,
-                vector.spec == line.spec
+                    vector.item_id == line.item_id,
+                    vector.description == line.mixed_description,
+                    vector.condition == line.condition,
+                    vector.spec == line.spec
             )):
                 line.quantity += quantity
                 return True
@@ -4617,7 +4781,7 @@ class AdvancedStockModel(StockModel):
         if line is None or warehouse_id is None:
             self.stocks = []
         else:
-            self.stocks = self.computeStock(warehouse_id,line)
+            self.stocks = self.computeStock(warehouse_id, line)
 
     @property
     def requested_stocks(self):
@@ -4679,7 +4843,6 @@ class AdvancedStockModel(StockModel):
 
 
 class DefinedStockModel(BaseTable, QtCore.QAbstractTableModel):
-
     DESCRIPTION, CONDITION, SPEC, REQUESTED = 0, 1, 2, 3
 
     def __init__(self, line):
@@ -4727,6 +4890,7 @@ class DefinedStockModel(BaseTable, QtCore.QAbstractTableModel):
         self.definitions = self.line.definitions
         db.session.flush()
         self.layoutChanged.emit()
+
 
 class BankAccountModel(BaseTable, QtCore.QAbstractTableModel):
     NAME, IBAN, SWIFT, ADDRESS, POSTCODE, CITY, STATE, COUNTRY, ROUTING, CURRENCY = \
@@ -4823,7 +4987,6 @@ class ChangeModel(BaseTable, QtCore.QAbstractTableModel):
         self.hint = hint
         self._headerData = ['IMEI/SN', 'Description', hint.capitalize()]
 
-
         self.sns = []
         self.name = 'sns'
         self.hint = hint
@@ -4874,8 +5037,6 @@ class ChangeModel(BaseTable, QtCore.QAbstractTableModel):
             for imei_object in self.sns:
                 before = imei_object.warehouse.description
                 after = name
-                if before == after:
-                    return
                 db.session.add(db.WarehouseChange(imei_object.imei, before, after, comment))
                 imei_object.warehouse_id = utils.warehouse_id_map.get(name)
         else:
@@ -4883,8 +5044,6 @@ class ChangeModel(BaseTable, QtCore.QAbstractTableModel):
             for imei_object in self.sns:
                 before = getattr(imei_object, self.attrname)
                 after = name
-                if before == after:
-                    return
                 db.session.add(self.orm_change_class(imei_object.imei, before, after, comment))
                 setattr(imei_object, self.attrname, name)
 
@@ -4904,7 +5063,6 @@ class ChangeModel(BaseTable, QtCore.QAbstractTableModel):
 
 
 def export_sale_excel(proforma, file_path):
-
     from openpyxl import Workbook
     from utils import build_description
 
@@ -4919,7 +5077,7 @@ def export_sale_excel(proforma, file_path):
     # Agente primera parte
 
     try:
-        type_num = str(proforma.invoice.type)+'-' + str(proforma.invoice.number).zfill(6)
+        type_num = str(proforma.invoice.type) + '-' + str(proforma.invoice.number).zfill(6)
         document_date = str(proforma.invoice.date)
 
     except AttributeError:
@@ -4955,17 +5113,17 @@ def generate_excel_rows(proforma):
 def get_spec(eline: db.ExpeditionLine):
     for pline in eline.expedition.proforma.lines:
         if all((
-            eline.item_id == pline.item_id,
-            eline.condition == eline.condition,
-            eline.spec == eline.spec
+                eline.item_id == pline.item_id,
+                eline.condition == eline.condition,
+                eline.spec == eline.spec
         )):
             if pline.ignore_spec:
                 return ''
             else:
                 return pline.spec
 
-class RmaIncomingModel(BaseTable, QtCore.QAbstractTableModel):
 
+class RmaIncomingModel(BaseTable, QtCore.QAbstractTableModel):
     ID, PARTNER, DATE, STATUS = 0, 1, 2, 3
 
     def __init__(self, search_key=None, filters=None):
@@ -4985,7 +5143,6 @@ class RmaIncomingModel(BaseTable, QtCore.QAbstractTableModel):
             if column == self.ID:
                 return str(rma_order.id).zfill(6)
             elif column == self.DATE:
-                return rma_order.date.strftime('%d/%m/%Y')
                 return rma_order.date.strftime('%d/%m/%Y')
             elif column == self.PARTNER:
                 return rma_order.partner.trading_name
@@ -5014,7 +5171,6 @@ class RmaIncomingModel(BaseTable, QtCore.QAbstractTableModel):
         return self.orders[row]
 
 
-
 # aceptado verde
 # partial naranja
 # rejected rojo
@@ -5022,8 +5178,7 @@ class RmaIncomingModel(BaseTable, QtCore.QAbstractTableModel):
 
 
 class RmaIncomingLineModel(BaseTable, QtCore.QAbstractTableModel):
-
-    IMEI, RECEPTION_DATETIME, WARRANTY_END_SUPP, PURCHASED_AS, DEFINED_AS,\
+    IMEI, RECEPTION_DATETIME, WARRANTY_END_SUPP, PURCHASED_AS, DEFINED_AS, \
     SOLD_AS, SOLD_AS_PUBLIC, SOLD_TO, SALE_DATE, EXPEDITION_PICKING, WARRANTY_END_CUST, \
     PROBLEM, ACCEPTED, WHY = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13
 
@@ -5076,7 +5231,6 @@ class RmaIncomingLineModel(BaseTable, QtCore.QAbstractTableModel):
     def setData(self, index: QModelIndex, value: typing.Any, role: int = ...) -> bool:
         return True
 
-
     def serie_processed(self, sn):
         for line in self.lines:
             if line.sn == sn:
@@ -5103,7 +5257,6 @@ def get_partner_warranty(partner_id):
 
 
 def export_available_stock_in_excel():
-
     from utils import warehouse_id_map
     from utils import description_id_map
 
@@ -5111,10 +5264,6 @@ def export_available_stock_in_excel():
 
     for row in db.session.query(Warehouse.id).distinct().all():
         warehouse_id = row.id
-
-
-
-
 
     # IMEI
     # ARRIVAL DATETIME
@@ -5127,162 +5276,67 @@ def export_available_stock_in_excel():
     # WARRANTY END (CUSTOMER) COMPUTE SALE DATE + INVOICE WARRANTY DAYS
     # PROBLEM
 
+
 # 351133750108601
 
 
-class ChangeModelTrace(BaseTable, QtCore.QAbstractTableModel):
+def fix_dropbox_purchases_when_proforma_to_invoice(proforma):
+    pdm = ProformasPurchasesDocumentModel(proforma)
+    idm = InvoicesPurchasesDocumentModel(proforma)
 
-    FROM, TO, WHEN, COMMENT = 0, 1, 2, 3
+    for file in filter(pdm.key, os.listdir(pdm.path)):
+        origin = os.path.join(pdm.path, file)
+        dest = os.path.join(idm.path, file.replace(pdm.prefix, idm.prefix))
+        move(origin, dest)
 
-    def __init__(self, Sqlalchemy_cls, imei):
-        super().__init__()
-        self._headerData = ['FROM', 'TO', 'WHEN', 'COMMENT']
-        self.registers = db.session.query(Sqlalchemy_cls).\
-            where(Sqlalchemy_cls.sn == imei).all()
-        self.name = 'registers'
-
-    def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
-        if not index.isValid():
-            return
-        row, col = index.row(), index.column()
-        r = self.registers[row]
-
-        if role == Qt.DisplayRole:
-            if col == self.FROM:
-                return  r.before
-            elif col == self.TO:
-                return r.after
-            elif col == self.WHEN:
-                return str(r.created_on)
-            elif col == self.COMMENT:
-                return str(r.comment)
-
-class TraceEntry:
-
-    def __str__(self):
-        return str(self.__dict__)
+    from pdfbuilder import build_document
+    pdf = build_document(proforma, is_invoice=True)
+    pdf.output(os.path.join(idm.path, idm.prefix[:-1] + '.pdf'))
 
 
-class OperationModel(BaseTable, QtCore.QAbstractTableModel):
+def fix_dropbox_sales_when_proforma_to_invoice(proforma):
+    pdm = ProformasSalesDocumentModel(proforma)
+    idm = InvoicesSalesDocumentModel(proforma)
+    for file in filter(pdm.key, os.listdir(pdm.path)):
+        origin = os.path.join(pdm.path, file)
+        dest = os.path.join(idm.path, file.replace(pdm.prefix, idm.prefix))
+        move(origin, dest)
 
-    OPERATION, DOC, DATE, PARTNER, PICKING = 0, 1, 2, 3, 4
-
-    def __init__(self, imei):
-        super().__init__()
-        self._headerData = ['Operation', 'Doc', 'Date', 'Partner', 'Picking']
-        self.name = 'entries'
-        self.entries = []
-
-        query = db.session.query(db.ReceptionSerie).\
-            join(db.ReceptionLine).join(db.Reception).\
-            join(db.PurchaseProforma).\
-            where(db.ReceptionSerie.serie == imei)
-
-        for r in query:
-            te = TraceEntry()
-            te.operation = 'Purchase'
-            # Get doc
-            try:
-                te.doc = 'FR ' + r.line.reception.proforma.invoice.doc_repr
-            except AttributeError:
-                te.doc = 'PR ' + r.line.reception.proforma.doc_repr
-
-            # Get date:
-            try:
-                te.date = r.line.reception.proforma.invoice.date
-            except AttributeError:
-                te.date = r.line.reception.proforma.date
-
-            te.partner = r.line.reception.proforma.partner.fiscal_name
-            te.picking = r.created_on
-
-            self.entries.append(te)
-
-        query = db.session.query(db.ExpeditionSerie).join(db.ExpeditionLine).\
-            join(db.Expedition).join(db.SaleProforma).where(db.ExpeditionSerie.serie == imei)
-
-        for r in query:
-            te = TraceEntry()
-            te.operation = 'Sale'
-            try:
-                te.doc = 'FR ' + r.line.expedition.proforma.invoice.doc_repr
-            except AttributeError:
-                te.doc = 'PR ' + r.line.expedition.proforma.doc_repr
-
-            try:
-                te.date = r.line.expedition.proforma.invoice.date
-            except AttributeError:
-                te.date = r.line.expedition.proforma.date
-
-            te.partner = r.line.expedition.proforma.partner.fiscal_name
-            te.picking = r.created_on
-
-            self.entries.append(te)
-
-            print('self.entries=', self.entries)
-
-    def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
-
-        if not index.isValid():
-            return
-        row, col = index.row(), index.column()
-        if role == Qt.DisplayRole:
-            te = self.entries[row]
-            if col == self.OPERATION:
-                return te.operation
-            elif col == self.DOC:
-                return te.doc
-            elif col == self.DATE:
-                return str(te.date)
-            elif col == self.PARTNER:
-                return te.partner
-            elif col == self.PICKING:
-                return str(te.picking)
+    # Build invoice
+    from pdfbuilder import build_document
+    pdf = build_document(proforma, is_invoice=True)
+    pdf.output(os.path.join(idm.path, idm.prefix[:-1] + '.pdf'))
 
 
-def find_last_description(sn):
-    try:
-        obj = db.session.query(db.Imei).where(db.Imei.imei == sn).one()
-        obj: db.Imei
-    except NoResultFound:
-        obj = None
+def update_purchase_invoice_when_editing(old_type, old_number, proforma):
+    old_prefix = str(old_type) + '-' + str(old_number).zfill(6)
+    if any((
+        old_type != proforma.type, 
+        old_number != proforma.number
+    )):
+        idm = InvoicesPurchasesDocumentModel(proforma)
 
-    if obj:
-        return ', '.join((obj.item.clean_repr, obj.condition + ' Condt.',
-                          obj.spec + ' Spec'))
-    else:
-        exp_series = db.session.query(db.ExpeditionSerie).\
-            join(db.ExpeditionLine).where(db.ExpeditionSerie.serie == sn).all()
-
-        try:
-            exp_serie = exp_series[-1]
-        except IndexError:
-            return "Not found neither in stock nor in sales."
-        else:
-            line = exp_serie.line
-            return ', '.join(
-                (
-                    line.item.clean_repr,
-                    line.condition + ' Condt.',
-                    line.spec + ' Spec'
-                )
-            )
+        for filename in filter(lambda f: f.startswith(old_prefix), os.listdir(idm.path)):
+            fullpath = os.path.join(idm.path, filename)
+            os.rename(fullpath, filename.replace(old_prefix, idm.prefix[:-1]))
 
 
+def update_sale_invoice_when_editing(old_type, old_number, proforma):
+
+    old_prefix = str(old_type) + '-' + str(old_number).zfill(6)
+
+    if any((
+        old_number != proforma.number,
+        old_type != proforma.number
+    )):
+
+        idm = InvoicesSalesDocumentModel(proforma)
+        for filename in filter(lambda f: f.startswith(old_prefix), os.listdir(idm.path)):
+            fullpath = os.path.join(idm.path, filename)
+            os.rename(fullpath, filename.replace(old_prefix, idm.prefix[:-1]))
 
 
+        # Update prefix
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+    # Alwats rebuild
 
