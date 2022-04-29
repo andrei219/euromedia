@@ -19,7 +19,7 @@
    <string>Euromedia Investment Group, S.L. </string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../app/icons.qrc">
+   <iconset>
     <normaloff>:/euromedia</normaloff>:/euromedia</iconset>
   </property>
   <property name="styleSheet">
@@ -51,7 +51,7 @@
      <number>0</number>
     </property>
     <property name="currentIndex">
-     <number>2</number>
+     <number>6</number>
     </property>
     <property name="iconSize">
      <size>
@@ -64,7 +64,7 @@
     </property>
     <widget class="QWidget" name="agents_tab">
      <attribute name="icon">
-      <iconset resource="../app/icons.qrc">
+      <iconset>
        <normaloff>:/agents</normaloff>:/agents</iconset>
      </attribute>
      <attribute name="title">
@@ -135,7 +135,7 @@
            <string>New</string>
           </property>
           <property name="icon">
-           <iconset resource="../app/icons.qrc">
+           <iconset>
             <normaloff>:/new</normaloff>:/new</iconset>
           </property>
           <property name="iconSize">
@@ -170,7 +170,7 @@
            <string>Edit</string>
           </property>
           <property name="icon">
-           <iconset resource="../app/icons.qrc">
+           <iconset>
             <normaloff>:/edit</normaloff>:/edit</iconset>
           </property>
           <property name="iconSize">
@@ -205,7 +205,7 @@
            <string>Delete</string>
           </property>
           <property name="icon">
-           <iconset resource="../app/icons.qrc">
+           <iconset>
             <normaloff>:/delete</normaloff>:/delete</iconset>
           </property>
           <property name="iconSize">
@@ -238,7 +238,7 @@
        <string/>
       </property>
       <property name="pixmap">
-       <pixmap resource="../app/icons.qrc">:/search</pixmap>
+       <pixmap>:/search</pixmap>
       </property>
      </widget>
      <widget class="QTableView" name="agents_view">
@@ -254,7 +254,7 @@
     </widget>
     <widget class="QWidget" name="partners_tab">
      <attribute name="icon">
-      <iconset resource="../app/icons.qrc">
+      <iconset>
        <normaloff>:/partners</normaloff>:/partners</iconset>
      </attribute>
      <attribute name="title">
@@ -295,7 +295,7 @@
        <string/>
       </property>
       <property name="pixmap">
-       <pixmap resource="../app/icons.qrc">:/search</pixmap>
+       <pixmap>:/search</pixmap>
       </property>
      </widget>
      <widget class="QFrame" name="partners_actions">
@@ -341,7 +341,7 @@
            <string>New</string>
           </property>
           <property name="icon">
-           <iconset resource="../app/icons.qrc">
+           <iconset>
             <normaloff>:/new</normaloff>:/new</iconset>
           </property>
           <property name="iconSize">
@@ -376,7 +376,7 @@
            <string>Edit</string>
           </property>
           <property name="icon">
-           <iconset resource="../app/icons.qrc">
+           <iconset>
             <normaloff>:/edit</normaloff>:/edit</iconset>
           </property>
           <property name="iconSize">
@@ -411,7 +411,7 @@
            <string>Delete</string>
           </property>
           <property name="icon">
-           <iconset resource="../app/icons.qrc">
+           <iconset>
             <normaloff>:/delete</normaloff>:/delete</iconset>
           </property>
           <property name="iconSize">
@@ -444,7 +444,7 @@
     </widget>
     <widget class="QWidget" name="proformas_tab">
      <attribute name="icon">
-      <iconset resource="../app/icons.qrc">
+      <iconset>
        <normaloff>:/proformas</normaloff>:/proformas</iconset>
      </attribute>
      <attribute name="title">
@@ -476,7 +476,7 @@
       </property>
       <widget class="QWidget" name="proformas_purchases_tab">
        <attribute name="icon">
-        <iconset resource="../app/icons.qrc">
+        <iconset>
          <normaloff>:/purchase</normaloff>:/purchase</iconset>
        </attribute>
        <attribute name="title">
@@ -1037,7 +1037,7 @@
          <string/>
         </property>
         <property name="pixmap">
-         <pixmap resource="../app/icons.qrc">:/search</pixmap>
+         <pixmap>:/search</pixmap>
         </property>
        </widget>
        <widget class="QFrame" name="proformas_purchases_actions">
@@ -1083,7 +1083,7 @@
              <string>New</string>
             </property>
             <property name="icon">
-             <iconset resource="../app/icons.qrc">
+             <iconset>
               <normaloff>:/new</normaloff>:/new</iconset>
             </property>
             <property name="iconSize">
@@ -1124,7 +1124,7 @@
              <string>Cancel</string>
             </property>
             <property name="icon">
-             <iconset resource="../app/icons.qrc">
+             <iconset>
               <normaloff>:/cancel</normaloff>:/cancel</iconset>
             </property>
             <property name="iconSize">
@@ -1178,7 +1178,7 @@
              <string>View</string>
             </property>
             <property name="icon">
-             <iconset resource="../app/icons.qrc">
+             <iconset>
               <normaloff>:/icons/view.png</normaloff>:/icons/view.png</iconset>
             </property>
             <property name="iconSize">
@@ -1213,7 +1213,7 @@
              <string>Print</string>
             </property>
             <property name="icon">
-             <iconset resource="../app/icons.qrc">
+             <iconset>
               <normaloff>:/print</normaloff>:/print</iconset>
             </property>
             <property name="iconSize">
@@ -1248,7 +1248,7 @@
              <string>Export</string>
             </property>
             <property name="icon">
-             <iconset resource="../app/icons.qrc">
+             <iconset>
               <normaloff>:/export</normaloff>:/export</iconset>
             </property>
             <property name="iconSize">
@@ -1311,7 +1311,7 @@
              <string>Payments</string>
             </property>
             <property name="icon">
-             <iconset resource="../app/icons.qrc">
+             <iconset>
               <normaloff>:/add_payment</normaloff>:/add_payment</iconset>
             </property>
             <property name="iconSize">
@@ -1352,7 +1352,7 @@
              <string>Expenses</string>
             </property>
             <property name="icon">
-             <iconset resource="../app/icons.qrc">
+             <iconset>
               <normaloff>:/expense</normaloff>:/expense</iconset>
             </property>
             <property name="iconSize">
@@ -1393,7 +1393,7 @@
              <string>Docs</string>
             </property>
             <property name="icon">
-             <iconset resource="../app/icons.qrc">
+             <iconset>
               <normaloff>:/document</normaloff>:/document</iconset>
             </property>
             <property name="iconSize">
@@ -1453,7 +1453,7 @@
              <string>To Invoice</string>
             </property>
             <property name="icon">
-             <iconset resource="../app/icons.qrc">
+             <iconset>
               <normaloff>:/add_invoice</normaloff>:/add_invoice</iconset>
             </property>
             <property name="iconSize">
@@ -1494,7 +1494,7 @@
              <string>To WH</string>
             </property>
             <property name="icon">
-             <iconset resource="../app/icons.qrc">
+             <iconset>
               <normaloff>:/warehouse</normaloff>:/warehouse</iconset>
             </property>
             <property name="iconSize">
@@ -1535,7 +1535,7 @@
              <string>Ship</string>
             </property>
             <property name="icon">
-             <iconset resource="../app/icons.qrc">
+             <iconset>
               <normaloff>:/courier</normaloff>:/courier</iconset>
             </property>
             <property name="iconSize">
@@ -1610,7 +1610,7 @@
       </widget>
       <widget class="QWidget" name="proformas_sales_tab">
        <attribute name="icon">
-        <iconset resource="../app/icons.qrc">
+        <iconset>
          <normaloff>:/sale</normaloff>:/sale</iconset>
        </attribute>
        <attribute name="title">
@@ -1648,7 +1648,7 @@
          <string/>
         </property>
         <property name="pixmap">
-         <pixmap resource="../app/icons.qrc">:/search</pixmap>
+         <pixmap>:/search</pixmap>
         </property>
        </widget>
        <widget class="QGroupBox" name="proformas_sales_filters">
@@ -2206,7 +2206,7 @@
              <string>New</string>
             </property>
             <property name="icon">
-             <iconset resource="../app/icons.qrc">
+             <iconset>
               <normaloff>:/new</normaloff>:/new</iconset>
             </property>
             <property name="iconSize">
@@ -2241,7 +2241,7 @@
              <string>Preorder</string>
             </property>
             <property name="icon">
-             <iconset resource="../app/icons.qrc">
+             <iconset>
               <normaloff>:/preorder</normaloff>:/preorder</iconset>
             </property>
             <property name="iconSize">
@@ -2282,7 +2282,7 @@
              <string>Define</string>
             </property>
             <property name="icon">
-             <iconset resource="../app/icons.qrc">
+             <iconset>
               <normaloff>:/define</normaloff>:/define</iconset>
             </property>
             <property name="iconSize">
@@ -2323,7 +2323,7 @@
              <string>Cancel</string>
             </property>
             <property name="icon">
-             <iconset resource="../app/icons.qrc">
+             <iconset>
               <normaloff>:/cancel</normaloff>:/cancel</iconset>
             </property>
             <property name="iconSize">
@@ -2377,7 +2377,7 @@
              <string>View</string>
             </property>
             <property name="icon">
-             <iconset resource="../app/icons.qrc">
+             <iconset>
               <normaloff>:/icons/view.png</normaloff>:/icons/view.png</iconset>
             </property>
             <property name="iconSize">
@@ -2412,7 +2412,7 @@
              <string>Print</string>
             </property>
             <property name="icon">
-             <iconset resource="../app/icons.qrc">
+             <iconset>
               <normaloff>:/print</normaloff>:/print</iconset>
             </property>
             <property name="iconSize">
@@ -2447,7 +2447,7 @@
              <string>Export</string>
             </property>
             <property name="icon">
-             <iconset resource="../app/icons.qrc">
+             <iconset>
               <normaloff>:/export</normaloff>:/export</iconset>
             </property>
             <property name="iconSize">
@@ -2482,7 +2482,7 @@
              <string>Export</string>
             </property>
             <property name="icon">
-             <iconset resource="../app/icons.qrc">
+             <iconset>
               <normaloff>:/excel</normaloff>:/excel</iconset>
             </property>
             <property name="iconSize">
@@ -2517,7 +2517,7 @@
              <string>WhatsApp</string>
             </property>
             <property name="icon">
-             <iconset resource="../app/icons.qrc">
+             <iconset>
               <normaloff>:/whatsapp</normaloff>:/whatsapp</iconset>
             </property>
             <property name="iconSize">
@@ -2552,7 +2552,7 @@
              <string>E-Mail</string>
             </property>
             <property name="icon">
-             <iconset resource="../app/icons.qrc">
+             <iconset>
               <normaloff>:/email</normaloff>:/email</iconset>
             </property>
             <property name="iconSize">
@@ -2612,7 +2612,7 @@
              <string>Payments</string>
             </property>
             <property name="icon">
-             <iconset resource="../app/icons.qrc">
+             <iconset>
               <normaloff>:/add_payment</normaloff>:/add_payment</iconset>
             </property>
             <property name="iconSize">
@@ -2653,7 +2653,7 @@
              <string>Expenses</string>
             </property>
             <property name="icon">
-             <iconset resource="../app/icons.qrc">
+             <iconset>
               <normaloff>:/expense</normaloff>:/expense</iconset>
             </property>
             <property name="iconSize">
@@ -2694,7 +2694,7 @@
              <string>Docs</string>
             </property>
             <property name="icon">
-             <iconset resource="../app/icons.qrc">
+             <iconset>
               <normaloff>:/document</normaloff>:/document</iconset>
             </property>
             <property name="iconSize">
@@ -2754,7 +2754,7 @@
              <string>To Invoice</string>
             </property>
             <property name="icon">
-             <iconset resource="../app/icons.qrc">
+             <iconset>
               <normaloff>:/add_invoice</normaloff>:/add_invoice</iconset>
             </property>
             <property name="iconSize">
@@ -2795,7 +2795,7 @@
              <string>To WH</string>
             </property>
             <property name="icon">
-             <iconset resource="../app/icons.qrc">
+             <iconset>
               <normaloff>:/warehouse</normaloff>:/warehouse</iconset>
             </property>
             <property name="iconSize">
@@ -2836,7 +2836,7 @@
              <string>Ship</string>
             </property>
             <property name="icon">
-             <iconset resource="../app/icons.qrc">
+             <iconset>
               <normaloff>:/courier</normaloff>:/courier</iconset>
             </property>
             <property name="iconSize">
@@ -2877,7 +2877,7 @@
              <string>Un/Ready To Go</string>
             </property>
             <property name="icon">
-             <iconset resource="../app/icons.qrc">
+             <iconset>
               <normaloff>:/ready</normaloff>:/ready</iconset>
             </property>
             <property name="iconSize">
@@ -2944,7 +2944,7 @@
     </widget>
     <widget class="QWidget" name="invoices_tab">
      <attribute name="icon">
-      <iconset resource="../app/icons.qrc">
+      <iconset>
        <normaloff>:/invoices</normaloff>:/invoices</iconset>
      </attribute>
      <attribute name="title">
@@ -2981,7 +2981,7 @@
       </property>
       <widget class="QWidget" name="invoices_purchases_tab">
        <attribute name="icon">
-        <iconset resource="../app/icons.qrc">
+        <iconset>
          <normaloff>:/purchase</normaloff>:/purchase</iconset>
        </attribute>
        <attribute name="title">
@@ -3019,7 +3019,7 @@
          <string/>
         </property>
         <property name="pixmap">
-         <pixmap resource="../app/icons.qrc">:/search</pixmap>
+         <pixmap>:/search</pixmap>
         </property>
        </widget>
        <widget class="QGroupBox" name="invoices_purchases_filters">
@@ -3582,7 +3582,7 @@
              <string>View</string>
             </property>
             <property name="icon">
-             <iconset resource="../app/icons.qrc">
+             <iconset>
               <normaloff>:/icons/view.png</normaloff>:/icons/view.png</iconset>
             </property>
             <property name="iconSize">
@@ -3617,7 +3617,7 @@
              <string>Print</string>
             </property>
             <property name="icon">
-             <iconset resource="../app/icons.qrc">
+             <iconset>
               <normaloff>:/print</normaloff>:/print</iconset>
             </property>
             <property name="iconSize">
@@ -3652,7 +3652,7 @@
              <string>Export</string>
             </property>
             <property name="icon">
-             <iconset resource="../app/icons.qrc">
+             <iconset>
               <normaloff>:/export</normaloff>:/export</iconset>
             </property>
             <property name="iconSize">
@@ -3715,7 +3715,7 @@
              <string>Payment</string>
             </property>
             <property name="icon">
-             <iconset resource="../app/icons.qrc">
+             <iconset>
               <normaloff>:/add_payment</normaloff>:/add_payment</iconset>
             </property>
             <property name="iconSize">
@@ -3756,7 +3756,7 @@
              <string>Expense</string>
             </property>
             <property name="icon">
-             <iconset resource="../app/icons.qrc">
+             <iconset>
               <normaloff>:/expense</normaloff>:/expense</iconset>
             </property>
             <property name="iconSize">
@@ -3797,7 +3797,7 @@
              <string>Docs</string>
             </property>
             <property name="icon">
-             <iconset resource="../app/icons.qrc">
+             <iconset>
               <normaloff>:/document</normaloff>:/document</iconset>
             </property>
             <property name="iconSize">
@@ -3838,7 +3838,7 @@
              <string>To WH</string>
             </property>
             <property name="icon">
-             <iconset resource="../app/icons.qrc">
+             <iconset>
               <normaloff>:/warehouse</normaloff>:/warehouse</iconset>
             </property>
             <property name="iconSize">
@@ -3898,7 +3898,7 @@
              <string>Ship</string>
             </property>
             <property name="icon">
-             <iconset resource="../app/icons.qrc">
+             <iconset>
               <normaloff>:/courier</normaloff>:/courier</iconset>
             </property>
             <property name="iconSize">
@@ -3963,7 +3963,7 @@
       </widget>
       <widget class="QWidget" name="invoices_sales_tab">
        <attribute name="icon">
-        <iconset resource="../app/icons.qrc">
+        <iconset>
          <normaloff>:/sale</normaloff>:/sale</iconset>
        </attribute>
        <attribute name="title">
@@ -4001,7 +4001,7 @@
          <string/>
         </property>
         <property name="pixmap">
-         <pixmap resource="../app/icons.qrc">:/search</pixmap>
+         <pixmap>:/search</pixmap>
         </property>
        </widget>
        <widget class="QGroupBox" name="invoices_sales_filters">
@@ -4568,7 +4568,7 @@
              <string>View</string>
             </property>
             <property name="icon">
-             <iconset resource="../app/icons.qrc">
+             <iconset>
               <normaloff>:/icons/view.png</normaloff>:/icons/view.png</iconset>
             </property>
             <property name="iconSize">
@@ -4603,7 +4603,7 @@
              <string>Print</string>
             </property>
             <property name="icon">
-             <iconset resource="../app/icons.qrc">
+             <iconset>
               <normaloff>:/print</normaloff>:/print</iconset>
             </property>
             <property name="iconSize">
@@ -4638,7 +4638,7 @@
              <string>Export</string>
             </property>
             <property name="icon">
-             <iconset resource="../app/icons.qrc">
+             <iconset>
               <normaloff>:/export</normaloff>:/export</iconset>
             </property>
             <property name="iconSize">
@@ -4673,7 +4673,7 @@
              <string>Export</string>
             </property>
             <property name="icon">
-             <iconset resource="../app/icons.qrc">
+             <iconset>
               <normaloff>:/excel</normaloff>:/excel</iconset>
             </property>
             <property name="iconSize">
@@ -4708,7 +4708,7 @@
              <string>WhatsApp</string>
             </property>
             <property name="icon">
-             <iconset resource="../app/icons.qrc">
+             <iconset>
               <normaloff>:/whatsapp</normaloff>:/whatsapp</iconset>
             </property>
             <property name="iconSize">
@@ -4743,7 +4743,7 @@
              <string>E-Mail</string>
             </property>
             <property name="icon">
-             <iconset resource="../app/icons.qrc">
+             <iconset>
               <normaloff>:/email</normaloff>:/email</iconset>
             </property>
             <property name="iconSize">
@@ -4803,7 +4803,7 @@
              <string>Payments</string>
             </property>
             <property name="icon">
-             <iconset resource="../app/icons.qrc">
+             <iconset>
               <normaloff>:/add_payment</normaloff>:/add_payment</iconset>
             </property>
             <property name="iconSize">
@@ -4844,7 +4844,7 @@
              <string>Expenses</string>
             </property>
             <property name="icon">
-             <iconset resource="../app/icons.qrc">
+             <iconset>
               <normaloff>:/expense</normaloff>:/expense</iconset>
             </property>
             <property name="iconSize">
@@ -4885,7 +4885,7 @@
              <string>Docs</string>
             </property>
             <property name="icon">
-             <iconset resource="../app/icons.qrc">
+             <iconset>
               <normaloff>:/document</normaloff>:/document</iconset>
             </property>
             <property name="iconSize">
@@ -4945,7 +4945,7 @@
              <string>To WH</string>
             </property>
             <property name="icon">
-             <iconset resource="../app/icons.qrc">
+             <iconset>
               <normaloff>:/warehouse</normaloff>:/warehouse</iconset>
             </property>
             <property name="iconSize">
@@ -4986,7 +4986,7 @@
              <string>Ship</string>
             </property>
             <property name="icon">
-             <iconset resource="../app/icons.qrc">
+             <iconset>
               <normaloff>:/courier</normaloff>:/courier</iconset>
             </property>
             <property name="iconSize">
@@ -5027,7 +5027,7 @@
              <string>Un/Ready To Go</string>
             </property>
             <property name="icon">
-             <iconset resource="../app/icons.qrc">
+             <iconset>
               <normaloff>:/ready</normaloff>:/ready</iconset>
             </property>
             <property name="iconSize">
@@ -5094,7 +5094,7 @@
     </widget>
     <widget class="QWidget" name="warehouse_tab">
      <attribute name="icon">
-      <iconset resource="../app/icons.qrc">
+      <iconset>
        <normaloff>:/warehouse</normaloff>:/warehouse</iconset>
      </attribute>
      <attribute name="title">
@@ -5126,7 +5126,7 @@
       </property>
       <widget class="QWidget" name="warehouse_reception_tab">
        <attribute name="icon">
-        <iconset resource="../app/icons.qrc">
+        <iconset>
          <normaloff>:/reception</normaloff>:/reception</iconset>
        </attribute>
        <attribute name="title">
@@ -5164,7 +5164,7 @@
          <string/>
         </property>
         <property name="pixmap">
-         <pixmap resource="../app/icons.qrc">:/search</pixmap>
+         <pixmap>:/search</pixmap>
         </property>
        </widget>
        <widget class="QGroupBox" name="warehouse_receptions_filters">
@@ -5440,7 +5440,7 @@
              <string>Process</string>
             </property>
             <property name="icon">
-             <iconset resource="../app/icons.qrc">
+             <iconset>
               <normaloff>:/assembly</normaloff>:/assembly</iconset>
             </property>
             <property name="iconSize">
@@ -5475,7 +5475,7 @@
              <string>Template</string>
             </property>
             <property name="icon">
-             <iconset resource="../app/icons.qrc">
+             <iconset>
               <normaloff>:/template</normaloff>:/template</iconset>
             </property>
             <property name="iconSize">
@@ -5510,7 +5510,7 @@
              <string>Import</string>
             </property>
             <property name="icon">
-             <iconset resource="../app/icons.qrc">
+             <iconset>
               <normaloff>:/excel</normaloff>:/excel</iconset>
             </property>
             <property name="iconSize">
@@ -5545,7 +5545,7 @@
              <string>Export</string>
             </property>
             <property name="icon">
-             <iconset resource="../app/icons.qrc">
+             <iconset>
               <normaloff>:/excel</normaloff>:/excel</iconset>
             </property>
             <property name="iconSize">
@@ -5578,7 +5578,7 @@
       </widget>
       <widget class="QWidget" name="warehouse_expeditions_tab">
        <attribute name="icon">
-        <iconset resource="../app/icons.qrc">
+        <iconset>
          <normaloff>:/expedition</normaloff>:/expedition</iconset>
        </attribute>
        <attribute name="title">
@@ -5616,7 +5616,7 @@
          <string/>
         </property>
         <property name="pixmap">
-         <pixmap resource="../app/icons.qrc">:/search</pixmap>
+         <pixmap>:/search</pixmap>
         </property>
        </widget>
        <widget class="QGroupBox" name="warehouse_expeditions_filters">
@@ -5892,7 +5892,7 @@
              <string>Process</string>
             </property>
             <property name="icon">
-             <iconset resource="../app/icons.qrc">
+             <iconset>
               <normaloff>:/assembly</normaloff>:/assembly</iconset>
             </property>
             <property name="iconSize">
@@ -5927,7 +5927,7 @@
              <string>Export</string>
             </property>
             <property name="icon">
-             <iconset resource="../app/icons.qrc">
+             <iconset>
               <normaloff>:/excel</normaloff>:/excel</iconset>
             </property>
             <property name="iconSize">
@@ -5960,7 +5960,7 @@
       </widget>
       <widget class="QWidget" name="warehouse_incoming_rma_tab">
        <attribute name="icon">
-        <iconset resource="../app/icons.qrc">
+        <iconset>
          <normaloff>:/input</normaloff>:/input</iconset>
        </attribute>
        <attribute name="title">
@@ -6001,7 +6001,7 @@
          <string/>
         </property>
         <property name="pixmap">
-         <pixmap resource="../app/icons.qrc">:/search</pixmap>
+         <pixmap>:/search</pixmap>
         </property>
        </widget>
        <widget class="QFrame" name="frame_11">
@@ -6032,7 +6032,7 @@
           <string>Open</string>
          </property>
          <property name="icon">
-          <iconset resource="../app/icons.qrc">
+          <iconset>
            <normaloff>:/open</normaloff>:/open</iconset>
          </property>
          <property name="iconSize">
@@ -6136,7 +6136,7 @@
       </widget>
       <widget class="QWidget" name="warehouse_outgoing_rma_tab">
        <attribute name="icon">
-        <iconset resource="../app/icons.qrc">
+        <iconset>
          <normaloff>:/output</normaloff>:/output</iconset>
        </attribute>
        <attribute name="title">
@@ -6177,7 +6177,7 @@
          <string/>
         </property>
         <property name="pixmap">
-         <pixmap resource="../app/icons.qrc">:/search</pixmap>
+         <pixmap>:/search</pixmap>
         </property>
        </widget>
        <widget class="QFrame" name="frame_12">
@@ -6208,7 +6208,7 @@
           <string>Open</string>
          </property>
          <property name="icon">
-          <iconset resource="../app/icons.qrc">
+          <iconset>
            <normaloff>:/open</normaloff>:/open</iconset>
          </property>
          <property name="iconSize">
@@ -6314,7 +6314,7 @@
     </widget>
     <widget class="QWidget" name="rmas_tab">
      <attribute name="icon">
-      <iconset resource="../app/icons.qrc">
+      <iconset>
        <normaloff>:/rmas</normaloff>:/rmas</iconset>
      </attribute>
      <attribute name="title">
@@ -6346,7 +6346,7 @@
       </property>
       <widget class="QWidget" name="rma_incoming_tab">
        <attribute name="icon">
-        <iconset resource="../app/icons.qrc">
+        <iconset>
          <normaloff>:/input</normaloff>:/input</iconset>
        </attribute>
        <attribute name="title">
@@ -6387,7 +6387,7 @@
          <string/>
         </property>
         <property name="pixmap">
-         <pixmap resource="../app/icons.qrc">:/search</pixmap>
+         <pixmap>:/search</pixmap>
         </property>
        </widget>
        <widget class="QFrame" name="frame_9">
@@ -6439,7 +6439,7 @@
              <string>New</string>
             </property>
             <property name="icon">
-             <iconset resource="../app/icons.qrc">
+             <iconset>
               <normaloff>:/new</normaloff>:/new</iconset>
             </property>
             <property name="iconSize">
@@ -6480,7 +6480,7 @@
              <string>To WH</string>
             </property>
             <property name="icon">
-             <iconset resource="../app/icons.qrc">
+             <iconset>
               <normaloff>:/warehouse</normaloff>:/warehouse</iconset>
             </property>
             <property name="iconSize">
@@ -6600,7 +6600,7 @@
       </widget>
       <widget class="QWidget" name="rmas_outgoing_tab">
        <attribute name="icon">
-        <iconset resource="../app/icons.qrc">
+        <iconset>
          <normaloff>:/output</normaloff>:/output</iconset>
        </attribute>
        <attribute name="title">
@@ -6641,7 +6641,7 @@
          <string/>
         </property>
         <property name="pixmap">
-         <pixmap resource="../app/icons.qrc">:/search</pixmap>
+         <pixmap>:/search</pixmap>
         </property>
        </widget>
        <widget class="QFrame" name="actions">
@@ -6693,7 +6693,7 @@
              <string>New</string>
             </property>
             <property name="icon">
-             <iconset resource="../app/icons.qrc">
+             <iconset>
               <normaloff>:/new</normaloff>:/new</iconset>
             </property>
             <property name="iconSize">
@@ -6734,7 +6734,7 @@
              <string>Open</string>
             </property>
             <property name="icon">
-             <iconset resource="../app/icons.qrc">
+             <iconset>
               <normaloff>:/open</normaloff>:/open</iconset>
             </property>
             <property name="iconSize">
@@ -6775,7 +6775,7 @@
              <string>To WH</string>
             </property>
             <property name="icon">
-             <iconset resource="../app/icons.qrc">
+             <iconset>
               <normaloff>:/warehouse</normaloff>:/warehouse</iconset>
             </property>
             <property name="iconSize">
@@ -6816,7 +6816,7 @@
              <string>Print</string>
             </property>
             <property name="icon">
-             <iconset resource="../app/icons.qrc">
+             <iconset>
               <normaloff>:/print</normaloff>:/print</iconset>
             </property>
             <property name="iconSize">
@@ -6938,7 +6938,7 @@
     </widget>
     <widget class="QWidget" name="tools_tab">
      <attribute name="icon">
-      <iconset resource="../app/icons.qrc">
+      <iconset>
        <normaloff>:/tools</normaloff>:/tools</iconset>
      </attribute>
      <attribute name="title">
@@ -7237,7 +7237,7 @@
        <string>AEAT - SII</string>
       </property>
       <property name="icon">
-       <iconset resource="../app/icons.qrc">
+       <iconset>
         <normaloff>:/sii</normaloff>:/sii</iconset>
       </property>
       <property name="iconSize">

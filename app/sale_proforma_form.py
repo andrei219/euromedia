@@ -188,7 +188,6 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.selected_stock_view.setSelectionMode(QTableView.SingleSelection)
 
 
-
         self.set_partner_completer()
         self.set_handlers()
 
@@ -220,6 +219,11 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.type.setCurrentText('1')
         self.number.setText(str(self.model.nextNumberOfType(1)).zfill(6))
 
+        self.warehouse.currentTextChanged.connect(self.warehouse_changed)
+        # Solo interesa en formulario nuevo
+        
+
+
     def set_handlers(self):
         self.search.clicked.connect(self.search_handler) 
         self.lines_view.clicked.connect(self.lines_view_clicked_handler)
@@ -233,14 +237,12 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.type.currentTextChanged.connect(self.typeChanged)
         self.delete_selected_stock.clicked.connect(self.delete_selected_stock_clicked)
         self.deselect.clicked.connect(lambda : self.lines_view.clearSelection())
-        self.warehouse.currentTextChanged.connect(self.warehouse_changed)
-        
+
         self.prop.returnPressed.connect(self.prop_return_pressed)
 
         self.description.editingFinished.connect(self.description_editing_finished)
         self.condition.editingFinished.connect(self.condition_editing_finished)
         self.spec.editingFinished.connect(self.spec_editing_finished)           
-
 
     def prop_return_pressed(self):
 
@@ -262,22 +264,24 @@ class Form(Ui_SalesProformaForm, QWidget):
             pass 
 
     def warehouse_changed(self, text):
+
         if hasattr(self, 'stock_model'):
             self.stock_model.reset()
 
         if hasattr(self, 'lines_model'):
-            self.lines_model.reset()   
+            self.lines_model.delete_all()
 
-        warehouse_id = utils.warehouse_id_map.get(
-            self.warehouse.currentText()
-        )
-
+        warehouse_id = utils.warehouse_id_map.get(self.warehouse.currentText())
+        self.proforma.warehouse_id = warehouse_id
         self.filters = Filters(warehouse_id, self)
+        self.update_totals()
+        db.session.flush()
 
-        self.update_totals() 
-        
-        # removing objects in pending state 
-        db.session.rollback() 
+        # removing objects in pending state
+        # db.session.rollback()
+
+
+        self.lines_view.clearSelection()
 
     def description_editing_finished(self):
         description = self.description.text() 
@@ -677,8 +681,8 @@ class EditableForm(Form):
         else:
             self.setWindowTitle('Proforma Edit')
 
-        self.proforma_to_form()
         self.disable_warehouse()
+        self.proforma_to_form()
 
     def init_template(self): 
         pass 
