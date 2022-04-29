@@ -581,8 +581,8 @@ class MainGui(Ui_MainGui, QMainWindow):
             return
         invoice = self.proformas_purchases_model.associateInvoice(proforma)
 
-        from models import fix_dropbox_purchases
-        fix_dropbox_purchases(proforma)
+        from models import fix_dropbox_purchases_when_proforma_to_invoice
+        fix_dropbox_purchases_when_proforma_to_invoice(proforma)
         QMessageBox.information(self, 'Success', f'{invoice.doc_repr} created. Dropbox updated')
 
 
@@ -817,14 +817,11 @@ class MainGui(Ui_MainGui, QMainWindow):
                 try:
                     invoice = self.proformas_sales_model.associateInvoice(proforma)
                     QMessageBox.information(self, 'Information',f"Invoice {invoice.doc_repr} created")
-                    from models import fix_dropbox_sales
-                    fix_dropbox_sales(proforma)
+                    from models import fix_dropbox_sales_when_proforma_to_invoice
+                    fix_dropbox_sales_when_proforma_to_invoice(proforma)
                 except:
+                    QMessageBox.critical(self,'Update - Error', 'Could not build Invoice From Proforma')
                     raise
-                    QMessageBox.critical(
-                        self,
-                        'Update - Error',
-                        'Could not build Invoice From Proforma')
 
     def proformas_sales_towh_handler(self, invoice=None):
         if invoice:
@@ -1245,7 +1242,6 @@ class MainGui(Ui_MainGui, QMainWindow):
         self.f.show()
 
     # TOOLS HANDLERS:
-
     def tools_trace_handler(self):
         from trace_form import Form
         f = Form(self)

@@ -514,7 +514,6 @@ number_month_dict = {
     12: 'Diciembre'
 }
 
-
 end_path = {
     1: os.path.join('Interior', 'Reg. General'),
     2: os.path.join('Interior', 'ISP'),
@@ -3038,13 +3037,13 @@ class SerieModel(QtCore.QAbstractListModel):
 
 class ExpeditionModel(BaseTable, QtCore.QAbstractTableModel):
     ID, WAREHOUSE, DATE, TOTAL, PROCESSED, LOGISTIC, CANCELLED, PARTNER, \
-    AGENT, WARNING, FROM_PROFORMA, READY, EXTERNAL = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12
+    AGENT, WARNING, FROM_PROFORMA, READY, EXTERNAL, PRESALE = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13
 
     def __init__(self, search_key=None, filters=None):
         super().__init__()
         self._headerData = ['Expedition ID', 'Warehouse', 'Date', 'Total', 'Processed',
                             'Logistic', 'Cancelled', 'Partner', 'Agent', 'Warning', 'From Proforma', 'Ready To Go',
-                            'External Doc.']
+                            'External Doc.', 'Presale']
         self.name = 'expeditions'
         query = db.session.query(db.Expedition). \
             select_from(
@@ -3113,6 +3112,9 @@ class ExpeditionModel(BaseTable, QtCore.QAbstractTableModel):
                     return 'Partially Prepared'
                 elif sale_completed(expedition):
                     return 'Completed'
+
+            elif column == self.PRESALE:
+                return 'Yes' if expedition.proforma.advanced_lines else 'No'
 
             elif column == self.DATE:
                 return expedition.proforma.date.strftime('%d/%m/%Y')
@@ -5274,10 +5276,11 @@ def export_available_stock_in_excel():
     # WARRANTY END (CUSTOMER) COMPUTE SALE DATE + INVOICE WARRANTY DAYS
     # PROBLEM
 
+
 # 351133750108601
 
 
-def fix_dropbox_purchases(proforma):
+def fix_dropbox_purchases_when_proforma_to_invoice(proforma):
     pdm = ProformasPurchasesDocumentModel(proforma)
     idm = InvoicesPurchasesDocumentModel(proforma)
 
@@ -5286,11 +5289,54 @@ def fix_dropbox_purchases(proforma):
         dest = os.path.join(idm.path, file.replace(pdm.prefix, idm.prefix))
         move(origin, dest)
 
+    from pdfbuilder import build_document
+    pdf = build_document(proforma, is_invoice=True)
+    pdf.output(os.path.join(idm.path, idm.prefix[:-1] + '.pdf'))
 
-def fix_dropbox_sales(proforma):
+
+def fix_dropbox_sales_when_proforma_to_invoice(proforma):
     pdm = ProformasSalesDocumentModel(proforma)
     idm = InvoicesSalesDocumentModel(proforma)
     for file in filter(pdm.key, os.listdir(pdm.path)):
         origin = os.path.join(pdm.path, file)
         dest = os.path.join(idm.path, file.replace(pdm.prefix, idm.prefix))
         move(origin, dest)
+
+    # Build invoice
+    from pdfbuilder import build_document
+    pdf = build_document(proforma, is_invoice=True)
+    pdf.output(os.path.join(idm.path, idm.prefix[:-1] + '.pdf'))
+
+
+def update_purchase_invoice_when_editing(old_type, old_number, proforma):
+    old_prefix = str(old_type) + '-' + str(old_number).zfill(6)
+    if any((
+        old_type != proforma.type, 
+        old_number != proforma.number
+    )):
+        idm = InvoicesPurchasesDocumentModel(proforma)
+
+        for filename in filter(lambda f: f.startswith(old_prefix), os.listdir(idm.path)):
+            fullpath = os.path.join(idm.path, filename)
+            os.rename(fullpath, filename.replace(old_prefix, idm.prefix[:-1]))
+
+
+def update_sale_invoice_when_editing(old_type, old_number, proforma):
+
+    old_prefix = str(old_type) + '-' + str(old_number).zfill(6)
+
+    if any((
+        old_number != proforma.number,
+        old_type != proforma.number
+    )):
+
+        idm = InvoicesSalesDocumentModel(proforma)
+        for filename in filter(lambda f: f.startswith(old_prefix), os.listdir(idm.path)):
+            fullpath = os.path.join(idm.path, filename)
+            os.rename(fullpath, filename.replace(old_prefix, idm.prefix[:-1]))
+
+
+        # Update prefix
+
+    # Alwats rebuild
+

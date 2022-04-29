@@ -16,20 +16,6 @@ from ui_sale_proforma_form import Ui_SalesProformaForm
 from sqlalchemy.exc import IntegrityError
 
 
-# Pruebas:
-
-# Añadir 1
-# Añadir 1 a ese 1 para formar lote
-# Añadir 2 a ese 1 para formar lote
-# Añadir 2 mas a esos 2 para formar lote
-# Añadir 1 que sea el mismo para comprobar que se actualiza
-# Añadir 1 incompatible a ese lote
-# Nuevo 2 incompatibles entre ellos 
-# Añadir 2 compatibles entre ellos, pero no con el previo
-# Añadir lote a linea libre
-# 
-
-
 class StockBase:
 
     def __init__(self, filters, warehouse_id, form):
@@ -151,10 +137,6 @@ class Completer:
             )
 
 
-
-# class ImprovedFrame
-
-
 class Form(Ui_SalesProformaForm, QWidget):
 
     def __init__(self, parent, view):
@@ -186,7 +168,6 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.selected_stock_view.setSelectionBehavior(QTableView.SelectRows)
         self.selected_stock_view.setAlternatingRowColors(True)
         self.selected_stock_view.setSelectionMode(QTableView.SingleSelection)
-
 
 
         self.set_partner_completer()
@@ -300,7 +281,7 @@ class Form(Ui_SalesProformaForm, QWidget):
         condition = self.condition.text()
         stock_base = self.filters.stock_base
         
-        description,spec = self.description.text(), self.spec.text()
+        description, spec = self.description.text(), self.spec.text()
         
         if not description or description not in stock_base.descriptions:
             description=None
@@ -384,12 +365,10 @@ class Form(Ui_SalesProformaForm, QWidget):
         p = self.proforma
 
         if self.is_invoice:
-            print('proforma to form.is invoice')
             self.type.setCurrentText(str(p.invoice.type))
             self.number.setText(str(p.invoice.number))
             self.date.setText(str(p.invoice.date.strftime('%d%m%Y')))
         else:
-            print('proforma to form is not invoice')
             self.type.setCurrentText(str(p.type))
             self.number.setText(str(p.number))
             self.date.setText(str(p.date.strftime('%d%m%Y')))
@@ -503,12 +482,8 @@ class Form(Ui_SalesProformaForm, QWidget):
                 )
             
             except:
-                raise 
-                QMessageBox.critical(
-                    self, 
-                    'Error', 
-                    'Error adding free line'
-                )
+                QMessageBox.critical(self, 'Error', 'Error adding free line')
+                raise
             else:
                 self.resize_lines_view()
 
@@ -618,6 +593,7 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.quantity.setText('Qnt.: ' + str(self.lines_model.quantity))
 
     def _valid_header(self):
+
         try:
             utils.partner_id_map[self.partner.text()]
         except KeyError:
@@ -668,6 +644,9 @@ class EditableForm(Form):
     
     def __init__(self, parent, view, proforma, is_invoice=False):
         self.proforma = proforma
+        self.old_type = proforma.type
+        self.old_number = proforma.number
+
         super().__init__(parent, view)
         self.is_invoice = is_invoice
         self.update_totals()
@@ -685,6 +664,8 @@ class EditableForm(Form):
     
     def save_template(self):
         self.model.updateWarehouse(self.proforma)
+        self.model.update_dropbox(self.proforma)
+
 
     def disable_warehouse(self):
         # try:
