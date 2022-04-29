@@ -13,7 +13,7 @@
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <widget class="QTextEdit" name="textEdit">
+  <widget class="QTextEdit" name="message">
    <property name="geometry">
     <rect>
      <x>80</x>
@@ -144,7 +144,7 @@
     <string>Receiver:</string>
    </property>
   </widget>
-  <widget class="QLineEdit" name="lineEdit">
+  <widget class="QLineEdit" name="receivers">
    <property name="geometry">
     <rect>
      <x>80</x>
