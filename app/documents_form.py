@@ -31,7 +31,6 @@ class Form(Ui_DocumentsForm, QDialog):
         elif isinstance(obj, db.Partner):
             return models.PartnersDocumentModel
 
-
     def set_handlers(self):
         self.add_button.clicked.connect(self.add_handler)
         self.export_button.clicked.connect(self.export_handler)
@@ -51,14 +50,9 @@ class Form(Ui_DocumentsForm, QDialog):
     def export_handler(self):
         from utils import get_directory
         row = self.selected_row
-
-        print('row=', row)
-
         if row is None:
             return
-
         directory = get_directory(self)
-
         self.model.export(directory, row)
         self.document_view.clearSelection()
 

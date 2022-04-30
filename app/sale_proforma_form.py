@@ -669,7 +669,6 @@ class EditableForm(Form):
     
     def save_template(self):
         self.model.updateWarehouse(self.proforma)
-        self.model.update_dropbox(self.proforma)
 
 
     def disable_warehouse(self):

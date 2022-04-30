@@ -23,7 +23,7 @@ from sqlalchemy.sql import select, func
 import db 
 from bidict import bidict
 
-
+import os
 
 EXCEL_FILTER = 'Archivos excel (*.xlsx)'
 PDF_FILETR = "Pdf Files (*.pdf)"
@@ -335,9 +335,10 @@ def get_open_file_path(parent, pdf_filter=False):
     return filepath
     
 
+def get_dropbox_path():
+    return os.path.join(os.path.join(os.environ['USERPROFILE']), 'Dropbox')
 
 def get_desktop():
-    import os 
     desktop = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop')
     if not desktop:
         desktop = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Escritorio')

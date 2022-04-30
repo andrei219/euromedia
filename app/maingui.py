@@ -569,7 +569,8 @@ class MainGui(Ui_MainGui, QMainWindow):
             expenses_form.ExpenseForm(self, proforma).exec_()
 
     def proformas_purchases_docs_handler(self):
-        documents_form.Form(self, self.get_proforma_purchase()).exec_()
+        # documents_form.Form(self, self.get_proforma_purchase()).exec_()
+        pass
 
     def proformas_purchases_toinv_handler(self):
         proforma = self.get_proforma_purchase()
@@ -580,10 +581,7 @@ class MainGui(Ui_MainGui, QMainWindow):
             QMessageBox.critical(self, 'Error', f'Invoice {proforma.invoice.doc_repr} already associated')
             return
         invoice = self.proformas_purchases_model.associateInvoice(proforma)
-
-        from models import fix_dropbox_purchases_when_proforma_to_invoice
-        fix_dropbox_purchases_when_proforma_to_invoice(proforma)
-        QMessageBox.information(self, 'Success', f'{invoice.doc_repr} created. Dropbox updated')
+        QMessageBox.information(self, 'Success', f'{invoice.doc_repr} created.')
 
 
     def proformas_purchases_towh_handler(self, invoice=None):
@@ -793,35 +791,22 @@ class MainGui(Ui_MainGui, QMainWindow):
             expenses_form.ExpenseForm(self, proforma, sale=True).exec_()
 
     def proformas_sales_docs_handler(self, invoice=None):
-        documents_form.Form(self, self.get_sale_proforma()).exec_()
+        # documents_form.Form(self, self.get_sale_proforma()).exec_()
+        pass
 
     def proformas_sales_toinv_handler(self):
         proforma = self.get_sale_proforma()
         if proforma:
             if proforma.cancelled:
-                QMessageBox.information(
-                    self,
-                    'Information',
-                    "Cannot build invoice from cancelled proforma"
-                )
+                QMessageBox.information( self, 'Information', "Cannot build invoice from cancelled proforma")
                 return
             try:
                 proforma.invoice.type
-                type_num = str(proforma.invoice.type) + '-' \
-                           + str(proforma.invoice.number).zfill(6)
-                QMessageBox.information(
-                    self,
-                    'Information',
-                    f"Invoice already associated: {type_num}")
+                QMessageBox.information(self,'Information', f"Invoice already associated: {proforma.invoice.doc_repr}")
             except AttributeError:
-                try:
-                    invoice = self.proformas_sales_model.associateInvoice(proforma)
-                    QMessageBox.information(self, 'Information',f"Invoice {invoice.doc_repr} created")
-                    from models import fix_dropbox_sales_when_proforma_to_invoice
-                    fix_dropbox_sales_when_proforma_to_invoice(proforma)
-                except:
-                    QMessageBox.critical(self,'Update - Error', 'Could not build Invoice From Proforma')
-                    raise
+                invoice = self.proformas_sales_model.associateInvoice(proforma)
+                QMessageBox.information(self, 'Information', f"Invoice {invoice.doc_repr} created")
+
 
     def proformas_sales_towh_handler(self, invoice=None):
         if invoice:
@@ -950,8 +935,9 @@ class MainGui(Ui_MainGui, QMainWindow):
         self.proformas_purchases_towh_handler(invoice)
 
     def invoices_purchases_docs_handler(self):
-        invoice = self.get_purchases_invoice()
-        documents_form.Form(self, invoice, is_invoice=True).exec_()
+        pass
+        # invoice = self.get_purchases_invoice()
+        # documents_form.Form(self, invoice, is_invoice=True).exec_()
 
     def invoices_purchases_expenses_handler(self):
         invoice = self.get_purchases_invoice()
@@ -1001,8 +987,9 @@ class MainGui(Ui_MainGui, QMainWindow):
         self.proformas_sales_towh_handler(invoice=invoice)
 
     def invoices_sales_docs_handler(self):
-        invoice = self.get_sales_invoice()
-        documents_form.Form(self, invoice, is_invoice=True).exec_()
+        # invoice = self.get_sales_invoice()
+        # documents_form.Form(self, invoice, is_invoice=True).exec_()
+        pass
 
     def invoices_sales_expenses_handler(self):
         invoice = self.get_sales_invoice()
@@ -1350,3 +1337,4 @@ class MainGui(Ui_MainGui, QMainWindow):
         self.clean_up_directory()
 
         super().closeEvent(event)
+

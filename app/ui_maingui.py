@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainGui(object):
     def setupUi(self, MainGui):
         MainGui.setObjectName("MainGui")
-        MainGui.resize(1872, 851)
+        MainGui.resize(1872, 855)
         font = QtGui.QFont()
         font.setPointSize(10)
         MainGui.setFont(font)
@@ -1275,7 +1275,7 @@ class Ui_MainGui(object):
         self.invoices_sales_notcancelled.setGeometry(QtCore.QRect(40, 310, 111, 20))
         self.invoices_sales_notcancelled.setObjectName("invoices_sales_notcancelled")
         self.invoices_sales_actions = QtWidgets.QFrame(self.invoices_sales_tab)
-        self.invoices_sales_actions.setGeometry(QtCore.QRect(220, 630, 1591, 81))
+        self.invoices_sales_actions.setGeometry(QtCore.QRect(220, 640, 1591, 81))
         self.invoices_sales_actions.setFrameShape(QtWidgets.QFrame.Box)
         self.invoices_sales_actions.setFrameShadow(QtWidgets.QFrame.Sunken)
         self.invoices_sales_actions.setObjectName("invoices_sales_actions")
@@ -2020,6 +2020,11 @@ class Ui_MainGui(object):
         self.tools_trace.setLayoutDirection(QtCore.Qt.LeftToRight)
         self.tools_trace.setStyleSheet("background:lightgray; ")
         self.tools_trace.setObjectName("tools_trace")
+        self.tools_stock_valuation = QtWidgets.QPushButton(self.tools_tab)
+        self.tools_stock_valuation.setGeometry(QtCore.QRect(510, 340, 120, 60))
+        self.tools_stock_valuation.setLayoutDirection(QtCore.Qt.LeftToRight)
+        self.tools_stock_valuation.setStyleSheet("background:lightgray; ")
+        self.tools_stock_valuation.setObjectName("tools_stock_valuation")
         icon35 = QtGui.QIcon()
         icon35.addPixmap(QtGui.QPixmap(":/tools"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.main_tab.addTab(self.tools_tab, icon35, "")
@@ -2030,7 +2035,7 @@ class Ui_MainGui(object):
 
         self.retranslateUi(MainGui)
         self.main_tab.setCurrentIndex(2)
-        self.proformastab.setCurrentIndex(1)
+        self.proformastab.setCurrentIndex(0)
         self.invoicestab.setCurrentIndex(1)
         self.warehouse.setCurrentIndex(2)
         self.rmas_outgoing_.setCurrentIndex(0)
@@ -2409,6 +2414,7 @@ class Ui_MainGui(object):
         self.tools_available_stock.setText(_translate("MainGui", "Av. Stock"))
         self.tools_sii.setText(_translate("MainGui", "AEAT - SII"))
         self.tools_trace.setText(_translate("MainGui", "Trace"))
+        self.tools_stock_valuation.setText(_translate("MainGui", "Stock Valuation"))
         self.main_tab.setTabText(self.main_tab.indexOf(self.tools_tab), _translate("MainGui", "Tools"))
         self.main_tab.setTabToolTip(self.main_tab.indexOf(self.tools_tab), _translate("MainGui", "Tools like grading, Changing warehouse, traceability, rebu, importing, etc"))
 import icons_rc

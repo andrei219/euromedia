@@ -1,10 +1,6 @@
-import math
 import typing
-from uuid import uuid4
-
-import utils
+import math
 import os
-import shutil
 
 from pathlib import Path
 from collections import namedtuple
@@ -15,14 +11,18 @@ from PyQt5 import QtCore
 from PyQt5 import QtGui
 from PyQt5.QtCore import QModelIndex
 from PyQt5.QtCore import Qt
+
+
+from sqlalchemy.exc import InvalidRequestError, NoResultFound
 from sqlalchemy import func
 from sqlalchemy import or_
 from sqlalchemy.exc import IntegrityError
 
+
+import utils
 import db
 from exceptions import SeriePresentError
 
-from sqlalchemy.exc import InvalidRequestError
 
 # COLORS:
 # RED FOR CANCELLED
@@ -30,7 +30,6 @@ from sqlalchemy.exc import InvalidRequestError
 # ORANGE FOR EMPTY OR PARTIAL
 # YELLOW FOR OVERFLOW
 RED, GREEN, YELLOW, ORANGE = '#FF7F7F', '#90EE90', '#FFFF66', '#FFD580'
-
 
 class BaseTable:
 
@@ -82,11 +81,7 @@ def computeCreditAvailable(partner_id):
         credit_taken = 0
 
     return max_credit + paid - total - credit_taken
-
-
 # Proformas utils::
-
-import math
 
 
 # Utils for sales:
@@ -390,7 +385,7 @@ class AgentModel(QtCore.QAbstractTableModel):
             self.layoutChanged.emit()
 
 
-dropbox_base = r'C:\Users\Andrei\Dropbox\Programa'
+dropbox_base = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Dropbox', 'Programa')
 
 
 def move(origin, dest, copy=False):
@@ -1322,7 +1317,7 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
                     reception_line.quantity = proforma_line.quantity
         try:
             db.session.commit()
-        except:
+        except Exception as ex:
             db.session.rollback()
             raise
 
@@ -5265,78 +5260,144 @@ def export_available_stock_in_excel():
     for row in db.session.query(Warehouse.id).distinct().all():
         warehouse_id = row.id
 
-    # IMEI
-    # ARRIVAL DATETIME
-    # WARRANTY END (SUPPLIER) COMPUTE ARRIVAL DATE + INVOICE WARRANTY
-    # PURCHASED AS
-    # DEFINED AS
-    # SOLD AS
-    # SOLD AS (PUBLIC CONDITION)
-    # SALE DATE
-    # WARRANTY END (CUSTOMER) COMPUTE SALE DATE + INVOICE WARRANTY DAYS
-    # PROBLEM
 
 
-# 351133750108601
+
+class ChangeModelTrace(BaseTable, QtCore.QAbstractTableModel):
+
+    FROM, TO, WHEN, COMMENT = 0, 1, 2, 3
+
+    def __init__(self, Sqlalchemy_cls, imei):
+        super().__init__()
+        self._headerData = ['FROM', 'TO', 'WHEN', 'COMMENT']
+        self.registers = db.session.query(Sqlalchemy_cls).\
+            where(Sqlalchemy_cls.sn == imei).all()
+        self.name = 'registers'
+
+    def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
+        if not index.isValid():
+            return
+        row, col = index.row(), index.column()
+        r = self.registers[row]
+
+        if role == Qt.DisplayRole:
+            if col == self.FROM:
+                return  r.before
+            elif col == self.TO:
+                return r.after
+            elif col == self.WHEN:
+                return str(r.created_on)
+            elif col == self.COMMENT:
+                return str(r.comment)
+
+class TraceEntry:
+
+    def __str__(self):
+        return str(self.__dict__)
 
 
-def fix_dropbox_purchases_when_proforma_to_invoice(proforma):
-    pdm = ProformasPurchasesDocumentModel(proforma)
-    idm = InvoicesPurchasesDocumentModel(proforma)
+class OperationModel(BaseTable, QtCore.QAbstractTableModel):
 
-    for file in filter(pdm.key, os.listdir(pdm.path)):
-        origin = os.path.join(pdm.path, file)
-        dest = os.path.join(idm.path, file.replace(pdm.prefix, idm.prefix))
-        move(origin, dest)
+    OPERATION, DOC, DATE, PARTNER, PICKING = 0, 1, 2, 3, 4
 
-    from pdfbuilder import build_document
-    pdf = build_document(proforma, is_invoice=True)
-    pdf.output(os.path.join(idm.path, idm.prefix[:-1] + '.pdf'))
+    def __init__(self, imei):
+        super().__init__()
+        self._headerData = ['Operation', 'Doc', 'Date', 'Partner', 'Picking']
+        self.name = 'entries'
+        self.entries = []
+
+        query = db.session.query(db.ReceptionSerie).\
+            join(db.ReceptionLine).join(db.Reception).\
+            join(db.PurchaseProforma).\
+            where(db.ReceptionSerie.serie == imei)
+
+        for r in query:
+            te = TraceEntry()
+            te.operation = 'Purchase'
+            # Get doc
+            try:
+                te.doc = 'FR ' + r.line.reception.proforma.invoice.doc_repr
+            except AttributeError:
+                te.doc = 'PR ' + r.line.reception.proforma.doc_repr
+
+            # Get date:
+            try:
+                te.date = r.line.reception.proforma.invoice.date
+            except AttributeError:
+                te.date = r.line.reception.proforma.date
+
+            te.partner = r.line.reception.proforma.partner.fiscal_name
+            te.picking = r.created_on
+
+            self.entries.append(te)
+
+        query = db.session.query(db.ExpeditionSerie).join(db.ExpeditionLine).\
+            join(db.Expedition).join(db.SaleProforma).where(db.ExpeditionSerie.serie == imei)
+
+        for r in query:
+            te = TraceEntry()
+            te.operation = 'Sale'
+            try:
+                te.doc = 'FR ' + r.line.expedition.proforma.invoice.doc_repr
+            except AttributeError:
+                te.doc = 'PR ' + r.line.expedition.proforma.doc_repr
+
+            try:
+                te.date = r.line.expedition.proforma.invoice.date
+            except AttributeError:
+                te.date = r.line.expedition.proforma.date
+
+            te.partner = r.line.expedition.proforma.partner.fiscal_name
+            te.picking = r.created_on
+
+            self.entries.append(te)
 
 
-def fix_dropbox_sales_when_proforma_to_invoice(proforma):
-    pdm = ProformasSalesDocumentModel(proforma)
-    idm = InvoicesSalesDocumentModel(proforma)
-    for file in filter(pdm.key, os.listdir(pdm.path)):
-        origin = os.path.join(pdm.path, file)
-        dest = os.path.join(idm.path, file.replace(pdm.prefix, idm.prefix))
-        move(origin, dest)
+    def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
 
-    # Build invoice
-    from pdfbuilder import build_document
-    pdf = build_document(proforma, is_invoice=True)
-    pdf.output(os.path.join(idm.path, idm.prefix[:-1] + '.pdf'))
-
-
-def update_purchase_invoice_when_editing(old_type, old_number, proforma):
-    old_prefix = str(old_type) + '-' + str(old_number).zfill(6)
-    if any((
-        old_type != proforma.type, 
-        old_number != proforma.number
-    )):
-        idm = InvoicesPurchasesDocumentModel(proforma)
-
-        for filename in filter(lambda f: f.startswith(old_prefix), os.listdir(idm.path)):
-            fullpath = os.path.join(idm.path, filename)
-            os.rename(fullpath, filename.replace(old_prefix, idm.prefix[:-1]))
+        if not index.isValid():
+            return
+        row, col = index.row(), index.column()
+        if role == Qt.DisplayRole:
+            te = self.entries[row]
+            if col == self.OPERATION:
+                return te.operation
+            elif col == self.DOC:
+                return te.doc
+            elif col == self.DATE:
+                return str(te.date)
+            elif col == self.PARTNER:
+                return te.partner
+            elif col == self.PICKING:
+                return str(te.picking)
 
 
-def update_sale_invoice_when_editing(old_type, old_number, proforma):
+def find_last_description(sn):
+    try:
+        obj = db.session.query(db.Imei).where(db.Imei.imei == sn).one()
+        obj: db.Imei
+    except NoResultFound:
+        obj = None
 
-    old_prefix = str(old_type) + '-' + str(old_number).zfill(6)
+    if obj:
+        return ', '.join((obj.item.clean_repr, obj.condition + ' Condt.',
+                          obj.spec + ' Spec'))
+    else:
+        exp_series = db.session.query(db.ExpeditionSerie).\
+            join(db.ExpeditionLine).where(db.ExpeditionSerie.serie == sn).all()
 
-    if any((
-        old_number != proforma.number,
-        old_type != proforma.number
-    )):
+        try:
+            exp_serie = exp_series[-1]
+        except IndexError:
+            return "Not found neither in stock nor in sales."
+        else:
+            line = exp_serie.line
+            return ', '.join(
+                (
+                    line.item.clean_repr,
+                    line.condition + ' Condt.',
+                    line.spec + ' Spec'
+                )
+            )
 
-        idm = InvoicesSalesDocumentModel(proforma)
-        for filename in filter(lambda f: f.startswith(old_prefix), os.listdir(idm.path)):
-            fullpath = os.path.join(idm.path, filename)
-            os.rename(fullpath, filename.replace(old_prefix, idm.prefix[:-1]))
-
-
-        # Update prefix
-
-    # Alwats rebuild
 
