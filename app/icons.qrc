@@ -54,5 +54,6 @@
         <file alias="preorder">.\\icons\\preorder.png</file>
         <file alias="whatsapp">.\\icons\\whatsapp.png</file>
         <file alias="sii">.\\icons\\sii.png</file>
+        <file alias="inventory">.\\icons\\inventory.png</file>
     </qresource>
 </RCC>

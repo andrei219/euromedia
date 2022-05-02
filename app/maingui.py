@@ -1248,6 +1248,7 @@ class MainGui(Ui_MainGui, QMainWindow):
     def warehouse_incoming_rma_process_handler(self):
         from warehouse_rma_incoming_form import Form
         order = self.get_wh_incoming_rma_order()
+        if not order:return
         self.whirma = Form(self, order)
         self.whirma.show()
 

@@ -1,8 +1,8 @@
-
+from PyQt5 import QtGui
 
 from ui_warehouse_rma_incoming_form import Ui_Form
 
-from PyQt5.QtWidgets import QWidget, QTableView
+from PyQt5.QtWidgets import QWidget, QTableView, QMessageBox
 
 from models import WhRmaIncomingLineModel
 
@@ -23,10 +23,14 @@ class Form(Ui_Form, QWidget):
         self.populate_form()
         self.set_view_config()
 
+        self.save.clicked.connect(self.save_handler)
+
+
     def set_view_config(self):
         self.view.setSelectionMode(QTableView.SingleSelection)
         self.view.setAlternatingRowColors(True)
         self.view.setSelectionBehavior(QTableView.SelectRows)
+        self.view.resizeColumnsToContents()
 
     def populate_form(self):
         self.partner.setText(self.order.incoming_rma.partner.fiscal_name)
@@ -37,6 +41,12 @@ class Form(Ui_Form, QWidget):
         except AttributeError:
             pass
 
+        if self.order.inventoried:
+            self.view.setEnabled(False)
+            self.save.setEnabled(False)
+            self.warehouse.setEnabled(False)
+
+
 
     def save_handler(self):
         try:
@@ -45,5 +55,10 @@ class Form(Ui_Form, QWidget):
         except Exception as ex:
             session.rollback()
             raise
+        else:
+            QMessageBox.information(self, 'Success', 'Rma warehouse check made successfully')
 
+
+    def closeEvent(self, a0: QtGui.QCloseEvent) -> None:
+        session.rollback()
 

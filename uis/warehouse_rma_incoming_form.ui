@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>Rma physical check</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="../app/icons.qrc">
+    <normaloff>:/rmas</normaloff>:/rmas</iconset>
+  </property>
   <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>
