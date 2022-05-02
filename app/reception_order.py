@@ -224,7 +224,13 @@ class Form(QDialog, Ui_Form):
         self.populate_body()
 
     def commit_handler(self):   
-    
+
+        if self.imei_check.isChecked():
+            from pyvalidator import is_imei
+            if not is_imei(self.sn.text()):
+                QMessageBox.critical(self, 'Error', 'The given serie is not an IMEI')
+                return
+
         description = self.actual_item.text()
         condition = self.actual_condition.text()
         spec = self.actual_spec.text() 

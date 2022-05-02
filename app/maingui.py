@@ -48,7 +48,8 @@ PREFIXES = [
     'warehouse_outgoing_rmas',
     'tools_',
     'rmas_incoming_',
-    'rmas_outgoing_'
+    'rmas_outgoing_',
+    'warehouse_incoming_rma_'
 
 ]
 
@@ -88,7 +89,8 @@ ACTIONS = [
     'create_courier',
     'export_excel',
     'available_stock',
-    'trace'
+    'trace',
+    'tocn'
 ]
 
 
@@ -98,6 +100,8 @@ class MainGui(Ui_MainGui, QMainWindow):
         super().__init__(parent)
         self.setupUi(self)
         self.setCentralWidget(self.main_tab)
+
+
 
         # For closing
         self.opened_windows_instances = set()
@@ -207,12 +211,6 @@ class MainGui(Ui_MainGui, QMainWindow):
 
             self.invoices_sales_view.resizeColumnsToContents()
 
-            # self.invoices_sales_view.resizeColumnToContents(2)
-            # self.invoices_sales_view.resizeColumnToContents(3)
-            #
-            # self.invoices_sales_view.resizeColumnToContents(4)
-            # self.invoices_sales_view.resizeColumnToContents(5)
-
 
         elif prefix == 'proformas_sales_':
             self.proformas_sales_model = \
@@ -229,12 +227,6 @@ class MainGui(Ui_MainGui, QMainWindow):
             self.proformas_sales_view.setSortingEnabled(True)
 
             self.proformas_sales_view.resizeColumnsToContents()
-
-            # self.proformas_sales_view.resizeColumnToContents(2)
-            # self.proformas_sales_view.resizeColumnToContents(3)
-            #
-            # self.proformas_sales_view.resizeColumnToContents(4)
-            # self.proformas_sales_view.resizeColumnToContents(5)
 
             correct_mask()
 
@@ -275,6 +267,15 @@ class MainGui(Ui_MainGui, QMainWindow):
             self.rmas_incoming_view.setSelectionBehavior(QTableView.SelectRows)
             self.rmas_incoming_view.setSortingEnabled(True)
             self.rmas_incoming_view.setAlternatingRowColors(True)
+
+        elif prefix == 'warehouse_incoming_rmas_':
+            self.warehouse_rma_incoming_model = models.WhRmaIncomingModel(
+                search_key=search_key, filters=filters
+            )
+            self.warehouse_incoming_rma_view.setModel(self.warehouse_rma_incoming_model)
+            self.warehouse_incoming_rma_view.setSelectionBehavior(QTableView.SelectRows)
+            self.warehouse_incoming_rma_view.setSortingEnabled(True)
+            self.warehouse_incoming_rma_view.setAlternatingRowColors(True)
 
 
     def set_handlers(self):
@@ -758,9 +759,10 @@ class MainGui(Ui_MainGui, QMainWindow):
                 return
 
             self.proformas_sales_model.cancel(indexes)
-        except:
-            raise
+        except Exception:
             QMessageBox.critical(self, 'Update Error', 'Error updating proformas')
+            raise
+
 
     def proformas_sales_print_handler(self):
         print('printing')
@@ -1211,17 +1213,47 @@ class MainGui(Ui_MainGui, QMainWindow):
         if len(rows) == 1:
             return model.expeditions[rows.pop()]
 
-
-
     # RMAS HANDLERS:
-
     def rmas_incoming_new_handler(self):
         from rmas_incoming_form import Form
         self.f = Form(self)
         self.f.show()
 
     def rmas_incoming_towh_handler(self):
-        print('¡eeee')
+        rows = {i.row() for i in self.rmas_incoming_view.selectedIndexes()}
+        if len(rows) != 1:
+            return
+        row = rows.pop()
+        try:
+            self.rmas_incoming_model.to_warehouse(row)
+        except ValueError as ex:
+            QMessageBox.critical(self, 'Error', str(ex))
+        else:
+            QMessageBox.information(self, 'Error', 'RMA WH order created')
+
+
+    def warehouse_incoming_rma_double_click_handler(self):
+        from warehouse_rma_incoming_form import Form
+        order = self.get_wh_incoming_rma_order()
+        self.whirma = Form(self, order)
+        self.whirma.show()
+
+    def get_wh_incoming_rma_order(self):
+        rows = {i.row() for i in self.warehouse_incoming_rma_view.selectedIndexes()}
+        if len(rows) != 1:
+            return
+        row = rows.pop()
+        return self.warehouse_rma_incoming_model.orders[row]
+
+    def warehouse_incoming_rma_process_handler(self):
+        from warehouse_rma_incoming_form import Form
+        order = self.get_wh_incoming_rma_order()
+        self.whirma = Form(self, order)
+        self.whirma.show()
+
+    def warehouse_incoming_rma_tocn_handler(self):
+        print('echo')
+
 
     def rmas_incoming_double_click_handler(self, index):
         rma_order = self.rmas_incoming_model[index.row()]
@@ -1329,6 +1361,7 @@ class MainGui(Ui_MainGui, QMainWindow):
             self.set_mv('warehouse_outgoing_rmas_')
         elif index == 5:
             self.set_mv('rmas_incoming_')
+
 
     def closeEvent(self, event):
         for w in self.opened_windows_instances:

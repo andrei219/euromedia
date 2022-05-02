@@ -1,3 +1,4 @@
+from mysqlx import Column
 from sqlalchemy import create_engine, event, insert, update, delete
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.sql import func
@@ -1502,6 +1503,51 @@ class ConditionChange(Base):
         self.comment = comment
 
 
+class WhIncomingRma(Base):
+
+    __tablename__ = 'wh_incoming_rmas'
+
+    id = Column(Integer, primary_key=True)
+    incoming_rma_id = Column(Integer, ForeignKey('incoming_rmas.id'), nullable=False)
+    inventoried = Column(Boolean, nullable=False, default=False)
+    incoming_rma = relationship('IncomingRma', back_populates='wh_incoming_rma')
+
+    warehouse_id = Column(Integer, ForeignKey('warehouses.id'))
+
+    warehouse = relationship('Warehouse', uselist=False)
+
+    __table_args__ = (
+        UniqueConstraint('incoming_rma_id', name='wh_order_from_onlyone_rma_order'),
+    )
+
+    def __init__(self, incoming_rma):
+        self.incoming_rma = incoming_rma
+
+class WhIncomingRmaLine(Base):
+
+    __tablename__ = 'wh_incoming_rma_lines'
+
+    id = Column(Integer, primary_key=True)
+    wh_incoming_rma_id = Column(Integer, ForeignKey('wh_incoming_rmas.id'), nullable=False)
+    sn = Column(String(50), nullable=False)
+    accepted = Column(Boolean, nullable=False, default=False)
+    problem = Column(String(100), nullable=True)
+    why = Column(String(50), nullable=True, default="")
+
+    wh_incoming_rma = relationship(
+        'WhIncomingRma',
+        backref=backref(
+            'lines',
+            cascade='delete-orphan, delete, save-update'
+        )
+    )
+
+    def __init__(self, incoming_rma_line):
+        self.sn = incoming_rma_line.sn
+        self.problem = incoming_rma_line.problem
+        self.accepted = incoming_rma_line.accepted
+
+
 class IncomingRma(Base):
     __tablename__ = 'incoming_rmas'
 
@@ -1511,23 +1557,12 @@ class IncomingRma(Base):
 
     partner = relationship('Partner', uselist=False)
 
+    wh_incoming_rma = relationship(
+        'WhIncomingRma', uselist=False, back_populates='incoming_rma'
+    )
 
 class IncomingRmaLine(Base):
     __tablename__ = 'incoming_rma_lines'
-
-    # id = Column(Integer, primary_key=True)
-    # incoming_rma_id = Column(Integer, ForeignKey('incoming_rmas.id'))
-    #
-    # sn = Column(String(50), nullable=False)
-    #
-    # reception_datetime = Column(DateTime, nullable=False)
-    # purchase_date = Column(Date, nullable=False)
-    # purchase_description = Column(String(100), nullable=False)
-    # arrival_date = Column(DateTime,  nullable=False)
-    # defined_as = Column(String(100), nullable=False)
-    # sold_as = Column(String(100), nullable=False)
-    # sale_date = Column(Date, nullable=False)
-    # warehouse_picking_datetime = Column(DateTime, nullable=False)
 
     id = Column(Integer, primary_key=True)
     incoming_rma_id = Column(Integer, ForeignKey('incoming_rmas.id'))
@@ -1556,16 +1591,20 @@ class IncomingRmaLine(Base):
 
     sold_to = relationship('Partner', uselist=False)
 
+    def __repr__(self):
+        cls_name = self.__class__.__name__
+        s = f"{cls_name}(sn={self.sn})"
+        return s
+
     @classmethod
     def from_sn(cls, sn, partner_id):
-        print('aaaa')
         self = cls()
         self.sn = sn
         try:
             reception_serie = session.query(ReceptionSerie). \
                 where(ReceptionSerie.serie == sn).all()[-1]
         except IndexError:
-            reception_serie = None
+            raise ValueError('Serie not found in receptions')
 
         if reception_serie is not None:
             self.reception_datetime = reception_serie.created_on
@@ -1600,7 +1639,6 @@ class IncomingRmaLine(Base):
                 )
 
                 self.public_condition = expedition_serie.line.showing_condition
-
 
                 self.expedition_datetime = expedition_serie.created_on
                 self.sold_to = expedition_serie.line.expedition.proforma.partner

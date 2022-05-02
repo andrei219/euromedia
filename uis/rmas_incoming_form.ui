@@ -6,12 +6,16 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1298</width>
+    <width>1875</width>
     <height>861</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>INCOMING RMAS</string>
+   <string>Incoming Rmas</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="../app/icons.qrc">
+    <normaloff>:/euromedia</normaloff>:/euromedia</iconset>
   </property>
   <widget class="QLineEdit" name="partner">
    <property name="geometry">
@@ -39,8 +43,8 @@
   <widget class="QToolButton" name="save">
    <property name="geometry">
     <rect>
-     <x>1100</x>
-     <y>770</y>
+     <x>1660</x>
+     <y>790</y>
      <width>81</width>
      <height>61</height>
     </rect>
@@ -71,8 +75,8 @@
   <widget class="QToolButton" name="exit">
    <property name="geometry">
     <rect>
-     <x>1200</x>
-     <y>770</y>
+     <x>1760</x>
+     <y>790</y>
      <width>71</width>
      <height>61</height>
     </rect>
@@ -105,7 +109,7 @@
     <rect>
      <x>40</x>
      <y>230</y>
-     <width>1231</width>
+     <width>1801</width>
      <height>461</height>
     </rect>
    </property>
@@ -152,10 +156,10 @@
     <string>IMEI/SN:</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="pushButton_2">
+  <widget class="QPushButton" name="delete_">
    <property name="geometry">
     <rect>
-     <x>1190</x>
+     <x>1760</x>
      <y>700</y>
      <width>75</width>
      <height>23</height>

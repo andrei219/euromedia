@@ -4002,7 +4002,7 @@ class IncomingStockModel(BaseTable, QtCore.QAbstractTableModel):
         return self.stocks[index]
 
     def whatsapp_export(self):
-        print('aaaaa')
+        print('whatsapp export')
 
     def excel_export(self, file_path):
 
@@ -5118,14 +5118,96 @@ def get_spec(eline: db.ExpeditionLine):
                 return pline.spec
 
 
+
+class WhRmaIncomingModel(BaseTable, QtCore.QAbstractTableModel):
+
+    ID, PARTNER, DATE, STATUS, INVOICED, INVENTORIED = 0, 1, 2, 3, 4, 5
+
+    def __init__(self, search_key=None, filters=None):
+        super().__init__()
+        self._headerData = ['ID', 'Partner', 'Date', 'Status', 'Invoiced', 'Inventoried']
+        self.name = 'orders'
+        self.orders = db.session.query(db.WhIncomingRma).all()
+
+    def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
+        if not index.isValid():
+            return
+        row, column = index.row(), index.column()
+        if role == Qt.DisplayRole:
+            order = self.orders[row]
+            if column == self.ID:
+                return str(order.id).zfill(6)
+            elif column == self.PARTNER:
+                return order.incoming_rma.partner.fiscal_name
+            elif column == self.DATE:
+                return order.incoming_rma.date.strftime('%d/%m/%Y')
+            elif column == self.STATUS:
+                return 'status'
+            elif column == self.INVOICED:
+                return  'No'
+            elif column == self.INVENTORIED:
+                return 'Yes' if order.inventoried else 'No'
+
+
+
+class WhRmaIncomingLineModel(BaseTable, QtCore.QAbstractTableModel):
+
+    SN, PROBLEM, ACCEPTED, WHY = 0, 1, 2, 3
+
+    def __init__(self, lines):
+        super().__init__()
+        self._headerData = ['SN/IMEI', 'Problem', 'Accepted', 'Why']
+        self.name = 'lines'
+        self.lines = lines
+
+    def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
+        if not index.isValid():
+            return
+        row, column = index.row(), index.column()
+        if role == Qt.DisplayRole:
+            line = self.lines[row]
+            if column == self.SN:
+                return line.sn
+            elif column == self.PROBLEM:
+                return line.problem
+            elif column == self.WHY:
+                return line.why
+            elif column == self.ACCEPTED:
+                return 'y' if line.accepted else 'n'
+
+    def flags(self, index):
+        if not index.isValid():
+            return Qt.ItemIsEnabled
+        if index.column() in (self.WHY, self.ACCEPTED):
+            return Qt.ItemFlags(super().flags(index) | Qt.ItemIsEditable)
+        else:
+            return Qt.ItemFlags(~Qt.ItemIsEditable)
+
+    def setData(self, index: QModelIndex, value: typing.Any, role: int = ...) -> bool:
+        if not index.isValid():
+            return
+        row, column = index.row(), index.column()
+        if role == Qt.EditRole:
+            line = self.lines[row]
+            if column == self.WHY:
+                line.why = value
+                return True
+            elif column == self.ACCEPTED:
+                value = value.lower()
+                if value in ('y', 'n'):
+                    line.accepted = value == 'y'
+                    return True
+            return False
+        return False
+
 class RmaIncomingModel(BaseTable, QtCore.QAbstractTableModel):
-    ID, PARTNER, DATE, STATUS = 0, 1, 2, 3
+    ID, PARTNER, DATE, STATUS, INWH= 0, 1, 2, 3, 4
 
     def __init__(self, search_key=None, filters=None):
         super().__init__()
         self.orders = db.session.query(db.IncomingRma).all()
         self.name = 'orders'
-        self._headerData = ['ID', 'Partner', 'Date', 'Status']
+        self._headerData = ['ID', 'Partner', 'Date', 'Status', 'In WH']
 
     def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
 
@@ -5142,13 +5224,29 @@ class RmaIncomingModel(BaseTable, QtCore.QAbstractTableModel):
             elif column == self.PARTNER:
                 return rma_order.partner.trading_name
             elif column == self.STATUS:
-                return 'Status'
+                if not rma_order.lines:
+                    return 'Empty'
+                elif all((line.accepted for line in rma_order.lines)):
+                    return 'Accepted'
+                elif all((not line.accepted for line in rma_order.lines)):
+                    return 'Rejected'
+                elif len({line.accepted for line in rma_order.lines}) == 2:  # We found both
+                    return 'Partially Accepted'
+            elif column == self.INWH:
+                return 'Yes' if rma_order.wh_incoming_rma is not None else 'No'
 
         elif role == Qt.DecorationRole:
             if column == self.DATE:
                 return QtGui.QIcon('\calendar')
             elif column == self.STATUS:
-                return QtGui.QColor(RED)
+                if not rma_order.lines:
+                    return QtGui.QColor(YELLOW)
+                elif all((line.accepted for line in rma_order.lines)):
+                    return QtGui.QColor(GREEN)
+                elif all((not line.accepted for line in rma_order.lines)):
+                    return QtGui.QColor(RED)
+                elif len({line.accepted for line in rma_order.lines}) == 2:  # We found both
+                    return QtGui.QColor(ORANGE)
 
     def sort(self, column: int, order: Qt.SortOrder = ...) -> None:
         reverse = True if order == Qt.AscendingOrder else False
@@ -5162,14 +5260,21 @@ class RmaIncomingModel(BaseTable, QtCore.QAbstractTableModel):
             self.orders.sort(key=operator.attrgetter(attr), reverse=reverse)
             self.layoutChanged.emit()
 
-    def __getitem__(self, row):
-        return self.orders[row]
+    def to_warehouse(self, row):
+        rma_order: db.IncomingRma = self.orders[row]
+        wh_rma_order = db.WhIncomingRma(rma_order)
 
+        for line in rma_order.lines:
+            if line.accepted:
+                wh_rma_order.lines.append(db.WhIncomingRmaLine(line))
+        try:
+            db.session.commit()
+        except IntegrityError as ex:
+            db.session.rollback()
+            raise ValueError('Wh order already exists')
 
-# aceptado verde
-# partial naranja
-# rejected rojo
-# yellow empty
+    def __getitem__(self, item):
+        return self.orders[item]
 
 
 class RmaIncomingLineModel(BaseTable, QtCore.QAbstractTableModel):
@@ -5223,8 +5328,30 @@ class RmaIncomingLineModel(BaseTable, QtCore.QAbstractTableModel):
             elif column == self.WHY:
                 return line.why
 
+    def flags(self, index):
+        if not index.isValid():
+            return Qt.ItemIsEnabled
+        if index.column() in(self.PROBLEM, self.ACCEPTED, self.WHY):
+            return Qt.ItemFlags(super().flags(index) | Qt.ItemIsEditable)
+        else:
+            return Qt.ItemFlags(~Qt.ItemIsEditable)
+
     def setData(self, index: QModelIndex, value: typing.Any, role: int = ...) -> bool:
-        return True
+        if not index.isValid():
+            return
+        row, col = index.row(), index.column()
+        if role == Qt.EditRole:
+            line = self.lines[row]
+            if col == self.WHY:
+                line.why = value
+            elif col == self.PROBLEM:
+                line.problem = value
+            elif col == self.ACCEPTED:
+                value = value.lower()
+                if value in ('y', 'n'):
+                    line.accepted = value == 'y'
+            return True
+        return False
 
     def serie_processed(self, sn):
         for line in self.lines:
@@ -5241,26 +5368,20 @@ class RmaIncomingLineModel(BaseTable, QtCore.QAbstractTableModel):
         try:
             self.layoutAboutToBeChanged.emit()
             self.lines.append(db.IncomingRmaLine.from_sn(sn, partner_id))
-            # db.session.flush()
             self.layoutChanged.emit()
+            db.session.flush()
+
         except ValueError:
             raise
 
+    def delete(self, row):
+        self.layoutAboutToBeChanged.emit()
+        del self.lines[row]
+        db.session.flush()
+        self.layoutChanged.emit()
 
 def get_partner_warranty(partner_id):
     return db.session.query(db.Partner.warranty).where(db.Partner.id == partner_id).scalar()
-
-
-def export_available_stock_in_excel():
-    from utils import warehouse_id_map
-    from utils import description_id_map
-
-    warehouses_id = db.session.query(Warehouse.id).distinct().all()
-
-    for row in db.session.query(Warehouse.id).distinct().all():
-        warehouse_id = row.id
-
-
 
 
 class ChangeModelTrace(BaseTable, QtCore.QAbstractTableModel):
@@ -5289,6 +5410,7 @@ class ChangeModelTrace(BaseTable, QtCore.QAbstractTableModel):
                 return str(r.created_on)
             elif col == self.COMMENT:
                 return str(r.comment)
+
 
 class TraceEntry:
 
