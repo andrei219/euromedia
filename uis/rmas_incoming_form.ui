@@ -222,5 +222,22 @@
  <resources>
   <include location="../app/icons.qrc"/>
  </resources>
- <connections/>
+ <connections>
+  <connection>
+   <sender>exit</sender>
+   <signal>clicked()</signal>
+   <receiver>Form</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1778</x>
+     <y>816</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1649</x>
+     <y>729</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

@@ -329,7 +329,8 @@ class Form(Ui_SalesProformaForm, QWidget):
             (self.agent, utils.agent_id_map.keys()), 
             (self.warehouse, utils.warehouse_id_map.keys()), 
             (self.courier, utils.courier_id_map.keys())
-        ]: combo.addItems(data)
+        ]:
+            combo.addItems(data)
 
     def set_partner_completer(self):
         utils.setCompleter(self.partner, utils.partner_id_map.keys())

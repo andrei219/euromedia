@@ -63,7 +63,6 @@ class Form(Ui_Form, QWidget):
     def set_handlers(self):
         self.partner.editingFinished.connect(self.search_partner_warranty)
         self.check.clicked.connect(self.search_sn)
-        self.exit.clicked.connect(self.exit_handler)
         self.save.clicked.connect(self.save_handler)
         self.delete_.clicked.connect(self.delete_handler)
 
@@ -123,13 +122,8 @@ class Form(Ui_Form, QWidget):
             session.commit()
             QMessageBox.information(self, 'Success', 'Rma order saved successfully')
 
-
-    def exit_handler(self):
-        session.rollback()
-        self.close()
-
-
     def closeEvent(self, event) -> None:
+        print('reached')
         session.rollback()
         self.parent.set_mv('rmas_incoming_')
 

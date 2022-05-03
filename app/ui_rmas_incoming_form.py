@@ -82,6 +82,7 @@ class Ui_Form(object):
         self.horizontalLayout.addWidget(self.warranty)
 
         self.retranslateUi(Form)
+        self.exit.clicked.connect(Form.close)
         QtCore.QMetaObject.connectSlotsByName(Form)
 
     def retranslateUi(self, Form):

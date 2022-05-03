@@ -23,7 +23,7 @@
      <x>80</x>
      <y>380</y>
      <width>931</width>
-     <height>101</height>
+     <height>91</height>
     </rect>
    </property>
    <property name="title">
@@ -149,10 +149,10 @@
    <widget class="QCheckBox" name="imei_check">
     <property name="geometry">
      <rect>
-      <x>40</x>
-      <y>60</y>
-      <width>101</width>
-      <height>31</height>
+      <x>33</x>
+      <y>66</y>
+      <width>141</width>
+      <height>21</height>
      </rect>
     </property>
     <property name="text">
