@@ -809,8 +809,6 @@ class SaleInvoice(Base):
         self.type = type
         self.number = number
 
-
-
     __table_args__ = (
         UniqueConstraint('type', 'number', name='unique_sales_sale_invoices'),
     )
@@ -1504,7 +1502,6 @@ class ConditionChange(Base):
 
 
 class WhIncomingRma(Base):
-
     __tablename__ = 'wh_incoming_rmas'
 
     id = Column(Integer, primary_key=True)
@@ -1523,8 +1520,8 @@ class WhIncomingRma(Base):
     def __init__(self, incoming_rma):
         self.incoming_rma = incoming_rma
 
-class WhIncomingRmaLine(Base):
 
+class WhIncomingRmaLine(Base):
     __tablename__ = 'wh_incoming_rma_lines'
 
     id = Column(Integer, primary_key=True)
@@ -1561,22 +1558,23 @@ class IncomingRma(Base):
         'WhIncomingRma', uselist=False, back_populates='incoming_rma'
     )
 
+
 class IncomingRmaLine(Base):
     __tablename__ = 'incoming_rma_lines'
 
     id = Column(Integer, primary_key=True)
     incoming_rma_id = Column(Integer, ForeignKey('incoming_rmas.id'))
-    sn = Column(String(50), nullable=False)
-    reception_datetime = Column(DateTime, nullable=True)
-    warranty_end_sup = Column(Date, nullable=False)
-    purchased_as = Column(String(100), nullable=True)
-    defined_as = Column(String(100), nullable=True)
-    sold_as = Column(String(100), nullable=True)
-    public_condition = Column(String(100), nullable=True)
-    sale_date = Column(Date, nullable=True)
-    expedition_datetime = Column(DateTime, nullable=True)
-    warranty_end_cust = Column(Date, nullable=True)
     sold_to_id = Column(Integer, ForeignKey('partners.id'))
+    sn = Column(String(50), nullable=False)
+    recpt = Column(Date, nullable=True)
+    wtyendsupp = Column(Date, nullable=False)
+    purchas = Column(String(100), nullable=True)
+    defas = Column(String(100), nullable=True)
+    soldas = Column(String(100), nullable=True)
+    public = Column(String(100), nullable=True)
+    saledate = Column(Date, nullable=True)
+    exped = Column(Date, nullable=True)
+    wtyendcust = Column(Date, nullable=True)
     problem = Column(String(100), nullable=True)
     accepted = Column(Boolean, default=False, nullable=True)
     why = Column(String(100), nullable=True)
@@ -1597,66 +1595,58 @@ class IncomingRmaLine(Base):
         return s
 
     @classmethod
-    def from_sn(cls, sn, partner_id):
+    def from_sn(cls, sn):
         self = cls()
         self.sn = sn
         try:
-            reception_serie = session.query(ReceptionSerie). \
-                where(ReceptionSerie.serie == sn).all()[-1]
+            reception_serie = session.query(ReceptionSerie).where(ReceptionSerie.serie == sn).all()[-1]
         except IndexError:
             raise ValueError('Serie not found in receptions')
 
-        if reception_serie is not None:
-            self.reception_datetime = reception_serie.created_on
+        try:
+            expedition_serie = session.query(ExpeditionSerie).join(ExpeditionLine) \
+                .where(ExpeditionSerie.serie == sn).all()[-1]
+        except IndexError:
+            raise ValueError('Serie not found in expeditions')
 
-            self.warranty_end_sup = self.reception_datetime.date() + \
-                timedelta(reception_serie.line.reception.proforma.warranty)
+        if reception_serie is not None:
+            self.recpt = reception_serie.created_on.date()
+            self.supp = reception_serie.line.reception.proforma.partner.fiscal_name
+            self.wtyendsupp = self.recpt + timedelta(reception_serie.line.reception.proforma.warranty)
 
             line = reception_serie.line
-            self.purchased_as = ', '.join((
+            self.purchas = ', '.join((
                 line.description or line.item.clean_repr,
                 line.condition,
                 line.spec
-            )
-            )
+            ))
 
-            self.defined_as = ', '.join((
+            self.defas = ', '.join((
                 reception_serie.item.clean_repr,
                 reception_serie.condition,
                 reception_serie.spec
-                )
-            )
-            expedition_serie = session.query(ExpeditionSerie).join(ExpeditionLine)\
-                .where(ExpeditionSerie.serie == sn).all()[-1]
-
+            ))
             if expedition_serie is not None:
-                self.expedition_datetime = expedition_serie.created_on
-                self.sold_as = ', '.join((
+                self.soldas = ', '.join((
                     expedition_serie.line.item.clean_repr,
                     expedition_serie.line.condition,
                     expedition_serie.line.spec
-                    )
-                )
-
-                self.public_condition = expedition_serie.line.showing_condition
-
-                self.expedition_datetime = expedition_serie.created_on
-                self.sold_to = expedition_serie.line.expedition.proforma.partner
+                ))
+                self.public = expedition_serie.line.showing_condition
+                self.cust = expedition_serie.line.expedition.proforma.partner.fiscal_name
                 try:
                     self.sale_date = expedition_serie.line.expedition.proforma.invoice.date
                 except AttributeError:
                     self.sale_date = expedition_serie.line.expedition.proforma.date
-
-                cust_warranty = expedition_serie.line.expedition.proforma.warranty
-
-                self.warranty_end_cust = self.expedition_datetime.date() + \
-                    timedelta(expedition_serie.line.expedition.proforma.warranty)
+                self.exped = expedition_serie.created_on.date()
+                self.wtyendcust = self.exped + timedelta(expedition_serie.line.expedition.proforma.warranty)
 
                 self.problem = ''
                 self.why = ''
                 self.accepted = False
 
         return self
+
 
 def create_init_data():
     spec = Spec('Mix')
@@ -1681,7 +1671,7 @@ def correct_mask():
                 session.execute(stmt)
     try:
         session.commit()
-    except:
+    except Exception as ex:
         session.rollback()
         raise
 
@@ -1692,4 +1682,3 @@ def company_name():
 
 def year():
     return '2022'
-

@@ -6,7 +6,6 @@ from ui_rmas_incoming_form import Ui_Form
 
 from utils import setCompleter
 from utils import partner_id_map
-from models import get_partner_warranty
 from utils import today_date
 
 from utils import parse_date
@@ -30,7 +29,6 @@ class Form(Ui_Form, QWidget):
         self.order = None
         self.lines_model = None
         self.setupUi(self)
-        self.set_completer()
         self.set_handlers()
 
         if order is not None:
@@ -38,6 +36,7 @@ class Form(Ui_Form, QWidget):
             self.partner.setText(order.partner.fiscal_name)
             self.date.setText(order.date.strftime('%d%m%Y'))
         else:
+            self.date.setText(today_date())
             self.order = IncomingRma()
             session.add(self.order)
             session.flush()
@@ -56,44 +55,21 @@ class Form(Ui_Form, QWidget):
         self.view.setModel(self.lines_model)
         self.view.resizeColumnsToContents()
 
-    def set_completer(self):
-        setCompleter(self.partner, partner_id_map.keys())
-        self.date.setText(today_date())
-
     def set_handlers(self):
-        self.partner.editingFinished.connect(self.search_partner_warranty)
         self.check.clicked.connect(self.search_sn)
         self.save.clicked.connect(self.save_handler)
         self.delete_.clicked.connect(self.delete_handler)
 
-    def search_partner_warranty(self):
-        try:
-            warranty = get_partner_warranty(partner_id_map[self.partner.text()])
-        except KeyError:
-            self.warranty.setText('Invalid Partner')
-            return
-        else:
-            self.warranty.setText(str(warranty))
-
 
     def search_sn(self):
         sn = self.sn.text().strip()
+        if not sn: return
         try:
-            partner_id = partner_id_map[self.partner.text()]
-        except KeyError:
-            QMessageBox.critical(self, 'Error', 'Set partner correctly')
-            return
-
-        if not sn:
-            return
-
-        try:
-            self.lines_model.add(sn, partner_id)
+            self.lines_model.add(sn)
             self.view.resizeColumnsToContents()
             self.sn.clear()
         except ValueError as ex:
             QMessageBox.critical(self, 'Error', str(ex))
-
 
     def delete_handler(self):
         try:

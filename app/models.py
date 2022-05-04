@@ -5291,17 +5291,14 @@ class RmaIncomingModel(BaseTable, QtCore.QAbstractTableModel):
 
 
 class RmaIncomingLineModel(BaseTable, QtCore.QAbstractTableModel):
-    IMEI, RECEPTION_DATETIME, WARRANTY_END_SUPP, PURCHASED_AS, DEFINED_AS, \
-    SOLD_AS, SOLD_AS_PUBLIC, SOLD_TO, SALE_DATE, EXPEDITION_PICKING, WARRANTY_END_CUST, \
-    PROBLEM, ACCEPTED, WHY = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13
+    IMEI, SUPP, RCPT, WTYENDSUPP, PURCHAS, DEFAS, SOLD_AS, PUBLIC, CUST, SALE_DATE, \
+    EXPED, WTYENDC, PROBLEM, ACCEPTED, WHY = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14
 
     def __init__(self, lines):
         super().__init__()
         self._headerData = [
-            'Imei/SN', 'Reception Datetime', 'Warranty End (Supplier)',
-            'Purchased as', 'Defined as', 'Sold as', 'Sold As(Public Condition)', 'Sold to',
-            'Sale Date', 'Expedition Datetime', 'Warranty End Customer', 'Problem',
-            'Accepted (y/n)', 'Why'
+            'Imei/SN', 'Supp.', 'Rcpt.', 'Wty. End(S)', 'Pur. as', 'Def. as', 'Sold as', 'Public condt.', 'Cust.',
+            'Sale Date', 'Exped.', 'Wty End(C)', 'Problem', 'Accepted (y/n)', 'Why'
         ]
         self.name = 'lines'
         self.lines = lines
@@ -5310,41 +5307,43 @@ class RmaIncomingLineModel(BaseTable, QtCore.QAbstractTableModel):
         if not index.isValid():
             return
         row, column = index.row(), index.column()
-        line = self.lines[row]
+        line: db.IncomingRmaLine = self.lines[row]
         if role == Qt.DisplayRole:
             if column == self.IMEI:
                 return line.sn
-            elif column == self.RECEPTION_DATETIME:
-                return str(line.reception_datetime)
-            elif column == self.WARRANTY_END_SUPP:
-                return str(line.warranty_end_sup)
-            elif column == self.PURCHASED_AS:
-                return line.purchased_as
-            elif column == self.DEFINED_AS:
-                return line.defined_as
+            elif column == self.SUPP:
+                return line.supp
+            elif column == self.RCPT:
+                return line.recpt.strftime('%d-%m-%Y')
+            elif column == self.WTYENDSUPP:
+                return str(line.wtyendsupp)
+            elif column == self.PURCHAS:
+                return line.purchas
+            elif column == self.DEFAS:
+                return line.defas
             elif column == self.SOLD_AS:
-                return line.sold_as
-            elif column == self.SOLD_TO:
-                return line.sold_to.trading_name
+                return line.soldas
+            elif column == self.CUST:
+                return line.cust
             elif column == self.SALE_DATE:
                 return str(line.sale_date)
-            elif column == self.EXPEDITION_PICKING:
-                return str(line.expedition_datetime)
-            elif column == self.WARRANTY_END_CUST:
-                return str(line.warranty_end_cust)
+            elif column == self.EXPED:
+                return line.exped.strftime('%d-%m-%Y')
+            elif column == self.WTYENDC:
+                return str(line.wtyendcust)
             elif column == self.PROBLEM:
                 return line.problem
             elif column == self.ACCEPTED:
                 return 'y' if line.accepted else 'n'
-            elif column == self.SOLD_AS_PUBLIC:
-                return line.public_condition
+            elif column == self.PUBLIC:
+                return line.public
             elif column == self.WHY:
                 return line.why
 
     def flags(self, index):
         if not index.isValid():
             return Qt.ItemIsEnabled
-        if index.column() in(self.PROBLEM, self.ACCEPTED, self.WHY):
+        if index.column() in (self.PROBLEM, self.ACCEPTED, self.WHY):
             return Qt.ItemFlags(super().flags(index) | Qt.ItemIsEditable)
         else:
             return Qt.ItemFlags(~Qt.ItemIsEditable)
@@ -5373,17 +5372,14 @@ class RmaIncomingLineModel(BaseTable, QtCore.QAbstractTableModel):
         else:
             return False
 
-    def add(self, sn, partner_id):
-
+    def add(self, sn):
         if self.serie_processed(sn):
             raise ValueError('Imei/Sn already processed')
-
         try:
             self.layoutAboutToBeChanged.emit()
-            self.lines.append(db.IncomingRmaLine.from_sn(sn, partner_id))
+            self.lines.append(db.IncomingRmaLine.from_sn(sn))
             self.layoutChanged.emit()
             db.session.flush()
-
         except ValueError:
             raise
 
@@ -5392,10 +5388,6 @@ class RmaIncomingLineModel(BaseTable, QtCore.QAbstractTableModel):
         del self.lines[row]
         db.session.flush()
         self.layoutChanged.emit()
-
-def get_partner_warranty(partner_id):
-    return db.session.query(db.Partner.warranty).where(db.Partner.id == partner_id).scalar()
-
 
 class ChangeModelTrace(BaseTable, QtCore.QAbstractTableModel):
 
