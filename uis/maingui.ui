@@ -6606,7 +6606,7 @@
          <property name="geometry">
           <rect>
            <x>30</x>
-           <y>90</y>
+           <y>40</y>
            <width>81</width>
            <height>21</height>
           </rect>
@@ -6619,7 +6619,7 @@
          <property name="geometry">
           <rect>
            <x>30</x>
-           <y>150</y>
+           <y>100</y>
            <width>111</width>
            <height>21</height>
           </rect>
@@ -6632,26 +6632,13 @@
          <property name="geometry">
           <rect>
            <x>30</x>
-           <y>120</y>
+           <y>70</y>
            <width>131</width>
            <height>21</height>
           </rect>
          </property>
          <property name="text">
           <string>Partially Accepted</string>
-         </property>
-        </widget>
-        <widget class="QCheckBox" name="rmas_incoming_empty">
-         <property name="geometry">
-          <rect>
-           <x>30</x>
-           <y>60</y>
-           <width>71</width>
-           <height>21</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Empty</string>
          </property>
         </widget>
        </widget>

@@ -1547,12 +1547,8 @@ class WhIncomingRmaLine(Base):
 
 class IncomingRma(Base):
     __tablename__ = 'incoming_rmas'
-
     id = Column(Integer, primary_key=True)
-    partner_id = Column(Integer, ForeignKey('partners.id'))
     date = Column(Date, nullable=True)
-
-    partner = relationship('Partner', uselist=False)
 
     wh_incoming_rma = relationship(
         'WhIncomingRma', uselist=False, back_populates='incoming_rma'
@@ -1564,14 +1560,15 @@ class IncomingRmaLine(Base):
 
     id = Column(Integer, primary_key=True)
     incoming_rma_id = Column(Integer, ForeignKey('incoming_rmas.id'))
-    sold_to_id = Column(Integer, ForeignKey('partners.id'))
-    sn = Column(String(50), nullable=False)
+    sn = Column(String(100), nullable=False)
+    supp = Column(String(100), nullable=False)
     recpt = Column(Date, nullable=True)
     wtyendsupp = Column(Date, nullable=False)
-    purchas = Column(String(100), nullable=True)
-    defas = Column(String(100), nullable=True)
-    soldas = Column(String(100), nullable=True)
+    purchas = Column(String(255), nullable=True)
+    defas = Column(String(255), nullable=True)
+    soldas = Column(String(255), nullable=True)
     public = Column(String(100), nullable=True)
+    cust = Column(String(100), nullable=False)
     saledate = Column(Date, nullable=True)
     exped = Column(Date, nullable=True)
     wtyendcust = Column(Date, nullable=True)
@@ -1586,8 +1583,6 @@ class IncomingRmaLine(Base):
             cascade='delete-orphan, delete, save-update'
         )
     )
-
-    sold_to = relationship('Partner', uselist=False)
 
     def __repr__(self):
         cls_name = self.__class__.__name__
@@ -1635,11 +1630,13 @@ class IncomingRmaLine(Base):
                 self.public = expedition_serie.line.showing_condition
                 self.cust = expedition_serie.line.expedition.proforma.partner.fiscal_name
                 try:
-                    self.sale_date = expedition_serie.line.expedition.proforma.invoice.date
+                    self.saledate = expedition_serie.line.expedition.proforma.invoice.date
                 except AttributeError:
-                    self.sale_date = expedition_serie.line.expedition.proforma.date
+                    self.saledate = expedition_serie.line.expedition.proforma.date
                 self.exped = expedition_serie.created_on.date()
                 self.wtyendcust = self.exped + timedelta(expedition_serie.line.expedition.proforma.warranty)
+
+                self.sold_to = expedition_serie.line.expedition.proforma.partner
 
                 self.problem = ''
                 self.why = ''

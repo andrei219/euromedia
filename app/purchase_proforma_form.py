@@ -260,16 +260,8 @@ class Form(Ui_PurchaseProformaForm, QWidget):
         except IntegrityError:
             QMessageBox.critical(self, 'Error', 'Document with that type / number already exists')
             db.session.rollback()
-
         else:
-            mss = 'Purchase saved. '
-            try:
-                create_dropbox_document(proforma)
-            except ValueError as ex:
-                mss += str(ex)
-            else:
-                mss += 'Dropbox updated.'
-            QMessageBox.information(self, 'Information', mss)
+            QMessageBox.information(self, 'Information', 'Purchase Saved')
             self.adjust_view()
             self.close()
 

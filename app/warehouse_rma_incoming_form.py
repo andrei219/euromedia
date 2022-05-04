@@ -33,9 +33,8 @@ class Form(Ui_Form, QWidget):
         self.view.resizeColumnsToContents()
 
     def populate_form(self):
-        self.partner.setText(self.order.incoming_rma.partner.fiscal_name)
+        self.partner.setText(self.order.incoming_rma.lines[0].supp)
         self.date.setText(self.order.incoming_rma.date.strftime('%d%m%y'))
-        self.warehouse.addItems(warehouse_id_map.keys())
         try:
             self.warehouse.setCurrentText(self.order.warehouse.description)
         except AttributeError:

@@ -60,7 +60,7 @@ class Ui_Form(object):
         self.label_4.setObjectName("label_4")
         self.date = QtWidgets.QLineEdit(Form)
         self.date.setGeometry(QtCore.QRect(150, 20, 151, 20))
-        self.date.setReadOnly(True)
+        self.date.setReadOnly(False)
         self.date.setObjectName("date")
 
         self.retranslateUi(Form)

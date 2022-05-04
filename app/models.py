@@ -5151,7 +5151,7 @@ class WhRmaIncomingModel(BaseTable, QtCore.QAbstractTableModel):
             if column == self.ID:
                 return str(order.id).zfill(6)
             elif column == self.PARTNER:
-                return order.incoming_rma.partner.fiscal_name
+                return order.incoming_rma.lines[0].cust
             elif column == self.DATE:
                 return order.incoming_rma.date.strftime('%d/%m/%Y')
             elif column == self.STATUS:
@@ -5165,11 +5165,11 @@ class WhRmaIncomingModel(BaseTable, QtCore.QAbstractTableModel):
 
 class WhRmaIncomingLineModel(BaseTable, QtCore.QAbstractTableModel):
 
-    SN, PROBLEM, ACCEPTED, WHY = 0, 1, 2, 3
+    SN, PROBLEM, ACCEPTED, WHY, WAREHOUSE = 0, 1, 2, 3, 4
 
     def __init__(self, lines):
         super().__init__()
-        self._headerData = ['SN/IMEI', 'Problem', 'Accepted', 'Why']
+        self._headerData = ['SN/IMEI', 'Problem', 'Accepted', 'Why', 'Target WH']
         self.name = 'lines'
         self.lines = lines
 
@@ -5187,11 +5187,13 @@ class WhRmaIncomingLineModel(BaseTable, QtCore.QAbstractTableModel):
                 return line.why
             elif column == self.ACCEPTED:
                 return 'y' if line.accepted else 'n'
+            elif column == self.WAREHOUSE:
+                return 'AAA'
 
     def flags(self, index):
         if not index.isValid():
             return Qt.ItemIsEnabled
-        if index.column() in (self.WHY, self.ACCEPTED):
+        if index.column() in (self.WHY, self.ACCEPTED, self.WAREHOUSE):
             return Qt.ItemFlags(super().flags(index) | Qt.ItemIsEditable)
         else:
             return Qt.ItemFlags(~Qt.ItemIsEditable)
@@ -5214,13 +5216,13 @@ class WhRmaIncomingLineModel(BaseTable, QtCore.QAbstractTableModel):
         return False
 
 class RmaIncomingModel(BaseTable, QtCore.QAbstractTableModel):
-    ID, PARTNER, DATE, STATUS, INWH= 0, 1, 2, 3, 4
+    ID, PARTNER, DATE, QNT, STATUS, INWH = 0, 1, 2, 3, 4, 5
 
     def __init__(self, search_key=None, filters=None):
         super().__init__()
         self.orders = db.session.query(db.IncomingRma).all()
         self.name = 'orders'
-        self._headerData = ['ID', 'Partner', 'Date', 'Status', 'In WH']
+        self._headerData = ['ID', 'Partner', 'Date', 'Quantity', 'Status', 'In WH']
 
     def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
 
@@ -5235,11 +5237,13 @@ class RmaIncomingModel(BaseTable, QtCore.QAbstractTableModel):
             elif column == self.DATE:
                 return rma_order.date.strftime('%d/%m/%Y')
             elif column == self.PARTNER:
-                return rma_order.partner.trading_name
+                try:
+                    return rma_order.lines[0].cust
+                except IndexError:
+                    return 'Unknown'
+
             elif column == self.STATUS:
-                if not rma_order.lines:
-                    return 'Empty'
-                elif all((line.accepted for line in rma_order.lines)):
+                if all((line.accepted for line in rma_order.lines)):
                     return 'Accepted'
                 elif all((not line.accepted for line in rma_order.lines)):
                     return 'Rejected'
@@ -5247,14 +5251,14 @@ class RmaIncomingModel(BaseTable, QtCore.QAbstractTableModel):
                     return 'Partially Accepted'
             elif column == self.INWH:
                 return 'Yes' if rma_order.wh_incoming_rma is not None else 'No'
+            elif column == self.QNT:
+                return str(len(rma_order.lines)) + ' pcs'
 
         elif role == Qt.DecorationRole:
             if column == self.DATE:
-                return QtGui.QIcon('\calendar')
+                return QtGui.QIcon(':\calendar')
             elif column == self.STATUS:
-                if not rma_order.lines:
-                    return QtGui.QColor(YELLOW)
-                elif all((line.accepted for line in rma_order.lines)):
+                if all((line.accepted for line in rma_order.lines)):
                     return QtGui.QColor(GREEN)
                 elif all((not line.accepted for line in rma_order.lines)):
                     return QtGui.QColor(RED)
@@ -5265,7 +5269,6 @@ class RmaIncomingModel(BaseTable, QtCore.QAbstractTableModel):
         reverse = True if order == Qt.AscendingOrder else False
         attr = {
             self.ID: 'id',
-            self.PARTNER: 'partner.trading_name',
             self.DATE: 'date'
         }.get(column)
         if attr:
@@ -5276,6 +5279,9 @@ class RmaIncomingModel(BaseTable, QtCore.QAbstractTableModel):
     def to_warehouse(self, row):
         rma_order: db.IncomingRma = self.orders[row]
         wh_rma_order = db.WhIncomingRma(rma_order)
+
+        if all((not line.accepted for line in rma_order.lines)):
+            raise ValueError('Rma not accepted. I will not send to WH')
 
         for line in rma_order.lines:
             if line.accepted:
@@ -5323,10 +5329,12 @@ class RmaIncomingLineModel(BaseTable, QtCore.QAbstractTableModel):
                 return line.defas
             elif column == self.SOLD_AS:
                 return line.soldas
+            elif column == self.PUBLIC:
+                return line.public
             elif column == self.CUST:
                 return line.cust
             elif column == self.SALE_DATE:
-                return str(line.sale_date)
+                return str(line.saledate)
             elif column == self.EXPED:
                 return line.exped.strftime('%d-%m-%Y')
             elif column == self.WTYENDC:
@@ -5335,8 +5343,6 @@ class RmaIncomingLineModel(BaseTable, QtCore.QAbstractTableModel):
                 return line.problem
             elif column == self.ACCEPTED:
                 return 'y' if line.accepted else 'n'
-            elif column == self.PUBLIC:
-                return line.public
             elif column == self.WHY:
                 return line.why
 
@@ -5385,9 +5391,15 @@ class RmaIncomingLineModel(BaseTable, QtCore.QAbstractTableModel):
 
     def delete(self, row):
         self.layoutAboutToBeChanged.emit()
-        del self.lines[row]
+        self.lines.pop(row)
         db.session.flush()
         self.layoutChanged.emit()
+
+    def __iter__(self):
+        return iter(self.lines)
+
+    def __bool__(self):
+        return bool(self.lines)
 
 class ChangeModelTrace(BaseTable, QtCore.QAbstractTableModel):
 

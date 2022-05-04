@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 515bea5f4e7c
-Revises: 733cb92dffd1
-Create Date: 2022-05-04 09:35:37.263419
+Revision ID: aa29b0a4fb5a
+Revises: 
+Create Date: 2022-05-04 12:13:35.355775
 
 """
 from alembic import op
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
-revision = '515bea5f4e7c'
-down_revision = '733cb92dffd1'
+revision = 'aa29b0a4fb5a'
+down_revision = None
 branch_labels = None
 depends_on = None
 
@@ -42,14 +42,34 @@ def upgrade():
                existing_type=mysql.DOUBLE(asdecimal=True),
                type_=sa.Float(precision=32),
                existing_nullable=False)
-    op.alter_column('incoming_rma_lines', 'recpt',
-               existing_type=mysql.DATETIME(),
-               type_=sa.Date(),
-               existing_nullable=True)
-    op.alter_column('incoming_rma_lines', 'exped',
-               existing_type=mysql.DATETIME(),
-               type_=sa.Date(),
-               existing_nullable=True)
+    op.add_column('incoming_rma_lines', sa.Column('supp', sa.String(length=100), nullable=False))
+    op.add_column('incoming_rma_lines', sa.Column('recpt', sa.Date(), nullable=True))
+    op.add_column('incoming_rma_lines', sa.Column('wtyendsupp', sa.Date(), nullable=False))
+    op.add_column('incoming_rma_lines', sa.Column('purchas', sa.String(length=255), nullable=True))
+    op.add_column('incoming_rma_lines', sa.Column('defas', sa.String(length=255), nullable=True))
+    op.add_column('incoming_rma_lines', sa.Column('soldas', sa.String(length=255), nullable=True))
+    op.add_column('incoming_rma_lines', sa.Column('public', sa.String(length=100), nullable=True))
+    op.add_column('incoming_rma_lines', sa.Column('cust', sa.String(length=100), nullable=False))
+    op.add_column('incoming_rma_lines', sa.Column('saledate', sa.Date(), nullable=True))
+    op.add_column('incoming_rma_lines', sa.Column('exped', sa.Date(), nullable=True))
+    op.add_column('incoming_rma_lines', sa.Column('wtyendcust', sa.Date(), nullable=True))
+    op.alter_column('incoming_rma_lines', 'sn',
+               existing_type=mysql.VARCHAR(length=50),
+               type_=sa.String(length=100),
+               existing_nullable=False)
+    op.drop_constraint('incoming_rma_lines_ibfk_2', 'incoming_rma_lines', type_='foreignkey')
+    op.drop_column('incoming_rma_lines', 'defined_as')
+    op.drop_column('incoming_rma_lines', 'sold_to_id')
+    op.drop_column('incoming_rma_lines', 'public_condition')
+    op.drop_column('incoming_rma_lines', 'reception_datetime')
+    op.drop_column('incoming_rma_lines', 'sold_as')
+    op.drop_column('incoming_rma_lines', 'warranty_end_cust')
+    op.drop_column('incoming_rma_lines', 'sale_date')
+    op.drop_column('incoming_rma_lines', 'expedition_datetime')
+    op.drop_column('incoming_rma_lines', 'warranty_end_sup')
+    op.drop_column('incoming_rma_lines', 'purchased_as')
+    op.drop_constraint('incoming_rmas_ibfk_1', 'incoming_rmas', type_='foreignkey')
+    op.drop_column('incoming_rmas', 'partner_id')
     op.alter_column('partner_documents', 'document',
                existing_type=mysql.LONGBLOB(),
                type_=sa.LargeBinary(length=4294967295),
@@ -167,14 +187,34 @@ def downgrade():
                existing_type=sa.LargeBinary(length=4294967295),
                type_=mysql.LONGBLOB(),
                existing_nullable=True)
-    op.alter_column('incoming_rma_lines', 'exped',
-               existing_type=sa.Date(),
-               type_=mysql.DATETIME(),
-               existing_nullable=True)
-    op.alter_column('incoming_rma_lines', 'recpt',
-               existing_type=sa.Date(),
-               type_=mysql.DATETIME(),
-               existing_nullable=True)
+    op.add_column('incoming_rmas', sa.Column('partner_id', mysql.INTEGER(), autoincrement=False, nullable=True))
+    op.create_foreign_key('incoming_rmas_ibfk_1', 'incoming_rmas', 'partners', ['partner_id'], ['id'])
+    op.add_column('incoming_rma_lines', sa.Column('purchased_as', mysql.VARCHAR(length=100), nullable=True))
+    op.add_column('incoming_rma_lines', sa.Column('warranty_end_sup', sa.DATE(), nullable=False))
+    op.add_column('incoming_rma_lines', sa.Column('expedition_datetime', mysql.DATETIME(), nullable=True))
+    op.add_column('incoming_rma_lines', sa.Column('sale_date', sa.DATE(), nullable=True))
+    op.add_column('incoming_rma_lines', sa.Column('warranty_end_cust', sa.DATE(), nullable=True))
+    op.add_column('incoming_rma_lines', sa.Column('sold_as', mysql.VARCHAR(length=100), nullable=True))
+    op.add_column('incoming_rma_lines', sa.Column('reception_datetime', mysql.DATETIME(), nullable=True))
+    op.add_column('incoming_rma_lines', sa.Column('public_condition', mysql.VARCHAR(length=100), nullable=True))
+    op.add_column('incoming_rma_lines', sa.Column('sold_to_id', mysql.INTEGER(), autoincrement=False, nullable=True))
+    op.add_column('incoming_rma_lines', sa.Column('defined_as', mysql.VARCHAR(length=100), nullable=True))
+    op.create_foreign_key('incoming_rma_lines_ibfk_2', 'incoming_rma_lines', 'partners', ['sold_to_id'], ['id'])
+    op.alter_column('incoming_rma_lines', 'sn',
+               existing_type=sa.String(length=100),
+               type_=mysql.VARCHAR(length=50),
+               existing_nullable=False)
+    op.drop_column('incoming_rma_lines', 'wtyendcust')
+    op.drop_column('incoming_rma_lines', 'exped')
+    op.drop_column('incoming_rma_lines', 'saledate')
+    op.drop_column('incoming_rma_lines', 'cust')
+    op.drop_column('incoming_rma_lines', 'public')
+    op.drop_column('incoming_rma_lines', 'soldas')
+    op.drop_column('incoming_rma_lines', 'defas')
+    op.drop_column('incoming_rma_lines', 'purchas')
+    op.drop_column('incoming_rma_lines', 'wtyendsupp')
+    op.drop_column('incoming_rma_lines', 'recpt')
+    op.drop_column('incoming_rma_lines', 'supp')
     op.alter_column('agents', 'fixed_perpiece',
                existing_type=sa.Float(precision=32),
                type_=mysql.DOUBLE(asdecimal=True),

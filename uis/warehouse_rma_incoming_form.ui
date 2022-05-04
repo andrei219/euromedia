@@ -73,40 +73,17 @@
    <property name="geometry">
     <rect>
      <x>40</x>
-     <y>170</y>
+     <y>120</y>
      <width>881</width>
-     <height>281</height>
+     <height>331</height>
     </rect>
-   </property>
-  </widget>
-  <widget class="QComboBox" name="warehouse">
-   <property name="geometry">
-    <rect>
-     <x>400</x>
-     <y>100</y>
-     <width>211</width>
-     <height>22</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label_3">
-   <property name="geometry">
-    <rect>
-     <x>170</x>
-     <y>102</y>
-     <width>211</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Target warehouse for accepted devices:</string>
    </property>
   </widget>
   <widget class="QToolButton" name="save">
    <property name="geometry">
     <rect>
-     <x>720</x>
-     <y>490</y>
+     <x>780</x>
+     <y>510</y>
      <width>70</width>
      <height>60</height>
     </rect>
@@ -146,8 +123,8 @@
   <widget class="QToolButton" name="exit">
    <property name="geometry">
     <rect>
-     <x>810</x>
-     <y>490</y>
+     <x>870</x>
+     <y>510</y>
      <width>70</width>
      <height>60</height>
     </rect>

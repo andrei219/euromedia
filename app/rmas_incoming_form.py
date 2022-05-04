@@ -33,7 +33,6 @@ class Form(Ui_Form, QWidget):
 
         if order is not None:
             self.order = order
-            self.partner.setText(order.partner.fiscal_name)
             self.date.setText(order.date.strftime('%d%m%Y'))
         else:
             self.date.setText(today_date())
@@ -88,22 +87,28 @@ class Form(Ui_Form, QWidget):
         except ValueError:
             QMessageBox.critical(self, 'Error', 'Invalid date format. It is ddmmyyyy')
             return
-        try:
-            self.order.partner_id = utils.partner_id_map[self.partner.text()]
-        except KeyError:
-            QMessageBox.critical(self, 'Error', 'Invalid Partner')
+
+        if not self.lines_model:
+            QMessageBox.critical(self, 'Error', 'I will not save and empty proforma')
             return
-        else:
 
-            session.commit()
-            QMessageBox.information(self, 'Success', 'Rma order saved successfully')
+        if len({line.cust for line in self.lines_model}) != 1:
+            QMessageBox.critical(self, 'Error', 'Imeis from different customers')
+            return
 
-    def closeEvent(self, event) -> None:
-        print('reached')
-        session.rollback()
+        session.commit()
+        QMessageBox.information(self, 'Success', 'Rma order saved successfully')
+        self.close()
         self.parent.set_mv('rmas_incoming_')
 
 
+    def closeEvent(self, event) -> None:
+        session.rollback()
+        self.parent.set_mv('rmas_incoming_')
+
+    def exit_handler(self):
+        session.rollback()
+        self.close()
 
 
 
