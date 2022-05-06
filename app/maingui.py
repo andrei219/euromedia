@@ -747,6 +747,13 @@ class MainGui(Ui_MainGui, QMainWindow):
             from credit_note_form import Form
             self.sp = Form(self, proforma)
 
+        else:
+            self.sp = sale_proforma_form.get_form(
+                self,
+                self.proformas_sales_view,
+                proforma
+            )
+
         self.sp.show()
 
     def proformas_sales_cancel_handler(self):
