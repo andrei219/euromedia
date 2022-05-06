@@ -233,7 +233,7 @@ class Partner(Base):
 
     id = Column(Integer, primary_key=True)
     fiscal_number = Column(String(50), nullable=False)
-    fiscal_name = Column(String(50), nullable=False)
+    fiscal_name = Column(String(50), nullable=False, unique=True)
     trading_name = Column(String(50), nullable=False, unique=True)
     warranty = Column(Integer, default=0)
     note = Column(String(255))
@@ -587,6 +587,7 @@ class PurchasePayment(Base):
 
 
 class PurchaseExpense(Base):
+
     __tablename__ = 'purchase_expenses'
 
     id = Column(Integer, primary_key=True)
@@ -606,6 +607,7 @@ class PurchaseExpense(Base):
 
 
 class SaleProforma(Base):
+
     __tablename__ = 'sale_proformas'
 
     id = Column(Integer, primary_key=True)
@@ -666,12 +668,14 @@ class SaleProforma(Base):
     @property
     def subtotal(self):
         return sum(line.price * line.quantity for line in self.lines) or \
-               sum(line.price * line.quantity for line in self.advanced_lines)
+            sum(line.price * line.quantity for line in self.advanced_lines) or \
+            sum(line.price * line.quantity for line in self.credit_note_lines)
 
     @property
     def tax(self):
         return sum(line.price * line.quantity * line.tax / 100 for line in self.lines) or \
-               sum(line.price * line.quantity * line.tax / 100 for line in self.advanced_lines)
+            sum(line.price * line.quantity * line.tax / 100 for line in self.advanced_lines) or \
+            sum(line.price * line.quantity * line.tax / 100 for line in self.credit_note_lines)
 
     @property
     def total_debt(self):
@@ -797,6 +801,8 @@ class SaleInvoice(Base):
     date = Column(Date, default=datetime.now)
     eta = Column(Date, default=datetime.now)
 
+    wh_incoming_rma = relationship('WhIncomingRma', uselist=False, back_populates='sale_invoice')
+
     @property
     def doc_repr(self):
         return str(self.type) + '-' + str(self.number).zfill(6)
@@ -837,10 +843,10 @@ class SaleProformaLine(Base):
     item = relationship('Item')
     proforma = relationship(
         'SaleProforma',
-        backref=backref('lines',
-                        cascade='delete-orphan, delete, save-update',
-                        # lazy = 'joined'
-                        )
+        backref=backref(
+            'lines',
+            cascade='delete-orphan, delete, save-update',
+        )
     )
     # options lazyjoined to the query
     __table_args__ = (
@@ -877,60 +883,8 @@ class SaleProformaLine(Base):
         return f"{classname}(item_id={self.item_id}, condition={self.condition}, spec={self.spec},mix_id={self.mix_id}, quantity={self.quantity})"
 
 
-# @event.listens_for(session, 'transient_to_pending')
-# def object_is_pending(session, object):
-#     if type(object) in (SaleProforma, SaleProformaLine, AdvancedLine, AdvancedLineDefinition):
-#         print('new pending %s' %object)
-
-# @event.listens_for(Base, "init", propagate=True)
-# def intercept_init(instance, args, kwargs):
-#     if type(object) in (SaleProforma, SaleProformaLine, AdvancedLine, AdvancedLineDefinition):
-#         print("new transient: %s" % instance)
-
-# @event.listens_for(session, "pending_to_persistent")
-# def intercept_pending_to_persistent(session, object_):
-#     if type(object) in (SaleProforma, SaleProformaLine, AdvancedLine, AdvancedLineDefinition):
-#         print("pending to persistent: %s" % object_)
-
-
-# @event.listens_for(session, "pending_to_transient")
-# def intercept_pending_to_transient(session, object_):
-#     if type(object) in (SaleProforma, SaleProformaLine, AdvancedLine, AdvancedLineDefinition):
-#         print("transient to pending: %s" % object_)
-
-# @event.listens_for(session, "loaded_as_persistent")
-# def intercept_loaded_as_persistent(session, object_):
-#     if type(object) in (SaleProforma, SaleProformaLine, AdvancedLine, AdvancedLineDefinition):
-#         print("object loaded into persistent state: %s" % object_)
-
-# @event.listens_for(session, "persistent_to_deleted")
-# def intercept_persistent_to_deleted(session, object_):
-#     if type(object) in (SaleProforma, SaleProformaLine, AdvancedLine, AdvancedLineDefinition):
-#         print("object was DELETEd, is now in deleted state: %s" % object_)
-
-# @event.listens_for(session, "deleted_to_detached")
-# def intercept_deleted_to_detached(session, object_):
-#     if type(object) in (SaleProforma, SaleProformaLine, AdvancedLine, AdvancedLineDefinition):
-#         print("deleted to detached: %s" % object_)
-
-# @event.listens_for(session, "persistent_to_detached")
-# def intercept_persistent_to_detached(session, object_):
-#     if type(object) in (SaleProforma, SaleProformaLine, AdvancedLine, AdvancedLineDefinition):
-#         print("object became detached: %s" % object_)
-
-
-# @event.listens_for(session, "detached_to_persistent")
-# def intercept_detached_to_persistent(session, object_):
-#     if type(object) in (SaleProforma, SaleProformaLine, AdvancedLine, AdvancedLineDefinition):
-#         print("object became persistent again: %s" % object_)
-
-# @event.listens_for(session, "deleted_to_persistent")
-# def intercept_deleted_to_persistent(session, object_):
-#     if type(object) in (SaleProforma, SaleProformaLine, AdvancedLine, AdvancedLineDefinition):
-#         print("deleted to persistent: %s" % object_)
-
-
 class AdvancedLine(Base):
+
     __tablename__ = 'advanced_lines'
 
     id = Column(Integer, primary_key=True)
@@ -1505,17 +1459,21 @@ class WhIncomingRma(Base):
     __tablename__ = 'wh_incoming_rmas'
 
     id = Column(Integer, primary_key=True)
+
     incoming_rma_id = Column(Integer, ForeignKey('incoming_rmas.id'), nullable=False)
-    inventoried = Column(Boolean, nullable=False, default=False)
+    sale_invoice_id = Column(Integer, ForeignKey('sale_invoices.id'))
+
     incoming_rma = relationship('IncomingRma', back_populates='wh_incoming_rma')
-
-    warehouse_id = Column(Integer, ForeignKey('warehouses.id'))
-
-    warehouse = relationship('Warehouse', uselist=False)
+    sale_invoice = relationship('SaleInvoice', back_populates='wh_incoming_rma')
 
     __table_args__ = (
         UniqueConstraint('incoming_rma_id', name='wh_order_from_onlyone_rma_order'),
     )
+
+
+    def __repr__(self):
+        clsname = self.__class__.__name__
+        return f"{clsname}(incoming_rma_id={self.incoming_rma_id}, sale_invoice_id={self.sale_invoice_id})"
 
     def __init__(self, incoming_rma):
         self.incoming_rma = incoming_rma
@@ -1526,10 +1484,16 @@ class WhIncomingRmaLine(Base):
 
     id = Column(Integer, primary_key=True)
     wh_incoming_rma_id = Column(Integer, ForeignKey('wh_incoming_rmas.id'), nullable=False)
+    warehouse_id = Column(Integer, ForeignKey('warehouses.id'), default=1)
+    item_id = Column(Integer, ForeignKey('items.id'), default=10)
+    invoice_type = Column(Integer, nullable=False)
     sn = Column(String(50), nullable=False)
     accepted = Column(Boolean, nullable=False, default=False)
     problem = Column(String(100), nullable=True)
     why = Column(String(50), nullable=True, default="")
+    condition = Column(String(50), nullable=False)
+    spec = Column(String(50), nullable=False)
+    price = Column(Float(precision=32, decimal_return_scale=None), nullable=False)
 
     wh_incoming_rma = relationship(
         'WhIncomingRma',
@@ -1539,10 +1503,71 @@ class WhIncomingRmaLine(Base):
         )
     )
 
+    def __repr__(self):
+        clsname = self.__class__.__name__
+        s = f"{clsname}(sn={self.sn}, accepetd={self.accepted}, problem={self.problem},"
+        s += f"why={self.why})"
+        return s
+
+    def __hash__(self):
+        return hash(self.sn)
+
+    def __eq__(self, other):
+        return self.sn == other.sn
+
     def __init__(self, incoming_rma_line):
         self.sn = incoming_rma_line.sn
         self.problem = incoming_rma_line.problem
         self.accepted = incoming_rma_line.accepted
+        self.warehouse_id = 1  # General por defecto
+        self.item_id = incoming_rma_line.item_id
+        self.condition = incoming_rma_line.condition
+        self.spec = incoming_rma_line.spec
+        self.price = incoming_rma_line.price
+        try:
+            self.invoice_type = session.query(SaleInvoice.type)\
+                .join(SaleProforma)\
+                .join(Expedition)\
+                .join(ExpeditionLine).\
+                join(ExpeditionSerie).where(ExpeditionSerie.serie == self.sn).all()[-1].type
+        except IndexError:
+            raise ValueError('Cant find sale invoice associated')
+
+
+
+class CreditNoteLine(Base):
+
+    __tablename__ = 'credit_note_lines'
+
+    id = Column(Integer, primary_key=True)
+    proforma_id = Column(Integer, ForeignKey('sale_proformas.id'))
+    item_id = Column(Integer, ForeignKey('items.id'))
+    condition = Column(String(50), nullable=False)
+    spec = Column(String(50), nullable=False)
+    quantity = Column(Integer, nullable=False)
+    price = Column(Float(precision=32, decimal_return_scale=None), nullable=False)
+    tax = Column(Integer, nullable=False)
+
+    proforma = relationship(
+        'SaleProforma',
+        backref=backref(
+            'credit_note_lines',
+            cascade='delete-orphan, delete, save-update',
+        )
+    )
+
+    item = relationship('Item', uselist=False)
+
+    def __init__(self, wh_line):
+        self.item_id = wh_line.item_id
+        self.condition = wh_line.condition
+        self.spec = wh_line.spec
+        self.quantity = 1
+        self.tax = 0
+        self.price = -wh_line.price
+
+    def __repr__(self):
+        return f'item_id = {self.item_id}'
 
 
 class IncomingRma(Base):
@@ -1560,6 +1585,10 @@ class IncomingRmaLine(Base):
 
     id = Column(Integer, primary_key=True)
     incoming_rma_id = Column(Integer, ForeignKey('incoming_rmas.id'))
+    item_id = Column(Integer, ForeignKey('items.id'))
+    condition = Column(String(50), nullable=False)
+    spec = Column(String(50), nullable=False)
+
     sn = Column(String(100), nullable=False)
     supp = Column(String(100), nullable=False)
     recpt = Column(Date, nullable=True)
@@ -1575,6 +1604,7 @@ class IncomingRmaLine(Base):
     problem = Column(String(100), nullable=True)
     accepted = Column(Boolean, default=False, nullable=True)
     why = Column(String(100), nullable=True)
+    price = Column(Float(precision=32, decimal_return_scale=None), nullable=False)
 
     incoming_rma = relationship(
         'IncomingRma',
@@ -1588,6 +1618,14 @@ class IncomingRmaLine(Base):
         cls_name = self.__class__.__name__
         s = f"{cls_name}(sn={self.sn})"
         return s
+
+    # This two method enables set difference
+    def __hash__(self):
+        return hash(self.sn)
+
+    def __eq__(self, other):
+        return self.sn == other.sn
+
 
     @classmethod
     def from_sn(cls, sn):
@@ -1622,6 +1660,10 @@ class IncomingRmaLine(Base):
                 reception_serie.spec
             ))
             if expedition_serie is not None:
+                self.item_id = expedition_serie.line.item_id
+                self.condition = expedition_serie.line.condition
+                self.spec = expedition_serie.line.spec
+
                 self.soldas = ', '.join((
                     expedition_serie.line.item.clean_repr,
                     expedition_serie.line.condition,
@@ -1642,6 +1684,14 @@ class IncomingRmaLine(Base):
                 self.why = ''
                 self.accepted = False
 
+                for line in expedition_serie.line.expedition.proforma.lines:
+                    if all((
+                        line.item_id == expedition_serie.line.item_id,
+                        line.condition == expedition_serie.line.condition,
+                        line.spec == expedition_serie.line.spec
+                    )):
+                        self.price = line.price
+                        break
         return self
 
 

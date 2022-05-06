@@ -737,12 +737,15 @@ class MainGui(Ui_MainGui, QMainWindow):
                 self.proformas_sales_view,
                 proforma
             )
-        else:
+        elif proforma.lines:
             self.sp = sale_proforma_form.get_form(
                 self,
                 self.proformas_sales_view,
                 proforma
             )
+        elif proforma.credit_note_lines:
+            from credit_note_form import Form
+            self.sp = Form(self, proforma)
 
         self.sp.show()
 
@@ -896,8 +899,17 @@ class MainGui(Ui_MainGui, QMainWindow):
 
     def launch_sale_proforma_form(self, index=None):
         if index:
+
             proforma = self.proformas_sales_model.proformas[index.row()]
-            if proforma.advanced_lines:
+
+            print('lines=', proforma.lines)
+            print('advaced_lies=', proforma.advanced_lines)
+            print('credit lines=', proforma.credit_note_lines)
+
+            if proforma.credit_note_lines:
+                print('eeee')
+
+            elif proforma.advanced_lines:
                 self.sp = advanced_sale_proforma_form.get_form(
                     self,
                     self.proformas_sales_view,
@@ -909,8 +921,6 @@ class MainGui(Ui_MainGui, QMainWindow):
                     self.proformas_sales_view,
                     proforma
                 )
-        else:
-            pass
 
             # PURCHASE INVOICE HANDLERS:
 
@@ -1248,13 +1258,47 @@ class MainGui(Ui_MainGui, QMainWindow):
     def warehouse_incoming_rma_process_handler(self):
         from warehouse_rma_incoming_form import Form
         order = self.get_wh_incoming_rma_order()
-        if not order:return
+        if not order:
+            return
         self.whirma = Form(self, order)
         self.whirma.show()
 
     def warehouse_incoming_rma_tocn_handler(self):
-        print('echo')
+        wh_rma_order = self.get_wh_incoming_rma_order()
+        if not wh_rma_order:
+            return
 
+        from itertools import groupby
+        groups = groupby(
+            wh_rma_order.lines,
+            lambda o: (o.warehouse_id, o.invoice_type)
+        )
+
+        from models import build_credit_note
+
+        # Get partner:
+        fiscal_name = wh_rma_order.incoming_rma.lines[0].cust
+        partner_id = db.session.query(db.Partner.id).\
+            where(db.Partner.fiscal_name == fiscal_name).scalar()
+
+        for key, group in groups:
+            wh_id, invoice_type = key
+            wh_lines = list(group)
+            try:
+                p = build_credit_note(
+                    invoice_type,
+                    wh_id,
+                    partner_id,
+                    wh_lines
+                )
+                db.session.add(p)
+                db.session.commit()
+                # self.proformas_sales_model.associateInvoice(p)
+                # db.session.commit()
+
+
+            except ValueError as ex:
+                QMessageBox.critical(self, 'Error', str(ex))
 
     def rmas_incoming_double_click_handler(self, index):
         rma_order = self.rmas_incoming_model[index.row()]

@@ -21,6 +21,7 @@ from sqlalchemy.exc import IntegrityError
 
 import utils
 import db
+from utils import description_id_map
 from exceptions import SeriePresentError
 
 
@@ -1381,13 +1382,16 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
                             ]
         self.proformas = []
         self.name = 'proformas'
-        query = db.session.query(db.SaleProforma). \
-            select_from(db.Agent, db.Partner). \
-            where(
-            db.Agent.id == db.SaleProforma.agent_id,
-            db.Partner.id == db.SaleProforma.partner_id,
-            db.Warehouse.id == db.SaleProforma.warehouse_id
-        )
+        # query = db.session.query(db.SaleProforma). \
+        #     select_from(db.Agent, db.Partner). \
+        #     where(
+        #     db.Agent.id == db.SaleProforma.agent_id,
+        #     db.Partner.id == db.SaleProforma.partner_id,
+        #     db.Warehouse.id == db.SaleProforma.warehouse_id
+        # )
+
+        query = db.session.query(db.SaleProforma).join(db.Agent).join(db.Partner)
+
 
         if proxy:
             self._headerData.append('From proforma')
@@ -1511,11 +1515,11 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
                 return 'Yes' if proforma.cancelled else 'No'
             elif col == self.OWING:
                 sign = ' -€' if proforma.eur_currency else ' $'
-                owes = sale_total_debt(proforma) - sale_total_paid(proforma)
+                owes = proforma.total_debt - proforma.total_paid
                 return str(owes) + sign
             elif col == self.TOTAL:
                 sign = ' -€' if proforma.eur_currency else ' $'
-                return str(sale_total_debt(proforma)) + sign
+                return str(proforma.total_debt) + sign
 
             elif col == self.ADVANCED:
                 return 'Yes' if proforma.advanced_lines else 'No'
@@ -5134,11 +5138,11 @@ def get_spec(eline: db.ExpeditionLine):
 
 class WhRmaIncomingModel(BaseTable, QtCore.QAbstractTableModel):
 
-    ID, PARTNER, DATE, STATUS, INVOICED, INVENTORIED = 0, 1, 2, 3, 4, 5
+    ID, PARTNER, DATE, STATUS, INVOICED = 0, 1, 2, 3, 4
 
     def __init__(self, search_key=None, filters=None):
         super().__init__()
-        self._headerData = ['ID', 'Partner', 'Date', 'Status', 'Invoiced', 'Inventoried']
+        self._headerData = ['ID', 'Partner', 'Date', 'Status', 'Invoiced']
         self.name = 'orders'
         self.orders = db.session.query(db.WhIncomingRma).all()
 
@@ -5146,8 +5150,9 @@ class WhRmaIncomingModel(BaseTable, QtCore.QAbstractTableModel):
         if not index.isValid():
             return
         row, column = index.row(), index.column()
+        order = self.orders[row]
+
         if role == Qt.DisplayRole:
-            order = self.orders[row]
             if column == self.ID:
                 return str(order.id).zfill(6)
             elif column == self.PARTNER:
@@ -5155,12 +5160,59 @@ class WhRmaIncomingModel(BaseTable, QtCore.QAbstractTableModel):
             elif column == self.DATE:
                 return order.incoming_rma.date.strftime('%d/%m/%Y')
             elif column == self.STATUS:
-                return 'status'
+                if all((line.accepted for line in order.lines)):
+                    return 'Accepted'
+                elif all((not line.accepted for line in order.lines)):
+                    return 'Rejected'
+                elif len({line.accepted for line in order.lines}) == 2:
+                    return 'Partially accepted'
             elif column == self.INVOICED:
-                return  'No'
-            elif column == self.INVENTORIED:
-                return 'Yes' if order.inventoried else 'No'
+                return 'No'
 
+        elif role == Qt.DecorationRole:
+            if column == self.STATUS:
+                if all((line.accepted for line in order.lines)):
+                    return QtGui.QColor(GREEN)
+                elif all((not line.accepted for line in order.lines)):
+                    return QtGui.QColor(RED)
+                elif len({line.accepted for line in order.lines}) == 2:
+                    return QtGui.QColor(ORANGE)
+
+
+from utils import warehouse_id_map
+
+
+class CreditNoteLineModel(BaseTable, QtCore.QAbstractTableModel):
+
+    ITEM, CONDITION, SPEC, QUANTITY, PRICE, TAX = 0, 1, 2, 3, 4, 5
+
+    def __init__(self, lines):
+        super().__init__()
+        self._headerData = ['Description', 'Condition', 'Spec', 'Quantity', 'Price', 'Tax']
+        self.name = 'lines'
+        self.lines = lines
+        print('eee')
+        print('lines=', lines)
+
+
+    def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
+        if not index.isValid():
+            return
+        row, column = index.row(), index.column()
+        if role == Qt.DisplayRole:
+            line = self.lines[row]
+            if column == self.ITEM:
+                return description_id_map.inverse[line.item_id]
+            elif column == self.CONDITION:
+                return line.condition
+            elif column == self.SPEC:
+                return line.spec
+            elif column == self.QUANTITY:
+                return str(line.quantity)
+            elif column == self.PRICE:
+                return str(line.price)
+            elif column == self.TAX:
+                return str(line.tax)
 
 
 class WhRmaIncomingLineModel(BaseTable, QtCore.QAbstractTableModel):
@@ -5188,9 +5240,11 @@ class WhRmaIncomingLineModel(BaseTable, QtCore.QAbstractTableModel):
             elif column == self.ACCEPTED:
                 return 'y' if line.accepted else 'n'
             elif column == self.WAREHOUSE:
-                return 'AAA'
+                return warehouse_id_map.inverse[line.warehouse_id]
 
     def flags(self, index):
+        # return Qt.ItemIsEditable
+
         if not index.isValid():
             return Qt.ItemIsEnabled
         if index.column() in (self.WHY, self.ACCEPTED, self.WAREHOUSE):
@@ -5212,6 +5266,12 @@ class WhRmaIncomingLineModel(BaseTable, QtCore.QAbstractTableModel):
                 if value in ('y', 'n'):
                     line.accepted = value == 'y'
                     return True
+            elif column == self.WAREHOUSE:
+                try:
+                    line.warehouse_id = warehouse_id_map[value]
+                    return True
+                except KeyError:
+                    return False
             return False
         return False
 
@@ -5283,6 +5343,7 @@ class RmaIncomingModel(BaseTable, QtCore.QAbstractTableModel):
         if all((not line.accepted for line in rma_order.lines)):
             raise ValueError('Rma not accepted. I will not send to WH')
 
+        # Raises value error if invoice type not found
         for line in rma_order.lines:
             if line.accepted:
                 wh_rma_order.lines.append(db.WhIncomingRmaLine(line))
@@ -5291,6 +5352,7 @@ class RmaIncomingModel(BaseTable, QtCore.QAbstractTableModel):
         except IntegrityError as ex:
             db.session.rollback()
             raise ValueError('Wh order already exists')
+
 
     def __getitem__(self, item):
         return self.orders[item]
@@ -5389,6 +5451,24 @@ class RmaIncomingLineModel(BaseTable, QtCore.QAbstractTableModel):
         except ValueError:
             raise
 
+    def update_warehouse(self):
+        # Not necessary to check index error
+        wh_order = self.lines[0].incoming_rma.wh_incoming_rma
+
+        if wh_order is not None:
+            wh_lines = wh_order.lines
+            rma_lines = self.lines
+            for line in set(rma_lines).difference(wh_lines):
+                if line.accepted:
+                    wh_order.lines.append(db.WhIncomingRmaLine(line))
+
+            db.session.commit()
+
+            for line in set(wh_lines).difference(rma_lines):
+                db.session.delete(line)
+
+            db.session.commit()
+
     def delete(self, row):
         self.layoutAboutToBeChanged.emit()
         self.lines.pop(row)
@@ -5400,6 +5480,7 @@ class RmaIncomingLineModel(BaseTable, QtCore.QAbstractTableModel):
 
     def __bool__(self):
         return bool(self.lines)
+
 
 class ChangeModelTrace(BaseTable, QtCore.QAbstractTableModel):
 
@@ -5538,5 +5619,41 @@ def find_last_description(sn):
                     line.spec + ' Spec'
                 )
             )
+
+
+
+
+
+def build_credit_note(type, warehouse_id, partner_id, wh_rma_lines):
+
+    print('type=', type, 'wh=', warehouse_id, 'partn=', partner_id, 'lines=', wh_rma_lines)
+
+
+
+    from datetime import datetime
+
+    proforma = db.SaleProforma()
+    proforma.type = type
+    number = db.session.query(db.func.max(db.SaleProforma.number).label('number')).scalar()
+
+    proforma.number = number + 1
+    proforma.partner_id = partner_id
+    proforma.warehouse_id = warehouse_id
+    proforma.date = datetime.now().date()
+    proforma.cancelled = False
+    proforma.agent_id = 1
+    proforma.courier_id = 1
+
+    for wh_line in wh_rma_lines:
+        proforma.credit_note_lines.append(db.CreditNoteLine(wh_line))
+
+
+    return proforma
+
+
+
+
+
+
 
 

@@ -8,7 +8,8 @@ from models import WhRmaIncomingLineModel
 
 from db import session
 
-from utils import warehouse_id_map
+
+from delegates import WhDelegate
 
 class Form(Ui_Form, QWidget):
 
@@ -19,12 +20,12 @@ class Form(Ui_Form, QWidget):
         self.parent = parent
 
         self.view.setModel(WhRmaIncomingLineModel(order.lines))
+        self.view.setItemDelegate(WhDelegate(self))
 
         self.populate_form()
         self.set_view_config()
 
         self.save.clicked.connect(self.save_handler)
-
 
     def set_view_config(self):
         self.view.setSelectionMode(QTableView.SingleSelection)
@@ -40,16 +41,8 @@ class Form(Ui_Form, QWidget):
         except AttributeError:
             pass
 
-        if self.order.inventoried:
-            self.view.setEnabled(False)
-            self.save.setEnabled(False)
-            self.warehouse.setEnabled(False)
-
-
-
     def save_handler(self):
         try:
-            self.order.warehouse_id = warehouse_id_map[self.warehouse.currentText()]
             session.commit()
         except Exception as ex:
             session.rollback()

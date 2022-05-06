@@ -97,6 +97,12 @@ class Form(Ui_Form, QWidget):
             return
 
         session.commit()
+
+        try:
+            self.lines_model.update_warehouse()
+        except Exception:
+            raise
+
         QMessageBox.information(self, 'Success', 'Rma order saved successfully')
         self.close()
         self.parent.set_mv('rmas_incoming_')

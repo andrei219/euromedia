@@ -5113,7 +5113,7 @@
        </rect>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>2</number>
       </property>
       <property name="iconSize">
        <size>
@@ -6063,35 +6063,6 @@
          <property name="icon">
           <iconset resource="../app/icons.qrc">
            <normaloff>:/add_invoice</normaloff>:/add_invoice</iconset>
-         </property>
-         <property name="iconSize">
-          <size>
-           <width>40</width>
-           <height>40</height>
-          </size>
-         </property>
-         <property name="toolButtonStyle">
-          <enum>Qt::ToolButtonTextUnderIcon</enum>
-         </property>
-         <property name="autoRaise">
-          <bool>true</bool>
-         </property>
-        </widget>
-        <widget class="QToolButton" name="warehouse_incoming_rma_toinv">
-         <property name="geometry">
-          <rect>
-           <x>200</x>
-           <y>10</y>
-           <width>81</width>
-           <height>60</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>To inventory</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../app/icons.qrc">
-           <normaloff>:/inventory</normaloff>:/inventory</iconset>
          </property>
          <property name="iconSize">
           <size>
