@@ -268,12 +268,8 @@ class Form(Ui_Form, QWidget):
                     int(dialog.tax.currentText())
                 )
             except:
+                QMessageBox.critical(self, 'Error', 'Error adding free line')
                 raise
-                QMessageBox.critical(
-                    self,
-                    'Error',
-                    'Error adding free line'
-                )
 
     def type_changed(self, type):
         next_num = self.model.nextNumberOfType(int(type))
@@ -374,6 +370,7 @@ class EditableForm(Form):
 
         if is_invoice:
             self.setWindowTitle('Proforma Invoice / Edit')
+            self.applycn.setEnabled(True)
         else:
             self.setWindowTitle('Proforma Edit')
 
@@ -382,14 +379,19 @@ class EditableForm(Form):
         self.warehouse.setEnabled(False)
         self.disable_if_cancelled()
 
-
-
     def init_template(self):
-        pass
+        self.applycn.clicked.connect(self.applycn_handler)
 
     # Solo necsita commit en editable. Pero aun asi necesitamos
     # este metodo por seguir el template pattern
     # aunque este vacio.
+
+
+    def applycn_handler(self):
+        from apply_credit_note_form import Form
+
+        Form(self, self.proforma).exec_()
+
     def save_template(self):
         pass
         # for o in db.session:

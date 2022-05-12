@@ -24,8 +24,11 @@ class Form(Ui_Form, QWidget):
 
         self.populate_form()
         self.set_view_config()
-
         self.save.clicked.connect(self.save_handler)
+
+        if order.sale_invoice is not None:
+            self.view.setEditTriggers(QTableView.NoEditTriggers)
+
 
     def set_view_config(self):
         self.view.setSelectionMode(QTableView.SingleSelection)
@@ -49,7 +52,6 @@ class Form(Ui_Form, QWidget):
             raise
         else:
             QMessageBox.information(self, 'Success', 'Rma warehouse check made successfully')
-
 
     def closeEvent(self, a0: QtGui.QCloseEvent) -> None:
         session.rollback()

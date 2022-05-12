@@ -153,12 +153,10 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.parent = parent
         self.lines_model = SaleProformaLineModel(self.proforma, self)
         self.lines_view.setModel(self.lines_model)
-        
 
         self.lines_view.setSelectionBehavior(QTableView.SelectRows)
         self.lines_view.setAlternatingRowColors(True)
         self.lines_view.setSelectionMode(QTableView.SingleSelection)
-
 
         self.stock_view.setSelectionBehavior(QTableView.SelectRows)
         self.stock_view.setSortingEnabled(True)
@@ -168,7 +166,6 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.selected_stock_view.setSelectionBehavior(QTableView.SelectRows)
         self.selected_stock_view.setAlternatingRowColors(True)
         self.selected_stock_view.setSelectionMode(QTableView.SingleSelection)
-
 
         self.set_partner_completer()
         self.set_handlers()
@@ -182,7 +179,7 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.lines_view.resizeColumnToContents(0)
         self.lines_view.resizeColumnToContents(2)
 
-    
+
     def adjust_view(self):
         self.view.resizeColumnToContents(2)
         self.view.resizeColumnToContents(3)
@@ -213,18 +210,14 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.add.clicked.connect(self.add_handler) 
         self.save.clicked.connect(self.save_handler)
         self.partner.editingFinished.connect(self.partner_search)
-        self.apply.clicked.connect(self.apply_handler)
-        self.remove.clicked.connect(self.remove_handler) 
-        self.insert.clicked.connect(self.insert_handler) 
+        self.insert.clicked.connect(self.insert_handler)
         self.type.currentTextChanged.connect(self.typeChanged)
         self.delete_selected_stock.clicked.connect(self.delete_selected_stock_clicked)
-        self.deselect.clicked.connect(lambda : self.lines_view.clearSelection())
-
+        self.deselect.clicked.connect(lambda: self.lines_view.clearSelection())
         self.prop.returnPressed.connect(self.prop_return_pressed)
-
         self.description.editingFinished.connect(self.description_editing_finished)
         self.condition.editingFinished.connect(self.condition_editing_finished)
-        self.spec.editingFinished.connect(self.spec_editing_finished)           
+        self.spec.editingFinished.connect(self.spec_editing_finished)
 
     def prop_return_pressed(self):
 
@@ -261,7 +254,6 @@ class Form(Ui_SalesProformaForm, QWidget):
 
         # removing objects in pending state
         # db.session.rollback()
-
 
         self.lines_view.clearSelection()
 
@@ -465,13 +457,6 @@ class Form(Ui_SalesProformaForm, QWidget):
             self.spec.text() not in self.filters.stock_base.specs
         ))
 
-
-    def apply_handler(self):
-        pass 
-
-    def remove_handler(self):
-        pass 
-
     def insert_handler(self):
         from free_line_form import Dialog
         dialog = Dialog(self)
@@ -613,14 +598,11 @@ class Form(Ui_SalesProformaForm, QWidget):
         return True
 
     def _form_to_proforma(self):
-        print('_form_to_proforma')
         if self.is_invoice:
-            print('if form to proforma self.is_invoice:')
             self.proforma.invoice.type = int(self.type.currentText())
             self.proforma.invoice.number = int(self.number.text())
             self.proforma.invoice.date = utils.parse_date(self.date.text())
         else:
-            print('form to proforma is not invoice')
             self.proforma.type = int(self.type.currentText())
             self.proforma.number = int(self.number.text())
             self.proforma.date = utils.parse_date(self.date.text())
@@ -659,28 +641,26 @@ class EditableForm(Form):
 
         if self.is_invoice:
             self.setWindowTitle('Proforma / Invoice Edit')
+            self.applycn.setEnabled(True)
         else:
             self.setWindowTitle('Proforma Edit')
+
 
         self.disable_warehouse()
         self.proforma_to_form()
 
     def init_template(self): 
-        pass 
-    
+        self.applycn.clicked.connect(self.applycn_handler)
+
+    def applycn_handler(self):
+        from apply_credit_note_form import Form
+        Form(self, self.proforma).exec_()
+
     def save_template(self):
         self.model.updateWarehouse(self.proforma)
 
 
     def disable_warehouse(self):
-        # try:
-        #     if sum(
-        #         1 for line in self.proforma.expedition.lines
-        #         for serie in line.series
-        #     ): self.warehouse.setEnabled(False) 
-        # except AttributeError:
-        #     pass 
-
         self.warehouse.setEnabled(False)
 
 

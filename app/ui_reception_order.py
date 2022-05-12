@@ -54,6 +54,7 @@ class Ui_Form(object):
         self.commit.setObjectName("commit")
         self.imei_check = QtWidgets.QCheckBox(self.groupBox)
         self.imei_check.setGeometry(QtCore.QRect(33, 66, 141, 21))
+        self.imei_check.setChecked(True)
         self.imei_check.setObjectName("imei_check")
         self.groupBox_2 = QtWidgets.QGroupBox(Form)
         self.groupBox_2.setGeometry(QtCore.QRect(70, 490, 731, 361))

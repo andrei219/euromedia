@@ -158,6 +158,9 @@
     <property name="text">
      <string>Valid IMEI check</string>
     </property>
+    <property name="checked">
+     <bool>true</bool>
+    </property>
    </widget>
   </widget>
   <widget class="QGroupBox" name="groupBox_2">

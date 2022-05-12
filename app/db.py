@@ -1165,6 +1165,7 @@ class ExpeditionSerie(Base):
 
 
 class Imei(Base):
+
     __tablename__ = 'imeis'
 
     imei = Column(String(50), primary_key=True, nullable=False)
@@ -1459,27 +1460,24 @@ class WhIncomingRma(Base):
     __tablename__ = 'wh_incoming_rmas'
 
     id = Column(Integer, primary_key=True)
-
     incoming_rma_id = Column(Integer, ForeignKey('incoming_rmas.id'), nullable=False)
     sale_invoice_id = Column(Integer, ForeignKey('sale_invoices.id'))
 
     incoming_rma = relationship('IncomingRma', back_populates='wh_incoming_rma')
     sale_invoice = relationship('SaleInvoice', back_populates='wh_incoming_rma')
 
+
     __table_args__ = (
         UniqueConstraint('incoming_rma_id', name='wh_order_from_onlyone_rma_order'),
     )
 
-
-    def __repr__(self):
-        clsname = self.__class__.__name__
-        return f"{clsname}(incoming_rma_id={self.incoming_rma_id}, sale_invoice_id={self.sale_invoice_id})"
 
     def __init__(self, incoming_rma):
         self.incoming_rma = incoming_rma
 
 
 class WhIncomingRmaLine(Base):
+
     __tablename__ = 'wh_incoming_rma_lines'
 
     id = Column(Integer, primary_key=True)
@@ -1495,6 +1493,8 @@ class WhIncomingRmaLine(Base):
     spec = Column(String(50), nullable=False)
     price = Column(Float(precision=32, decimal_return_scale=None), nullable=False)
 
+    item = relationship('Item', uselist=False)
+
     wh_incoming_rma = relationship(
         'WhIncomingRma',
         backref=backref(
@@ -1509,11 +1509,15 @@ class WhIncomingRmaLine(Base):
         s += f"why={self.why})"
         return s
 
-    def __hash__(self):
-        return hash(self.sn)
 
-    def __eq__(self, other):
-        return self.sn == other.sn
+    # def __hash__(self):
+    #     return hash(self.sn)
+
+    # def __eq__(self, other):
+    #     # if self is None or other is None:
+    #     #     return super().__eq__(other)
+    #     #
+    #     return self.sn == other.sn
 
     def __init__(self, incoming_rma_line):
         self.sn = incoming_rma_line.sn
@@ -1532,7 +1536,6 @@ class WhIncomingRmaLine(Base):
                 join(ExpeditionSerie).where(ExpeditionSerie.serie == self.sn).all()[-1].type
         except IndexError:
             raise ValueError('Cant find sale invoice associated')
-
 
 
 class CreditNoteLine(Base):
@@ -1620,11 +1623,11 @@ class IncomingRmaLine(Base):
         return s
 
     # This two method enables set difference
-    def __hash__(self):
-        return hash(self.sn)
-
-    def __eq__(self, other):
-        return self.sn == other.sn
+    # def __hash__(self):
+    #     return hash(self.sn)
+    #
+    # def __eq__(self, other):
+    #     return self.sn == other.sn
 
 
     @classmethod
@@ -1659,6 +1662,7 @@ class IncomingRmaLine(Base):
                 reception_serie.condition,
                 reception_serie.spec
             ))
+
             if expedition_serie is not None:
                 self.item_id = expedition_serie.line.item_id
                 self.condition = expedition_serie.line.condition
@@ -1684,7 +1688,8 @@ class IncomingRmaLine(Base):
                 self.why = ''
                 self.accepted = False
 
-                for line in expedition_serie.line.expedition.proforma.lines:
+                for line in expedition_serie.line.expedition.proforma.lines or \
+                        expedition_serie.line.expedition.proforma.advanced_lines:
                     if all((
                         line.item_id == expedition_serie.line.item_id,
                         line.condition == expedition_serie.line.condition,
@@ -1692,6 +1697,9 @@ class IncomingRmaLine(Base):
                     )):
                         self.price = line.price
                         break
+                else:
+                    self.price = -1332.0
+
         return self
 
 

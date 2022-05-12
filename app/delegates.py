@@ -11,7 +11,7 @@ class WhDelegate(QItemDelegate):
         super(WhDelegate, self).__init__(parent)
 
     def createEditor(self, parent, option, index) -> QWidget:
-        if index.column() == 4:
+        if index.column() == 7:
             editor = QLineEdit(parent)
             completer = QCompleter(warehouse_id_map.keys())
             completer.setCaseSensitivity(Qt.CaseInsensitive)

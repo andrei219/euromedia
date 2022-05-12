@@ -58,9 +58,6 @@ BANK2_TEXT_X_POSITION = 153
 RMA_START_X_POSITION = 125
 BANK_TEXT_Y_CONDITION_RELATIVE_INCREMENT = 9
 
-
-
-
 import utils
 from importlib import reload
 
@@ -143,6 +140,20 @@ class SaleLinePDFRepr(LinePDFRepr):
                 self.description += ', ' + spec + ' Spec.'
 
 
+class CreditLinePDFRepr(LinePDFRepr):
+
+    def __init__(self, line):
+        self.description = utils.description_id_map.inverse.get(line.item_id)
+        self.description += f', {line.condition} condt.'
+        self.description += f', {line.spec} spec.'
+
+        self.total = '{:,.2f}'.format(round(line.price * line.quantity, 2))
+        self.price = '{:,.2f}'.format(round(line.price, 2))
+        self.total = dot_comma_number_repr(self.total)
+        self.price = dot_comma_number_repr(self.price)
+
+        self.quantity = line.quantity
+
 
 class AdvancedSaleLinePDFRepr(LinePDFRepr):
 
@@ -151,10 +162,10 @@ class AdvancedSaleLinePDFRepr(LinePDFRepr):
                            line.mixed_description or utils.description_id_map.inverse.get(line.item_id)
 
         if line.condition or line.showing_condition:
-            self.description += f', {line.showing_condition or line.condition}'
+            self.description += f', {line.showing_condition or line.condition} condt.'
 
         if line.spec and not line.ignore_spec:
-            self.description += f', {line.spec}'
+            self.description += f', {line.spec} spec.'
 
         self.quantity = line.quantity
 
@@ -181,6 +192,10 @@ class SaleLinesPDFRepr(LinesPDFRepr):
             for mix_id in list(dict.fromkeys([line.mix_id for line in lines]))
         ]
 
+class CreditLinesPDFRepr(LinesPDFRepr):
+
+    def __init__(self, lines):
+        self.lines = list(map(CreditLinePDFRepr, lines))
 
 class PurchaseLinesPDFRepr(LinesPDFRepr):
 
@@ -199,7 +214,7 @@ class We:
         self.fiscal_name = 'Euromedia Investment Group, S.L.'
         self.billing_line1 = 'Calle Camino Real Nº22'
         self.billing_line2 = 'Local Bajo Izq.'
-        self.billing_city  = 'Torrente'
+        self.billing_city = 'Torrente'
         self.billing_postcode = '46900'
         self.billing_state = 'Valencia'
         self.billing_country = 'Spain'
@@ -207,14 +222,12 @@ class We:
         self.fiscal_number = 'B98815608'
         self.vat = 'VAT Nº:ESB98815608'
 
-
         self.shipping_line1 = 'Calle Camino Real Nº22'
         self.shipping_line2 = 'Local Bajo Izq.'
         self.shipping_city = 'Torrente'
         self.shipping_postcode = '46900'
         self.shipping_state = 'Valencia'
         self.shipping_country = 'Spain'
-
 
         self.phone = '+34 633 333 973'
 
@@ -245,11 +258,15 @@ class TotalsData:
             lines = document.advanced_lines or document.lines
         except AttributeError:
             lines = document.lines
+        #
+        # self.Total_excl_VAT = sum(line.price * line.quantity for line in lines)
+        # self.Total_VAT = sum(line.quantity * line.price * line.tax / 100 for line in lines)
+        # self.Total = '{:,.2f}'.format(round(self.Total_excl_VAT + self.Total_VAT, 2))
 
-        self.Total_excl_VAT = sum(line.price * line.quantity for line in lines)
-        self.Total_VAT = sum(line.quantity * line.price * line.tax / 100 for line in lines)
-
+        self.Total_excl_VAT = document.subtotal
+        self.Total_VAT = document.tax
         self.Total = '{:,.2f}'.format(round(self.Total_excl_VAT + self.Total_VAT, 2))
+
 
         self.Total_excl_VAT = '{:,.2f}'.format(round(self.Total_excl_VAT, 2))
         self.Total_VAT = '{:,.2f}'.format(round(self.Total_VAT, 2))
@@ -304,8 +321,15 @@ class PDF(FPDF):
         from db import SaleProforma, PurchaseProforma
         if type(document) == SaleProforma:
             self.we_buy = False
-            self.lines = SaleLinesPDFRepr(document.lines) or \
-                         AdvancedLinesPDFRepr(document.advanced_lines)
+
+            if document.lines:
+                self.lines = SaleLinesPDFRepr(document.lines)
+            elif document.advanced_lines:
+                self.lines = AdvancedLinesPDFRepr(document.advanced_lines)
+            elif document.credit_note_lines:
+                self.lines = CreditLinesPDFRepr(document.credit_note_lines)
+
+
             if not is_invoice:
                 self.doc_header = 'SALE ORDER'
             else:
@@ -490,9 +514,7 @@ class PDF(FPDF):
             self.x = RMA_START_X_POSITION
             self.y += CONDITIONS_BETWEEN_Y_INCREMENT
 
-
         self.print_bank()
-
 
     def print_bank(self):
         self.x = BANK1_LOGO_X_POSITION
@@ -530,8 +552,6 @@ class PDF(FPDF):
             self.x = BANK2_TEXT_X_POSITION
             self.cell(0, txt=t)
             self.y += BANK_TEXT_Y_INCREMENT
-
-
 
     def print_footer(self):
 
@@ -587,7 +607,7 @@ class PDF(FPDF):
             getattr(partner, prefix + 'line1'),
             getattr(partner, prefix + 'line2'),
             # getattr(partner, prefix + 'line3'),
-            ' '.join([getattr(partner, prefix+'postcode'), getattr(partner, prefix + 'city'),
+            ' '.join([getattr(partner, prefix + 'postcode'), getattr(partner, prefix + 'city'),
                       getattr(partner, prefix + 'state')]),
 
             getattr(partner, prefix + 'country'),

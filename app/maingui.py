@@ -496,7 +496,6 @@ class MainGui(Ui_MainGui, QMainWindow):
 
                 pdf.output(filename)
 
-                print(filename)
                 import subprocess
                 subprocess.Popen((filename,), shell=True)
 
@@ -685,7 +684,6 @@ class MainGui(Ui_MainGui, QMainWindow):
             raise
         else:
             QMessageBox.information(self, 'Success', 'Data exported successfully')
-
 
     def proformas_sales_ready_handler(self):
         indexes = self.proformas_sales_view.selectedIndexes()
@@ -904,30 +902,26 @@ class MainGui(Ui_MainGui, QMainWindow):
     #         )
     #     self.sp.show()
 
-    def launch_sale_proforma_form(self, index=None):
-        if index:
-
-            proforma = self.proformas_sales_model.proformas[index.row()]
-
-            print('lines=', proforma.lines)
-            print('advaced_lies=', proforma.advanced_lines)
-            print('credit lines=', proforma.credit_note_lines)
-
-            if proforma.credit_note_lines:
-                print('eeee')
-
-            elif proforma.advanced_lines:
-                self.sp = advanced_sale_proforma_form.get_form(
-                    self,
-                    self.proformas_sales_view,
-                    proforma
-                )
-            elif proforma.lines:
-                self.sp = sale_proforma_form.get_form(
-                    self,
-                    self.proformas_sales_view,
-                    proforma
-                )
+    # def launch_sale_proforma_form(self, index=None):
+    #     if index:
+    #
+    #         proforma = self.proformas_sales_model.proformas[index.row()]
+    #
+    #         if proforma.credit_note_lines:
+    #             print('eeee')
+    #
+    #         elif proforma.advanced_lines:
+    #             self.sp = advanced_sale_proforma_form.get_form(
+    #                 self,
+    #                 self.proformas_sales_view,
+    #                 proforma
+    #             )
+    #         elif proforma.lines:
+    #             self.sp = sale_proforma_form.get_form(
+    #                 self,
+    #                 self.proformas_sales_view,
+    #                 proforma
+    #             )
 
             # PURCHASE INVOICE HANDLERS:
 
@@ -982,7 +976,7 @@ class MainGui(Ui_MainGui, QMainWindow):
             self.invoices_purchases_view
         )
 
-    # SALE INVOICE HANDLER:
+    # SALES INVOICE HANDLER:
     def invoices_sales_view_pdf_handler(self):
         self.view_documents(
             self.invoices_sales_view,
@@ -1027,6 +1021,17 @@ class MainGui(Ui_MainGui, QMainWindow):
                 proforma,
                 is_invoice=True
             )
+        elif proforma.lines:
+            self.sp = sale_proforma_form.get_form(
+                self,
+                self.proformas_sales_view,
+                proforma,
+                is_invoice=True,
+            )
+        elif proforma.credit_note_lines:
+            from credit_note_form import Form
+            self.sp = Form(self, proforma, is_invoice=True)
+
         else:
             self.sp = sale_proforma_form.get_form(
                 self,
@@ -1275,37 +1280,38 @@ class MainGui(Ui_MainGui, QMainWindow):
         if not wh_rma_order:
             return
 
-        from itertools import groupby
-        groups = groupby(
-            wh_rma_order.lines,
-            lambda o: (o.warehouse_id, o.invoice_type)
-        )
-
-        from models import build_credit_note
+        if wh_rma_order.sale_invoice is not None:
+            QMessageBox.critical(
+                self,
+                'Error',
+                f'Credit Note: {wh_rma_order.sale_invoice.doc_repr} already exists '
+            )
+            return
 
         # Get partner:
         fiscal_name = wh_rma_order.incoming_rma.lines[0].cust
         partner_id = db.session.query(db.Partner.id).\
             where(db.Partner.fiscal_name == fiscal_name).scalar()
 
-        for key, group in groups:
-            wh_id, invoice_type = key
-            wh_lines = list(group)
-            try:
-                p = build_credit_note(
-                    invoice_type,
-                    wh_id,
-                    partner_id,
-                    wh_lines
-                )
-                db.session.add(p)
-                db.session.commit()
-                # self.proformas_sales_model.associateInvoice(p)
-                # db.session.commit()
+        from models import build_credit_note_and_commit
 
+        proforma = build_credit_note_and_commit(partner_id, wh_rma_order)
+        invoice = self.proformas_sales_model.associateInvoice(proforma)
+        wh_rma_order.sale_invoice = invoice
 
-            except ValueError as ex:
-                QMessageBox.critical(self, 'Error', str(ex))
+        for line in wh_rma_order.lines:
+            imei = db.Imei()
+            imei.imei = line.sn
+            imei.item_id = line.item_id
+            imei.condition = line.condition
+            imei.spec = line.spec
+            imei.warehouse_id = line.warehouse_id
+
+            db.session.add(imei)
+
+        db.session.commit()
+        QMessageBox.information(self, 'Success', f'Credit Note:{invoice.doc_repr} built successfully. Inventory Updated.')
+
 
     def rmas_incoming_double_click_handler(self, index):
         rma_order = self.rmas_incoming_model[index.row()]

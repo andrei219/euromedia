@@ -5089,15 +5089,18 @@ def export_sale_excel(proforma, file_path):
     # Agente primera parte
 
     try:
-        type_num = str(proforma.invoice.type) + '-' + str(proforma.invoice.number).zfill(6)
+        # type_num = str(proforma.invoice.type) + '-' + str(proforma.invoice.number).zfill(6)
+
+        type_num = 'FR ' + proforma.invoice.doc_repr
         document_date = str(proforma.invoice.date)
 
     except AttributeError:
-        type_num = ''
+        type_num = 'PR' + proforma.doc_repr
         document_date = ''
 
     sheet.append([
         'Document Date = ' + document_date,
+        'Document Number = ' + type_num,
         'Customer = ' + proforma.partner.trading_name,
         'Supplier = ' + 'Euromedia Investment Group S.L. ',
         'Agent = ' + proforma.agent.fiscal_name.split()[0]
@@ -5138,11 +5141,11 @@ def get_spec(eline: db.ExpeditionLine):
 
 class WhRmaIncomingModel(BaseTable, QtCore.QAbstractTableModel):
 
-    ID, PARTNER, DATE, STATUS, INVOICED = 0, 1, 2, 3, 4
+    ID, PARTNER, DATE, QUANTITY, STATUS, INVOICED = 0, 1, 2, 3, 4, 5
 
     def __init__(self, search_key=None, filters=None):
         super().__init__()
-        self._headerData = ['ID', 'Partner', 'Date', 'Status', 'Invoiced']
+        self._headerData = ['ID', 'Partner', 'Date', 'Quantity', 'Status', 'Invoiced']
         self.name = 'orders'
         self.orders = db.session.query(db.WhIncomingRma).all()
 
@@ -5167,7 +5170,10 @@ class WhRmaIncomingModel(BaseTable, QtCore.QAbstractTableModel):
                 elif len({line.accepted for line in order.lines}) == 2:
                     return 'Partially accepted'
             elif column == self.INVOICED:
-                return 'No'
+                return 'Yes' if order.sale_invoice is not None else 'No'
+
+            elif column == self.QUANTITY:
+                return str(len(order.lines)) + ' pcs '
 
         elif role == Qt.DecorationRole:
             if column == self.STATUS:
@@ -5177,6 +5183,8 @@ class WhRmaIncomingModel(BaseTable, QtCore.QAbstractTableModel):
                     return QtGui.QColor(RED)
                 elif len({line.accepted for line in order.lines}) == 2:
                     return QtGui.QColor(ORANGE)
+            elif column == self.DATE:
+                return QtGui.QIcon(':\calendar')
 
 
 from utils import warehouse_id_map
@@ -5191,9 +5199,22 @@ class CreditNoteLineModel(BaseTable, QtCore.QAbstractTableModel):
         self._headerData = ['Description', 'Condition', 'Spec', 'Quantity', 'Price', 'Tax']
         self.name = 'lines'
         self.lines = lines
-        print('eee')
-        print('lines=', lines)
 
+    @property
+    def subtotal(self):
+        return sum(line.price * line.quantity for line in self.lines)
+
+    @property
+    def tax(self):
+        return sum(line.quantity * line.price * line.tax / 100 for line in self.lines)
+
+    @property
+    def total(self):
+        return self.subtotal + self.tax
+
+    @property
+    def quantity(self):
+        return sum(line.quantity for line in self.lines)
 
     def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
         if not index.isValid():
@@ -5217,11 +5238,12 @@ class CreditNoteLineModel(BaseTable, QtCore.QAbstractTableModel):
 
 class WhRmaIncomingLineModel(BaseTable, QtCore.QAbstractTableModel):
 
-    SN, PROBLEM, ACCEPTED, WHY, WAREHOUSE = 0, 1, 2, 3, 4
+    SN, DESCRIPTION, CONDITION, SPEC, PROBLEM, ACCEPTED, WHY, WAREHOUSE = 0, 1, 2, 3, 4, 5, 6, 7
 
     def __init__(self, lines):
         super().__init__()
-        self._headerData = ['SN/IMEI', 'Problem', 'Accepted', 'Why', 'Target WH']
+        self._headerData = ['SN/IMEI', 'Description', 'Condt.', 'Spec',
+                            'Problem', 'Accepted', 'Why', 'Target WH']
         self.name = 'lines'
         self.lines = lines
 
@@ -5241,6 +5263,12 @@ class WhRmaIncomingLineModel(BaseTable, QtCore.QAbstractTableModel):
                 return 'y' if line.accepted else 'n'
             elif column == self.WAREHOUSE:
                 return warehouse_id_map.inverse[line.warehouse_id]
+            elif column == self.DESCRIPTION:
+                return line.item.clean_repr
+            elif column == self.CONDITION:
+                return line.condition
+            elif column == self.SPEC:
+                return line.spec
 
     def flags(self, index):
         # return Qt.ItemIsEditable
@@ -5456,18 +5484,44 @@ class RmaIncomingLineModel(BaseTable, QtCore.QAbstractTableModel):
         wh_order = self.lines[0].incoming_rma.wh_incoming_rma
 
         if wh_order is not None:
+
             wh_lines = wh_order.lines
             rma_lines = self.lines
-            for line in set(rma_lines).difference(wh_lines):
+
+            for line in self.rma_warehouse_difference(rma_lines, wh_lines):
                 if line.accepted:
                     wh_order.lines.append(db.WhIncomingRmaLine(line))
 
             db.session.commit()
 
-            for line in set(wh_lines).difference(rma_lines):
+            for line in self.warehouse_rma_difference(wh_lines, rma_lines):
                 db.session.delete(line)
 
             db.session.commit()
+
+    @staticmethod
+    def warehouse_rma_difference(wh_lines, rma_lines):
+        aux = []
+        for wh_line in wh_lines:
+            for rma_line in rma_lines:
+                if wh_line.sn == rma_line.sn:
+                    break
+            else:
+                aux.append(wh_line)
+        return aux
+
+
+    @staticmethod
+    def rma_warehouse_difference(rma_lines, wh_lines):
+        aux = []
+        for rma_line in rma_lines:
+            for wh_line in wh_lines:
+                if rma_line.sn == wh_line.sn:
+                    break
+            else:
+                aux.append(rma_line)
+        return aux
+
 
     def delete(self, row):
         self.layoutAboutToBeChanged.emit()
@@ -5620,33 +5674,30 @@ def find_last_description(sn):
                 )
             )
 
+def build_credit_note_and_commit(partner_id, order):
 
-
-
-
-def build_credit_note(type, warehouse_id, partner_id, wh_rma_lines):
-
-    print('type=', type, 'wh=', warehouse_id, 'partn=', partner_id, 'lines=', wh_rma_lines)
-
-
-
+    # print('type=', type, 'wh=', warehouse_id, 'partn=', partner_id, 'lines=', wh_rma_lines)
     from datetime import datetime
 
     proforma = db.SaleProforma()
-    proforma.type = type
+    proforma.type = order.lines[0].invoice_type
     number = db.session.query(db.func.max(db.SaleProforma.number).label('number')).scalar()
 
     proforma.number = number + 1
     proforma.partner_id = partner_id
-    proforma.warehouse_id = warehouse_id
+    proforma.warehouse_id = None
     proforma.date = datetime.now().date()
     proforma.cancelled = False
     proforma.agent_id = 1
     proforma.courier_id = 1
 
-    for wh_line in wh_rma_lines:
+    for wh_line in order.lines:
         proforma.credit_note_lines.append(db.CreditNoteLine(wh_line))
 
+
+    db.session.add(proforma)
+
+    db.session.commit()
 
     return proforma
 

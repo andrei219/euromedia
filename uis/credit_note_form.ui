@@ -106,8 +106,8 @@
    <widget class="QWidget" name="layoutWidget_2">
     <property name="geometry">
      <rect>
-      <x>129</x>
-      <y>160</y>
+      <x>300</x>
+      <y>130</y>
       <width>200</width>
       <height>29</height>
      </rect>
@@ -128,8 +128,8 @@
    <widget class="QWidget" name="layoutWidget_3">
     <property name="geometry">
      <rect>
-      <x>429</x>
-      <y>160</y>
+      <x>560</x>
+      <y>130</y>
       <width>215</width>
       <height>29</height>
      </rect>
@@ -306,23 +306,6 @@
       </spacer>
      </item>
      <item>
-      <widget class="QLabel" name="label_23">
-       <property name="text">
-        <string>Warranty days:</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QSpinBox" name="warranty">
-       <property name="maximum">
-        <number>999</number>
-       </property>
-      </widget>
-     </item>
-     <item>
       <spacer name="horizontalSpacer_14">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -366,8 +349,8 @@
    <widget class="QGroupBox" name="groupBox_3">
     <property name="geometry">
      <rect>
-      <x>880</x>
-      <y>130</y>
+      <x>850</x>
+      <y>100</y>
       <width>171</width>
       <height>91</height>
      </rect>
@@ -473,35 +456,6 @@
      </property>
     </widget>
    </widget>
-   <widget class="QLabel" name="label_28">
-    <property name="geometry">
-     <rect>
-      <x>630</x>
-      <y>121</y>
-      <width>32</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Days:</string>
-    </property>
-    <property name="alignment">
-     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-    </property>
-   </widget>
-   <widget class="QSpinBox" name="days">
-    <property name="geometry">
-     <rect>
-      <x>670</x>
-      <y>121</y>
-      <width>47</width>
-      <height>22</height>
-     </rect>
-    </property>
-    <property name="maximum">
-     <number>999</number>
-    </property>
-   </widget>
    <widget class="QComboBox" name="incoterms">
     <property name="geometry">
      <rect>
@@ -587,74 +541,7 @@
      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
     </property>
    </widget>
-   <widget class="QLabel" name="label_26">
-    <property name="geometry">
-     <rect>
-      <x>220</x>
-      <y>123</y>
-      <width>94</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Available Cr:</string>
-    </property>
-    <property name="alignment">
-     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_27">
-    <property name="geometry">
-     <rect>
-      <x>438</x>
-      <y>121</y>
-      <width>69</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>With Credit:</string>
-    </property>
-    <property name="alignment">
-     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-    </property>
-   </widget>
-   <widget class="QDoubleSpinBox" name="available_credit">
-    <property name="geometry">
-     <rect>
-      <x>319</x>
-      <y>121</y>
-      <width>93</width>
-      <height>22</height>
-     </rect>
-    </property>
-    <property name="minimum">
-     <double>-9999999.000000000000000</double>
-    </property>
-    <property name="maximum">
-     <double>9999999.000000000000000</double>
-    </property>
-    <property name="singleStep">
-     <double>0.000000000000000</double>
-    </property>
-   </widget>
-   <widget class="QDoubleSpinBox" name="credit">
-    <property name="geometry">
-     <rect>
-      <x>514</x>
-      <y>121</y>
-      <width>93</width>
-      <height>22</height>
-     </rect>
-    </property>
-    <property name="maximum">
-     <double>9999999.000000000000000</double>
-    </property>
-    <property name="singleStep">
-     <double>0.000000000000000</double>
-    </property>
-   </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>41</x>
@@ -688,6 +575,9 @@
          <height>22</height>
         </size>
        </property>
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
       </widget>
      </item>
      <item>
@@ -702,26 +592,6 @@
         </size>
        </property>
       </spacer>
-     </item>
-     <item>
-      <widget class="QLabel" name="label_19">
-       <property name="text">
-        <string>WH:</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QComboBox" name="warehouse">
-       <property name="minimumSize">
-        <size>
-         <width>151</width>
-         <height>22</height>
-        </size>
-       </property>
-      </widget>
      </item>
      <item>
       <spacer name="horizontalSpacer_11">
@@ -893,20 +763,15 @@
   <tabstop>type</tabstop>
   <tabstop>number</tabstop>
   <tabstop>date</tabstop>
-  <tabstop>warranty</tabstop>
   <tabstop>agent</tabstop>
   <tabstop>they_pay_we_ship</tabstop>
   <tabstop>they_pay_they_ship</tabstop>
   <tabstop>we_pay_we_ship</tabstop>
   <tabstop>partner</tabstop>
-  <tabstop>warehouse</tabstop>
   <tabstop>courier</tabstop>
   <tabstop>incoterms</tabstop>
   <tabstop>eur</tabstop>
   <tabstop>usd</tabstop>
-  <tabstop>available_credit</tabstop>
-  <tabstop>credit</tabstop>
-  <tabstop>days</tabstop>
   <tabstop>tracking</tabstop>
   <tabstop>external</tabstop>
   <tabstop>view</tabstop>
