@@ -20,7 +20,7 @@ class PaymentForm(Ui_PaymentsForm, QDialog):
 
         self.add_payment_tool_button.clicked.connect(self.addHandler) 
         self.delete_payment_tool_button.clicked.connect(self.deleteHandler)
-        self.all.clicked.connect(lambda:self.amount.setText(str(self.total - self.paid)))
+        self.all.clicked.connect(lambda: self.amount.setText(str(self.proforma.total_debt - self.proforma.total_paid)))
 
         self.view.setSelectionBehavior(QTableView.SelectRows)
         self.view.setSortingEnabled(True)
@@ -33,11 +33,6 @@ class PaymentForm(Ui_PaymentsForm, QDialog):
 
         self.rate.setEnabled(not self.proforma.eur_currency)
         self.rate.setText('0.0')
-
-
-    def allclicked(self):
-        self.amount.setText(str(self.total - self.paid))
-
 
     def addHandler(self):
         try:
@@ -52,8 +47,7 @@ class PaymentForm(Ui_PaymentsForm, QDialog):
             float(amount)
         
         except ValueError:
-            QMessageBox.critical(self, 'Error - Update', \
-                'Error amount format. Enter a valid decimal number')
+            QMessageBox.critical(self, 'Error - Update', 'Error amount format. Enter a valid decimal number')
             return 
 
         try:
@@ -66,8 +60,7 @@ class PaymentForm(Ui_PaymentsForm, QDialog):
                 'Error rate format. Enter a valid decimal number')
             return 
 
-
-        info = self.info_lineedit.text() 
+        info = self.info_lineedit.text()
 
         try:
             self.model.add(date, amount, rate, info)
@@ -88,14 +81,13 @@ class PaymentForm(Ui_PaymentsForm, QDialog):
             self.view.resizeColumnToContents(2) 
             self.view.clearSelection() 
             self.updateOwing()
-        except:
-            raise 
-            QMessageBox.critical(self, 'Error - Update', 'Could not delete payments')
+        except ValueError as ex:
+            QMessageBox.critical(self, 'Error - Update', str(ex))
+
 
 
     def updateOwing(self):
-        self.owing = round(self.total - self.paid, 2) 
-        self.owing_lineedit.setText(str(round(self.owing, 2)))
+        self.owing_lineedit.setText(str(self.proforma.total_debt - self.proforma.total_paid))
 
     def clearFields(self):
         # self.date_line_edit.clear() 
@@ -123,9 +115,8 @@ class PaymentForm(Ui_PaymentsForm, QDialog):
         self.partner_line_edit.setText(self.proforma.partner.fiscal_name)
         self.document_date_line_edit.setText(self.proforma.date.strftime('%d/%m/%Y'))
 
-        self.total_linedit.setText(str(round(float(self.total), 2)))
-        self.owing_lineedit.setText(str(round(float(self.total) - float(self.paid), 2)))
-
+        self.total_linedit.setText(str(self.proforma.total_debt))
+        self.owing_lineedit.setText(str(self.proforma.total_debt - self.proforma.total_paid))
 
 
     def closeEvent(self, event):

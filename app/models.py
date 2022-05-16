@@ -1368,6 +1368,7 @@ def build_associated_reception(sale_proforma):
 
 
 class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
+
     TYPE_NUM, DATE, PARTNER, AGENT, FINANCIAL, LOGISTIC, SENT, \
     CANCELLED, OWING, TOTAL, ADVANCED, DEFINED, READY, EXTERNAL, IN_WAREHOUSE, \
     WARNING, INVOICED = \
@@ -1391,7 +1392,6 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
         # )
 
         query = db.session.query(db.SaleProforma).join(db.Agent).join(db.Partner)
-
 
         if proxy:
             self._headerData.append('From proforma')
@@ -1491,6 +1491,10 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
                 return 'Yes' if proforma.expedition is not None else 'No'
 
             elif col == self.FINANCIAL:
+
+                if proforma.warehouse_id is None and proforma.applied:
+                    return 'Applied'
+
                 if proforma.not_paid:
                     return 'Not Paid'
                 elif proforma.fully_paid:
@@ -1499,6 +1503,7 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
                     return 'Partially Paid'
                 elif proforma.overpaid:
                     return 'We Owe'
+
             elif col == self.LOGISTIC:
                 if proforma.empty:
                     return 'Empty'
@@ -1536,6 +1541,9 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 
         elif role == Qt.DecorationRole:
             if col == self.FINANCIAL:
+                if proforma.warehouse_id is None and proforma.applied:
+                    return QtGui.QColor(GREEN)
+
                 if proforma.not_paid:
                     return QtGui.QColor(YELLOW)
                 elif proforma.fully_paid:
@@ -2766,6 +2774,8 @@ class PaymentModel(BaseTable, QtCore.QAbstractTableModel):
         rows = {index.row() for index in indexes}
         for row in rows:
             payment = self.payments[row]
+            if payment.note.startswith('CN'):
+                raise ValueError("You can't delete this Payment. Remove from applied credit notes")
             db.session.delete(payment)
         try:
             db.session.commit()
@@ -4199,6 +4209,10 @@ class AdvancedLinesModel(BaseTable, QtCore.QAbstractTableModel):
         self.layoutAboutToBeChanged.emit()
         self._lines = []
         self.layoutChanged.emit()
+
+    @property
+    def quantity(self):
+        return sum(line.quantity for line in self._lines)
 
     @property
     def lines(self):
@@ -5674,7 +5688,7 @@ def find_last_description(sn):
                 )
             )
 
-def build_credit_note_and_commit(partner_id, order):
+def build_credit_note_and_commit(partner_id, agent_id, order):
 
     # print('type=', type, 'wh=', warehouse_id, 'partn=', partner_id, 'lines=', wh_rma_lines)
     from datetime import datetime
@@ -5688,12 +5702,11 @@ def build_credit_note_and_commit(partner_id, order):
     proforma.warehouse_id = None
     proforma.date = datetime.now().date()
     proforma.cancelled = False
-    proforma.agent_id = 1
+    proforma.agent_id = agent_id
     proforma.courier_id = 1
 
     for wh_line in order.lines:
         proforma.credit_note_lines.append(db.CreditNoteLine(wh_line))
-
 
     db.session.add(proforma)
 
@@ -5702,6 +5715,96 @@ def build_credit_note_and_commit(partner_id, order):
     return proforma
 
 
+
+class AvailableNoteModel(BaseTable, QtCore.QAbstractTableModel):
+
+    DOCUMENT, SUBTOTAL = 0, 1
+
+    def __init__(self, invoice):
+        super().__init__()
+        self.parent_invoice = invoice
+
+        self._headerData = ['Document', 'Subtotal']
+
+        self.name = 'invoices'
+        self.invoices = db.session.query(db.SaleInvoice).join(db.SaleProforma).join(db.Partner).\
+            where(db.Partner.id == invoice.proforma.partner.id).\
+            where(db.SaleProforma.warehouse_id == None).\
+            where(db.SaleInvoice.parent_id == None).all()
+
+    def add(self, rows):
+        # Set relationship and add payment
+        for row in rows:
+            invoice = self.invoices[row]
+            invoice.parent_id = self.parent_invoice.id
+            self.parent_invoice.proforma.payments.append(
+                db.SalePayment(
+                    date=invoice.date,
+                    amount=invoice.subtotal,
+                    rate=1.0,
+                    note=invoice.cn_repr,
+                    proforma=self.parent_invoice.proforma
+                )
+            )
+
+        try:
+            db.session.commit()
+        except Exception as ex:
+            db.session.rollback()
+            raise
+            # raise ValueError
+
+    def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
+        if not index.isValid():
+            return
+        row, column = index.row(), index.column()
+        if role == Qt.DisplayRole:
+            invoice = self.invoices[row]
+            if column == self.DOCUMENT:
+                return invoice.doc_repr
+            elif column == self.SUBTOTAL:
+                return invoice.subtotal
+
+
+class AppliedNoteModel(BaseTable, QtCore.QAbstractTableModel):
+
+    DOCUMENT, SUBTOTAL = 0, 1
+
+    def __init__(self, invoice):
+        super().__init__()
+        self._headerData = ['Document', 'Subtotal']
+        self.name = 'invoices'
+        self.parent_invoice = invoice
+
+        self.invoices = db.session.query(db.SaleInvoice).\
+            where(db.SaleInvoice.parent_id == self.parent_invoice.id).all()
+
+    def delete(self, rows):
+        from db import delete
+        for row in rows:
+            invoice = self.invoices[row]
+            invoice.parent_id = None
+            stmt = delete(db.SalePayment).where(db.SalePayment.note == invoice.cn_repr)
+            db.session.execute(stmt)
+            try:
+                db.session.commit()
+            except Exception as ex:
+                raise ValueError(str(ex))
+
+    def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
+        if not index.isValid():
+            return
+        row, column = index.row(), index.column()
+        if role == Qt.DisplayRole:
+            invoice = self.invoices[row]
+            if column == self.DOCUMENT:
+                return invoice.doc_repr
+            elif column == self.SUBTOTAL:
+                return invoice.subtotal
+
+    @property
+    def credit_notes_subtotal(self):
+        return abs(sum(i.subtotal for i in self.invoices))
 
 
 

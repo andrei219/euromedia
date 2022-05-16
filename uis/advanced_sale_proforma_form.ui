@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1261</width>
-    <height>1040</height>
+    <height>1064</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -759,8 +759,8 @@
   <widget class="QPushButton" name="insert">
    <property name="geometry">
     <rect>
-     <x>942</x>
-     <y>550</y>
+     <x>948</x>
+     <y>538</y>
      <width>101</width>
      <height>28</height>
     </rect>
@@ -772,8 +772,8 @@
   <widget class="QPushButton" name="delete_">
    <property name="geometry">
     <rect>
-     <x>1060</x>
-     <y>550</y>
+     <x>1066</x>
+     <y>538</y>
      <width>93</width>
      <height>28</height>
     </rect>
@@ -814,10 +814,10 @@
   <widget class="QTextEdit" name="note">
    <property name="geometry">
     <rect>
-     <x>700</x>
-     <y>860</y>
-     <width>341</width>
-     <height>61</height>
+     <x>990</x>
+     <y>830</y>
+     <width>251</width>
+     <height>81</height>
     </rect>
    </property>
    <property name="placeholderText">
@@ -828,7 +828,7 @@
    <property name="geometry">
     <rect>
      <x>30</x>
-     <y>550</y>
+     <y>570</y>
      <width>891</width>
      <height>291</height>
     </rect>
@@ -937,7 +937,7 @@
    <property name="geometry">
     <rect>
      <x>30</x>
-     <y>850</y>
+     <y>870</y>
      <width>631</width>
      <height>91</height>
     </rect>
@@ -1102,18 +1102,31 @@
     </property>
    </widget>
   </widget>
-  <widget class="QWidget" name="layoutWidget">
+  <widget class="QLabel" name="stock_message">
    <property name="geometry">
     <rect>
-     <x>510</x>
-     <y>950</y>
-     <width>201</width>
-     <height>76</height>
+     <x>1002</x>
+     <y>682</y>
+     <width>231</width>
+     <height>91</height>
     </rect>
    </property>
-   <layout class="QFormLayout" name="formLayout">
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QWidget" name="layoutWidget_5">
+   <property name="geometry">
+    <rect>
+     <x>690</x>
+     <y>910</y>
+     <width>201</width>
+     <height>136</height>
+    </rect>
+   </property>
+   <layout class="QFormLayout" name="formLayout_2">
     <item row="0" column="0">
-     <widget class="QLabel" name="label_33">
+     <widget class="QLabel" name="label_36">
       <property name="font">
        <font>
         <pointsize>10</pointsize>
@@ -1148,7 +1161,7 @@
      </widget>
     </item>
     <item row="1" column="0">
-     <widget class="QLabel" name="label_34">
+     <widget class="QLabel" name="label_37">
       <property name="font">
        <font>
         <pointsize>10</pointsize>
@@ -1165,7 +1178,7 @@
      </widget>
     </item>
     <item row="1" column="1">
-     <widget class="QLineEdit" name="sale_tax">
+     <widget class="QLineEdit" name="ptax">
       <property name="layoutDirection">
        <enum>Qt::LeftToRight</enum>
       </property>
@@ -1175,7 +1188,47 @@
      </widget>
     </item>
     <item row="2" column="0">
-     <widget class="QLabel" name="label_35">
+     <widget class="QLabel" name="label_2">
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">font-weight:bold; </string>
+      </property>
+      <property name="text">
+       <string>Credit N.:</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="1">
+     <widget class="QLineEdit" name="cn"/>
+    </item>
+    <item row="3" column="0">
+     <widget class="QLabel" name="label_3">
+      <property name="styleSheet">
+       <string notr="true">font-weight:bold; </string>
+      </property>
+      <property name="text">
+       <string>Pending:</string>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="1">
+     <widget class="QLineEdit" name="pending">
+      <property name="layoutDirection">
+       <enum>Qt::LeftToRight</enum>
+      </property>
+      <property name="readOnly">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="0">
+     <widget class="QLabel" name="label_38">
       <property name="font">
        <font>
         <pointsize>10</pointsize>
@@ -1187,11 +1240,11 @@
        <enum>Qt::LeftToRight</enum>
       </property>
       <property name="text">
-       <string>Total:</string>
+       <string>Total </string>
       </property>
      </widget>
     </item>
-    <item row="2" column="1">
+    <item row="4" column="1">
      <widget class="QLineEdit" name="total">
       <property name="layoutDirection">
        <enum>Qt::LeftToRight</enum>
@@ -1203,14 +1256,17 @@
     </item>
    </layout>
   </widget>
-  <widget class="QLabel" name="stock_message">
+  <widget class="QLabel" name="quantity_label">
    <property name="geometry">
     <rect>
-     <x>960</x>
-     <y>710</y>
-     <width>231</width>
-     <height>91</height>
+     <x>700</x>
+     <y>540</y>
+     <width>121</width>
+     <height>16</height>
     </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">font-weight:bold;</string>
    </property>
    <property name="text">
     <string/>

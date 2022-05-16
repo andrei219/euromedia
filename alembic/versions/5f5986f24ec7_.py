@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 16420bb6de17
+Revision ID: 5f5986f24ec7
 Revises: 
-Create Date: 2022-05-12 16:40:38.415235
+Create Date: 2022-05-16 10:20:43.054281
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
-revision = '16420bb6de17'
+revision = '5f5986f24ec7'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -46,6 +46,8 @@ def upgrade():
                existing_type=mysql.DOUBLE(asdecimal=True),
                type_=sa.Float(precision=32),
                existing_nullable=False)
+    op.add_column('incoming_rma_lines', sa.Column('cust_id', sa.Integer(), nullable=False))
+    op.add_column('incoming_rma_lines', sa.Column('agent_id', sa.Integer(), nullable=False))
     op.alter_column('incoming_rma_lines', 'price',
                existing_type=mysql.DOUBLE(asdecimal=True),
                type_=sa.Float(precision=32),
@@ -90,6 +92,8 @@ def upgrade():
                existing_type=mysql.DOUBLE(asdecimal=True),
                type_=sa.Float(precision=32),
                existing_nullable=False)
+    op.add_column('sale_invoices', sa.Column('parent_id', sa.Integer(), nullable=True))
+    op.create_foreign_key(None, 'sale_invoices', 'sale_invoices', ['parent_id'], ['id'])
     op.alter_column('sale_payments', 'amount',
                existing_type=mysql.DOUBLE(asdecimal=True),
                type_=sa.Float(precision=32),
@@ -135,6 +139,8 @@ def downgrade():
                existing_type=sa.Float(precision=32),
                type_=mysql.DOUBLE(asdecimal=True),
                existing_nullable=False)
+    op.drop_constraint(None, 'sale_invoices', type_='foreignkey')
+    op.drop_column('sale_invoices', 'parent_id')
     op.alter_column('sale_expenses', 'amount',
                existing_type=sa.Float(precision=32),
                type_=mysql.DOUBLE(asdecimal=True),
@@ -179,6 +185,8 @@ def downgrade():
                existing_type=sa.Float(precision=32),
                type_=mysql.DOUBLE(asdecimal=True),
                existing_nullable=False)
+    op.drop_column('incoming_rma_lines', 'agent_id')
+    op.drop_column('incoming_rma_lines', 'cust_id')
     op.alter_column('credit_note_lines', 'price',
                existing_type=sa.Float(precision=32),
                type_=mysql.DOUBLE(asdecimal=True),

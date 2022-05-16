@@ -560,7 +560,7 @@ class Form(Ui_SalesProformaForm, QWidget):
         try:
             self.save_template()
             db.session.commit()
-            self.parent.set_mv('proformas_sales_')
+            # self.parent.set_mv('proformas_sales_')
         except IntegrityError:
             db.session.rollback()
             QMessageBox.critical(self, 'Error', 'Document with that type and number already exists')
@@ -575,13 +575,15 @@ class Form(Ui_SalesProformaForm, QWidget):
 
     def closeEvent(self, event):
         db.session.rollback()     
-        self.parent.set_mv('proformas_sales_')
+        # self.parent.set_mv('proformas_sales_')
 
-    def update_totals(self):
-        self.proforma_total.setText(str(self.lines_model.total))
-        self.proforma_tax.setText(str(self.lines_model.tax))
-        self.subtotal_proforma.setText(str(self.lines_model.subtotal))
-        self.quantity.setText('Qnt.: ' + str(self.lines_model.quantity))
+    def update_totals(self, note=0.0):
+        self.total.setText(str(self.proforma.total_debt))
+        self.ptax.setText(str(self.proforma.tax))
+        self.cn.setText(str(self.proforma.cn_total))
+        self.pending.setText(str(self.proforma.total_debt - self.proforma.total_paid))
+        self.subtotal.setText(str(self.proforma.subtotal))
+        self.quantity_label.setText('Qnt.: ' + str(self.lines_model.quantity))
 
     def _valid_header(self):
 

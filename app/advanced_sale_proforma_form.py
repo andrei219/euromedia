@@ -149,11 +149,13 @@ class Form(Ui_Form, QWidget):
         # removing objects in pending state 
         db.session.rollback()
 
-    def update_totals(self):
-
-        self.subtotal.setText(str(self.lines_model.subtotal))
-        self.sale_tax.setText(str(self.lines_model.tax))
-        self.total.setText(str(self.lines_model.total))
+    def update_totals(self, note=0.0):
+        self.total.setText(str(self.proforma.total_debt))
+        self.ptax.setText(str(self.proforma.tax))
+        self.cn.setText(str(self.proforma.cn_total))
+        self.pending.setText(str(self.proforma.total_debt - self.proforma.total_paid))
+        self.subtotal.setText(str(self.proforma.subtotal))
+        self.quantity_label.setText('Qnt.: ' + str(self.lines_model.quantity))
 
     def set_stock_message(self, empty=False):
         print('set_stock_message')
@@ -374,7 +376,6 @@ class EditableForm(Form):
         else:
             self.setWindowTitle('Proforma Edit')
 
-
         self.proforma_to_form()
         self.warehouse.setEnabled(False)
         self.disable_if_cancelled()
@@ -389,7 +390,6 @@ class EditableForm(Form):
 
     def applycn_handler(self):
         from apply_credit_note_form import Form
-
         Form(self, self.proforma).exec_()
 
     def save_template(self):

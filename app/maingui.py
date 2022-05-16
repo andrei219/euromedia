@@ -1288,16 +1288,18 @@ class MainGui(Ui_MainGui, QMainWindow):
             )
             return
 
-        # Get partner:
-        fiscal_name = wh_rma_order.incoming_rma.lines[0].cust
-        partner_id = db.session.query(db.Partner.id).\
-            where(db.Partner.fiscal_name == fiscal_name).scalar()
+        # # Get partner:
+        # fiscal_name = wh_rma_order.incoming_rma.lines[0].cust
+        # partner_id = db.session.query(db.Partner.id).\
+        #     where(db.Partner.fiscal_name == fiscal_name).scalar()
+
+        partner_id = wh_rma_order.incoming_rma.lines[0].cust_id
+        agent_id = wh_rma_order.incoming_rma.lines[0].agent_id
 
         from models import build_credit_note_and_commit
 
-        proforma = build_credit_note_and_commit(partner_id, wh_rma_order)
+        proforma = build_credit_note_and_commit(partner_id, agent_id, wh_rma_order)
         invoice = self.proformas_sales_model.associateInvoice(proforma)
-        wh_rma_order.sale_invoice = invoice
 
         for line in wh_rma_order.lines:
             imei = db.Imei()

@@ -587,7 +587,6 @@ class PurchasePayment(Base):
 
 
 class PurchaseExpense(Base):
-
     __tablename__ = 'purchase_expenses'
 
     id = Column(Integer, primary_key=True)
@@ -607,7 +606,6 @@ class PurchaseExpense(Base):
 
 
 class SaleProforma(Base):
-
     __tablename__ = 'sale_proformas'
 
     id = Column(Integer, primary_key=True)
@@ -668,14 +666,26 @@ class SaleProforma(Base):
     @property
     def subtotal(self):
         return sum(line.price * line.quantity for line in self.lines) or \
-            sum(line.price * line.quantity for line in self.advanced_lines) or \
-            sum(line.price * line.quantity for line in self.credit_note_lines)
+               sum(line.price * line.quantity for line in self.advanced_lines) or \
+               sum(line.price * line.quantity for line in self.credit_note_lines)
 
     @property
     def tax(self):
         return sum(line.price * line.quantity * line.tax / 100 for line in self.lines) or \
-            sum(line.price * line.quantity * line.tax / 100 for line in self.advanced_lines) or \
-            sum(line.price * line.quantity * line.tax / 100 for line in self.credit_note_lines)
+               sum(line.price * line.quantity * line.tax / 100 for line in self.advanced_lines) or \
+               sum(line.price * line.quantity * line.tax / 100 for line in self.credit_note_lines)
+
+    @property
+    def cn_total(self):
+        if self.invoice is not None:
+            return self.invoice.cn_total
+        return 0
+
+    @property
+    def applied(self):
+        if self.invoice is not None:
+            return self.invoice.applied
+        return False
 
     @property
     def total_debt(self):
@@ -683,7 +693,7 @@ class SaleProforma(Base):
 
     @property
     def total_paid(self):
-        return sum(p.amount for p in self.payments)
+        return sum(abs(p.amount) for p in self.payments)
 
     @property
     def not_paid(self):
@@ -801,11 +811,10 @@ class SaleInvoice(Base):
     date = Column(Date, default=datetime.now)
     eta = Column(Date, default=datetime.now)
 
+    parent_id = Column(Integer, ForeignKey('sale_invoices.id'))
     wh_incoming_rma = relationship('WhIncomingRma', uselist=False, back_populates='sale_invoice')
 
-    @property
-    def doc_repr(self):
-        return str(self.type) + '-' + str(self.number).zfill(6)
+    proforma = relationship('SaleProforma', uselist=False, back_populates='invoice')
 
     def __repr__(self):
         clasname = self.__class__.__name__
@@ -814,6 +823,31 @@ class SaleInvoice(Base):
     def __init__(self, type, number):
         self.type = type
         self.number = number
+
+    @property
+    def cn_total(self):
+        return sum(
+            invoice.subtotal for invoice in session.query(SaleInvoice).
+            where(SaleInvoice.parent_id == self.id)
+        )
+
+    @property
+    def applied(self):
+        return session.query(SaleInvoice.parent_id).\
+            where(SaleInvoice.id == self.id).scalar() is not None
+
+
+    @property
+    def subtotal(self):
+        return self.proforma.subtotal
+
+    @property
+    def doc_repr(self):
+        return str(self.type) + '-' + str(self.number).zfill(6)
+
+    @property
+    def cn_repr(self):
+        return 'CN ' + self.doc_repr
 
     __table_args__ = (
         UniqueConstraint('type', 'number', name='unique_sales_sale_invoices'),
@@ -884,7 +918,6 @@ class SaleProformaLine(Base):
 
 
 class AdvancedLine(Base):
-
     __tablename__ = 'advanced_lines'
 
     id = Column(Integer, primary_key=True)
@@ -1165,7 +1198,6 @@ class ExpeditionSerie(Base):
 
 
 class Imei(Base):
-
     __tablename__ = 'imeis'
 
     imei = Column(String(50), primary_key=True, nullable=False)
@@ -1466,18 +1498,15 @@ class WhIncomingRma(Base):
     incoming_rma = relationship('IncomingRma', back_populates='wh_incoming_rma')
     sale_invoice = relationship('SaleInvoice', back_populates='wh_incoming_rma')
 
-
     __table_args__ = (
         UniqueConstraint('incoming_rma_id', name='wh_order_from_onlyone_rma_order'),
     )
-
 
     def __init__(self, incoming_rma):
         self.incoming_rma = incoming_rma
 
 
 class WhIncomingRmaLine(Base):
-
     __tablename__ = 'wh_incoming_rma_lines'
 
     id = Column(Integer, primary_key=True)
@@ -1509,7 +1538,6 @@ class WhIncomingRmaLine(Base):
         s += f"why={self.why})"
         return s
 
-
     # def __hash__(self):
     #     return hash(self.sn)
 
@@ -1529,17 +1557,16 @@ class WhIncomingRmaLine(Base):
         self.spec = incoming_rma_line.spec
         self.price = incoming_rma_line.price
         try:
-            self.invoice_type = session.query(SaleInvoice.type)\
-                .join(SaleProforma)\
-                .join(Expedition)\
-                .join(ExpeditionLine).\
+            self.invoice_type = session.query(SaleInvoice.type) \
+                .join(SaleProforma) \
+                .join(Expedition) \
+                .join(ExpeditionLine). \
                 join(ExpeditionSerie).where(ExpeditionSerie.serie == self.sn).all()[-1].type
         except IndexError:
             raise ValueError('Cant find sale invoice associated')
 
 
 class CreditNoteLine(Base):
-
     __tablename__ = 'credit_note_lines'
 
     id = Column(Integer, primary_key=True)
@@ -1608,6 +1635,8 @@ class IncomingRmaLine(Base):
     accepted = Column(Boolean, default=False, nullable=True)
     why = Column(String(100), nullable=True)
     price = Column(Float(precision=32, decimal_return_scale=None), nullable=False)
+    cust_id = Column(Integer, nullable=False)
+    agent_id = Column(Integer, nullable=False)
 
     incoming_rma = relationship(
         'IncomingRma',
@@ -1629,19 +1658,22 @@ class IncomingRmaLine(Base):
     # def __eq__(self, other):
     #     return self.sn == other.sn
 
-
     @classmethod
     def from_sn(cls, sn):
         self = cls()
         self.sn = sn
         try:
-            reception_serie = session.query(ReceptionSerie).where(ReceptionSerie.serie == sn).all()[-1]
+            reception_serie = session.query(ReceptionSerie). \
+                join(ReceptionLine).join(Reception).join(PurchaseProforma).join(Partner). \
+                where(ReceptionSerie.serie == sn).all()[-1]
+
         except IndexError:
             raise ValueError('Serie not found in receptions')
 
         try:
-            expedition_serie = session.query(ExpeditionSerie).join(ExpeditionLine) \
-                .where(ExpeditionSerie.serie == sn).all()[-1]
+            expedition_serie = session.query(ExpeditionSerie). \
+                join(ExpeditionLine).join(Expedition).join(SaleProforma).join(Partner). \
+                where(ExpeditionSerie.serie == sn).all()[-1]
         except IndexError:
             raise ValueError('Serie not found in expeditions')
 
@@ -1675,6 +1707,8 @@ class IncomingRmaLine(Base):
                 ))
                 self.public = expedition_serie.line.showing_condition
                 self.cust = expedition_serie.line.expedition.proforma.partner.fiscal_name
+                self.cust_id = expedition_serie.line.expedition.proforma.partner.id
+                self.agent_id = expedition_serie.line.expedition.proforma.agent.id
                 try:
                     self.saledate = expedition_serie.line.expedition.proforma.invoice.date
                 except AttributeError:
@@ -1689,11 +1723,11 @@ class IncomingRmaLine(Base):
                 self.accepted = False
 
                 for line in expedition_serie.line.expedition.proforma.lines or \
-                        expedition_serie.line.expedition.proforma.advanced_lines:
+                            expedition_serie.line.expedition.proforma.advanced_lines:
                     if all((
-                        line.item_id == expedition_serie.line.item_id,
-                        line.condition == expedition_serie.line.condition,
-                        line.spec == expedition_serie.line.spec
+                            line.item_id == expedition_serie.line.item_id,
+                            line.condition == expedition_serie.line.condition,
+                            line.spec == expedition_serie.line.spec
                     )):
                         self.price = line.price
                         break

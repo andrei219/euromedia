@@ -2038,7 +2038,7 @@ class Ui_MainGui(object):
         MainGui.setStatusBar(self.statusBar)
 
         self.retranslateUi(MainGui)
-        self.main_tab.setCurrentIndex(2)
+        self.main_tab.setCurrentIndex(3)
         self.proformastab.setCurrentIndex(1)
         self.invoicestab.setCurrentIndex(1)
         self.warehouse.setCurrentIndex(2)

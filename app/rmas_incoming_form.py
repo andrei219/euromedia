@@ -62,11 +62,13 @@ class Form(Ui_Form, QWidget):
 
     def search_sn(self):
         sn = self.sn.text().strip()
-        if not sn: return
+        if not sn:
+            return
         try:
             self.lines_model.add(sn)
             self.view.resizeColumnsToContents()
             self.sn.clear()
+            self.sn.setFocus()
         except ValueError as ex:
             QMessageBox.critical(self, 'Error', str(ex))
 

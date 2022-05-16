@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>610</width>
+    <width>804</width>
     <height>408</height>
    </rect>
   </property>
@@ -18,51 +18,63 @@
     <rect>
      <x>30</x>
      <y>50</y>
-     <width>211</width>
+     <width>301</width>
      <height>211</height>
     </rect>
    </property>
    <property name="title">
     <string>Available:</string>
    </property>
-   <widget class="QListView" name="available_view">
+   <widget class="QTableView" name="available">
     <property name="geometry">
      <rect>
       <x>0</x>
       <y>20</y>
-      <width>211</width>
+      <width>301</width>
       <height>191</height>
      </rect>
+    </property>
+    <property name="selectionMode">
+     <enum>QAbstractItemView::MultiSelection</enum>
+    </property>
+    <property name="selectionBehavior">
+     <enum>QAbstractItemView::SelectRows</enum>
     </property>
    </widget>
   </widget>
   <widget class="QGroupBox" name="groupBox_2">
    <property name="geometry">
     <rect>
-     <x>370</x>
+     <x>460</x>
      <y>50</y>
-     <width>211</width>
+     <width>311</width>
      <height>211</height>
     </rect>
    </property>
    <property name="title">
     <string>Applied:</string>
    </property>
-   <widget class="QListView" name="available_view_2">
+   <widget class="QTableView" name="applied">
     <property name="geometry">
      <rect>
       <x>0</x>
       <y>20</y>
-      <width>211</width>
+      <width>311</width>
       <height>191</height>
      </rect>
     </property>
+    <property name="selectionMode">
+     <enum>QAbstractItemView::MultiSelection</enum>
+    </property>
+    <property name="selectionBehavior">
+     <enum>QAbstractItemView::SelectRows</enum>
+    </property>
    </widget>
   </widget>
-  <widget class="QToolButton" name="save_button_2">
+  <widget class="QToolButton" name="exit">
    <property name="geometry">
     <rect>
-     <x>510</x>
+     <x>700</x>
      <y>320</y>
      <width>71</width>
      <height>61</height>
@@ -91,11 +103,11 @@
     <bool>true</bool>
    </property>
   </widget>
-  <widget class="QPushButton" name="pushButton">
+  <widget class="QPushButton" name="delete_">
    <property name="geometry">
     <rect>
-     <x>505</x>
-     <y>268</y>
+     <x>695</x>
+     <y>267</y>
      <width>75</width>
      <height>23</height>
     </rect>
@@ -107,7 +119,7 @@
   <widget class="QToolButton" name="add">
    <property name="geometry">
     <rect>
-     <x>260</x>
+     <x>340</x>
      <y>130</y>
      <width>91</width>
      <height>61</height>
@@ -146,5 +158,22 @@
  <resources>
   <include location="../app/icons.qrc"/>
  </resources>
- <connections/>
+ <connections>
+  <connection>
+   <sender>exit</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>524</x>
+     <y>351</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>419</x>
+     <y>350</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

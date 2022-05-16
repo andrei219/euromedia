@@ -46,7 +46,7 @@ class Ui_Form(object):
         self.sn.setObjectName("sn")
         self.check = QtWidgets.QPushButton(Form)
         self.check.setGeometry(QtCore.QRect(938, 14, 81, 31))
-        self.check.setAutoDefault(True)
+        self.check.setAutoDefault(False)
         self.check.setDefault(True)
         self.check.setObjectName("check")
         self.label_3 = QtWidgets.QLabel(Form)
