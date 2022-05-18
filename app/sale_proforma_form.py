@@ -15,13 +15,12 @@ from ui_sale_proforma_form import Ui_SalesProformaForm
 
 from sqlalchemy.exc import IntegrityError
 
-
 class StockBase:
 
     def __init__(self, filters, warehouse_id, form):
         self.filters = filters
-        self.warehouse_id = warehouse_id 
-        self.completer = Completer(self, form) 
+        self.warehouse_id = warehouse_id
+        self.completer = Completer(self, form)
         self.update()
 
     def update(self): 
@@ -29,7 +28,6 @@ class StockBase:
         description  = self.filters.description
         condition    = self.filters.condition
         spec         = self.filters.spec
-
 
         self.stocks = StockModel.stocks(
             self.warehouse_id, 
@@ -41,7 +39,6 @@ class StockBase:
         self._set_state()        
         self.completer.update(description, condition, spec)
 
-    
     def _set_state(self):
         self._item_ids = {s.item_id for s in self.stocks}
         self._conditions = {s.condition for s in self.stocks}
@@ -105,7 +102,6 @@ class Filters:
         self._condition = condition
         self._spec = spec 
 
-
         self.stock_base.update()
 
 
@@ -135,7 +131,6 @@ class Completer:
                 self.form.condition,
                 self.stock_base.conditions.union({'Mix'}) 
             )
-
 
 class Form(Ui_SalesProformaForm, QWidget):
 
@@ -170,11 +165,7 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.set_partner_completer()
         self.set_handlers()
 
-        warehouse_id = utils.warehouse_id_map[self.warehouse.currentText()]
-
-        self.filters = Filters(warehouse_id, self)
-
-        self.view = view 
+        self.view = view
         
         self.lines_view.resizeColumnToContents(0)
         self.lines_view.resizeColumnToContents(2)
@@ -190,7 +181,6 @@ class Form(Ui_SalesProformaForm, QWidget):
 
         warehouse_id = utils.warehouse_id_map.get(self.warehouse.currentText())
         self.proforma.warehouse_id = warehouse_id 
-
         db.session.add(self.proforma)
         db.session.flush() 
  
@@ -200,7 +190,14 @@ class Form(Ui_SalesProformaForm, QWidget):
 
         self.warehouse.currentTextChanged.connect(self.warehouse_changed)
         # Solo interesa en formulario nuevo
-        
+
+        warehouse_id = utils.warehouse_id_map[self.warehouse.currentText()]
+
+        print('Form.__init__')
+        print('warehouse_id=', warehouse_id)
+        print('currtext=', self.warehouse.currentText())
+
+        self.filters = Filters(warehouse_id, self)
 
 
     def set_handlers(self):
@@ -647,13 +644,14 @@ class EditableForm(Form):
         else:
             self.setWindowTitle('Proforma Edit')
 
-
         self.disable_warehouse()
         self.proforma_to_form()
 
     def init_template(self): 
         self.applycn.clicked.connect(self.applycn_handler)
-
+        self.filters = Filters(self.proforma.warehouse_id, self)
+        print('warehouse_id=', self.proforma.warehouse_id)
+    
     def applycn_handler(self):
         from apply_credit_note_form import Form
         Form(self, self.proforma).exec_()

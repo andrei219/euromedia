@@ -3840,6 +3840,9 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
         return list(filter(lambda s: s.request > 0, self.stocks))
 
     def excel_export(self, file_path):
+
+        if not file_path:
+            return
         from utils import warehouse_id_map
         from utils import description_id_map
         from openpyxl import Workbook

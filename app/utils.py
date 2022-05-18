@@ -110,7 +110,6 @@ def valid_uuid(string):
 def complete_descriptions(clean_map, dirty_map):
     descriptions = set()
     descriptions.update(clean_map.keys())
-    descriptions.update(clean_map.keys())
     for dirty_repr in dirty_map:
         mpn, man, cat, mod, cap, col, has_serie = dirty_repr.split('|')
         if mpn != '?':
