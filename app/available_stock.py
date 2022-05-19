@@ -60,8 +60,8 @@ class Form(Ui_Form, QDialog):
             try:
                 self.model.excel_export(file_path)
             except:
-                raise
                 QMessageBox.critical(self, 'Error', 'Error exporting data')
+                raise
             else:
                 QMessageBox.information(self, 'Success', 'Data exported successfully')
 

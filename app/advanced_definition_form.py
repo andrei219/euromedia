@@ -104,8 +104,8 @@ class Form(Ui_Form, QWidget):
                 db.session.commit()
                 self.saved = True
             except:
-                raise
                 db.session.rollback()
+                raise
             else:
                 QMessageBox.information(
                     self,

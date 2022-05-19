@@ -193,10 +193,6 @@ class Form(Ui_SalesProformaForm, QWidget):
 
         warehouse_id = utils.warehouse_id_map[self.warehouse.currentText()]
 
-        print('Form.__init__')
-        print('warehouse_id=', warehouse_id)
-        print('currtext=', self.warehouse.currentText())
-
         self.filters = Filters(warehouse_id, self)
 
 
@@ -650,8 +646,7 @@ class EditableForm(Form):
     def init_template(self): 
         self.applycn.clicked.connect(self.applycn_handler)
         self.filters = Filters(self.proforma.warehouse_id, self)
-        print('warehouse_id=', self.proforma.warehouse_id)
-    
+
     def applycn_handler(self):
         from apply_credit_note_form import Form
         Form(self, self.proforma).exec_()

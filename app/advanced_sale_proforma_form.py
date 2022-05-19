@@ -69,7 +69,8 @@ class Form(Ui_Form, QWidget):
             (self.agent, utils.agent_id_map.keys()),
             (self.warehouse, utils.warehouse_id_map.keys()),
             (self.courier, utils.courier_id_map.keys())
-        ]: combo.addItems(data)
+        ]:
+            combo.addItems(data)
 
     def set_completers(self):
         for field, data in [
@@ -158,13 +159,10 @@ class Form(Ui_Form, QWidget):
         self.quantity_label.setText('Qnt.: ' + str(self.lines_model.quantity))
 
     def set_stock_message(self, empty=False):
-        print('set_stock_message')
         if empty:
-            print('if empty')
             self.stock_message.setText('')
             self.stock_message.setStyleSheet('')
         else:
-            print('else')
             s = str(self.type_filter) + '-' + str(self.number_filter).zfill(6)
             self.stock_message.setText(MESSAGE.format(s))
             self.stock_message.setStyleSheet('background-color:"#FF7F7F"')
@@ -207,8 +205,8 @@ class Form(Ui_Form, QWidget):
         try:
             self.lines_model.add(quantity, price, ignore, tax, showing, vector)
         except ValueError as ex:
-            raise
             QMessageBox.critical(self, 'Error', str(ex))
+            raise
         else:
             self.update_totals()
 
@@ -221,7 +219,7 @@ class Form(Ui_Form, QWidget):
     def update_global_filters(self, vector=None):
         if vector:
             self.type_filter = vector.type
-            self.number_filter  = vector.number
+            self.number_filter = vector.number
         else:
             self.type_filter = None
             self.number_filter = None
@@ -284,7 +282,9 @@ class Form(Ui_Form, QWidget):
             QMessageBox.critical(self, 'Error', "Can't process empty proforma")
             return
 
-        warehouse_id = utils.warehouse_id_map.get(self.warehouse.currentText())
+        # warehouse_id = utils.warehouse_id_map.get(self.warehouse.currentText())
+
+        warehouse_id = self.proforma.warehouse_id
         lines = self.lines_model.lines
 
         if self.stock_model is not None:
@@ -328,7 +328,6 @@ class Form(Ui_Form, QWidget):
     def _form_to_proforma(self):
 
         if self.is_invoice:
-            print('if form to proforma self.is_invoice:')
             self.proforma.invoice.type = int(self.type.currentText())
             self.proforma.invoice.number = int(self.number.text())
             self.proforma.invoice.date = utils.parse_date(self.date.text())
@@ -393,10 +392,7 @@ class EditableForm(Form):
         Form(self, self.proforma).exec_()
 
     def save_template(self):
-        pass
-        # for o in db.session:
-        #     if type(o) == db.AdvancedLine:
-        #         print(o)
+        self.model.updateWarehouse(self.proforma)
 
     def disable_if_cancelled(self):
         if self.proforma.cancelled:
@@ -410,8 +406,5 @@ class EditableForm(Form):
 
 
 def get_form(parent, view, proforma=None, is_invoice=False):
-
-    print('is_invoice =', is_invoice)
-
     return EditableForm(parent, view, proforma, is_invoice=is_invoice) if proforma \
         else Form(parent, view)

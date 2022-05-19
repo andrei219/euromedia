@@ -1781,12 +1781,14 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
         exp_line.expedition = expedition
 
     def updateWarehouse(self, proforma):
+        print('reached')
         if proforma.expedition is None:
             return
 
         added_lines = self.difference(proforma)
 
         for line in added_lines:
+            print('added lines loop')
             self.build_expedition_line(line, proforma.expedition)
 
         deleted_lines = self.difference(proforma, direction='expedition_proforma')
@@ -1833,11 +1835,11 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
     def difference(self, proforma, direction='proforma_expedition'):
 
         if direction == 'proforma_expedition':
-            iter_a = filter(item_key, proforma.lines)
+            iter_a = filter(item_key, proforma.advanced_lines or proforma.lines)
             iter_b = iter(proforma.expedition.lines)
         elif direction == 'expedition_proforma':
             iter_a = iter(proforma.expedition.lines)
-            iter_b = filter(item_key, proforma.lines)
+            iter_b = filter(item_key, proforma.advanced_lines or proforma.lines)
 
         for pline in iter_a:
             for eline in iter_b:
