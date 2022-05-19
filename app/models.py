@@ -3755,11 +3755,6 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
                 return True
             return False
 
-        # for line in lines:
-        # 	for stock in stocks:
-        # 		if line == stock:
-        # 			if line.quantity > stock.quantity:
-        # 				return True
 
     def resolve(self, imeis, imeis_mask, sales, outputs):
 
@@ -3925,6 +3920,7 @@ class IncomingVector:
         return s
 
 
+
 class IncomingStockModel(BaseTable, QtCore.QAbstractTableModel):
     DOCUMENT, ETA, DESC, CONDITION, SPEC, AVAILABLE = 0, 1, 2, 3, 4, 5
 
@@ -3994,12 +3990,21 @@ class IncomingStockModel(BaseTable, QtCore.QAbstractTableModel):
         Session = db.sessionmaker(bind=db.get_engine())
         session = Session()
 
-        for stock in self.computeIncomingStock(warehouse_id, description=None,
-                                               condition=None, spec=None, session=session):
+        print('Lines:')
+        for line in lines:
+            print('\t', line)
+
+
+
+        print('Stocks:')
+
+        for stock in self.computeIncomingStock(
+                warehouse_id, description=None,
+                condition=None, spec=None, session=session
+        ):
             for line in lines:
                 if line == stock and line.quantity > stock.available:
                     return True
-
         return False
 
     def data(self, index, role=Qt.DisplayRole):
