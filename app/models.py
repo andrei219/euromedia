@@ -1322,7 +1322,6 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
             db.session.rollback()
             raise
 
-
 def export_expedition(expediton, file_path):
     pass
 
@@ -1750,12 +1749,11 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
                 exp_line.expedition = expedition
         try:
             db.session.commit()
-        except:
+        except Exception :
             db.session.rollback()
             raise
 
     def stock_available(self, wh_id, lines):
-
         query = db.session.query(
             func.count(db.Imei.imei).label('quantity'),
             db.Imei.item_id, db.Imei.condition,
@@ -1772,6 +1770,10 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
         ))
 
     def build_expedition_line(self, line, expedition):
+        print('build expedition line call')
+        print('\tline=', line)
+        print('\expedition=', expedition)
+
         exp_line = db.ExpeditionLine()
         exp_line.condition = line.condition
         exp_line.spec = line.spec
@@ -1781,22 +1783,27 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
         exp_line.expedition = expedition
 
     def updateWarehouse(self, proforma):
-        print('reached')
         if proforma.expedition is None:
             return
 
         added_lines = self.difference(proforma)
 
         for line in added_lines:
-            print('added lines loop')
+            print('\tline in added_lines loop :', line)
+
+        print('Build added lines init')
+        for line in added_lines:
+            print('line in added lines loop')
             self.build_expedition_line(line, proforma.expedition)
+        print('Build added lines end')
 
         deleted_lines = self.difference(proforma, direction='expedition_proforma')
 
         for line in deleted_lines:
+            print('\tfor line in deleted_lines loop:', line)
             line.quantity = 0
             if len(line.series) == 0:
-
+                print('\t\tlen(series)==0')
                 # Corner case:
                 # Solo hay 1
                 # Borras la serie en el almacen
@@ -1806,22 +1813,22 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
                 try:
                     db.session.delete(line)
                 except InvalidRequestError:
-                    print('Invalid Request Error')
-                    pass
+                    raise
 
-        for line in added_lines:
-            self.build_expedition_line(line, proforma.expedition)
+        # for line in added_lines:
+        #     self.build_expedition_line(line, proforma.expedition)
 
-            # Update quantity
+        # Update quantity
         # Update showing condition
         for pline in filter(item_key, proforma.lines):
             for eline in proforma.expedition.lines:
                 if self.pline_eline_equal(pline, eline):
+                    print('equal line loop')
                     eline.quantity = pline.quantity
                     eline.showing_condition = pline.showing_condition
         try:
             db.session.commit()
-        except:
+        except Exception:
             db.session.rollback()
             raise
 
@@ -1833,17 +1840,40 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
         ))
 
     def difference(self, proforma, direction='proforma_expedition'):
+        print('difference')
+        print('\tdirection=', direction)
+        print('\tproforma=', proforma)
 
         if direction == 'proforma_expedition':
             iter_a = filter(item_key, proforma.advanced_lines or proforma.lines)
+
+            print('direction == proforma_expedition')
+            for line in iter_a:
+                print('\tfor line in iter_a line=', line)
+
             iter_b = iter(proforma.expedition.lines)
+
+            for line in iter_b:
+                print('\t for line in iter_b=', line)
+
         elif direction == 'expedition_proforma':
             iter_a = iter(proforma.expedition.lines)
             iter_b = filter(item_key, proforma.advanced_lines or proforma.lines)
+            print('direction == expedition_proforma')
+
+            for line in iter_a:
+                print('\tfor line in iter_a=', line)
+
+            for line in iter_b:
+                print('\t for line in iter_b=', line)
 
         for pline in iter_a:
+            print('\tfor pr_line in iter_a=', pline)
             for eline in iter_b:
+                print('\t\tfor eline in iter_b=', eline)
                 if self.pline_eline_equal(pline, eline):
+                    print('\t\t\t equality')
+                    print('\t\t\t', pline, '==', eline)
                     break
             else:
                 yield pline

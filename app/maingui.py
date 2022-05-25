@@ -1301,6 +1301,8 @@ class MainGui(Ui_MainGui, QMainWindow):
         proforma = build_credit_note_and_commit(partner_id, agent_id, wh_rma_order)
         invoice = self.proformas_sales_model.associateInvoice(proforma)
 
+        wh_rma_order.sale_invoice = invoice 
+
         for line in wh_rma_order.lines:
             imei = db.Imei()
             imei.imei = line.sn
