@@ -1,0 +1,778 @@
+[
+    {
+        "invoice_number": "2-000207",
+        "partner_name": "Touchphone, S.C.",
+        "partner_ident": "J93698819",
+        "country_code": "ES",
+        "lines": [
+            {
+                "quantity": 20,
+                "price": 455.0,
+                "tax": 0,
+                "is_stock": true
+            },
+            {
+                "quantity": 20,
+                "price": 455.0,
+                "tax": 0,
+                "is_stock": true
+            },
+            {
+                "quantity": 20,
+                "price": 455.0,
+                "tax": 0,
+                "is_stock": true
+            },
+            {
+                "quantity": 10,
+                "price": 455.0,
+                "tax": 0,
+                "is_stock": true
+            },
+            {
+                "quantity": 1,
+                "price": 30.0,
+                "tax": 21,
+                "is_stock": true
+            },
+            {
+                "quantity": 70,
+                "price": 1.5,
+                "tax": 21,
+                "is_stock": true
+            }
+        ]
+    },
+    {
+        "invoice_number": "3-000001",
+        "partner_name": "Afim Al Hachaim Ltd",
+        "partner_ident": "515468189",
+        "country_code": "IL",
+        "lines": [
+            {
+                "quantity": 1,
+                "price": 619.0,
+                "tax": 0,
+                "is_stock": true
+            },
+            {
+                "quantity": 1,
+                "price": 619.0,
+                "tax": 0,
+                "is_stock": true
+            },
+            {
+                "quantity": 1,
+                "price": 619.0,
+                "tax": 0,
+                "is_stock": true
+            },
+            {
+                "quantity": 1,
+                "price": 619.0,
+                "tax": 0,
+                "is_stock": true
+            },
+            {
+                "quantity": 5,
+                "price": 619.0,
+                "tax": 0,
+                "is_stock": true
+            },
+            {
+                "quantity": 1,
+                "price": 689.0,
+                "tax": 0,
+                "is_stock": true
+            }
+        ]
+    },
+    {
+        "invoice_number": "3-000002",
+        "partner_name": "Afim Al Hachaim Ltd",
+        "partner_ident": "515468189",
+        "country_code": "IL",
+        "lines": [
+            {
+                "quantity": 50,
+                "price": 78.0,
+                "tax": 0,
+                "is_stock": true
+            }
+        ]
+    },
+    {
+        "invoice_number": "4-000242",
+        "partner_name": "Erregame S.P.A.",
+        "partner_ident": "IT05618691215",
+        "country_code": "IT",
+        "lines": [
+            {
+                "quantity": 52,
+                "price": 693.0,
+                "tax": 0,
+                "is_stock": true
+            }
+        ]
+    },
+    {
+        "invoice_number": "4-000243",
+        "partner_name": "Erregame S.P.A.",
+        "partner_ident": "IT05618691215",
+        "country_code": "IT",
+        "lines": [
+            {
+                "quantity": 7,
+                "price": 693.0,
+                "tax": 0,
+                "is_stock": true
+            }
+        ]
+    },
+    {
+        "invoice_number": "4-000244",
+        "partner_name": "Erregame S.P.A.",
+        "partner_ident": "IT05618691215",
+        "country_code": "IT",
+        "lines": [
+            {
+                "quantity": 11,
+                "price": 440.0,
+                "tax": 0,
+                "is_stock": true
+            }
+        ]
+    },
+    {
+        "invoice_number": "4-000245",
+        "partner_name": "Nutracom OU",
+        "partner_ident": "EE102338874",
+        "country_code": "EE",
+        "lines": [
+            {
+                "quantity": 50,
+                "price": 66.0,
+                "tax": 0,
+                "is_stock": true
+            },
+            {
+                "quantity": 25,
+                "price": 65.0,
+                "tax": 0,
+                "is_stock": true
+            },
+            {
+                "quantity": 40,
+                "price": 70.0,
+                "tax": 0,
+                "is_stock": true
+            },
+            {
+                "quantity": 20,
+                "price": 86.0,
+                "tax": 0,
+                "is_stock": true
+            }
+        ]
+    },
+    {
+        "invoice_number": "4-000246",
+        "partner_name": "Nutracom OU",
+        "partner_ident": "EE102338874",
+        "country_code": "EE",
+        "lines": [
+            {
+                "quantity": 2,
+                "price": 37.0,
+                "tax": 0,
+                "is_stock": true
+            },
+            {
+                "quantity": 5,
+                "price": 37.0,
+                "tax": 0,
+                "is_stock": true
+            },
+            {
+                "quantity": 1,
+                "price": 37.0,
+                "tax": 0,
+                "is_stock": true
+            }
+        ]
+    },
+    {
+        "invoice_number": "2-000208",
+        "partner_name": "Comercial Tres Colegas, S.L.",
+        "partner_ident": "B93643708",
+        "country_code": "ES",
+        "lines": [
+            {
+                "quantity": 1,
+                "price": 455.0,
+                "tax": 0,
+                "is_stock": true
+            },
+            {
+                "quantity": 1,
+                "price": 455.0,
+                "tax": 0,
+                "is_stock": true
+            },
+            {
+                "quantity": 16,
+                "price": 455.0,
+                "tax": 0,
+                "is_stock": true
+            },
+            {
+                "quantity": 5,
+                "price": 455.0,
+                "tax": 0,
+                "is_stock": true
+            },
+            {
+                "quantity": 16,
+                "price": 455.0,
+                "tax": 0,
+                "is_stock": true
+            },
+            {
+                "quantity": 11,
+                "price": 455.0,
+                "tax": 0,
+                "is_stock": true
+            },
+            {
+                "quantity": 1,
+                "price": 590.0,
+                "tax": 0,
+                "is_stock": true
+            },
+            {
+                "quantity": 2,
+                "price": 590.0,
+                "tax": 0,
+                "is_stock": true
+            },
+            {
+                "quantity": 5,
+                "price": 590.0,
+                "tax": 0,
+                "is_stock": true
+            },
+            {
+                "quantity": 1,
+                "price": 590.0,
+                "tax": 0,
+                "is_stock": true
+            }
+        ]
+    },
+    {
+        "invoice_number": "2-000209",
+        "partner_name": "Movilganga, S.L.",
+        "partner_ident": "B93667202",
+        "country_code": "ES",
+        "lines": [
+            {
+                "quantity": 16,
+                "price": 455.0,
+                "tax": 0,
+                "is_stock": true
+            },
+            {
+                "quantity": 15,
+                "price": 455.0,
+                "tax": 0,
+                "is_stock": true
+            },
+            {
+                "quantity": 5,
+                "price": 455.0,
+                "tax": 0,
+                "is_stock": true
+            },
+            {
+                "quantity": 1,
+                "price": 455.0,
+                "tax": 0,
+                "is_stock": true
+            },
+            {
+                "quantity": 11,
+                "price": 455.0,
+                "tax": 0,
+                "is_stock": true
+            },
+            {
+                "quantity": 1,
+                "price": 455.0,
+                "tax": 0,
+                "is_stock": true
+            },
+            {
+                "quantity": 1,
+                "price": 455.0,
+                "tax": 0,
+                "is_stock": true
+            }
+        ]
+    },
+    {
+        "invoice_number": "2-000210",
+        "partner_name": "Moviles House Outlet Store, S.L.",
+        "partner_ident": "B98982598",
+        "country_code": "ES",
+        "lines": [
+            {
+                "quantity": 12,
+                "price": 450.0,
+                "tax": 0,
+                "is_stock": true
+            },
+            {
+                "quantity": 51,
+                "price": 450.0,
+                "tax": 0,
+                "is_stock": true
+            },
+            {
+                "quantity": 5,
+                "price": 450.0,
+                "tax": 0,
+                "is_stock": true
+            },
+            {
+                "quantity": 74,
+                "price": 450.0,
+                "tax": 0,
+                "is_stock": true
+            },
+            {
+                "quantity": 1,
+                "price": 450.0,
+                "tax": 0,
+                "is_stock": true
+            },
+            {
+                "quantity": 3,
+                "price": 450.0,
+                "tax": 0,
+                "is_stock": true
+            },
+            {
+                "quantity": 3,
+                "price": 450.0,
+                "tax": 0,
+                "is_stock": true
+            },
+            {
+                "quantity": 2,
+                "price": 450.0,
+                "tax": 0,
+                "is_stock": true
+            },
+            {
+                "quantity": 1,
+                "price": 450.0,
+                "tax": 0,
+                "is_stock": true
+            },
+            {
+                "quantity": 1,
+                "price": 450.0,
+                "tax": 0,
+                "is_stock": true
+            },
+            {
+                "quantity": 2,
+                "price": 450.0,
+                "tax": 0,
+                "is_stock": true
+            },
+            {
+                "quantity": 3,
+                "price": 450.0,
+                "tax": 0,
+                "is_stock": true
+            }
+        ]
+    },
+    {
+        "invoice_number": "4-000247",
+        "partner_name": "Mobielwerkt, B.V.",
+        "partner_ident": "NL 819148003B01",
+        "country_code": "NL",
+        "lines": [
+            {
+                "quantity": 21,
+                "price": 677.0,
+                "tax": 0,
+                "is_stock": true
+            },
+            {
+                "quantity": 1,
+                "price": 685.0,
+                "tax": 0,
+                "is_stock": true
+            },
+            {
+                "quantity": 0,
+                "price": 0.0,
+                "tax": 0,
+                "is_stock": true
+            }
+        ]
+    },
+    {
+        "invoice_number": "4-000248",
+        "partner_name": "AT Capital Ltd.",
+        "partner_ident": "BG205419545",
+        "country_code": "BG",
+        "lines": [
+            {
+                "quantity": 140,
+                "price": 620.0,
+                "tax": 0,
+                "is_stock": true
+            },
+            {
+                "quantity": 60,
+                "price": 620.0,
+                "tax": 0,
+                "is_stock": true
+            },
+            {
+                "quantity": 1,
+                "price": 260.0,
+                "tax": 0,
+                "is_stock": true
+            }
+        ]
+    },
+    {
+        "invoice_number": "3-000003",
+        "partner_name": "Adpress International FZCO",
+        "partner_ident": "100383676200003",
+        "country_code": "AE",
+        "lines": [
+            {
+                "quantity": 50,
+                "price": 430.0,
+                "tax": 0,
+                "is_stock": true
+            },
+            {
+                "quantity": 15,
+                "price": 430.0,
+                "tax": 0,
+                "is_stock": true
+            }
+        ]
+    },
+    {
+        "invoice_number": "2-000211",
+        "partner_name": "Velox Estudio, S.L.",
+        "partner_ident": "B93709202",
+        "country_code": "ES",
+        "lines": [
+            {
+                "quantity": 14,
+                "price": 420.0,
+                "tax": 0,
+                "is_stock": true
+            },
+            {
+                "quantity": 10,
+                "price": 420.0,
+                "tax": 0,
+                "is_stock": true
+            },
+            {
+                "quantity": 6,
+                "price": 420.0,
+                "tax": 0,
+                "is_stock": true
+            },
+            {
+                "quantity": 20,
+                "price": 420.0,
+                "tax": 0,
+                "is_stock": true
+            },
+            {
+                "quantity": 45,
+                "price": 420.0,
+                "tax": 0,
+                "is_stock": true
+            },
+            {
+                "quantity": 30,
+                "price": 420.0,
+                "tax": 0,
+                "is_stock": true
+            }
+        ]
+    },
+    {
+        "invoice_number": "2-000212",
+        "partner_name": "Velox Estudio, S.L.",
+        "partner_ident": "B93709202",
+        "country_code": "ES",
+        "lines": [
+            {
+                "quantity": 20,
+                "price": 820.0,
+                "tax": 0,
+                "is_stock": true
+            }
+        ]
+    },
+    {
+        "invoice_number": "2-000213",
+        "partner_name": "Comercial Tres Colegas, S.L.",
+        "partner_ident": "B93643708",
+        "country_code": "ES",
+        "lines": [
+            {
+                "quantity": 9,
+                "price": 420.0,
+                "tax": 0,
+                "is_stock": true
+            },
+            {
+                "quantity": 15,
+                "price": 420.0,
+                "tax": 0,
+                "is_stock": true
+            },
+            {
+                "quantity": 5,
+                "price": 420.0,
+                "tax": 0,
+                "is_stock": true
+            },
+            {
+                "quantity": 20,
+                "price": 420.0,
+                "tax": 0,
+                "is_stock": true
+            },
+            {
+                "quantity": 45,
+                "price": 420.0,
+                "tax": 0,
+                "is_stock": true
+            },
+            {
+                "quantity": 31,
+                "price": 420.0,
+                "tax": 0,
+                "is_stock": true
+            }
+        ]
+    },
+    {
+        "invoice_number": "2-000214",
+        "partner_name": "Comercial Tres Colegas, S.L.",
+        "partner_ident": "B93643708",
+        "country_code": "ES",
+        "lines": [
+            {
+                "quantity": 20,
+                "price": 820.0,
+                "tax": 0,
+                "is_stock": true
+            }
+        ]
+    },
+    {
+        "invoice_number": "2-000215",
+        "partner_name": "Backferpal, S.L.",
+        "partner_ident": "B90476722",
+        "country_code": "ES",
+        "lines": [
+            {
+                "quantity": 182,
+                "price": 480.0,
+                "tax": 0,
+                "is_stock": true
+            },
+            {
+                "quantity": 17,
+                "price": 480.0,
+                "tax": 0,
+                "is_stock": true
+            },
+            {
+                "quantity": 11,
+                "price": 480.0,
+                "tax": 0,
+                "is_stock": true
+            },
+            {
+                "quantity": 1,
+                "price": 40.0,
+                "tax": 21,
+                "is_stock": true
+            },
+            {
+                "quantity": 0,
+                "price": 0.0,
+                "tax": 0,
+                "is_stock": true
+            }
+        ]
+    },
+    {
+        "invoice_number": "3-000004",
+        "partner_name": "DATATRADE, SPA",
+        "partner_ident": "C.O.E. SM04046",
+        "country_code": "SM",
+        "lines": [
+            {
+                "quantity": 10,
+                "price": 615.0,
+                "tax": 0,
+                "is_stock": true
+            },
+            {
+                "quantity": 10,
+                "price": 810.0,
+                "tax": 0,
+                "is_stock": true
+            },
+            {
+                "quantity": 1,
+                "price": 35.0,
+                "tax": 0,
+                "is_stock": true
+            },
+            {
+                "quantity": -5,
+                "price": 245.0,
+                "tax": 0,
+                "is_stock": true
+            },
+            {
+                "quantity": -6,
+                "price": 215.0,
+                "tax": 0,
+                "is_stock": true
+            }
+        ]
+    },
+    {
+        "invoice_number": "4-000251",
+        "partner_name": "Nutracom OU",
+        "partner_ident": "EE102338874",
+        "country_code": "EE",
+        "lines": [
+            {
+                "quantity": 50,
+                "price": 273.0,
+                "tax": 0,
+                "is_stock": true
+            }
+        ]
+    },
+    {
+        "invoice_number": "4-000252",
+        "partner_name": "Podium Prodej, S.R.O.",
+        "partner_ident": "CZ11815167",
+        "country_code": "CZ",
+        "lines": [
+            {
+                "quantity": 50,
+                "price": 273.0,
+                "tax": 0,
+                "is_stock": true
+            }
+        ]
+    },
+    {
+        "invoice_number": "4-000253",
+        "partner_name": "Erregame S.P.A.",
+        "partner_ident": "IT05618691215",
+        "country_code": "IT",
+        "lines": [
+            {
+                "quantity": 12,
+                "price": 430.0,
+                "tax": 0,
+                "is_stock": true
+            },
+            {
+                "quantity": 1,
+                "price": 430.0,
+                "tax": 0,
+                "is_stock": true
+            },
+            {
+                "quantity": 1,
+                "price": 430.0,
+                "tax": 0,
+                "is_stock": true
+            },
+            {
+                "quantity": 3,
+                "price": 480.0,
+                "tax": 0,
+                "is_stock": true
+            },
+            {
+                "quantity": 4,
+                "price": 480.0,
+                "tax": 0,
+                "is_stock": true
+            },
+            {
+                "quantity": 3,
+                "price": 480.0,
+                "tax": 0,
+                "is_stock": true
+            }
+        ]
+    },
+    {
+        "invoice_number": "3-000005",
+        "partner_name": "Adpress International FZCO",
+        "partner_ident": "100383676200003",
+        "country_code": "AE",
+        "lines": [
+            {
+                "quantity": 11,
+                "price": 430.0,
+                "tax": 0,
+                "is_stock": true
+            },
+            {
+                "quantity": 50,
+                "price": 480.0,
+                "tax": 0,
+                "is_stock": true
+            },
+            {
+                "quantity": 25,
+                "price": 480.0,
+                "tax": 0,
+                "is_stock": true
+            }
+        ]
+    },
+    {
+        "invoice_number": "4-000255",
+        "partner_name": "Podium Prodej, S.R.O.",
+        "partner_ident": "CZ11815167",
+        "country_code": "CZ",
+        "lines": [
+            {
+                "quantity": 50,
+                "price": 66.0,
+                "tax": 0,
+                "is_stock": true
+            }
+        ]
+    }
+]

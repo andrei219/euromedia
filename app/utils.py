@@ -6,6 +6,7 @@ from datetime import datetime
 import functools
 
 # QtFramework stuff:
+import pycountry
 from PyQt5.QtWidgets import QInputDialog
 from PyQt5.QtWidgets import QAbstractItemView
 from PyQt5.QtWidgets import QFileDialog, QLineEdit
@@ -453,3 +454,9 @@ def build_description(lines):
     elif stock_type(line) == -1:
         return description_id_map.inverse[lines[0].item_id]
 
+
+def get_country_code(name):
+    return {
+        country.name: country.alpha_2
+        for country in pycountry.countries
+    }.get(name, 'Not found')

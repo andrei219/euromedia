@@ -90,7 +90,8 @@ ACTIONS = [
     'export_excel',
     'available_stock',
     'trace',
-    'tocn'
+    'tocn',
+    'sii'
 ]
 
 
@@ -1301,7 +1302,7 @@ class MainGui(Ui_MainGui, QMainWindow):
         proforma = build_credit_note_and_commit(partner_id, agent_id, wh_rma_order)
         invoice = self.proformas_sales_model.associateInvoice(proforma)
 
-        wh_rma_order.sale_invoice = invoice 
+        wh_rma_order.sale_invoice = invoice
 
         for line in wh_rma_order.lines:
             imei = db.Imei()
@@ -1399,6 +1400,12 @@ class MainGui(Ui_MainGui, QMainWindow):
     def tools_create_spec_handler(self):
         from spec import Form
         Form(self).exec_()
+
+
+    def tools_sii_handler(self):
+        from pysii import Form
+        Form(self).exec_()
+
 
     def tab_changed(self, index):
         # Clean up the filters also 
