@@ -1589,7 +1589,7 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
     def __init__(self, search_key=None, filters=None, proxy=False, last=10):
         super().__init__()
         self._headerData = ['Type & Num', 'Date', 'Partner', 'Agent', \
-                            '   n   Financial', 'Logistic', 'Sent', 'Cancelled',
+                            'Financial', 'Logistic', 'Sent', 'Cancelled',
                             'Owes', 'Total', 'Presale', 'Defined', 'Ready To Go',
                             'External Doc.', 'In WH', 'Warning', 'Inv.'
                             ]
@@ -1604,14 +1604,22 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
         #     db.Warehouse.id == db.SaleProforma.warehouse_id
         # )
 
-        query = db.session.query(db.SaleProforma).join(db.Agent).join(db.Partner).join(db.SaleInvoice)
+        query = db.session.query(db.SaleProforma).join(db.Agent).join(db.Partner).\
+            join(db.SaleInvoice, isouter=True)
 
         if proxy:
             self._headerData.append('From proforma')
             query = query.where(db.SaleProforma.invoice != None)
-            query = query.where(db.SaleInvoice.date > utils.get_last_date(last))
+            print('last=',last)
+            print(utils.get_last_date(last))
+            query = query.where(db.SaleInvoice.date >= utils.get_last_date(last))
         else:
-            query = query.where(db.SaleProforma.date > utils.get_last_date(last))
+            print('last=', last)
+            print('utils.get_last_date(last)=', utils.get_last_date(last))
+
+            query = query.where(db.SaleProforma.date >= utils.get_last_date(last))
+
+            print(query)
 
         if search_key:
             predicates = []
