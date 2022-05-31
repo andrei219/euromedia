@@ -156,7 +156,9 @@ class MainGui(Ui_MainGui, QMainWindow):
             try:
                 last = int(last_field.text())
             except ValueError:
-                pass
+                if last_field.text() == '':
+                    last = 366
+
 
 
         if prefix == 'agents_':
