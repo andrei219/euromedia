@@ -18,14 +18,13 @@ class Form(Ui_Dialog, QDialog):
         self.all.clicked.connect(self.all_handler)
 
     def all_handler(self):
-        for serie in ['1', '2', '3', '4', '5', '6']:
+        for serie in ['1', '2', '3', '4', '5']:
             checkbox = getattr(self, 'serie_' + serie)
             checkbox.setChecked(True)
 
     def send_handler(self):
         try:
             _from, to = self.get_dates()
-
             do_sii(_from, to, list(
                 filter(lambda s: s is not None,
                        [
@@ -48,7 +47,6 @@ class Form(Ui_Dialog, QDialog):
 
     def populate_last_sent(self):
         pass
-
 
     def get_dates(self):
         try:

@@ -2,7 +2,7 @@
 import os
 import re
 import base64
-from datetime import datetime
+from datetime import datetime, timedelta
 import functools
 
 # QtFramework stuff:
@@ -460,3 +460,7 @@ def get_country_code(name):
         country.name: country.alpha_2
         for country in pycountry.countries
     }.get(name, 'Not found')
+
+
+def get_last_date(days):
+    return datetime.today() - timedelta(days)

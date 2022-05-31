@@ -354,6 +354,9 @@ class PartnerAccount(Base):
         self.currency = currency
 
 
+RED, GREEN, YELLOW, ORANGE = '#FF7F7F', '#90EE90', '#FFFF66', '#FFD580'
+
+
 class PurchaseProforma(Base):
     __tablename__ = 'purchase_proformas'
 
@@ -411,6 +414,7 @@ class PurchaseProforma(Base):
     @property
     def tax(self):
         return sum(line.price * line.quantity * line.tax / 100 for line in self.lines)
+
 
     @property
     def total_debt(self):
@@ -474,6 +478,32 @@ class PurchaseProforma(Base):
         except AttributeError:
             return False
         return False
+
+    @property
+    def owing(self):
+        return self.total_debt - self.total_paid
+
+    @property
+    def financial_status_string(self):
+        if self.not_paid:
+            return 'Not Paid'
+        elif self.partially_paid:
+            return 'Partially Paid'
+        elif self.fully_paid:
+            return 'Paid'
+        elif self.overpaid:
+            return 'They Owe'
+
+    @property
+    def logistic_status_string(self):
+        if self.empty:
+            return "Empty"
+        elif self.overflowed:
+            return "Overflowed"
+        elif self.partially_processed:
+            return "Partially Received"
+        elif self.completed:
+            return "Completed"
 
 
 class PurchaseProformaLine(Base):
@@ -552,9 +582,21 @@ class PurchaseInvoice(Base):
     date = Column(Date, default=datetime.now)
     eta = Column(Date, default=datetime.now)
 
+
+    proforma = relationship('PurchaseProforma', uselist=False, back_populates='invoice')
+
+    @property
+    def payments(self):
+        return self.proforma.payments
+
     @property
     def doc_repr(self):
         return str(self.type) + '-' + str(self.number).zfill(6)
+
+
+    @property
+    def total_debt(self):
+        return self.proforma.total_debt
 
     def __init__(self, type, number):
         self.type = type

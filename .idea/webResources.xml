@@ -6,6 +6,8 @@
         <entryData>
           <resourceRoots>
             <path value="file://$PROJECT_DIR$/venv" />
+            <path value="file://$PROJECT_DIR$/sii" />
+            <path value="file://$PROJECT_DIR$/uis" />
           </resourceRoots>
         </entryData>
       </entry>

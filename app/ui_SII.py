@@ -90,6 +90,7 @@ class Ui_Dialog(object):
         self.serie_5.setFont(font)
         self.serie_5.setObjectName("serie_5")
         self.serie_6 = QtWidgets.QCheckBox(Dialog)
+        self.serie_6.setEnabled(False)
         self.serie_6.setGeometry(QtCore.QRect(350, 300, 70, 25))
         font = QtGui.QFont()
         font.setFamily("Bahnschrift SemiBold")

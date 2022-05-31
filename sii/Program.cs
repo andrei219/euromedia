@@ -1,150 +1,48 @@
 ﻿using EasySII;
 using EasySII.Business;
 using EasySII.Business.Batches;
+using EasySII.Xml.Sii; 
 using EasySII.Net;
+using System.Text.Json; 
 
-using MySql.Data.MySqlClient;
 
-using System.Diagnostics;
-
-class DBConnect
+class SIILine
 {
-    private MySqlConnection connection;
-    private string server;
-    private string database;
-    private string uid;
-    private string password;
-
-    public DBConnect()
-    {
-        Initialize();
-    }
-
-
-    private void Initialize()
-    {
-        server = "localhost";
-        database = "appdb";
-        uid = "root";
-        password = "hnq#4506";
-        string connectionString;
-        connectionString = "SERVER=" + server + ";" + "DATABASE=" + database + ";" + "UID=" + uid + ";" + "PASSWORD=" + password + ";";
-
-        connection = new MySqlConnection(connectionString);
-    }
-
-
-    private bool OpenConnection()
-    {
-        try
-        {
-            connection.Open();
-            return true;
-        }
-        catch (MySqlException ex)
-        {
-            //When handling errors, you can your application's response based 
-            //on the error number.
-            //The two most common error numbers when connecting are as follows:
-            //0: Cannot connect to server.
-            //1045: Invalid user name and/or password.
-            switch (ex.Number)
-            {
-                case 0:
-                    Console.WriteLine("Cannot connect to server.  Contact administrator");
-                    break;
-
-                case 1045:
-                    Console.WriteLine("Invalid username/password, please try again");
-                    break;
-            }
-            return false;
-        }
-    }
-
-    //Close connection
-    private bool CloseConnection()
-    {
-        try
-        {
-            connection.Close();
-            return true;
-        }
-        catch (MySqlException ex)
-        {
-            Console.WriteLine(ex.Message);
-            return false;
-        }
-    }
-    public void Print_agent_names()
-    {
-
-        if (this.OpenConnection() == true)
-        {
-            MySqlCommand command = new MySqlCommand("SELECT * FROM PARTNERS", connection);
-
-            MySqlDataReader dataReader = command.ExecuteReader();
-
-            while (dataReader.Read())
-                Console.WriteLine(dataReader["fiscal_name"]); 
-
-            dataReader.Close();
-            this.CloseConnection();
-
-        }
-    }
-}
-class Range
-{
-    public int from { get; set; }
-    public int to { get; set; } 
-
-    public Range(String astext)
-    {
-        String[] splitted = astext.Split('-'); 
-        from = int.Parse(splitted[0]);
-        to = int.Parse(splitted[1]);
-
-    }
+    public int quantity { get; set; }
+    public Decimal price { get; set; }  
+    public int tax { get; set; }
+    public bool is_stock { get; set;  }
 
     public override string ToString()
     {
-        return "Range(" + from.ToString() + ", " + to.ToString() + ")"; 
+        return "SIILine(" + this.quantity.ToString() + ", "+ this.price.ToString() + ", ..., )"; 
+    }
+
+}
+
+class SIInvoice
+{
+    public String invoice_number { get; set;  }
+    public String partner_name { get; set; }   
+    public String partner_ident { get; set; }
+    public String country_code { get; set;  }
+    public String invoice_date { get; set;  }
+    
+    public List<SIILine> lines { get; set; }
+
+
+
+
+    public override string ToString()
+    {
+        return this.invoice_number + ", date=" + this.invoice_date.ToString(); 
     }
 
 }
 
 class SII  
 {
-    private static bool SendInvoices(Dictionary<int, Range> series)
-    {
-
-
-        foreach (KeyValuePair<int, Range> pair in series)
-        {
-            Console.WriteLine("[" + pair.Key.ToString() + ", " + pair.Value.ToString() + "]");    
-        }
-
-        return true;
-    }
-
-    private static Dictionary<int, Range> ParseArgs(String[] args)
-    {
-        Dictionary<int, Range> ranges = new Dictionary<int, Range>();
-
-        ranges.Add(int.Parse(args[0]), new Range(args[1]));
-        ranges.Add(int.Parse(args[2]), new Range(args[3]));
-        ranges.Add(int.Parse(args[4]), new Range(args[5]));
-        ranges.Add(int.Parse(args[6]), new Range(args[7]));
-        ranges.Add(int.Parse(args[8]), new Range(args[9]));
-        ranges.Add(int.Parse(args[10]), new Range(args[11]));
-
-        return ranges; 
-
-    }
-
-
-    private static void test_serie1()
+    private static void Main(String[] args)
     {
         Party titular = new()
         {
@@ -175,7 +73,7 @@ class SII
             
             CountryCode = "ES",
 
-            InvoiceNumber = "1-000888",
+            InvoiceNumber = "1-000550",
             InvoiceType = InvoiceType.F1,
             ClaveRegimenEspecialOTrascendencia = ClaveRegimenEspecialOTrascendencia.RegimenComun,
             GrossAmount = 34375.39m,
@@ -274,7 +172,6 @@ class SII
             TaxIdentificationNumber = "B98815608",
             PartyName = "Euromedia Investment Group, S.L."
         };
-
         // Lote de factura emitidas a enviar la AEAT al SII
         var loteFacturasEmitidas = new Batch(BatchActionKeys.LR, BatchActionPrefixes.SuministroLR, BatchTypes.FacturasEmitidas)
         {
@@ -301,9 +198,10 @@ class SII
             InvoiceType = InvoiceType.F1,
             ClaveRegimenEspecialOTrascendencia = ClaveRegimenEspecialOTrascendencia.RegimenComun,
             GrossAmount = 25290.75m,
-            InvoiceText = "Operacion Nacional con ISP de venta de móviles,acccesorios     q w            u otros aparatos electrónicos."
+            InvoiceText = "Operacion Nacional con ISP de venta de móviles,acccesorios u otros aparatos electrónicos.", 
             
         };
+
 
 
         facturaEnviadaPrimera.AddTaxOtuput(21m, 410m, 86.10m);
@@ -449,13 +347,230 @@ class SII
         }
 
     }
-   
-    public static void Main(String[] args) {
+
+    private static decimal Gross_amount(SIInvoice siinvoice)
+    {
+        Decimal subtotal = 0;
+        Decimal tax = 0;
+        Decimal taxaccum = 0;
+        Decimal subtotalaccum = 0;
+        foreach (SIILine line in siinvoice.lines)
+        {
+            subtotal = line.price * line.quantity;
+            tax = subtotal * line.tax/100;
+
+            subtotalaccum += subtotal; 
+            taxaccum += tax;
+        }
+
+        Console.WriteLine("Invoice number = " + siinvoice.invoice_number.ToString()); 
+        Console.WriteLine("Subtotal:" + subtotalaccum.ToString());
+        Console.WriteLine("Tax:" + taxaccum.ToString());
+        Console.WriteLine("-------------------------------------------------------");
+
+
+        Decimal result = Math.Round(subtotalaccum + taxaccum, 2); 
+
+        Console.WriteLine("Rounded result:" + result.ToString());
+        return Math.Round(subtotalaccum + taxaccum, 2); 
+    }
+
+    private static DateTime get_date(String datestring)
+    {
+        String[] date_components = datestring.Split("-");
+        int day = Int32.Parse(date_components[0]);
+        int month = Int32.Parse(date_components[1]);
+        int year = Int32.Parse(date_components[2]);
+        return new DateTime(year, month, day);  
+    }
+
+
+    public static void s(String[] args) {
+
 
         String json_file_path = args[0];
-        
+        List<SIInvoice> siinvoices = new();
+
+        // Build batch with common information to all invoices. 
+        Party titular = new()
+        {
+            TaxIdentificationNumber = "B98815608",
+            PartyName = "Euromedia Investment Group, S.L."
+        };
+
+        var batch = new Batch(BatchActionKeys.LR, BatchActionPrefixes.SuministroLR, BatchTypes.FacturasEmitidas)
+        {
+            Titular = titular,
+            CommunicationType = CommunicationType.A0
+        };
+
+        Party emisor = titular;
+
+        // Parsing json file into SIIInvoice and SIILine objects
+        using (StreamReader reader  = new StreamReader(json_file_path))
+        {
+            String json_string = reader.ReadToEnd();
+            siinvoices = JsonSerializer.Deserialize<List<SIInvoice>>(json_string);
+
+        }
+
+        if (siinvoices != null)
+            if (siinvoices.Count > 0)
+            {
+                foreach (SIInvoice inv in siinvoices)
+                {
+
+                    DateTime issuedate = get_date(inv.invoice_date);
+                    ARInvoice arinv = new()
+                    {
+                        IssueDate = issuedate,
+                        OperationIssueDate = issuedate,
+                        SellerParty = emisor,
+                        InvoiceType = InvoiceType.F1,
+                        InvoiceNumber = inv.invoice_number,
+                        BuyerParty = new Party()
+                        {
+                            TaxIdentificationNumber = inv.partner_ident,
+                            PartyName = inv.partner_name,
+                        },
+                        CountryCode = inv.country_code,
+                        GrossAmount = Gross_amount(inv)
+                    };
 
 
+                    char type = inv.invoice_number[0];
+
+                    switch (type)
+                    {
+                        case '1':
+
+                            arinv.InvoiceText = "Operacion Nacional de venta de móviles, accesorios u otros aparatos electrónicos.";
+                            arinv.ClaveRegimenEspecialOTrascendencia = ClaveRegimenEspecialOTrascendencia.RegimenComun;
+
+                            Decimal base21 = 0;
+                            Decimal base0 = 0;  
+                            Decimal tax = 0;
+                            
+                            foreach (SIILine line in inv.lines)
+                                if (line.tax == 0)
+                                    base0 += line.price * line.quantity;
+                                else if (line.tax == 21)
+                                    base21 += line.price * line.quantity;
+
+                            tax = base21 * 21 / 100;
+
+                            
+                            if (base0 != 0)
+                                arinv.AddTaxOtuput(-(int)CausaExencion.E6, Math.Round(base0, 2), 0);
+
+                            if (base21 != 0)
+                                arinv.AddTaxOtuput(21, Math.Round(base21, 2), Math.Round(tax, 2));
+                            
+                            Console.WriteLine("Gross ammount=" + arinv.GrossAmount.ToString()); 
+                            Console.WriteLine("base21 = " + base21.ToString()); 
+                            Console.WriteLine("Tax=" + tax.ToString());
+
+                            break;
+
+                        case '2':
+                            arinv.InvoiceText = "Operacion Nacional con ISP de venta de móviles,acccesorios u otros aparatos electrónicos.";
+                            arinv.ClaveRegimenEspecialOTrascendencia = ClaveRegimenEspecialOTrascendencia.RegimenComun;
+                            arinv.ToSII(true);
+                            
+                            String taxbase = arinv.InnerSII.FacturaExpedida.TipoDesglose.DesgloseFactura.Sujeta.Exenta.DetalleExenta[0].BaseImponible;
+                            arinv.InnerSII.FacturaExpedida.TipoDesglose.DesgloseFactura.Sujeta.Exenta = null;
+                            arinv.InnerSII.FacturaExpedida.TipoDesglose.DesgloseFactura.Sujeta.NoExenta = new NoExenta();
+                            arinv.InnerSII.FacturaExpedida.TipoDesglose.DesgloseFactura.Sujeta.NoExenta.TipoNoExenta = SujetaType.S2.ToString();
+                            arinv.InnerSII.FacturaExpedida.TipoDesglose.DesgloseFactura.Sujeta.NoExenta.DesgloseIVA = new DesgloseIVA();
+                            arinv.InnerSII.FacturaExpedida.TipoDesglose.DesgloseFactura.Sujeta.NoExenta.DesgloseIVA.DetalleIVA.Add(new DetalleIVA()
+                            {
+                                BaseImponible = taxbase,
+                                CuotaRepercutida = "0",
+                                TipoImpositivo = "0"
+                            });
+
+                            Decimal taxablebase = 0;
+                            foreach (SIILine line in inv.lines)
+                                if (line.tax == 0 && !line.is_stock)
+                                    taxablebase += line.price * line.quantity;
+                            arinv.AddTaxOtuput(-(int)CausaExencion.E6, Math.Round(taxablebase, 2), 0);
+
+                            taxablebase = 0;
+                            foreach (SIILine line in inv.lines)
+                                if (line.tax == 21 && !line.is_stock)
+                                    taxablebase += line.price * line.quantity;
+
+                            arinv.AddTaxOtuput(21m, Math.Round(taxablebase, 2), Math.Round(taxablebase * 21 / 100, 2));
+
+                            taxablebase = 0;
+                            foreach (SIILine line in inv.lines)
+                                if (line.is_stock && line.tax == 0)
+                                    taxablebase += line.price * line.quantity;
+
+                            arinv.AddTaxOtuput(0m, Math.Round(taxablebase, 2), 0m);
+
+                            taxablebase = 0; 
+                            foreach (SIILine line in inv.lines)
+                                if (line.is_stock && line.tax == 21)
+                                    taxablebase += line.price * line.quantity;
+
+                            arinv.AddTaxOtuput(21m, Math.Round(taxablebase, 2), Math.Round(taxablebase * 21 / 100,2));
+                            break;
+                        
+                        case '3':
+
+                            arinv.IDOtroType = IDOtroType.DocOficialPaisResidencia;
+                            arinv.InvoiceText = "Exportación: Venta de móviles, accesorios u otros aparatos electrónicos.";
+                            arinv.ClaveRegimenEspecialOTrascendencia = ClaveRegimenEspecialOTrascendencia.ExportacionREAGYP;
+                            arinv.AddTaxOtuput(-(int)CausaExencion.E2, arinv.GrossAmount, 0);
+
+
+                            break;
+                        case '4':
+
+                            arinv.IDOtroType = IDOtroType.NifIva;
+                            arinv.InvoiceText = "Operacion Intracomunitaria de venta de móviles, accesorios u otros aparatos electrónicos.";
+                            arinv.ClaveRegimenEspecialOTrascendencia = ClaveRegimenEspecialOTrascendencia.RegimenComun;
+
+                            Console.WriteLine(arinv.InvoiceNumber + ": Gross amount = " + arinv.GrossAmount.ToString());
+
+                            arinv.AddTaxOtuput(-(int)CausaExencion.E5, arinv.GrossAmount,0);
+
+                            break;
+
+                        case '5':
+
+                            arinv.ClaveRegimenEspecialOTrascendencia = ClaveRegimenEspecialOTrascendencia.EspecialBienesUsados;
+                            arinv.InvoiceText = "Operacion Nacional con REBU de venta de móviles, accesorios u otros aparatos electrónicos.";
+
+                            taxablebase = 0;
+                            foreach (SIILine line in inv.lines)
+                                if (!line.is_stock && line.tax == 0)
+                                    taxablebase += line.price * line.quantity;
+
+                            arinv.AddTaxOtuput(-(int)CausaExencion.E6, Math.Round(taxablebase, 2), 0m);
+
+                            taxablebase = 0;
+                            foreach (SIILine line in inv.lines)
+                                if (line.tax == 21)
+                                    taxablebase += line.price * line.quantity;
+                            arinv.AddTaxOtuput(21m, Math.Round(taxablebase, 2), Math.Round(taxablebase * 21 / 100));
+
+                            break;
+                        case '6':
+                            break;
+                        default:
+                            break;
+                    }
+
+                    batch.BatchItems.Add(arinv);
+
+                }
+
+                BatchDispatcher.SendSiiLote(batch);
+
+            }
     }
+
 }
 

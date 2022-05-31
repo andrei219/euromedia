@@ -55,5 +55,7 @@
         <file alias="whatsapp">.\\icons\\whatsapp.png</file>
         <file alias="sii">.\\icons\\sii.png</file>
         <file alias="inventory">.\\icons\\inventory.png</file>
+        <file alias="home">.\\icons\\home.png</file>
+        <file alias="background">.\\icons\\background.jpg</file>
     </qresource>
 </RCC>

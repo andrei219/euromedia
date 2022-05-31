@@ -44,13 +44,11 @@ PREFIXES = [
     'invoices_sales_',
     'warehouse_expeditions_',
     'warehouse_receptions_',
-    'warehouse_incoming_rmas',
-    'warehouse_outgoing_rmas',
+    'warehouse_incoming_rmas_',
+    'warehouse_outgoing_rmas_',
     'tools_',
     'rmas_incoming_',
     'rmas_outgoing_',
-    'warehouse_incoming_rma_'
-
 ]
 
 ACTIONS = [
@@ -102,12 +100,14 @@ class MainGui(Ui_MainGui, QMainWindow):
         self.setupUi(self)
         self.setCentralWidget(self.main_tab)
 
-
-
         # For closing
         self.opened_windows_instances = set()
         # Prevent creating multiple
         self.opened_windows_classes = set()
+
+
+        self.main_tab.setCurrentIndex(0)
+
 
         self.init_models()
 
@@ -144,10 +144,21 @@ class MainGui(Ui_MainGui, QMainWindow):
 
     def init_models(self):
         for prefix in PREFIXES:
-            self.set_mv(prefix)
+            self.set_mv(prefix, last=0)
 
-    def set_mv(self, prefix, search_key=None, filters=None):
+    def set_mv(self, prefix, search_key=None, filters=None, last=10):
         from utils import setCommonViewConfig
+        try:
+            last_field = getattr(self, prefix + 'last')
+        except AttributeError:
+            pass
+        else:
+            try:
+                last = int(last_field.text())
+            except ValueError:
+                pass
+
+
         if prefix == 'agents_':
             self.agents_model = models.AgentModel(search_key=search_key)
             self.agents_view.setModel(self.agents_model)
@@ -166,8 +177,9 @@ class MainGui(Ui_MainGui, QMainWindow):
 
 
         elif prefix == 'proformas_purchases_':
+
             self.proformas_purchases_model = \
-                models.PurchaseProformaModel(filters=filters, search_key=search_key)
+                models.PurchaseProformaModel(filters=filters, search_key=search_key, last=last)
             self.proformas_purchases_view.setModel(
                 self.proformas_purchases_model
             )
@@ -186,7 +198,7 @@ class MainGui(Ui_MainGui, QMainWindow):
 
         elif prefix == 'invoices_purchases_':
             self.invoices_purchases_model = \
-                models.PurchaseInvoiceModel(filters=filters, search_key=search_key)
+                models.PurchaseInvoiceModel(filters=filters, search_key=search_key, last=last)
             self.invoices_purchases_view.setModel(self.invoices_purchases_model)
 
             self.invoices_purchases_view.selectionModel(). \
@@ -196,11 +208,14 @@ class MainGui(Ui_MainGui, QMainWindow):
             self.invoices_purchases_view.setSortingEnabled(True)
             self.invoices_purchases_view.setAlternatingRowColors(True)
 
+            self.invoices_purchases_view.resizeColumnToContents(3)
+            self.invoices_purchases_view.resizeColumnToContents(4)
+
 
 
         elif prefix == 'invoices_sales_':
             self.invoices_sales_model = \
-                models.SaleInvoiceModel(filters=filters, search_key=search_key)
+                models.SaleInvoiceModel(filters=filters, search_key=search_key, last=last)
             self.invoices_sales_view.setModel(self.invoices_sales_model)
 
             self.invoices_sales_view.selectionModel(). \
@@ -214,8 +229,11 @@ class MainGui(Ui_MainGui, QMainWindow):
 
 
         elif prefix == 'proformas_sales_':
+
+
+
             self.proformas_sales_model = \
-                models.SaleProformaModel(filters=filters, search_key=search_key)
+                models.SaleProformaModel(filters=filters, search_key=search_key, last=last)
             self.proformas_sales_view.setModel(
                 self.proformas_sales_model
             )
@@ -234,7 +252,7 @@ class MainGui(Ui_MainGui, QMainWindow):
 
         elif prefix == 'warehouse_receptions_':
             self.warehouse_receptions_model = \
-                models.ReceptionModel(filters=filters, search_key=search_key)
+                models.ReceptionModel(filters=filters, search_key=search_key, last=last)
             self.warehouse_receptions_view.setModel(self.warehouse_receptions_model)
             self.warehouse_receptions_view.setSelectionBehavior(QTableView.SelectRows)
             self.warehouse_receptions_view.setSortingEnabled(True)
@@ -245,11 +263,9 @@ class MainGui(Ui_MainGui, QMainWindow):
             self.warehouse_receptions_view.resizeColumnToContents(8)
             self.warehouse_receptions_view.resizeColumnToContents(4)
 
-
-
         elif prefix == 'warehouse_expeditions_':
             self.warehouse_expeditions_model = \
-                models.ExpeditionModel(filters=filters, search_key=search_key)
+                models.ExpeditionModel(filters=filters, search_key=search_key, last=last)
             self.warehouse_expeditions_view.setModel(self.warehouse_expeditions_model)
             self.warehouse_expeditions_view.setSelectionBehavior(QTableView.SelectRows)
             self.warehouse_expeditions_view.setAlternatingRowColors(True)
@@ -262,7 +278,7 @@ class MainGui(Ui_MainGui, QMainWindow):
 
         elif prefix == 'rmas_incoming_':
             self.rmas_incoming_model = models.RmaIncomingModel(
-                search_key=search_key, filters=filters)
+                search_key=search_key, filters=filters, last=last)
             self.rmas_incoming_view.setModel(self.rmas_incoming_model)
 
             self.rmas_incoming_view.setSelectionBehavior(QTableView.SelectRows)
@@ -271,7 +287,7 @@ class MainGui(Ui_MainGui, QMainWindow):
 
         elif prefix == 'warehouse_incoming_rmas_':
             self.warehouse_rma_incoming_model = models.WhRmaIncomingModel(
-                search_key=search_key, filters=filters
+                search_key=search_key, filters=filters, last=last
             )
             self.warehouse_incoming_rma_view.setModel(self.warehouse_rma_incoming_model)
             self.warehouse_incoming_rma_view.setSelectionBehavior(QTableView.SelectRows)
@@ -367,6 +383,7 @@ class MainGui(Ui_MainGui, QMainWindow):
 
 
     def apply_handler(self):
+
         object_name = self.sender().objectName()
         prefix = object_name[0:object_name.rfind('_') + 1]
         filters = self.get_filters(prefix=prefix)
@@ -462,11 +479,14 @@ class MainGui(Ui_MainGui, QMainWindow):
         if not directory:
             return
         rows = {i.row() for i in ixs}
+        rows = {i.row() for i in ixs}
         try:
             for row in rows:
                 proforma = model[row]
                 if not is_invoice:
+
                     name = str(proforma.type) + '-' + str(proforma.number).zfill(6) + '.pdf'
+
                 else:
                     name = str(proforma.invoice.type) + '-' + \
                            str(proforma.invoice.number).zfill(6) + '.pdf'
@@ -575,6 +595,10 @@ class MainGui(Ui_MainGui, QMainWindow):
 
     def proformas_purchases_toinv_handler(self):
         proforma = self.get_proforma_purchase()
+
+        if not proforma:
+            return
+
         if proforma.cancelled:
             QMessageBox.critical(self, 'Error', 'Cancelled proforma')
             return
@@ -590,6 +614,7 @@ class MainGui(Ui_MainGui, QMainWindow):
             proforma = invoice
         else:
             proforma = self.get_proforma_purchase()
+
         if proforma:
             try:
                 ok, note = getNote(self, proforma)
@@ -618,8 +643,7 @@ class MainGui(Ui_MainGui, QMainWindow):
                         mss = 'Invoice/Proforma ' + mss
                     QMessageBox.information(self, 'Information', mss)
             except:
-                QMessageBox.critical(self, 'Update - Error', \
-                                     'Error updating proforma')
+                QMessageBox.critical(self, 'Update - Error', 'Error updating proforma')
                 raise
 
     def proformas_purchases_launch_form(self, index=None, proforma=None, is_invoice=False):
@@ -881,51 +905,6 @@ class MainGui(Ui_MainGui, QMainWindow):
 
         self.advsp.show()
 
-        # def launch_sale_proforma_form(self, index=None):
-
-    #     proforma = None
-    #     try:
-    #         proforma = self.proformas_sales_model.proformas[index.row()]
-    #     except AttributeError:
-    #         pass
-
-    #     if proforma.advanced_lines:
-    #         self.sp = advanced_sale_proforma_form.get_form(
-    #             self,
-    #             self.proformas_sales_view,
-    #             proforma
-    #         )
-    #     else:
-    #         self.sp = sale_proforma_form.get_form(
-    #             self,
-    #             self.proformas_sales_view,
-    #             proforma
-    #         )
-    #     self.sp.show()
-
-    # def launch_sale_proforma_form(self, index=None):
-    #     if index:
-    #
-    #         proforma = self.proformas_sales_model.proformas[index.row()]
-    #
-    #         if proforma.credit_note_lines:
-    #             print('eeee')
-    #
-    #         elif proforma.advanced_lines:
-    #             self.sp = advanced_sale_proforma_form.get_form(
-    #                 self,
-    #                 self.proformas_sales_view,
-    #                 proforma
-    #             )
-    #         elif proforma.lines:
-    #             self.sp = sale_proforma_form.get_form(
-    #                 self,
-    #                 self.proformas_sales_view,
-    #                 proforma
-    #             )
-
-            # PURCHASE INVOICE HANDLERS:
-
     def invoices_purchases_view_pdf_handler(self):
         self.view_documents(
             self.invoices_purchases_view,
@@ -938,15 +917,15 @@ class MainGui(Ui_MainGui, QMainWindow):
 
     def invoices_purchases_payments_handler(self):
         invoice = self.get_purchases_invoice()
-        self.proformas_purchases_payments_handler(invoice=invoice)
+        self.proformas_purchases_payments_handler(invoice=invoice.proforma)
 
     def invoices_purchases_ship_handler(self):
         invoice = self.get_purchases_invoice()
-        self.proformas_purchases_ship_handler(invoice)
+        self.proformas_purchases_ship_handler(invoice.proforma)
 
     def invoices_purchases_towh_handler(self):
         invoice = self.get_purchases_invoice()
-        self.proformas_purchases_towh_handler(invoice)
+        self.proformas_purchases_towh_handler(invoice.proforma)
 
     def invoices_purchases_docs_handler(self):
         pass
@@ -955,11 +934,11 @@ class MainGui(Ui_MainGui, QMainWindow):
 
     def invoices_purchases_expenses_handler(self):
         invoice = self.get_purchases_invoice()
-        self.proformas_purchases_expenses_handler(invoice=invoice)
+        self.proformas_purchases_expenses_handler(invoice=invoice.proforma)
 
     def invoices_purchases_double_click_handler(self, index):
-        proforma = self.invoices_purchases_model[index.row()]
-        self.proformas_purchases_launch_form(proforma=proforma, is_invoice=True)
+        invoice = self.invoices_purchases_model[index.row()]
+        self.proformas_purchases_launch_form(proforma=invoice, is_invoice=True)
 
     def invoices_purchases_export_handler(self):
         self.export_documents(
@@ -1412,23 +1391,23 @@ class MainGui(Ui_MainGui, QMainWindow):
         # And complete the rest of the models
         db.session.commit()
 
-        if index == 0:
+        if index == 1:
             self.set_mv('agents_')
-        elif index == 1:
-            self.set_mv('partners_')
         elif index == 2:
+            self.set_mv('partners_')
+        elif index == 3:
             self.set_mv('proformas_purchases_')
             self.set_mv('proformas_sales_')
 
-        elif index == 3:
+        elif index == 4:
             self.set_mv('invoices_purchases_')
             self.set_mv('invoices_sales_')
-        elif index == 4:
+        elif index == 5:
             self.set_mv('warehouse_expeditions_')
             self.set_mv('warehouse_receptions_')
             self.set_mv('warehouse_incoming_rmas_')
             self.set_mv('warehouse_outgoing_rmas_')
-        elif index == 5:
+        elif index == 6:
             self.set_mv('rmas_incoming_')
 
 

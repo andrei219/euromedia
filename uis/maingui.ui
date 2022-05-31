@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1872</width>
-    <height>1119</height>
+    <width>1863</width>
+    <height>878</height>
    </rect>
   </property>
   <property name="font">
@@ -51,7 +51,7 @@
      <number>0</number>
     </property>
     <property name="currentIndex">
-     <number>6</number>
+     <number>0</number>
     </property>
     <property name="iconSize">
      <size>
@@ -62,6 +62,34 @@
     <property name="documentMode">
      <bool>true</bool>
     </property>
+    <widget class="QWidget" name="home_tab">
+     <attribute name="icon">
+      <iconset resource="../app/icons.qrc">
+       <normaloff>:/home</normaloff>:/home</iconset>
+     </attribute>
+     <attribute name="title">
+      <string>Home</string>
+     </attribute>
+     <widget class="QLabel" name="label">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>10</y>
+        <width>1821</width>
+        <height>781</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="pixmap">
+       <pixmap resource="../app/icons.qrc">:/background</pixmap>
+      </property>
+      <property name="scaledContents">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </widget>
     <widget class="QWidget" name="agents_tab">
      <attribute name="icon">
       <iconset resource="../app/icons.qrc">
@@ -519,7 +547,7 @@
          <property name="geometry">
           <rect>
            <x>0</x>
-           <y>60</y>
+           <y>70</y>
            <width>201</width>
            <height>20</height>
           </rect>
@@ -996,6 +1024,48 @@
          </property>
          <property name="text">
           <string>Not Cancelled</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_4">
+         <property name="geometry">
+          <rect>
+           <x>130</x>
+           <y>33</y>
+           <width>55</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>days.</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_5">
+         <property name="geometry">
+          <rect>
+           <x>20</x>
+           <y>33</y>
+           <width>41</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Last:</string>
+         </property>
+        </widget>
+        <widget class="QLineEdit" name="proformas_purchases_last">
+         <property name="geometry">
+          <rect>
+           <x>60</x>
+           <y>30</y>
+           <width>51</width>
+           <height>22</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>10</string>
+         </property>
+         <property name="placeholderText">
+          <string/>
          </property>
         </widget>
        </widget>
@@ -1688,7 +1758,7 @@
          <property name="geometry">
           <rect>
            <x>0</x>
-           <y>60</y>
+           <y>70</y>
            <width>201</width>
            <height>20</height>
           </rect>
@@ -2160,6 +2230,45 @@
          </property>
          <property name="text">
           <string>Not Cancelled</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_6">
+         <property name="geometry">
+          <rect>
+           <x>130</x>
+           <y>33</y>
+           <width>55</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>days.</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_7">
+         <property name="geometry">
+          <rect>
+           <x>20</x>
+           <y>33</y>
+           <width>41</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Last:</string>
+         </property>
+        </widget>
+        <widget class="QLineEdit" name="proformas_sales_last">
+         <property name="geometry">
+          <rect>
+           <x>60</x>
+           <y>30</y>
+           <width>51</width>
+           <height>22</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>10</string>
          </property>
         </widget>
        </widget>
@@ -2968,7 +3077,7 @@
        </font>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <property name="iconSize">
        <size>
@@ -3059,7 +3168,7 @@
          <property name="geometry">
           <rect>
            <x>0</x>
-           <y>30</y>
+           <y>80</y>
            <width>201</width>
            <height>20</height>
           </rect>
@@ -3107,7 +3216,7 @@
          <property name="geometry">
           <rect>
            <x>20</x>
-           <y>70</y>
+           <y>120</y>
            <width>34</width>
            <height>20</height>
           </rect>
@@ -3120,7 +3229,7 @@
          <property name="geometry">
           <rect>
            <x>80</x>
-           <y>70</y>
+           <y>120</y>
            <width>34</width>
            <height>20</height>
           </rect>
@@ -3133,7 +3242,7 @@
          <property name="geometry">
           <rect>
            <x>20</x>
-           <y>100</y>
+           <y>150</y>
            <width>34</width>
            <height>20</height>
           </rect>
@@ -3146,7 +3255,7 @@
          <property name="geometry">
           <rect>
            <x>140</x>
-           <y>100</y>
+           <y>150</y>
            <width>34</width>
            <height>20</height>
           </rect>
@@ -3159,7 +3268,7 @@
          <property name="geometry">
           <rect>
            <x>80</x>
-           <y>100</y>
+           <y>150</y>
            <width>34</width>
            <height>20</height>
           </rect>
@@ -3172,7 +3281,7 @@
          <property name="geometry">
           <rect>
            <x>140</x>
-           <y>70</y>
+           <y>120</y>
            <width>34</width>
            <height>20</height>
           </rect>
@@ -3185,7 +3294,7 @@
          <property name="geometry">
           <rect>
            <x>0</x>
-           <y>130</y>
+           <y>180</y>
            <width>201</width>
            <height>20</height>
           </rect>
@@ -3233,7 +3342,7 @@
          <property name="geometry">
           <rect>
            <x>40</x>
-           <y>160</y>
+           <y>210</y>
            <width>91</width>
            <height>20</height>
           </rect>
@@ -3246,7 +3355,7 @@
          <property name="geometry">
           <rect>
            <x>40</x>
-           <y>190</y>
+           <y>240</y>
            <width>111</width>
            <height>20</height>
           </rect>
@@ -3259,7 +3368,7 @@
          <property name="geometry">
           <rect>
            <x>40</x>
-           <y>220</y>
+           <y>270</y>
            <width>101</width>
            <height>20</height>
           </rect>
@@ -3272,7 +3381,7 @@
          <property name="geometry">
           <rect>
            <x>0</x>
-           <y>340</y>
+           <y>390</y>
            <width>201</width>
            <height>20</height>
           </rect>
@@ -3320,7 +3429,7 @@
          <property name="geometry">
           <rect>
            <x>40</x>
-           <y>370</y>
+           <y>420</y>
            <width>105</width>
            <height>20</height>
           </rect>
@@ -3333,7 +3442,7 @@
          <property name="geometry">
           <rect>
            <x>40</x>
-           <y>400</y>
+           <y>450</y>
            <width>141</width>
            <height>20</height>
           </rect>
@@ -3346,7 +3455,7 @@
          <property name="geometry">
           <rect>
            <x>40</x>
-           <y>430</y>
+           <y>480</y>
            <width>101</width>
            <height>20</height>
           </rect>
@@ -3359,7 +3468,7 @@
          <property name="geometry">
           <rect>
            <x>0</x>
-           <y>500</y>
+           <y>550</y>
            <width>201</width>
            <height>20</height>
           </rect>
@@ -3407,7 +3516,7 @@
          <property name="geometry">
           <rect>
            <x>40</x>
-           <y>530</y>
+           <y>580</y>
            <width>111</width>
            <height>20</height>
           </rect>
@@ -3420,7 +3529,7 @@
          <property name="geometry">
           <rect>
            <x>40</x>
-           <y>560</y>
+           <y>610</y>
            <width>111</width>
            <height>20</height>
           </rect>
@@ -3432,8 +3541,8 @@
         <widget class="QToolButton" name="invoices_purchases_apply">
          <property name="geometry">
           <rect>
-           <x>50</x>
-           <y>640</y>
+           <x>40</x>
+           <y>660</y>
            <width>101</width>
            <height>31</height>
           </rect>
@@ -3455,7 +3564,7 @@
          <property name="geometry">
           <rect>
            <x>40</x>
-           <y>460</y>
+           <y>510</y>
            <width>101</width>
            <height>20</height>
           </rect>
@@ -3468,7 +3577,7 @@
          <property name="geometry">
           <rect>
            <x>0</x>
-           <y>250</y>
+           <y>300</y>
            <width>201</width>
            <height>20</height>
           </rect>
@@ -3516,7 +3625,7 @@
          <property name="geometry">
           <rect>
            <x>40</x>
-           <y>280</y>
+           <y>330</y>
            <width>101</width>
            <height>20</height>
           </rect>
@@ -3529,7 +3638,7 @@
          <property name="geometry">
           <rect>
            <x>40</x>
-           <y>310</y>
+           <y>360</y>
            <width>131</width>
            <height>20</height>
           </rect>
@@ -3538,12 +3647,51 @@
           <string>Not Cancelled</string>
          </property>
         </widget>
+        <widget class="QLabel" name="label_8">
+         <property name="geometry">
+          <rect>
+           <x>130</x>
+           <y>33</y>
+           <width>55</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>days.</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_9">
+         <property name="geometry">
+          <rect>
+           <x>20</x>
+           <y>33</y>
+           <width>41</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Last:</string>
+         </property>
+        </widget>
+        <widget class="QLineEdit" name="invoices_purchases_last">
+         <property name="geometry">
+          <rect>
+           <x>60</x>
+           <y>30</y>
+           <width>51</width>
+           <height>22</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>10</string>
+         </property>
+        </widget>
        </widget>
        <widget class="QFrame" name="invoices_purchases_actions">
         <property name="geometry">
          <rect>
           <x>220</x>
-          <y>630</y>
+          <y>640</y>
           <width>1601</width>
           <height>81</height>
          </rect>
@@ -4041,7 +4189,7 @@
          <property name="geometry">
           <rect>
            <x>0</x>
-           <y>30</y>
+           <y>70</y>
            <width>201</width>
            <height>20</height>
           </rect>
@@ -4093,7 +4241,7 @@
          <property name="geometry">
           <rect>
            <x>20</x>
-           <y>70</y>
+           <y>110</y>
            <width>34</width>
            <height>20</height>
           </rect>
@@ -4106,7 +4254,7 @@
          <property name="geometry">
           <rect>
            <x>80</x>
-           <y>70</y>
+           <y>110</y>
            <width>34</width>
            <height>20</height>
           </rect>
@@ -4119,7 +4267,7 @@
          <property name="geometry">
           <rect>
            <x>20</x>
-           <y>100</y>
+           <y>140</y>
            <width>34</width>
            <height>20</height>
           </rect>
@@ -4132,7 +4280,7 @@
          <property name="geometry">
           <rect>
            <x>140</x>
-           <y>100</y>
+           <y>140</y>
            <width>34</width>
            <height>20</height>
           </rect>
@@ -4145,7 +4293,7 @@
          <property name="geometry">
           <rect>
            <x>80</x>
-           <y>100</y>
+           <y>140</y>
            <width>34</width>
            <height>20</height>
           </rect>
@@ -4158,7 +4306,7 @@
          <property name="geometry">
           <rect>
            <x>140</x>
-           <y>70</y>
+           <y>110</y>
            <width>34</width>
            <height>20</height>
           </rect>
@@ -4171,7 +4319,7 @@
          <property name="geometry">
           <rect>
            <x>0</x>
-           <y>130</y>
+           <y>170</y>
            <width>201</width>
            <height>20</height>
           </rect>
@@ -4219,7 +4367,7 @@
          <property name="geometry">
           <rect>
            <x>40</x>
-           <y>160</y>
+           <y>200</y>
            <width>101</width>
            <height>20</height>
           </rect>
@@ -4232,7 +4380,7 @@
          <property name="geometry">
           <rect>
            <x>40</x>
-           <y>190</y>
+           <y>230</y>
            <width>111</width>
            <height>20</height>
           </rect>
@@ -4245,7 +4393,7 @@
          <property name="geometry">
           <rect>
            <x>40</x>
-           <y>220</y>
+           <y>260</y>
            <width>101</width>
            <height>20</height>
           </rect>
@@ -4258,7 +4406,7 @@
          <property name="geometry">
           <rect>
            <x>0</x>
-           <y>340</y>
+           <y>380</y>
            <width>201</width>
            <height>20</height>
           </rect>
@@ -4306,7 +4454,7 @@
          <property name="geometry">
           <rect>
            <x>40</x>
-           <y>400</y>
+           <y>440</y>
            <width>141</width>
            <height>20</height>
           </rect>
@@ -4319,7 +4467,7 @@
          <property name="geometry">
           <rect>
            <x>40</x>
-           <y>430</y>
+           <y>470</y>
            <width>131</width>
            <height>20</height>
           </rect>
@@ -4332,7 +4480,7 @@
          <property name="geometry">
           <rect>
            <x>0</x>
-           <y>500</y>
+           <y>540</y>
            <width>201</width>
            <height>20</height>
           </rect>
@@ -4380,7 +4528,7 @@
          <property name="geometry">
           <rect>
            <x>40</x>
-           <y>530</y>
+           <y>570</y>
            <width>53</width>
            <height>20</height>
           </rect>
@@ -4393,7 +4541,7 @@
          <property name="geometry">
           <rect>
            <x>40</x>
-           <y>560</y>
+           <y>600</y>
            <width>111</width>
            <height>20</height>
           </rect>
@@ -4405,8 +4553,8 @@
         <widget class="QToolButton" name="invoices_sales_apply">
          <property name="geometry">
           <rect>
-           <x>50</x>
-           <y>640</y>
+           <x>40</x>
+           <y>650</y>
            <width>101</width>
            <height>31</height>
           </rect>
@@ -4428,7 +4576,7 @@
          <property name="geometry">
           <rect>
            <x>40</x>
-           <y>370</y>
+           <y>410</y>
            <width>73</width>
            <height>20</height>
           </rect>
@@ -4441,7 +4589,7 @@
          <property name="geometry">
           <rect>
            <x>40</x>
-           <y>280</y>
+           <y>320</y>
            <width>101</width>
            <height>20</height>
           </rect>
@@ -4454,7 +4602,7 @@
          <property name="geometry">
           <rect>
            <x>40</x>
-           <y>460</y>
+           <y>500</y>
            <width>111</width>
            <height>20</height>
           </rect>
@@ -4467,7 +4615,7 @@
          <property name="geometry">
           <rect>
            <x>0</x>
-           <y>250</y>
+           <y>290</y>
            <width>201</width>
            <height>20</height>
           </rect>
@@ -4515,13 +4663,52 @@
          <property name="geometry">
           <rect>
            <x>40</x>
-           <y>310</y>
+           <y>350</y>
            <width>111</width>
            <height>20</height>
           </rect>
          </property>
          <property name="text">
           <string>Not Cancelled</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_10">
+         <property name="geometry">
+          <rect>
+           <x>130</x>
+           <y>33</y>
+           <width>55</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>days.</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_12">
+         <property name="geometry">
+          <rect>
+           <x>20</x>
+           <y>33</y>
+           <width>41</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Last:</string>
+         </property>
+        </widget>
+        <widget class="QLineEdit" name="invoices_sales_last">
+         <property name="geometry">
+          <rect>
+           <x>60</x>
+           <y>30</y>
+           <width>51</width>
+           <height>22</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>10</string>
          </property>
         </widget>
        </widget>
@@ -5113,7 +5300,7 @@
        </rect>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>1</number>
       </property>
       <property name="iconSize">
        <size>
@@ -5204,7 +5391,7 @@
          <property name="geometry">
           <rect>
            <x>0</x>
-           <y>60</y>
+           <y>100</y>
            <width>201</width>
            <height>20</height>
           </rect>
@@ -5252,7 +5439,7 @@
          <property name="geometry">
           <rect>
            <x>30</x>
-           <y>100</y>
+           <y>140</y>
            <width>121</width>
            <height>20</height>
           </rect>
@@ -5265,7 +5452,7 @@
          <property name="geometry">
           <rect>
            <x>30</x>
-           <y>130</y>
+           <y>170</y>
            <width>148</width>
            <height>20</height>
           </rect>
@@ -5278,7 +5465,7 @@
          <property name="geometry">
           <rect>
            <x>30</x>
-           <y>160</y>
+           <y>200</y>
            <width>129</width>
            <height>20</height>
           </rect>
@@ -5291,7 +5478,7 @@
          <property name="geometry">
           <rect>
            <x>30</x>
-           <y>290</y>
+           <y>330</y>
            <width>91</width>
            <height>20</height>
           </rect>
@@ -5326,7 +5513,7 @@
          <property name="geometry">
           <rect>
            <x>30</x>
-           <y>190</y>
+           <y>230</y>
            <width>111</width>
            <height>20</height>
           </rect>
@@ -5339,7 +5526,7 @@
          <property name="geometry">
           <rect>
            <x>0</x>
-           <y>250</y>
+           <y>290</y>
            <width>201</width>
            <height>20</height>
           </rect>
@@ -5387,13 +5574,52 @@
          <property name="geometry">
           <rect>
            <x>30</x>
-           <y>320</y>
+           <y>360</y>
            <width>131</width>
            <height>20</height>
           </rect>
          </property>
          <property name="text">
           <string>Not Cancelled</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_13">
+         <property name="geometry">
+          <rect>
+           <x>120</x>
+           <y>43</y>
+           <width>55</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>days.</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_14">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>43</y>
+           <width>41</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Last:</string>
+         </property>
+        </widget>
+        <widget class="QLineEdit" name="warehouse_receptions_last">
+         <property name="geometry">
+          <rect>
+           <x>50</x>
+           <y>40</y>
+           <width>51</width>
+           <height>22</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>10</string>
          </property>
         </widget>
        </widget>
@@ -5656,7 +5882,7 @@
          <property name="geometry">
           <rect>
            <x>0</x>
-           <y>60</y>
+           <y>90</y>
            <width>201</width>
            <height>20</height>
           </rect>
@@ -5726,7 +5952,7 @@
          <property name="geometry">
           <rect>
            <x>30</x>
-           <y>100</y>
+           <y>130</y>
            <width>121</width>
            <height>20</height>
           </rect>
@@ -5739,7 +5965,7 @@
          <property name="geometry">
           <rect>
            <x>30</x>
-           <y>130</y>
+           <y>160</y>
            <width>148</width>
            <height>20</height>
           </rect>
@@ -5752,7 +5978,7 @@
          <property name="geometry">
           <rect>
            <x>30</x>
-           <y>160</y>
+           <y>190</y>
            <width>129</width>
            <height>20</height>
           </rect>
@@ -5765,7 +5991,7 @@
          <property name="geometry">
           <rect>
            <x>30</x>
-           <y>290</y>
+           <y>320</y>
            <width>91</width>
            <height>20</height>
           </rect>
@@ -5778,7 +6004,7 @@
          <property name="geometry">
           <rect>
            <x>30</x>
-           <y>190</y>
+           <y>220</y>
            <width>141</width>
            <height>20</height>
           </rect>
@@ -5791,7 +6017,7 @@
          <property name="geometry">
           <rect>
            <x>0</x>
-           <y>250</y>
+           <y>280</y>
            <width>201</width>
            <height>20</height>
           </rect>
@@ -5839,13 +6065,52 @@
          <property name="geometry">
           <rect>
            <x>30</x>
-           <y>320</y>
+           <y>350</y>
            <width>131</width>
            <height>20</height>
           </rect>
          </property>
          <property name="text">
           <string>Not Cancelled</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_3">
+         <property name="geometry">
+          <rect>
+           <x>130</x>
+           <y>43</y>
+           <width>55</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>days.</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_2">
+         <property name="geometry">
+          <rect>
+           <x>20</x>
+           <y>43</y>
+           <width>41</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Last:</string>
+         </property>
+        </widget>
+        <widget class="QLineEdit" name="warehouse_expeditions_last">
+         <property name="geometry">
+          <rect>
+           <x>60</x>
+           <y>40</y>
+           <width>51</width>
+           <height>22</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>10</string>
          </property>
         </widget>
        </widget>
@@ -6100,7 +6365,7 @@
         <property name="title">
          <string>FILTERS</string>
         </property>
-        <widget class="QToolButton" name="warehouse_expeditions_apply_2">
+        <widget class="QToolButton" name="warehouse_incoming_rmas_apply">
          <property name="geometry">
           <rect>
            <x>30</x>
@@ -6126,7 +6391,7 @@
          <property name="geometry">
           <rect>
            <x>20</x>
-           <y>50</y>
+           <y>120</y>
            <width>81</width>
            <height>21</height>
           </rect>
@@ -6139,7 +6404,7 @@
          <property name="geometry">
           <rect>
            <x>20</x>
-           <y>80</y>
+           <y>150</y>
            <width>131</width>
            <height>21</height>
           </rect>
@@ -6152,13 +6417,52 @@
          <property name="geometry">
           <rect>
            <x>20</x>
-           <y>110</y>
+           <y>180</y>
            <width>111</width>
            <height>21</height>
           </rect>
          </property>
          <property name="text">
           <string>Accepted</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_15">
+         <property name="geometry">
+          <rect>
+           <x>120</x>
+           <y>43</y>
+           <width>41</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>days.</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_16">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>43</y>
+           <width>41</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Last:</string>
+         </property>
+        </widget>
+        <widget class="QLineEdit" name="warehouse_incoming_rmas_last">
+         <property name="geometry">
+          <rect>
+           <x>50</x>
+           <y>40</y>
+           <width>51</width>
+           <height>22</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>10</string>
          </property>
         </widget>
        </widget>
@@ -6276,7 +6580,7 @@
         <property name="title">
          <string>FILTERS</string>
         </property>
-        <widget class="QToolButton" name="warehouse_expeditions_apply_3">
+        <widget class="QToolButton" name="warehouse_outgoing_rmas_apply">
          <property name="geometry">
           <rect>
            <x>30</x>
@@ -6302,7 +6606,7 @@
          <property name="geometry">
           <rect>
            <x>20</x>
-           <y>110</y>
+           <y>180</y>
            <width>111</width>
            <height>21</height>
           </rect>
@@ -6315,7 +6619,7 @@
          <property name="geometry">
           <rect>
            <x>20</x>
-           <y>80</y>
+           <y>150</y>
            <width>131</width>
            <height>21</height>
           </rect>
@@ -6328,13 +6632,52 @@
          <property name="geometry">
           <rect>
            <x>20</x>
-           <y>50</y>
+           <y>120</y>
            <width>71</width>
            <height>21</height>
           </rect>
          </property>
          <property name="text">
           <string>New</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_17">
+         <property name="geometry">
+          <rect>
+           <x>120</x>
+           <y>50</y>
+           <width>41</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>days.</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_18">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>50</y>
+           <width>41</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Last:</string>
+         </property>
+        </widget>
+        <widget class="QLineEdit" name="warehouse_outgoing_rmas_last">
+         <property name="geometry">
+          <rect>
+           <x>50</x>
+           <y>47</y>
+           <width>51</width>
+           <height>22</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>10</string>
          </property>
         </widget>
        </widget>
@@ -6576,8 +6919,8 @@
         <widget class="QCheckBox" name="rmas_incoming_rejected">
          <property name="geometry">
           <rect>
-           <x>30</x>
-           <y>40</y>
+           <x>20</x>
+           <y>130</y>
            <width>81</width>
            <height>21</height>
           </rect>
@@ -6589,8 +6932,8 @@
         <widget class="QCheckBox" name="rmas_incoming_accepted">
          <property name="geometry">
           <rect>
-           <x>30</x>
-           <y>100</y>
+           <x>20</x>
+           <y>190</y>
            <width>111</width>
            <height>21</height>
           </rect>
@@ -6602,14 +6945,53 @@
         <widget class="QCheckBox" name="rmas_incoming_partially_accepted">
          <property name="geometry">
           <rect>
-           <x>30</x>
-           <y>70</y>
+           <x>20</x>
+           <y>160</y>
            <width>131</width>
            <height>21</height>
           </rect>
          </property>
          <property name="text">
           <string>Partially Accepted</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_19">
+         <property name="geometry">
+          <rect>
+           <x>120</x>
+           <y>43</y>
+           <width>55</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>days.</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_20">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>43</y>
+           <width>41</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Last:</string>
+         </property>
+        </widget>
+        <widget class="QLineEdit" name="rmas_incoming_last">
+         <property name="geometry">
+          <rect>
+           <x>50</x>
+           <y>40</y>
+           <width>51</width>
+           <height>22</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>10</string>
          </property>
         </widget>
        </widget>
@@ -6899,8 +7281,8 @@
         <widget class="QCheckBox" name="checkBox_9">
          <property name="geometry">
           <rect>
-           <x>30</x>
-           <y>90</y>
+           <x>20</x>
+           <y>130</y>
            <width>81</width>
            <height>21</height>
           </rect>
@@ -6912,8 +7294,8 @@
         <widget class="QCheckBox" name="checkBox_10">
          <property name="geometry">
           <rect>
-           <x>30</x>
-           <y>150</y>
+           <x>20</x>
+           <y>190</y>
            <width>111</width>
            <height>21</height>
           </rect>
@@ -6925,8 +7307,8 @@
         <widget class="QCheckBox" name="checkBox_11">
          <property name="geometry">
           <rect>
-           <x>30</x>
-           <y>120</y>
+           <x>20</x>
+           <y>160</y>
            <width>131</width>
            <height>21</height>
           </rect>
@@ -6938,14 +7320,53 @@
         <widget class="QCheckBox" name="checkBox_12">
          <property name="geometry">
           <rect>
-           <x>30</x>
-           <y>60</y>
+           <x>20</x>
+           <y>100</y>
            <width>71</width>
            <height>21</height>
           </rect>
          </property>
          <property name="text">
           <string>New</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_21">
+         <property name="geometry">
+          <rect>
+           <x>120</x>
+           <y>43</y>
+           <width>41</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>days.</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_22">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>43</y>
+           <width>41</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Last:</string>
+         </property>
+        </widget>
+        <widget class="QLineEdit" name="rmas_outgoing_last">
+         <property name="geometry">
+          <rect>
+           <x>50</x>
+           <y>40</y>
+           <width>51</width>
+           <height>22</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>10</string>
          </property>
         </widget>
        </widget>
