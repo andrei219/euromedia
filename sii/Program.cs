@@ -1,9 +1,13 @@
-﻿using EasySII;
+﻿
+using EasySII; 
 using EasySII.Business;
 using EasySII.Business.Batches;
 using EasySII.Xml.Sii; 
 using EasySII.Net;
+using EasySII.Xml; 
+
 using System.Text.Json; 
+
 
 
 class SIILine
@@ -28,6 +32,8 @@ class SIInvoice
     public String country_code { get; set;  }
     public String invoice_date { get; set;  }
     
+    public bool ambos_tax { get; set; }
+
     public List<SIILine> lines { get; set; }
 
 
@@ -42,12 +48,12 @@ class SIInvoice
 
 class SII  
 {
-    private static void Main(String[] args)
+    private static void test_serie1(String[] args)
     {
         Party titular = new()
         {
             TaxIdentificationNumber = "B98815608",
-            PartyName = "Euromedia Investment Group, S.L."
+            PartyName = "Euromedia Investment Group, S.L.",
         };
 
 
@@ -363,15 +369,6 @@ class SII
             taxaccum += tax;
         }
 
-        Console.WriteLine("Invoice number = " + siinvoice.invoice_number.ToString()); 
-        Console.WriteLine("Subtotal:" + subtotalaccum.ToString());
-        Console.WriteLine("Tax:" + taxaccum.ToString());
-        Console.WriteLine("-------------------------------------------------------");
-
-
-        Decimal result = Math.Round(subtotalaccum + taxaccum, 2); 
-
-        Console.WriteLine("Rounded result:" + result.ToString());
         return Math.Round(subtotalaccum + taxaccum, 2); 
     }
 
@@ -383,9 +380,9 @@ class SII
         int year = Int32.Parse(date_components[2]);
         return new DateTime(year, month, day);  
     }
+    
 
-
-    public static void s(String[] args) {
+    public static void Main(String[] args) {
 
 
         String json_file_path = args[0];
@@ -411,7 +408,6 @@ class SII
         {
             String json_string = reader.ReadToEnd();
             siinvoices = JsonSerializer.Deserialize<List<SIInvoice>>(json_string);
-
         }
 
         if (siinvoices != null)
@@ -437,8 +433,8 @@ class SII
                         GrossAmount = Gross_amount(inv)
                     };
 
-
                     char type = inv.invoice_number[0];
+
 
                     switch (type)
                     {
@@ -465,10 +461,6 @@ class SII
 
                             if (base21 != 0)
                                 arinv.AddTaxOtuput(21, Math.Round(base21, 2), Math.Round(tax, 2));
-                            
-                            Console.WriteLine("Gross ammount=" + arinv.GrossAmount.ToString()); 
-                            Console.WriteLine("base21 = " + base21.ToString()); 
-                            Console.WriteLine("Tax=" + tax.ToString());
 
                             break;
 
@@ -477,48 +469,67 @@ class SII
                             arinv.ClaveRegimenEspecialOTrascendencia = ClaveRegimenEspecialOTrascendencia.RegimenComun;
                             arinv.ToSII(true);
                             
-                            String taxbase = arinv.InnerSII.FacturaExpedida.TipoDesglose.DesgloseFactura.Sujeta.Exenta.DetalleExenta[0].BaseImponible;
-                            arinv.InnerSII.FacturaExpedida.TipoDesglose.DesgloseFactura.Sujeta.Exenta = null;
-                            arinv.InnerSII.FacturaExpedida.TipoDesglose.DesgloseFactura.Sujeta.NoExenta = new NoExenta();
-                            arinv.InnerSII.FacturaExpedida.TipoDesglose.DesgloseFactura.Sujeta.NoExenta.TipoNoExenta = SujetaType.S2.ToString();
-                            arinv.InnerSII.FacturaExpedida.TipoDesglose.DesgloseFactura.Sujeta.NoExenta.DesgloseIVA = new DesgloseIVA();
-                            arinv.InnerSII.FacturaExpedida.TipoDesglose.DesgloseFactura.Sujeta.NoExenta.DesgloseIVA.DetalleIVA.Add(new DetalleIVA()
+                            
+                            arinv.InnerSII.FacturaExpedida.TipoDesglose.DesgloseFactura.Sujeta.NoExenta = new NoExenta()
                             {
-                                BaseImponible = taxbase,
-                                CuotaRepercutida = "0",
-                                TipoImpositivo = "0"
-                            });
+                                TipoNoExenta = inv.ambos_tax ? SujetaType.S3.ToString() : SujetaType.S2.ToString()
+                            };
 
-                            Decimal taxablebase = 0;
+                            arinv.InnerSII.FacturaExpedida.TipoDesglose.DesgloseFactura.Sujeta.NoExenta.DesgloseIVA = new DesgloseIVA(); 
+
+                            base21 = 0; 
                             foreach (SIILine line in inv.lines)
-                                if (line.tax == 0 && !line.is_stock)
-                                    taxablebase += line.price * line.quantity;
-                            arinv.AddTaxOtuput(-(int)CausaExencion.E6, Math.Round(taxablebase, 2), 0);
+                                if (line.tax == 21)
+                                    base21 += line.price * line.quantity;
+                            
+                            if (base21 != 0)
+                                arinv.InnerSII.FacturaExpedida.TipoDesglose.DesgloseFactura.Sujeta.NoExenta.DesgloseIVA.DetalleIVA.Add(new DetalleIVA()
+                                    {
+                                        BaseImponible = SIIParser.FromDecimal(base21), 
+                                        CuotaRepercutida = SIIParser.FromDecimal(base21 * 21 / 100).ToString(), 
+                                        TipoImpositivo = "21"
 
-                            taxablebase = 0;
-                            foreach (SIILine line in inv.lines)
-                                if (line.tax == 21 && !line.is_stock)
-                                    taxablebase += line.price * line.quantity;
+                                    }
+                                );
 
-                            arinv.AddTaxOtuput(21m, Math.Round(taxablebase, 2), Math.Round(taxablebase * 21 / 100, 2));
-
-                            taxablebase = 0;
-                            foreach (SIILine line in inv.lines)
+                            Decimal amountisp = 0; 
+                            foreach(SIILine line in inv.lines)
                                 if (line.is_stock && line.tax == 0)
-                                    taxablebase += line.price * line.quantity;
+                                    amountisp += line.price * line.quantity;
 
-                            arinv.AddTaxOtuput(0m, Math.Round(taxablebase, 2), 0m);
-
-                            taxablebase = 0; 
                             foreach (SIILine line in inv.lines)
-                                if (line.is_stock && line.tax == 21)
-                                    taxablebase += line.price * line.quantity;
+                                if (!line.is_stock && line.tax == 0 && line.price < 0)
+                                    amountisp += line.price * line.quantity;
 
-                            arinv.AddTaxOtuput(21m, Math.Round(taxablebase, 2), Math.Round(taxablebase * 21 / 100,2));
-                            break;
+
+                            arinv.InnerSII.FacturaExpedida.TipoDesglose.DesgloseFactura.Sujeta.NoExenta.DesgloseIVA.DetalleIVA.Add(
+                                new DetalleIVA()
+                                {
+                                    BaseImponible = SIIParser.FromDecimal(amountisp), 
+                                    CuotaRepercutida = "0", 
+                                    TipoImpositivo = "0"
+                                }
+                             );
+
+
+                            Decimal x = 0;
+                            foreach (SIILine line in inv.lines)
+                                if (!line.is_stock && line.tax == 0)
+                                    x += line.price * line.quantity;
+
+                            if (x != 0)
+                                arinv.InnerSII.FacturaExpedida.TipoDesglose.DesgloseFactura.NoSujeta = new NoSujeta()
+                                {
+                                    ImportePorArticulos7_14_Otros = SIIParser.FromDecimal(x)
+                                };
+
+
+                            arinv.InnerSII.FacturaExpedida.ImporteTotal = SIIParser.FromDecimal(arinv.GrossAmount);
+                            arinv.InnerSII.FacturaExpedida.TipoDesglose.DesgloseFactura.Sujeta.Exenta = null; 
+
+                            break; 
                         
                         case '3':
-
                             arinv.IDOtroType = IDOtroType.DocOficialPaisResidencia;
                             arinv.InvoiceText = "Exportación: Venta de móviles, accesorios u otros aparatos electrónicos.";
                             arinv.ClaveRegimenEspecialOTrascendencia = ClaveRegimenEspecialOTrascendencia.ExportacionREAGYP;
@@ -531,31 +542,12 @@ class SII
                             arinv.IDOtroType = IDOtroType.NifIva;
                             arinv.InvoiceText = "Operacion Intracomunitaria de venta de móviles, accesorios u otros aparatos electrónicos.";
                             arinv.ClaveRegimenEspecialOTrascendencia = ClaveRegimenEspecialOTrascendencia.RegimenComun;
-
                             Console.WriteLine(arinv.InvoiceNumber + ": Gross amount = " + arinv.GrossAmount.ToString());
-
                             arinv.AddTaxOtuput(-(int)CausaExencion.E5, arinv.GrossAmount,0);
 
                             break;
 
                         case '5':
-
-                            arinv.ClaveRegimenEspecialOTrascendencia = ClaveRegimenEspecialOTrascendencia.EspecialBienesUsados;
-                            arinv.InvoiceText = "Operacion Nacional con REBU de venta de móviles, accesorios u otros aparatos electrónicos.";
-
-                            taxablebase = 0;
-                            foreach (SIILine line in inv.lines)
-                                if (!line.is_stock && line.tax == 0)
-                                    taxablebase += line.price * line.quantity;
-
-                            arinv.AddTaxOtuput(-(int)CausaExencion.E6, Math.Round(taxablebase, 2), 0m);
-
-                            taxablebase = 0;
-                            foreach (SIILine line in inv.lines)
-                                if (line.tax == 21)
-                                    taxablebase += line.price * line.quantity;
-                            arinv.AddTaxOtuput(21m, Math.Round(taxablebase, 2), Math.Round(taxablebase * 21 / 100));
-
                             break;
                         case '6':
                             break;

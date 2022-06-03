@@ -1020,7 +1020,6 @@ class AdvancedLine(Base):
     definitions = relationship('AdvancedLineDefinition', backref='line',
                                cascade='delete-orphan, save-update, delete')
 
-
 class AdvancedLineDefinition(Base):
     __tablename__ = 'advanced_lines_definition'
 

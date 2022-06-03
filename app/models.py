@@ -1610,16 +1610,10 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
         if proxy:
             self._headerData.append('From proforma')
             query = query.where(db.SaleProforma.invoice != None)
-            print('last=',last)
-            print(utils.get_last_date(last))
             query = query.where(db.SaleInvoice.date >= utils.get_last_date(last))
         else:
-            print('last=', last)
-            print('utils.get_last_date(last)=', utils.get_last_date(last))
 
             query = query.where(db.SaleProforma.date >= utils.get_last_date(last))
-
-            print(query)
 
         if search_key:
             predicates = []
@@ -2013,23 +2007,14 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
             return
 
         added_lines = self.difference(proforma)
-
         for line in added_lines:
-            print('\tline in added_lines loop :', line)
-
-        print('Build added lines init')
-        for line in added_lines:
-            print('line in added lines loop')
             self.build_expedition_line(line, proforma.expedition)
-        print('Build added lines end')
 
         deleted_lines = self.difference(proforma, direction='expedition_proforma')
 
         for line in deleted_lines:
-            print('\tfor line in deleted_lines loop:', line)
             line.quantity = 0
             if len(line.series) == 0:
-                print('\t\tlen(series)==0')
                 # Corner case:
                 # Solo hay 1
                 # Borras la serie en el almacen
@@ -2049,7 +2034,6 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
         for pline in filter(item_key, proforma.lines):
             for eline in proforma.expedition.lines:
                 if self.pline_eline_equal(pline, eline):
-                    print('equal line loop')
                     eline.quantity = pline.quantity
                     eline.showing_condition = pline.showing_condition
         try:
@@ -2066,47 +2050,23 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
         ))
 
     def difference(self, proforma, direction='proforma_expedition'):
-        print('difference')
-        print('\tdirection=', direction)
-        print('\tproforma=', proforma)
 
         if direction == 'proforma_expedition':
             iter_a = filter(item_key, proforma.advanced_lines or proforma.lines)
-
-            print('direction == proforma_expedition')
-            for line in iter_a:
-                print('\tfor line in iter_a line=', line)
-
             iter_b = iter(proforma.expedition.lines)
-
-            for line in iter_b:
-                print('\t for line in iter_b=', line)
 
         elif direction == 'expedition_proforma':
             iter_a = iter(proforma.expedition.lines)
             iter_b = filter(item_key, proforma.advanced_lines or proforma.lines)
-            print('direction == expedition_proforma')
-
-            for line in iter_a:
-                print('\tfor line in iter_a=', line)
-
-            for line in iter_b:
-                print('\t for line in iter_b=', line)
 
         for pline in iter_a:
-            print('\tfor pr_line in iter_a=', pline)
             for eline in iter_b:
-                print('\t\tfor eline in iter_b=', eline)
                 if self.pline_eline_equal(pline, eline):
-                    print('\t\t\t equality')
-                    print('\t\t\t', pline, '==', eline)
                     break
             else:
                 yield pline
 
-
 from collections.abc import Iterable
-
 
 class OrganizedLines:
 
@@ -6092,6 +6052,10 @@ class SIIInvoice:
         for line in lines:
             self.lines.append(SIILine(line))
 
+        self.ambos_tax = len({line.tax for line in self.lines}) == 2
+
+        print((invoice, {line.tax for line in self.lines}, self.ambos_tax))
+
     def __repr__(self):
         name = self.__class__.__name__
         return f"{name}({self.invoice_number}, {self.partner_name}, \"" \
@@ -6113,6 +6077,11 @@ class SIILine:
                 self.is_stock = True
         elif isinstance(line, db.CreditNoteLine):
             self.is_stock = True
+        self.line_type = self.resolve_line_type()
+
+    def resolve_line_type(self):
+        booleans = (self.is_stock, self.tax != 0, self.price > 0)
+        return int(''.join(str(int(b)) for b in booleans), base=2)
 
     def __repr__(self):
         name = self.__class__.__name__
@@ -6139,11 +6108,14 @@ def do_sii(_from=None, to=None, series=None):
     #         where(SaleInvoice.type.in_(series)):
     from utils import parse_date
     for invoice in session.query(SaleInvoice).join(SaleProforma).join(Partner).\
-            where(SaleInvoice.type == 1).\
-            where(SaleInvoice.number == 550):
-            # where(SaleInvoice.date == parse_date('03052022')):
+            where(SaleInvoice.type == 2).\
+            where(db.SaleInvoice.number.in_((361, 362, 363, 364))):
 
         siiinovices.append(SIIInvoice(invoice))
+
+
+    for invoice in siiinovices:
+        print(invoice, invoice.ambos_tax)
 
     import json
     import subprocess

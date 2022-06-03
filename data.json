@@ -1,35 +1,112 @@
 [
     {
-        "invoice_number": "1-000550",
-        "partner_name": "Microfix Labs, S.L.",
-        "partner_ident": "B01611508",
+        "invoice_number": "2-000361",
+        "partner_name": "Movilganga, S.L.",
+        "partner_ident": "B93667202",
         "country_code": "ES",
-        "invoice_date": "23-05-2022",
+        "invoice_date": "01-06-2022",
         "lines": [
             {
-                "quantity": 1179,
-                "price": 15.49,
-                "tax": 21,
-                "is_stock": false
-            },
+                "quantity": 2,
+                "price": 220.0,
+                "tax": 0,
+                "is_stock": true,
+                "line_type": 5
+            }
+        ],
+        "ambos_tax": false
+    },
+    {
+        "invoice_number": "2-000362",
+        "partner_name": "Movilganga, S.L.",
+        "partner_ident": "B93667202",
+        "country_code": "ES",
+        "invoice_date": "01-06-2022",
+        "lines": [
             {
-                "quantity": 6,
-                "price": 455.87,
-                "tax": 21,
-                "is_stock": false
-            },
-            {
-                "quantity": 910,
-                "price": 8.09,
-                "tax": 21,
-                "is_stock": false
+                "quantity": 2,
+                "price": 220.0,
+                "tax": 0,
+                "is_stock": true,
+                "line_type": 5
             },
             {
                 "quantity": 1,
-                "price": 60.0,
-                "tax": 0,
-                "is_stock": false
+                "price": 20.0,
+                "tax": 21,
+                "is_stock": false,
+                "line_type": 3
             }
-        ]
+        ],
+        "ambos_tax": true
+    },
+    {
+        "invoice_number": "2-000363",
+        "partner_name": "Movilganga, S.L.",
+        "partner_ident": "B93667202",
+        "country_code": "ES",
+        "invoice_date": "01-06-2022",
+        "lines": [
+            {
+                "quantity": 2,
+                "price": 220.0,
+                "tax": 0,
+                "is_stock": true,
+                "line_type": 5
+            },
+            {
+                "quantity": 2,
+                "price": 5.0,
+                "tax": 21,
+                "is_stock": true,
+                "line_type": 7
+            },
+            {
+                "quantity": 1,
+                "price": 65.0,
+                "tax": 0,
+                "is_stock": false,
+                "line_type": 1
+            },
+            {
+                "quantity": 1,
+                "price": 20.0,
+                "tax": 21,
+                "is_stock": false,
+                "line_type": 3
+            }
+        ],
+        "ambos_tax": true
+    },
+    {
+        "invoice_number": "2-000364",
+        "partner_name": "Movilganga, S.L.",
+        "partner_ident": "B93667202",
+        "country_code": "ES",
+        "invoice_date": "01-06-2022",
+        "lines": [
+            {
+                "quantity": 2,
+                "price": 220.0,
+                "tax": 0,
+                "is_stock": true,
+                "line_type": 5
+            },
+            {
+                "quantity": -1,
+                "price": 40.0,
+                "tax": 0,
+                "is_stock": false,
+                "line_type": 1
+            },
+            {
+                "quantity": 1,
+                "price": 20.0,
+                "tax": 21,
+                "is_stock": false,
+                "line_type": 3
+            }
+        ],
+        "ambos_tax": true
     }
 ]
