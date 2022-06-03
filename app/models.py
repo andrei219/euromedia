@@ -5871,6 +5871,21 @@ class OperationModel(BaseTable, QtCore.QAbstractTableModel):
 
             self.entries.append(te)
 
+        query = db.session.query(db.WhIncomingRmaLine).join(db.WhIncomingRma).join(db.SaleInvoice)\
+            .where(db.WhIncomingRmaLine.sn == imei)
+
+        for r in query:
+            te = TraceEntry()
+            te.operation = 'Incoming Rma'
+            te.doc = 'FR ' + r.wh_incoming_rma.sale_invoice.doc_repr
+            te.date = r.wh_incoming_rma.sale_invoice.date
+            te.partner = r.wh_incoming_rma.incoming_rma.lines[0].cust
+            te.picking = 'Not Registered'
+
+        self.entries.append(te)
+
+        self.entries.sort(key=lambda te: te.date)
+
     def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
 
         if not index.isValid():
@@ -6107,6 +6122,7 @@ def do_sii(_from=None, to=None, series=None):
     #         where(SaleInvoice.date <= to). \
     #         where(SaleInvoice.type.in_(series)):
     from utils import parse_date
+    from utils import parse_dat
     for invoice in session.query(SaleInvoice).join(SaleProforma).join(Partner).\
             where(SaleInvoice.type == 2).\
             where(db.SaleInvoice.number.in_((361, 362, 363, 364))):
