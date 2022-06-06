@@ -237,7 +237,7 @@ class TableData:
     def __init__(self, document, *, is_invoice):
         self.Date = document.invoice.date.strftime('%d-%m-%Y') \
             if is_invoice else document.date.strftime('%d-%m-%Y')
-        self.PO = str(document.invoice.type) + '-' + str(document.invoice.number). \
+        self.Document_No = str(document.invoice.type) + '-' + str(document.invoice.number). \
             zfill(6) if is_invoice else str(document.type) + '-' + str(document.number).zfill(6)
         self.Agent = document.agent.fiscal_name.split()[0]
         self.Incoterms = document.incoterm
