@@ -85,11 +85,11 @@ class SII
     }
     
 
-    public static void Main(String[] args) {
+    public static void s(String[] args) {
 
-        Settings.Current.SiiEndPointPrefix = SiiEndPointPrefixes.Test;
+        // Settings.Current.SiiEndPointPrefix = SiiEndPointPrefixes.Test;
 
-        Settings.Save(); 
+        // Settings.Save(); 
 
         String jsonfeed_path = args[0];
         String jsonresponse_path = args[1]; 
@@ -288,5 +288,15 @@ class SII
 
             }
         }
+
+
+
+    public static void Main(String[] args)
+    {
+        Console.WriteLine("Produccion:" + SiiEndPointPrefixes.Prod);
+        Console.WriteLine("Test: " + SiiEndPointPrefixes.Test); 
+
     }
+
+}
 

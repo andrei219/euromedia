@@ -625,9 +625,11 @@ class PDF(FPDF):
             text = key.replace('_', ' ') + ':'
             self.cell(w=TABLE_LEFT_INCRMENT, h=TABLE_DOWN_INCREMENT, border=True, align='R', txt=text)
             self.set_x(x + TABLE_LEFT_INCRMENT)
-            self.cell(w=TABLE_RIGHT_INCREMENT, h=TABLE_DOWN_INCREMENT, align='C', border=True, txt=value)
+            self.cell(w=TABLE_RIGHT_INCREMENT, h=TABLE_DOWN_INCREMENT, align='C', border=True, txt=value or '')
+            # Value can take None causing code in fpdf to raise TypeError. This solves the issue
             y += TABLE_DOWN_INCREMENT
             self.set_xy(x, y)
+
 
     def print_desc_header(self, print_lines_header=False):
         self.header_printed = False

@@ -5934,7 +5934,6 @@ def find_last_description(sn):
                 )
             )
 
-
 def build_credit_note_and_commit(partner_id, agent_id, order):
     # print('type=', type, 'wh=', warehouse_id, 'partn=', partner_id, 'lines=', wh_rma_lines)
     from datetime import datetime

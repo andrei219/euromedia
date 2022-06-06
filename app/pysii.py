@@ -24,6 +24,7 @@ class Form(Ui_Dialog, QDialog):
             checkbox.setChecked(True)
 
     def send_handler(self):
+
         try:
             _from, to = self.get_dates()
 
