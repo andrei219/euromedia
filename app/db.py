@@ -845,6 +845,7 @@ class SaleDocument(Base):
 
 
 class SaleInvoice(Base):
+
     __tablename__ = 'sale_invoices'
 
     id = Column(Integer, primary_key=True)

@@ -1046,7 +1046,6 @@ class MainGui(Ui_MainGui, QMainWindow):
         if not save_file_path:
             return
 
-
         try:
             export_sale_excel(proforma, save_file_path)
         except:

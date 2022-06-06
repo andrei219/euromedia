@@ -5361,12 +5361,21 @@ def export_sale_excel(proforma, file_path):
 
 
 def generate_excel_rows(proforma):
-    for eline in proforma.expedition.lines:
-        condition = eline.showing_condition or eline.condition
-        spec = get_spec(eline)
-        description = eline.item.clean_repr
-        for serie in eline.series:
-            yield serie.serie, description, condition, spec
+
+    # Handle credit notes whose main property is that
+    # warehouse_id is NULL on SQL side.
+    if proforma.warehouse_id is None:
+        for line in proforma.invoice.wh_incoming_rma.lines:
+            yield line.sn, line.item.clean_repr, line.condition, line.spec
+    else:
+        for eline in proforma.expedition.lines:
+            condition = eline.showing_condition or eline.condition
+            spec = get_spec(eline)
+            description = eline.item.clean_repr
+            for serie in eline.series:
+                yield serie.serie, description, condition, spec
+
+
 
 
 def get_spec(eline: db.ExpeditionLine):
