@@ -7,6 +7,7 @@ from utils import parse_date
 
 from models import SIILogModel
 
+
 class Form(Ui_Dialog, QDialog):
 
     def __init__(self, parent, registers):
@@ -16,4 +17,4 @@ class Form(Ui_Dialog, QDialog):
         self.model = SIILogModel(registers)
         self.view.setModel(self.model)
 
-        self.view.resizeColumnToContents()
+        self.view.resizeColumnsToContents()

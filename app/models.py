@@ -5882,11 +5882,8 @@ class OperationModel(BaseTable, QtCore.QAbstractTableModel):
             te.partner = r.wh_incoming_rma.incoming_rma.lines[0].cust
             te.picking = 'Not Registered'
 
-        try:
             self.entries.append(te)
-        except UnboundLocalError as ex:
-            # Does not enter the loop, it has not rma.
-            pass
+
 
         self.entries.sort(key=lambda te: te.date)
 
