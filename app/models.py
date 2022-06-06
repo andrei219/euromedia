@@ -6145,7 +6145,6 @@ class SIILogModel(BaseTable, QtCore.QAbstractTableModel):
         self.registers = registers
         self.name = 'registers'
 
-
     def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
 
         if not index.isValid():
@@ -6164,8 +6163,18 @@ class SIILogModel(BaseTable, QtCore.QAbstractTableModel):
                 return reg['message']
 
     def sort(self, column: int, order: Qt.SortOrder = ...) -> None:
-        pass
+        item = {
+            self.NUMBER: 'invoice_number',
+            self.STATUS: 'invoice_status',
+            self.DATE: 'invoice_date',
+            self.MESSAGE: 'message'
+        }.get(column)
 
+        if item:
+            self.layoutAboutToBeChanged.emit()
+            self.registers = sorted(self.registers, key=operator.itemgetter(item),
+                                    reverse=True if order == Qt.DescendingOrder else False)
+            self.layoutChanged.emit()
 
 
 if __name__ == '__main__':

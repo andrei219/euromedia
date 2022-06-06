@@ -19,6 +19,7 @@ class Ui_Dialog(object):
         self.view.setGeometry(QtCore.QRect(20, 70, 901, 471))
         self.view.setAlternatingRowColors(True)
         self.view.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
+        self.view.setSortingEnabled(True)
         self.view.setObjectName("view")
         self.exit = QtWidgets.QPushButton(Dialog)
         self.exit.setGeometry(QtCore.QRect(848, 583, 75, 41))
