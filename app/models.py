@@ -2024,7 +2024,7 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
                 try:
                     db.session.delete(line)
                 except InvalidRequestError:
-                    raise
+                    pass
 
         # for line in added_lines:
         #     self.build_expedition_line(line, proforma.expedition)
