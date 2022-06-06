@@ -60,7 +60,7 @@ class Ui_Dialog(object):
         self.price.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.price.setMinimum(-99999999.0)
         self.price.setMaximum(99999999.0)
-        self.price.setProperty("value", 1.0)
+        self.price.setProperty("value", 0.0)
         self.price.setObjectName("price")
         self.gridLayout.addWidget(self.price, 2, 1, 1, 1)
         self.quantity = QtWidgets.QSpinBox(self.layoutWidget)

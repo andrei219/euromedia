@@ -241,8 +241,10 @@ class TableData:
             zfill(6) if is_invoice else str(document.type) + '-' + str(document.number).zfill(6)
         self.Agent = document.agent.fiscal_name.split()[0]
         self.Incoterms = document.incoterm
-        self.Delivery_Date = document.invoice.eta.strftime('%d-%m-%Y') if is_invoice \
-            else document.eta.strftime('%d-%m-%Y')
+        # self.Delivery_Date = document.invoice.eta.strftime('%d-%m-%Y') if is_invoice \
+        #     else document.eta.strftime('%d-%m-%Y')
+
+        self.External_Doc = document.external
 
         self.Currency = 'EUR' if document.eur_currency else \
             'USD '
@@ -328,7 +330,6 @@ class PDF(FPDF):
                 self.lines = AdvancedLinesPDFRepr(document.advanced_lines)
             elif document.credit_note_lines:
                 self.lines = CreditLinesPDFRepr(document.credit_note_lines)
-
 
             if not is_invoice:
                 self.doc_header = 'SALE ORDER'

@@ -5882,7 +5882,11 @@ class OperationModel(BaseTable, QtCore.QAbstractTableModel):
             te.partner = r.wh_incoming_rma.incoming_rma.lines[0].cust
             te.picking = 'Not Registered'
 
-        self.entries.append(te)
+        try:
+            self.entries.append(te)
+        except UnboundLocalError as ex:
+            # Does not enter the loop, it has not rma.
+            pass
 
         self.entries.sort(key=lambda te: te.date)
 
@@ -6069,8 +6073,6 @@ class SIIInvoice:
 
         self.ambos_tax = len({line.tax for line in self.lines}) == 2
 
-        print((invoice, {line.tax for line in self.lines}, self.ambos_tax))
-
     def __repr__(self):
         name = self.__class__.__name__
         return f"{name}({self.invoice_number}, {self.partner_name}, \"" \
@@ -6105,8 +6107,8 @@ class SIILine:
 
 def do_sii(_from=None, to=None, series=None):
     import os
-    json_file = os.path.abspath(r'.\data.json')
-    # print('Python:json_file=', json_file)
+    jsonfeed = os.path.abspath(r'.\data.json')
+    jsonresponse = os.path.abspath(r'.\response.json')
 
     from db import (
         session,
@@ -6116,35 +6118,58 @@ def do_sii(_from=None, to=None, series=None):
     )
 
     siiinovices: list[SIIInvoice] = []
-
-    # for invoice in session.query(SaleInvoice).join(SaleProforma).join(Partner). \
-    #         where(SaleInvoice.date >= _from). \
-    #         where(SaleInvoice.date <= to). \
-    #         where(SaleInvoice.type.in_(series)):
-    from utils import parse_date
-    from utils import parse_dat
-    for invoice in session.query(SaleInvoice).join(SaleProforma).join(Partner).\
-            where(SaleInvoice.type == 2).\
-            where(db.SaleInvoice.number.in_((361, 362, 363, 364))):
+    for invoice in session.query(SaleInvoice).join(SaleProforma).join(Partner). \
+            where(SaleInvoice.date >= _from). \
+            where(SaleInvoice.date <= to). \
+            where(SaleInvoice.type.in_(series)):
 
         siiinovices.append(SIIInvoice(invoice))
-
-
-    for invoice in siiinovices:
-        print(invoice, invoice.ambos_tax)
 
     import json
     import subprocess
     import os
 
-    with open(json_file, 'w') as fp:
+    with open(jsonfeed, 'w') as fp:
         json.dump(siiinovices, default=lambda o: o.__dict__, fp=fp, indent=4)
 
-    completed_subprocess = subprocess.run(['sii', json_file], shell=True)
+    completed_subprocess = subprocess.run(['sii', jsonfeed, jsonresponse], shell=True)
 
-    print(completed_subprocess)
+    with open(jsonresponse, 'r') as fp:
+        return json.load(fp)
+
+
+class SIILogModel(BaseTable, QtCore.QAbstractTableModel):
+
+    NUMBER, DATE, STATUS, MESSAGE = 0, 1, 2, 3
+
+    def __init__(self, registers):
+        super().__init__()
+        self._headerData = ['Invoice Number', 'Date', 'Status', 'Message']
+        self.registers = registers
+        self.name = 'registers'
+
+
+    def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
+
+        if not index.isValid():
+            return
+
+        if role == Qt.DisplayRole:
+            row, column = index.row(), index.column()
+            reg = self.registers[row]
+            if column == self.NUMBER:
+                return reg['invoice_number']
+            elif column == self.DATE:
+                return reg['invoice_date']
+            elif column == self.STATUS:
+                return reg['invoice_status']
+            elif column == self.MESSAGE:
+                return reg['message']
+
+    def sort(self, column: int, order: Qt.SortOrder = ...) -> None:
+        pass
+
 
 
 if __name__ == '__main__':
-
     do_sii()

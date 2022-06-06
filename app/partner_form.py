@@ -80,7 +80,12 @@ class PartnerForm(Ui_Partner_Form, QWidget):
     def saveButtonHandler(self):
         if not self.partner.contacts:
             QMessageBox.critical(self, 'Partner - Update', 'At least one contact must be provided!')
-            return 
+            return
+
+        if ' ' in self.fiscal_number_line_edit.text():
+            QMessageBox.critical(self, 'Partner', 'Vesi, Sin espacio el fiscal number!')
+            return
+
         if self.mode == PartnerForm.EDITABLE_MODE:
             self.formToPartner() 
             try:

@@ -16,25 +16,26 @@ class Form(Ui_Dialog, QDialog):
 
         self.send.clicked.connect(self.send_handler)
         self.all.clicked.connect(self.all_handler)
+        self.log.clicked.connect(self.log_handler)
 
     def all_handler(self):
-        for serie in ['1', '2', '3', '4', '5']:
+        for serie in ['1', '2', '3', '4']:
             checkbox = getattr(self, 'serie_' + serie)
             checkbox.setChecked(True)
 
     def send_handler(self):
         try:
             _from, to = self.get_dates()
-            do_sii(_from, to, list(
+
+            registers = do_sii(_from, to, list(
+
                 filter(lambda s: s is not None,
                        [
                            1 if self.serie_1.isChecked() else None,
                            2 if self.serie_2.isChecked() else None,
                            3 if self.serie_3.isChecked() else None,
                            4 if self.serie_4.isChecked() else None,
-                           5 if self.serie_5.isChecked() else None,
-                           6 if self.serie_6.isChecked() else None
-                        ]
+                       ]
                     )
                 )
             )
@@ -43,7 +44,15 @@ class Form(Ui_Dialog, QDialog):
             QMessageBox.critical(self, 'Error', str(ex))
         else:
             self.populate_last_sent()
-            QMessageBox.information(self, 'Sucess', 'Invoices sent')
+            from siilog import Form
+            Form(self, registers).exec_()
+
+
+    def log_handler(self):
+
+        from siilog import Form
+        Form(self).exec_()
+
 
     def populate_last_sent(self):
         pass
@@ -55,4 +64,4 @@ class Form(Ui_Dialog, QDialog):
             _from, to = parse_date(_from), parse_date(to)
             return _from, to
         except ValueError:
-            raise
+            raise ValueError('Date format: ddmmyyyy')
