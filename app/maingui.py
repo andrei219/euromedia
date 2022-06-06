@@ -291,10 +291,10 @@ class MainGui(Ui_MainGui, QMainWindow):
             self.warehouse_rma_incoming_model = models.WhRmaIncomingModel(
                 search_key=search_key, filters=filters, last=last
             )
-            self.warehouse_incoming_rma_view.setModel(self.warehouse_rma_incoming_model)
-            self.warehouse_incoming_rma_view.setSelectionBehavior(QTableView.SelectRows)
-            self.warehouse_incoming_rma_view.setSortingEnabled(True)
-            self.warehouse_incoming_rma_view.setAlternatingRowColors(True)
+            self.warehouse_incoming_rmas_view.setModel(self.warehouse_rma_incoming_model)
+            self.warehouse_incoming_rmas_view.setSelectionBehavior(QTableView.SelectRows)
+            self.warehouse_incoming_rmas_view.setSortingEnabled(True)
+            self.warehouse_incoming_rmas_view.setAlternatingRowColors(True)
 
 
     def set_handlers(self):
@@ -1236,20 +1236,20 @@ class MainGui(Ui_MainGui, QMainWindow):
             QMessageBox.information(self, 'Error', 'RMA WH order created')
 
 
-    def warehouse_incoming_rma_double_click_handler(self):
+    def warehouse_incoming_rmas_double_click_handler(self):
         from warehouse_rma_incoming_form import Form
         order = self.get_wh_incoming_rma_order()
         self.whirma = Form(self, order)
         self.whirma.show()
 
     def get_wh_incoming_rma_order(self):
-        rows = {i.row() for i in self.warehouse_incoming_rma_view.selectedIndexes()}
+        rows = {i.row() for i in self.warehouse_incoming_rmas_view.selectedIndexes()}
         if len(rows) != 1:
             return
         row = rows.pop()
         return self.warehouse_rma_incoming_model.orders[row]
 
-    def warehouse_incoming_rma_process_handler(self):
+    def warehouse_incoming_rmas_process_handler(self):
         from warehouse_rma_incoming_form import Form
         order = self.get_wh_incoming_rma_order()
         if not order:
@@ -1257,7 +1257,7 @@ class MainGui(Ui_MainGui, QMainWindow):
         self.whirma = Form(self, order)
         self.whirma.show()
 
-    def warehouse_incoming_rma_tocn_handler(self):
+    def warehouse_incoming_rmas_tocn_handler(self):
         wh_rma_order = self.get_wh_incoming_rma_order()
         if not wh_rma_order:
             return

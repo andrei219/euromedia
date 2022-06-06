@@ -51,7 +51,7 @@
      <number>0</number>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>5</number>
     </property>
     <property name="iconSize">
      <size>
@@ -5300,7 +5300,7 @@
        </rect>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>2</number>
       </property>
       <property name="iconSize">
        <size>
@@ -6284,7 +6284,7 @@
         <property name="frameShadow">
          <enum>QFrame::Sunken</enum>
         </property>
-        <widget class="QToolButton" name="warehouse_incoming_rma_process">
+        <widget class="QToolButton" name="warehouse_incoming_rmas_process">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -6313,7 +6313,7 @@
           <bool>true</bool>
          </property>
         </widget>
-        <widget class="QToolButton" name="warehouse_incoming_rma_tocn">
+        <widget class="QToolButton" name="warehouse_incoming_rmas_tocn">
          <property name="geometry">
           <rect>
            <x>100</x>
@@ -6343,7 +6343,7 @@
          </property>
         </widget>
        </widget>
-       <widget class="QTableView" name="warehouse_incoming_rma_view">
+       <widget class="QTableView" name="warehouse_incoming_rmas_view">
         <property name="geometry">
          <rect>
           <x>210</x>
