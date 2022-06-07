@@ -8,7 +8,7 @@ from itertools import groupby, product
 from operator import attrgetter
 from datetime import datetime, timedelta
 
-
+from sqlalchemy.sql import exists
 
 from PyQt5 import QtCore
 from PyQt5 import QtGui
@@ -5729,6 +5729,10 @@ class RmaIncomingLineModel(BaseTable, QtCore.QAbstractTableModel):
     def add(self, sn):
         if self.serie_processed(sn):
             raise ValueError('Imei/Sn already processed')
+
+        if db.session.query(exists().where(db.Imei.imei == sn)).scalar():
+            raise ValueError(f"Imei : {sn} in inventory")
+
         try:
             self.layoutAboutToBeChanged.emit()
             self.lines.append(db.IncomingRmaLine.from_sn(sn))
@@ -6137,7 +6141,7 @@ def do_sii(_from=None, to=None, series=None):
     with open(jsonfeed, 'w') as fp:
         json.dump(siiinovices, default=lambda o: o.__dict__, fp=fp, indent=4)
 
-    completed_subprocess = subprocess.run(['sii', jsonfeed, jsonresponse], shell=True)
+    completed_subprocess = subprocess.run(['sii.exe', jsonfeed, jsonresponse], shell=True)
 
     with open(jsonresponse, 'r') as fp:
         return json.load(fp)

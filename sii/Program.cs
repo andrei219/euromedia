@@ -85,11 +85,11 @@ class SII
     }
     
 
-    public static void s(String[] args) {
+    public static void Main(String[] args) {
 
-        // Settings.Current.SiiEndPointPrefix = SiiEndPointPrefixes.Test;
+        Settings.Current.SiiEndPointPrefix = "https://www1.agenciatributaria.gob.es/wlpl/SSII-FACT/ws";
 
-        // Settings.Save(); 
+        Settings.Save(); 
 
         String jsonfeed_path = args[0];
         String jsonresponse_path = args[1]; 
@@ -291,10 +291,10 @@ class SII
 
 
 
-    public static void Main(String[] args)
+    public static void s(String[] args)
     {
         Console.WriteLine("Produccion:" + SiiEndPointPrefixes.Prod);
-        Console.WriteLine("Test: " + SiiEndPointPrefixes.Test); 
+        Console.WriteLine("      Test: " + SiiEndPointPrefixes.Test); 
 
     }
 
