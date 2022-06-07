@@ -2,6 +2,7 @@
 
 from itertools import chain, cycle
 
+import db
 from fpdf import FPDF
 
 from db import SaleInvoice
@@ -33,7 +34,7 @@ LINE_HEADER_END = (210 - 13.5, 118.77)
 LINE_WIDTH = 183
 INNER_LINE_START = (19.55, 123.3)
 INNER_LINE_Y_INCREMENT = 5.52
-INNER_LINE_X_INCREMENTS = cycle([12.55, 100.14, 13.73, 24.83, 25.21])
+INNER_LINE_X_INCREMENTS = cycle([12.55, 94.3, 16, 18, 16, 19])
 
 TOTAL_EXCL_VAT_X_POSITION = 130.89
 X_INCREMENT = 30
@@ -64,8 +65,27 @@ from importlib import reload
 
 utils = reload(utils)
 
+pdf = FPDF()
+pdf.set_font('Arial', size=9)
 
-# Deberiamos hacer una superclase que contenga attsetters 
+
+def text_exceeds(text, lenght=100):
+    return pdf.get_string_width(text) > lenght
+
+
+def get_space_position(text, lenght=100):
+    positions = [position for position, char in enumerate(text) if char == ' ']
+    for i in range(len(positions)):
+        position_prev = positions[i]
+        try:
+            position = positions[i + 1]
+        except IndexError:
+            return position_prev
+        if pdf.get_string_width(text[:position_prev]) < lenght < pdf.get_string_width(text[:position]):
+            return position_prev
+
+
+# Deberiamos hacer una superclase que contenga attsetters
 # que implemente esta conversion
 # asi no tendriamos que llamar 10 VECES la misma funcion
 # pero no estamos pa mas dolores de cabeza
@@ -76,13 +96,28 @@ def dot_comma_number_repr(str_number):
 
 class LinePDFRepr:
 
+    def __init__(self):
+        self.number = ''
+
     def __iter__(self):
-        return iter(map(str, (self.description, self.quantity, self.price, self.tax, self.total)))
+        return iter(map(str, (self.number, self.description, self.quantity, self.price, self.tax, self.total)))
+
+    @classmethod
+    def fake(cls, description, space_position):
+        self = cls()
+        self.description = description[:space_position]
+        self.quantity = ''
+        self.price = ''
+        self.tax = ''
+        self.total = ''
+        return self
 
 
 class PurchaseLinePDFRepr(LinePDFRepr):
 
     def __init__(self, line):
+
+        super().__init__()
 
         self.description = line.description or \
                            utils.description_id_map.inverse.get(line.item_id)
@@ -101,10 +136,12 @@ class PurchaseLinePDFRepr(LinePDFRepr):
         self.price = dot_comma_number_repr(self.price)
 
 
-
 class SaleLinePDFRepr(LinePDFRepr):
 
     def __init__(self, lines):
+
+        super().__init__()
+
         if len(lines) == 1 and {None} == {line.item_id for line in lines}:
             line = lines[0]
             self.description = line.description
@@ -151,6 +188,7 @@ class SaleLinePDFRepr(LinePDFRepr):
 class CreditLinePDFRepr(LinePDFRepr):
 
     def __init__(self, line):
+        super().__init__()
         self.description = utils.description_id_map.inverse.get(line.item_id)
         self.description += f', {line.condition} condt.'
         self.description += f', {line.spec} spec.'
@@ -168,6 +206,7 @@ class CreditLinePDFRepr(LinePDFRepr):
 class AdvancedSaleLinePDFRepr(LinePDFRepr):
 
     def __init__(self, line):
+        super().__init__()
         self.description = line.free_description or \
                            line.mixed_description or utils.description_id_map.inverse.get(line.item_id)
 
@@ -191,10 +230,30 @@ class AdvancedSaleLinePDFRepr(LinePDFRepr):
 class LinesPDFRepr:
 
     def __iter__(self):
-        return iter(self.lines)
+        return iter([(line.number, line) for line in self.lines])
 
     def __len__(self):
         return len(self.lines)
+
+    def add_counter(self):
+        indexes = [i for i, line in enumerate(self.lines) if text_exceeds(line.description)]
+        for index in indexes[::-1]:
+            line = self.lines[index]
+            space_position = get_space_position(line.description)
+            self.lines.insert(index, LinePDFRepr.fake(line.description, space_position))
+            line.description = line.description[space_position:].strip()
+
+
+        start = 1
+        prev = self.lines[0]
+        for i, actual_line in enumerate(self.lines):
+            if i == 0:
+                actual_line.number = start
+            else:
+                if not (prev.price == '' and actual_line.price != ''):
+                    start += 1
+                    actual_line.number = start
+            prev = actual_line
 
 
 class SaleLinesPDFRepr(LinesPDFRepr):
@@ -204,23 +263,29 @@ class SaleLinesPDFRepr(LinesPDFRepr):
             SaleLinePDFRepr([l for l in lines if l.mix_id == mix_id])
             for mix_id in list(dict.fromkeys([line.mix_id for line in lines]))
         ]
+        self.add_counter()
 
 class CreditLinesPDFRepr(LinesPDFRepr):
 
     def __init__(self, lines):
         self.lines = list(map(CreditLinePDFRepr, lines))
+        self.add_counter()
+
+
 
 class PurchaseLinesPDFRepr(LinesPDFRepr):
 
     def __init__(self, lines):
         self.lines = list(map(PurchaseLinePDFRepr, lines))
+        self.add_counter()
+
 
 
 class AdvancedLinesPDFRepr(LinesPDFRepr):
 
     def __init__(self, lines):
         self.lines = list(map(AdvancedSaleLinePDFRepr, lines))
-
+        self.add_counter()
 
 class We:
     def __init__(self):
@@ -281,7 +346,6 @@ class TotalsData:
         self.Total_excl_VAT = document.subtotal
         self.Total_VAT = document.tax
         self.Total = '{:,.2f}'.format(round(self.Total_excl_VAT + self.Total_VAT, 2))
-
 
         self.Total_excl_VAT = '{:,.2f}'.format(round(self.Total_excl_VAT, 2))
         self.Total_VAT = '{:,.2f}'.format(round(self.Total_VAT, 2))
@@ -643,7 +707,6 @@ class PDF(FPDF):
             y += TABLE_DOWN_INCREMENT
             self.set_xy(x, y)
 
-
     def print_desc_header(self, print_lines_header=False):
         self.header_printed = False
         if print_lines_header:
@@ -671,19 +734,26 @@ class PDF(FPDF):
         self.set_xy(x_start, self.y_start)
         lines_total = len(self.lines)
         self.set_font('Arial', size=9)
-        for line_number, line in enumerate(self.lines):
+        for line_number, line in self.lines:
             x = x_start
-            for i, element in enumerate(chain([str(line_number + 1)], line), 0):
+            for i, element in enumerate(line, 0):
                 increment = next(INNER_LINE_X_INCREMENTS)
-                print_lines_header = line_number < lines_total
+                try:
+                    print_lines_header = line_number < lines_total
+                except TypeError:
+                    print_lines_header = False
+
                 self.cell(increment, txt=element, align='R' if i >= 2 else 'L', caller=self, \
                           print_lines_header=print_lines_header)
                 x += increment
                 self.set_x(x)
 
-            self.y_start += INNER_LINE_Y_INCREMENT
-            self.set_xy(x_start, self.y_start)
+            if line.price == '':
+                self.y_start += INNER_LINE_Y_INCREMENT - 2
+            else:
+                self.y_start += INNER_LINE_Y_INCREMENT
 
+            self.set_xy(x_start, self.y_start)
 
 def build_document(document, *, is_invoice):
     pdf = PDF(document, is_invoice=is_invoice)

@@ -1990,9 +1990,6 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
         ))
 
     def build_expedition_line(self, line, expedition):
-        print('build expedition line call')
-        print('\tline=', line)
-        print('\expedition=', expedition)
 
         exp_line = db.ExpeditionLine()
         exp_line.condition = line.condition
@@ -2001,6 +1998,8 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
         exp_line.quantity = line.quantity
 
         exp_line.expedition = expedition
+
+        print('ExpeditionLine:', exp_line)
 
     def updateWarehouse(self, proforma):
         if proforma.expedition is None:

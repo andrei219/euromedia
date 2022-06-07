@@ -89,6 +89,7 @@ class SII
 
         Settings.Current.SiiEndPointPrefix = "https://www1.agenciatributaria.gob.es/wlpl/SSII-FACT/ws";
 
+
         Settings.Save(); 
 
         String jsonfeed_path = args[0];
