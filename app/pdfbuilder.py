@@ -24,9 +24,10 @@ TABLE_DOWN_INCREMENT = 5
 TABLE_START = (135.11, 35.75)
 ITEM_POSITION = (15.07, 114.89)
 DESC_POSITION = (70.13, 114.89)
-QTY_POSITION = (140.24, 114.89)
-UNIT_POSITION = (153.56, 114.89)
-TOTAL_POSITION = (182.68, 114.89)
+QTY_POSITION = (135.00, 114.89)
+UNIT_POSITION = (152.00, 114.89)
+TAX_POSITION = (168.00, 114.89)
+TOTAL_POSITION = (184.70, 114.89)
 LINE_HEADER_START = (13.5, 118.77)
 LINE_HEADER_END = (210 - 13.5, 118.77)
 LINE_WIDTH = 183
@@ -639,7 +640,8 @@ class PDF(FPDF):
                 ('Item #', ITEM_POSITION),
                 ('Description', DESC_POSITION),
                 ('Qty.', QTY_POSITION),
-                ('Unit Price', UNIT_POSITION),
+                ('UP', UNIT_POSITION),
+                ('Tax', TAX_POSITION),
                 ('Total', TOTAL_POSITION)
             ]:
                 self.set_xy(*position)
