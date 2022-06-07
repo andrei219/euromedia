@@ -76,7 +76,7 @@ def dot_comma_number_repr(str_number):
 class LinePDFRepr:
 
     def __iter__(self):
-        return iter(map(str, (self.description, self.quantity, self.price, self.total)))
+        return iter(map(str, (self.description, self.quantity, self.price, self.tax, self.total)))
 
 
 class PurchaseLinePDFRepr(LinePDFRepr):
@@ -94,8 +94,11 @@ class PurchaseLinePDFRepr(LinePDFRepr):
         self.quantity = line.quantity
         self.total = '{:,.2f}'.format(round(line.price * line.quantity, 2))
         self.price = '{:,.2f}'.format(round(line.price, 2))
+        self.tax = '{:,.2f}'.format(round(line.price * line.quantity * line.tax / 100))
+        self.tax = dot_comma_number_repr(self.tax)
         self.total = dot_comma_number_repr(self.total)
         self.price = dot_comma_number_repr(self.price)
+
 
 
 class SaleLinePDFRepr(LinePDFRepr):
@@ -109,6 +112,8 @@ class SaleLinePDFRepr(LinePDFRepr):
             self.total = line.quantity * line.price
             self.total = '{:,.2f}'.format(round(self.price * self.quantity, 2))
             self.price = '{:,.2f}'.format(round(self.price, 2))
+            self.tax = '{:,.2f}'.format(round(line.price * line.quantity * line.tax / 100))
+            self.tax = dot_comma_number_repr(self.tax)
             self.total = dot_comma_number_repr(self.total)
             self.price = dot_comma_number_repr(self.price)
 
@@ -118,6 +123,8 @@ class SaleLinePDFRepr(LinePDFRepr):
             self.price = lines[0].price
             self.total = '{:,.2f}'.format(round(self.price * self.quantity, 2))
             self.price = '{:,.2f}'.format(round(self.price, 2))
+            self.tax = '{:,.2f}'.format(round(lines[0].price * lines[0].quantity * lines[0].tax / 100))
+            self.tax = dot_comma_number_repr(self.tax)
             self.total = dot_comma_number_repr(self.total)
             self.price = dot_comma_number_repr(self.price)
 
@@ -149,6 +156,8 @@ class CreditLinePDFRepr(LinePDFRepr):
 
         self.total = '{:,.2f}'.format(round(line.price * line.quantity, 2))
         self.price = '{:,.2f}'.format(round(line.price, 2))
+        self.tax = '{:,.2f}'.format(round(line.price * line.quantity * line.tax / 100))
+        self.tax = dot_comma_number_repr(self.tax)
         self.total = dot_comma_number_repr(self.total)
         self.price = dot_comma_number_repr(self.price)
 
@@ -168,6 +177,9 @@ class AdvancedSaleLinePDFRepr(LinePDFRepr):
             self.description += f', {line.spec} spec.'
 
         self.quantity = line.quantity
+
+        self.tax = '{:,.2f}'.format(round(line.price * line.quantity * line.tax / 100))
+        self.tax = dot_comma_number_repr(self.tax)
 
         self.total = '{:,.2f}'.format(round(line.price * line.quantity, 2))
         self.price = '{:,.2f}'.format(round(line.price, 2))
