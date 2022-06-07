@@ -2377,6 +2377,12 @@ class SaleProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
         self.organized_lines.delete_all()
         self.layoutChanged.emit()
 
+
+    def get_price(self, row):
+        # Rememeber : Matrix Structure : [[...], [...], ...]
+        return self.organized_lines[row][0].price
+
+
     @property
     def quantity(self):
         return sum(line.quantity for line in self.lines)

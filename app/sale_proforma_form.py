@@ -212,6 +212,7 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.condition.editingFinished.connect(self.condition_editing_finished)
         self.spec.editingFinished.connect(self.spec_editing_finished)
 
+
     def prop_return_pressed(self):
 
         try:
@@ -380,9 +381,15 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.we_pay_we_ship.setChecked(p.we_pay_we_ship)
         self.note.setText(p.note)
 
-    def lines_view_clicked_handler(self):
+    def lines_view_clicked_handler(self, index):
         self.set_selected_stock_mv() 
         self.selected_stock_view.resizeColumnToContents(0)
+
+        price = self.lines_model.get_price(index.row())
+
+        self.price.setValue(price)
+
+
 
     def set_selected_stock_mv(self):
         try:
@@ -622,6 +629,8 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.description.clear()
         self.spec.clear()
         self.condition.clear()
+
+
 
 class EditableForm(Form):
     
