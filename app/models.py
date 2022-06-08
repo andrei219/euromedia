@@ -1596,6 +1596,7 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 
         self.proformas = []
         self.name = 'proformas'
+
         # query = db.session.query(db.SaleProforma). \
         #     select_from(db.Agent, db.Partner). \
         #     where(
@@ -5433,11 +5434,11 @@ def get_spec(eline: db.ExpeditionLine):
 
 
 class WhRmaIncomingModel(BaseTable, QtCore.QAbstractTableModel):
-    ID, PARTNER, DATE, QUANTITY, STATUS, INVOICED = 0, 1, 2, 3, 4, 5
+    ID, PARTNER, DATE, QUANTITY, STATUS, INVOICED, INVOICE = 0, 1, 2, 3, 4, 5, 6
 
     def __init__(self, search_key=None, filters=None, last=10):
         super().__init__()
-        self._headerData = ['ID', 'Partner', 'Date', 'Quantity', 'Status', 'Invoiced']
+        self._headerData = ['ID', 'Partner', 'Date', 'Quantity', 'Status', 'Invoiced', 'Invoice Number']
         self.name = 'orders'
 
         query = db.session.query(db.WhIncomingRma).join(db.IncomingRma)
@@ -5468,6 +5469,12 @@ class WhRmaIncomingModel(BaseTable, QtCore.QAbstractTableModel):
             elif column == self.INVOICED:
                 return 'Yes' if order.sale_invoice is not None else 'No'
 
+            elif column == self.INVOICE:
+                try:
+                    return order.sale_invoice.doc_repr
+                except AttributeError:
+                    return 'Not created yet'
+
             elif column == self.QUANTITY:
                 return str(len(order.lines)) + ' pcs '
 
@@ -5487,11 +5494,12 @@ from utils import warehouse_id_map
 
 
 class CreditNoteLineModel(BaseTable, QtCore.QAbstractTableModel):
-    ITEM, CONDITION, SPEC, QUANTITY, PRICE, TAX = 0, 1, 2, 3, 4, 5
+
+    ITEM, CONDITION, SPEC, QUANTITY, PRICE, TAX, IMEI = 0, 1, 2, 3, 4, 5, 6
 
     def __init__(self, lines):
         super().__init__()
-        self._headerData = ['Description', 'Condition', 'Spec', 'Quantity', 'Price', 'Tax']
+        self._headerData = ['Description', 'Condition', 'Spec', 'Quantity', 'Price', 'Tax', 'IMEI']
         self.name = 'lines'
         self.lines = lines
 
@@ -5519,6 +5527,8 @@ class CreditNoteLineModel(BaseTable, QtCore.QAbstractTableModel):
             line = self.lines[row]
             if column == self.ITEM:
                 return description_id_map.inverse[line.item_id]
+            elif column == self.IMEI:
+                return line.sn
             elif column == self.CONDITION:
                 return line.condition
             elif column == self.SPEC:
@@ -5529,6 +5539,7 @@ class CreditNoteLineModel(BaseTable, QtCore.QAbstractTableModel):
                 return str(line.price)
             elif column == self.TAX:
                 return str(line.tax)
+
 
 
 class WhRmaIncomingLineModel(BaseTable, QtCore.QAbstractTableModel):

@@ -1608,6 +1608,7 @@ class CreditNoteLine(Base):
     quantity = Column(Integer, nullable=False)
     price = Column(Float(precision=32, decimal_return_scale=None), nullable=False)
     tax = Column(Integer, nullable=False)
+    sn = Column(String(100), nullable=False)
 
     proforma = relationship(
         'SaleProforma',
@@ -1626,6 +1627,7 @@ class CreditNoteLine(Base):
         self.quantity = 1
         self.tax = 0
         self.price = -wh_line.price
+        self.sn = wh_line.sn
 
     def __repr__(self):
         return f'item_id = {self.item_id}'
