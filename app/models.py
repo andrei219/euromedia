@@ -1596,20 +1596,20 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 
         self.proformas = []
         self.name = 'proformas'
-        query = db.session.query(db.SaleProforma). \
-            select_from(db.Agent, db.Partner). \
-            where(
-                db.Agent.id == db.SaleProforma.agent_id,
-                db.Partner.id == db.SaleProforma.partner_id,
-                db.Warehouse.id == db.SaleProforma.warehouse_id,
-                db.SaleInvoice.id == db.SaleProforma.sale_invoice_id
-        )
+        # query = db.session.query(db.SaleProforma). \
+        #     select_from(db.Agent, db.Partner). \
+        #     where(
+        #         db.Agent.id == db.SaleProforma.agent_id,
+        #         db.Partner.id == db.SaleProforma.partner_id,
+        #         db.Warehouse.id == db.SaleProforma.warehouse_id,
+        #         db.SaleInvoice.id == db.SaleProforma.sale_invoice_id
+        # )
 
 
-        #
-        #
-        # query = db.session.query(db.SaleProforma).join(db.Agent).join(db.Partner).\
-        #     join(db.SaleInvoice, isouter=True)
+
+
+        query = db.session.query(db.SaleProforma).join(db.Agent).join(db.Partner).\
+            join(db.SaleInvoice, isouter=True)
 
         # query = db.session.query(db.SaleProforma).\
         #     join(db.Agent, db.Agent.id == db.SaleProforma.agent_id).\
