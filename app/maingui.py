@@ -389,7 +389,8 @@ class MainGui(Ui_MainGui, QMainWindow):
         object_name = self.sender().objectName()
         prefix = object_name[0:object_name.rfind('_') + 1]
         filters = self.get_filters(prefix=prefix)
-        self.set_mv(prefix, filters=filters)
+        search_key = self.proformas_sales_search.text()
+        self.set_mv(prefix, search_key=search_key, filters=filters)
 
     def search_handler(self):
         widget = self.sender()
