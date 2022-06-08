@@ -1609,8 +1609,11 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
         query = db.session.query(db.SaleProforma).\
             join(db.Agent, db.Agent.id == db.SaleProforma.agent_id).\
             join(db.Partner, db.Partner.id == db.SaleProforma.partner_id).\
-            join(db.Warehouse, db.Warehouse.id == db.SaleProforma.warehouse_id).\
+            join(db.Warehouse, db.Warehouse.id == db.SaleProforma.warehouse_id, isouter=True).\
             join(db.SaleInvoice, db.SaleInvoice.id == db.SaleProforma.sale_invoice_id, isouter=True)
+
+            # May be warehouse_id or sale_invoice_id is NULL, then left outer join used
+
 
         # query = db.session.query(db.SaleProforma).join(db.Agent).join(db.Partner).\
         #     join(db.SaleInvoice, isouter=True)
