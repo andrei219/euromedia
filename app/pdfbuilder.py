@@ -69,11 +69,11 @@ pdf = FPDF()
 pdf.set_font('Arial', size=9)
 
 
-def text_exceeds(text, lenght=100):
-    return pdf.get_string_width(text) > lenght
+def text_exceeds(text, length=95):
+    return pdf.get_string_width(text) > length
 
 
-def get_space_position(text, lenght=100):
+def get_space_position(text, length=95):
     positions = [position for position, char in enumerate(text) if char == ' ']
     for i in range(len(positions)):
         position_prev = positions[i]
@@ -81,7 +81,7 @@ def get_space_position(text, lenght=100):
             position = positions[i + 1]
         except IndexError:
             return position_prev
-        if pdf.get_string_width(text[:position_prev]) < lenght < pdf.get_string_width(text[:position]):
+        if pdf.get_string_width(text[:position_prev]) < length < pdf.get_string_width(text[:position]):
             return position_prev
 
 
@@ -128,10 +128,12 @@ class PurchaseLinePDFRepr(LinePDFRepr):
             self.description += f', {line.spec}'
 
         self.quantity = line.quantity
-        self.total = '{:,.2f}'.format(round(line.price * line.quantity, 2))
+        self.total = '{:,.2f}'.format(round(line.price * line.quantity * ( 1 + line.tax /100), 2))
         self.price = '{:,.2f}'.format(round(line.price, 2))
-        self.tax = '{:,.2f}'.format(round(line.price * line.quantity * line.tax / 100))
-        self.tax = dot_comma_number_repr(self.tax)
+
+        self.tax = str(line.tax) + '%'
+
+
         self.total = dot_comma_number_repr(self.total)
         self.price = dot_comma_number_repr(self.price)
 
@@ -142,16 +144,15 @@ class SaleLinePDFRepr(LinePDFRepr):
 
         super().__init__()
 
-        if len(lines) == 1 and {None} == {line.item_id for line in lines}:
+        if len(lines) == 1 and {None} == {line.item_id for line in lines}: # check free line
             line = lines[0]
             self.description = line.description
             self.quantity = line.quantity
             self.price = line.price
             self.total = line.quantity * line.price
-            self.total = '{:,.2f}'.format(round(self.price * self.quantity, 2))
+            self.total = '{:,.2f}'.format(round(self.price * self.quantity * (1 + line.tax/100), 2))
             self.price = '{:,.2f}'.format(round(self.price, 2))
-            self.tax = '{:,.2f}'.format(round(line.price * line.quantity * line.tax / 100))
-            self.tax = dot_comma_number_repr(self.tax)
+            self.tax = str(line.tax) + '%'
             self.total = dot_comma_number_repr(self.total)
             self.price = dot_comma_number_repr(self.price)
 
@@ -159,12 +160,13 @@ class SaleLinePDFRepr(LinePDFRepr):
             self.description = utils.build_description(lines)
             self.quantity = sum(line.quantity for line in lines)
             self.price = lines[0].price
-            self.total = '{:,.2f}'.format(round(self.price * self.quantity, 2))
+            self.total = '{:,.2f}'.format(round(self.price * self.quantity * (1 + lines[0].tax /100) , 2))
             self.price = '{:,.2f}'.format(round(self.price, 2))
-            self.tax = '{:,.2f}'.format(round(lines[0].price * lines[0].quantity * lines[0].tax / 100))
-            self.tax = dot_comma_number_repr(self.tax)
+            self.tax = str(lines[0].tax) + '%'
             self.total = dot_comma_number_repr(self.total)
             self.price = dot_comma_number_repr(self.price)
+
+
 
             showing_condition = lines[0].showing_condition
             condition = showing_condition or lines[0].condition
@@ -193,10 +195,9 @@ class CreditLinePDFRepr(LinePDFRepr):
         self.description += f', {line.condition} condt.'
         self.description += f', {line.spec} spec.'
 
-        self.total = '{:,.2f}'.format(round(line.price * line.quantity, 2))
+        self.total = '{:,.2f}'.format(round(line.price * line.quantity* ( 1 + line.tax /100), 2))
         self.price = '{:,.2f}'.format(round(line.price, 2))
-        self.tax = '{:,.2f}'.format(round(line.price * line.quantity * line.tax / 100))
-        self.tax = dot_comma_number_repr(self.tax)
+        self.tax = str(line.tax) + '%'
         self.total = dot_comma_number_repr(self.total)
         self.price = dot_comma_number_repr(self.price)
 
@@ -218,10 +219,9 @@ class AdvancedSaleLinePDFRepr(LinePDFRepr):
 
         self.quantity = line.quantity
 
-        self.tax = '{:,.2f}'.format(round(line.price * line.quantity * line.tax / 100))
-        self.tax = dot_comma_number_repr(self.tax)
+        self.tax = str(line.tax) + '%'
 
-        self.total = '{:,.2f}'.format(round(line.price * line.quantity, 2))
+        self.total = '{:,.2f}'.format(round(line.price * line.quantity* ( 1 + line.tax /100), 2))
         self.price = '{:,.2f}'.format(round(line.price, 2))
         self.total = dot_comma_number_repr(self.total)
         self.price = dot_comma_number_repr(self.price)
@@ -278,7 +278,6 @@ class PurchaseLinesPDFRepr(LinesPDFRepr):
     def __init__(self, lines):
         self.lines = list(map(PurchaseLinePDFRepr, lines))
         self.add_counter()
-
 
 
 class AdvancedLinesPDFRepr(LinesPDFRepr):
@@ -338,10 +337,6 @@ class TotalsData:
             lines = document.advanced_lines or document.lines
         except AttributeError:
             lines = document.lines
-        #
-        # self.Total_excl_VAT = sum(line.price * line.quantity for line in lines)
-        # self.Total_VAT = sum(line.quantity * line.price * line.tax / 100 for line in lines)
-        # self.Total = '{:,.2f}'.format(round(self.Total_excl_VAT + self.Total_VAT, 2))
 
         self.Total_excl_VAT = document.subtotal
         self.Total_VAT = document.tax
@@ -716,7 +711,7 @@ class PDF(FPDF):
                 ('Description', DESC_POSITION),
                 ('Qty.', QTY_POSITION),
                 ('UP', UNIT_POSITION),
-                ('Tax', TAX_POSITION),
+                ('VAT', TAX_POSITION),
                 ('Total', TOTAL_POSITION)
             ]:
                 self.set_xy(*position)

@@ -1999,13 +1999,39 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 
         exp_line.expedition = expedition
 
-        print('ExpeditionLine:', exp_line)
-
     def updateWarehouse(self, proforma):
         if proforma.expedition is None:
             return
 
+        wh_lines = set(proforma.expedition.lines)
+        pr_lines = set(proforma.lines or proforma.advanced_lines)
+
+        for line in wh_lines.difference(pr_lines):
+            line.quantity = 0
+            if len(line.series) == 0:
+                db.session.delete(line)
+
+        for line in pr_lines.difference(wh_lines):
+            if item_key(line):
+                self.build_expedition_line(line, proforma.expedition)
+
+        for pline in pr_lines:
+            for whline in wh_lines:
+                if pline == whline:
+                    whline.quantity = pline.quantity
+
+        try:
+            db.session.commit()
+        except Exception as ex:
+            db.session.rollback()
+            raise
+
+    def s(self, proforma):
+        if proforma.expedition is None:
+            return
+
         added_lines = self.difference(proforma)
+
         for line in added_lines:
             self.build_expedition_line(line, proforma.expedition)
 
@@ -3317,13 +3343,13 @@ class ExpeditionModel(BaseTable, QtCore.QAbstractTableModel):
 
             if filters['logistic']:
                 if 'empty' in filters['logistic']:
-                    self.expeditions = filter(lambda e: sale_empty(e), self.expeditions)
+                    self.expeditions = filter(lambda e: e.proforma.empty, self.expeditions)
                 if 'overflowed' in filters['logistic']:
-                    self.expeditions = filter(lambda e: sale_overflowed(e), self.expeditions)
+                    self.expeditions = filter(lambda e: e.proforma.overflowed, self.expeditions)
                 if 'partially_processed' in filters['logistic']:
-                    self.expeditions = filter(lambda e: sale_partially_processed(e), self.expeditions)
+                    self.expeditions = filter(lambda e: e.proforma.partially_processed, self.expeditions)
                 if 'completed' in filters['logistic']:
-                    self.expeditions = filter(lambda e: sale_completed(e), self.expeditions)
+                    self.expeditions = filter(lambda e: e.proforma.completed, self.expeditions)
             if filters['cancelled']:
                 if 'cancelled' in filters['cancelled']:
                     self.expeditions = filter(lambda e: e.proforma.cancelled, self.expeditions)
@@ -3353,13 +3379,13 @@ class ExpeditionModel(BaseTable, QtCore.QAbstractTableModel):
             elif column == self.PROCESSED:
                 return str(sale_total_processed(expedition))
             elif column == self.LOGISTIC:
-                if sale_empty(expedition):
+                if expedition.proforma.empty:
                     return 'Empty'
-                elif sale_overflowed(expedition):
+                elif expedition.proforma.overflowed:
                     return 'Overflowed'
-                elif sale_partially_processed(expedition):
+                elif expedition.proforma.partially_processed:
                     return 'Partially Prepared'
-                elif sale_completed(expedition):
+                elif expedition.proforma.completed:
                     return 'Completed'
 
             elif column == self.PRESALE:

@@ -780,9 +780,11 @@ class SaleProforma(Base):
     @property
     def overflowed(self):
         try:
-            for line in self.expedition.lines:
-                if len(line.series) > line.quantity:
-                    return True
+            return any((
+                len(line.series) > line.quantity
+                for line in self.expedition.lines
+            ))
+
         except AttributeError:
             return False
         return False
@@ -939,20 +941,14 @@ class SaleProformaLine(Base):
         ))
 
     def __eq__(self, other):
-        description = False
-        if hasattr(other, 'description') and hasattr(self, 'description'):
-            description = other.description == self.description
-
         return all((
             other.item_id == self.item_id,
             other.condition == self.condition,
             other.spec == self.spec,
-        )) and description
+        ))
 
     def __hash__(self):
-        hashes = (hash(x) for x in (
-            self.item_id, self.spec, self.condition, self.description)
-                  )
+        hashes = (hash(x) for x in (self.item_id, self.spec, self.condition))
         return functools.reduce(operator.xor, hashes, 0)
 
     def __repr__(self):
@@ -987,19 +983,13 @@ class AdvancedLine(Base):
 
     def __eq__(self, other):
         return all((
-            self.mixed_description == other.description,
             self.item_id == other.item_id,
             self.condition == other.condition,
             self.spec == other.spec,
-            self.origin_id == other.origin_id
         ))
 
     def __hash__(self):
-        hashes = (hash(x) for x in (
-            self.mixed_description, self.item_id, self.condition,
-            self.spec, self.origin_id
-        ))
-
+        hashes = (hash(x) for x in (self.item_id, self.condition,self.spec))
         return functools.reduce(operator.xor, hashes, 0)
 
     def __repr__(self):
@@ -1093,7 +1083,6 @@ class ExpeditionLine(Base):
 
     # Compatible with saleProformaLINE
     # Enable set operations
-
     # Remember operation with sale proforma line:
     def __eq__(self, other):
         return all((
@@ -1103,7 +1092,7 @@ class ExpeditionLine(Base):
         ))
 
     def __hash__(self):
-        hashes = (hash(x) for x in (self.item_id, self.spec, self.condition, None))
+        hashes = (hash(x) for x in (self.item_id, self.spec, self.condition))
         return functools.reduce(operator.xor, hashes, 0)
 
     def __repr__(self):
