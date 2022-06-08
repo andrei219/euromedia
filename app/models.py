@@ -1596,23 +1596,33 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 
         self.proformas = []
         self.name = 'proformas'
-        # query = db.session.query(db.SaleProforma). \
-        #     select_from(db.Agent, db.Partner). \
-        #     where(
-        #     db.Agent.id == db.SaleProforma.agent_id,
-        #     db.Partner.id == db.SaleProforma.partner_id,
-        #     db.Warehouse.id == db.SaleProforma.warehouse_id
-        # )
+        query = db.session.query(db.SaleProforma). \
+            select_from(db.Agent, db.Partner). \
+            where(
+                db.Agent.id == db.SaleProforma.agent_id,
+                db.Partner.id == db.SaleProforma.partner_id,
+                db.Warehouse.id == db.SaleProforma.warehouse_id,
+                db.SaleInvoice.id == db.SaleProforma.sale_invoice_id
+        )
 
-        query = db.session.query(db.SaleProforma).join(db.Agent).join(db.Partner).\
-            join(db.SaleInvoice, isouter=True)
+
+        #
+        #
+        # query = db.session.query(db.SaleProforma).join(db.Agent).join(db.Partner).\
+        #     join(db.SaleInvoice, isouter=True)
+
+        # query = db.session.query(db.SaleProforma).\
+        #     join(db.Agent, db.Agent.id == db.SaleProforma.agent_id).\
+        #     join(db.Partner, db.Partner.id == db.SaleProforma.partner_id).\
+        #     join(db.Warehouse, db.Warehouse.id == db.SaleProforma.warehouse_id)
+
+        # print(query)
 
         if proxy:
             self._headerData.append('From proforma')
             query = query.where(db.SaleProforma.invoice != None)
             query = query.where(db.SaleInvoice.date >= utils.get_last_date(last))
         else:
-
             query = query.where(db.SaleProforma.date >= utils.get_last_date(last))
 
         if search_key:
@@ -1634,7 +1644,7 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 
             try:
                 n = int(search_key)
-            except:
+            except ValueError:
                 pass
             else:
                 predicates.append(db.SaleProforma.number == n)
