@@ -391,6 +391,7 @@ class Form(Ui_SalesProformaForm, QWidget):
 
 
 
+
     def set_selected_stock_mv(self):
         try:
             i = {i.row() for i in self.lines_view.selectedIndexes()}.pop()
@@ -417,7 +418,8 @@ class Form(Ui_SalesProformaForm, QWidget):
             self.lines_model.delete(i, j)
             self.set_selected_stock_mv() 
             self.set_stock_mv()
-            self.lines_view.clearSelection() 
+            self.lines_view.clearSelection()
+            self.update_totals()
         except:
             QMessageBox.information(self, 'Information', 'Error reaching database')
             raise 
