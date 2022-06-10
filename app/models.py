@@ -1358,7 +1358,7 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
 
             elif col == PurchaseProformaModel.OWING:
                 sign = ' -€' if proforma.eur_currency else ' $'
-                owing = purchase_total_debt(proforma) - purchase_total_paid(proforma)
+                owing = round(proforma.total_debt - proforma.total_paid, 2)
                 return str(owing) + sign
 
             elif col == PurchaseProformaModel.TOTAL:
@@ -1741,6 +1741,10 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
                     return 'We Owe'
 
             elif col == self.LOGISTIC:
+
+                if proforma.warehouse_id is None:
+                    return 'Completed'
+
                 if proforma.empty:
                     return 'Empty'
                 elif proforma.overflowed:
@@ -1756,7 +1760,7 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
                 return 'Yes' if proforma.cancelled else 'No'
             elif col == self.OWING:
                 sign = ' -€' if proforma.eur_currency else ' $'
-                owes = proforma.total_debt - proforma.total_paid
+                owes = round(proforma.total_debt - proforma.total_paid, 2)
                 return str(owes) + sign
             elif col == self.TOTAL:
                 sign = ' -€' if proforma.eur_currency else ' $'
@@ -1796,6 +1800,10 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
             elif col == self.AGENT:
                 return QtGui.QIcon(':\\agents')
             elif col == self.LOGISTIC:
+
+                if proforma.warehouse_id is None:
+                    return QtGui.QColor(GREEN)
+
                 if proforma.empty:
                     return QtGui.QColor(YELLOW)
                 elif proforma.overflowed:
@@ -2436,15 +2444,15 @@ class SaleProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 
     @property
     def tax(self):
-        return sum(line.quantity * line.price * line.tax / 100 for line in self.lines)
+        return round(sum(line.quantity * line.price * line.tax / 100 for line in self.lines),2)
 
     @property
     def subtotal(self):
-        return sum(line.quantity * line.price for line in self.lines)
+        return round(sum(line.quantity * line.price for line in self.lines), 2)
 
     @property
     def total(self):
-        return self.tax + self.subtotal
+        return round(self.tax + self.subtotal, 2)
 
     def add(self, price, ignore_spec, tax, showing, *stocks, row=None):
         self.organized_lines.append(
@@ -2853,15 +2861,15 @@ class PurchaseProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 
     @property
     def tax(self):
-        return sum(line.quantity * line.price * line.tax / 100 for line in self.lines)
+        return round(sum(line.quantity * line.price * line.tax / 100 for line in self.lines), 2)
 
     @property
     def subtotal(self):
-        return sum(line.quantity * line.price for line in self.lines)
+        return round(sum(line.quantity * line.price for line in self.lines),2)
 
     @property
     def total(self):
-        return self.tax + self.subtotal
+        return round(self.tax + self.subtotal, 2)
 
     @property
     def quantity(self):
@@ -4499,20 +4507,20 @@ class AdvancedLinesModel(BaseTable, QtCore.QAbstractTableModel):
 
     @property
     def tax(self):
-        return sum(
+        return round(sum(
             line.quantity * line.price * line.tax / 100
             for line in self._lines
-        )
+        ), 2)
 
     @property
     def total(self):
-        return self.subtotal + self.tax
+        return round(self.subtotal + self.tax, 2)
 
     @property
     def subtotal(self):
-        return sum(
+        return round(sum(
             line.quantity * line.price for line in self._lines
-        )
+        ), 2)
 
     def update_count_relevant(self):
         for line in self._lines:
@@ -5512,15 +5520,15 @@ class CreditNoteLineModel(BaseTable, QtCore.QAbstractTableModel):
 
     @property
     def subtotal(self):
-        return sum(line.price * line.quantity for line in self.lines)
+        return round(sum(line.price * line.quantity for line in self.lines), 2)
 
     @property
     def tax(self):
-        return sum(line.quantity * line.price * line.tax / 100 for line in self.lines)
+        return round(sum(line.quantity * line.price * line.tax / 100 for line in self.lines), 2)
 
     @property
     def total(self):
-        return self.subtotal + self.tax
+        return round(self.subtotal + self.tax, 2)
 
     @property
     def quantity(self):

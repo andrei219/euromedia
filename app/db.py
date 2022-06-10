@@ -409,20 +409,20 @@ class PurchaseProforma(Base):
 
     @property
     def subtotal(self):
-        return sum(line.price * line.quantity for line in self.lines)
+        return round(sum(line.price * line.quantity for line in self.lines), 2)
 
     @property
     def tax(self):
-        return sum(line.price * line.quantity * line.tax / 100 for line in self.lines)
+        return round(sum(line.price * line.quantity * line.tax / 100 for line in self.lines), 2)
 
 
     @property
     def total_debt(self):
-        return self.subtotal + self.tax
+        return round(self.subtotal + self.tax, 2)
 
     @property
     def total_paid(self):
-        return sum(p.amount for p in self.payments)
+        return round(sum(p.amount for p in self.payments), 2)
 
     @property
     def not_paid(self):
@@ -707,15 +707,15 @@ class SaleProforma(Base):
 
     @property
     def subtotal(self):
-        return sum(line.price * line.quantity for line in self.lines) or \
+        return round(sum(line.price * line.quantity for line in self.lines) or \
                sum(line.price * line.quantity for line in self.advanced_lines) or \
-               sum(line.price * line.quantity for line in self.credit_note_lines)
+               sum(line.price * line.quantity for line in self.credit_note_lines), 2)
 
     @property
     def tax(self):
-        return sum(line.price * line.quantity * line.tax / 100 for line in self.lines) or \
+        return round(sum(line.price * line.quantity * line.tax / 100 for line in self.lines) or \
                sum(line.price * line.quantity * line.tax / 100 for line in self.advanced_lines) or \
-               sum(line.price * line.quantity * line.tax / 100 for line in self.credit_note_lines)
+               sum(line.price * line.quantity * line.tax / 100 for line in self.credit_note_lines), 2)
 
     @property
     def cn_total(self):
@@ -731,11 +731,11 @@ class SaleProforma(Base):
 
     @property
     def total_debt(self):
-        return self.subtotal + self.tax
+        return round(self.subtotal + self.tax, 2)
 
     @property
     def total_paid(self):
-        return sum(abs(p.amount) for p in self.payments)
+        return round(sum(abs(p.amount) for p in self.payments), 2)
 
     @property
     def not_paid(self):
@@ -872,10 +872,10 @@ class SaleInvoice(Base):
 
     @property
     def cn_total(self):
-        return sum(
+        return round(sum(
             invoice.subtotal for invoice in session.query(SaleInvoice).
             where(SaleInvoice.parent_id == self.id)
-        )
+        ), 2)
 
     @property
     def applied(self):
