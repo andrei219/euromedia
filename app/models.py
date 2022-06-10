@@ -2297,9 +2297,9 @@ class OrganizedLines:
         ignore = 'Yes' if lines[0].ignore_spec else 'No'
         price = lines[0].price
         quantity = sum([line.quantity for line in lines])
-        subtotal = price * quantity
+        subtotal = round(price * quantity, 2)
         tax = lines[0].tax
-        total = subtotal * (1 + tax / 100)
+        total = round(subtotal * (1 + tax / 100), 2)
         return {
             SaleProformaLineModel.DESCRIPTION: description,
             SaleProformaLineModel.CONDITION: condition,
@@ -2315,8 +2315,8 @@ class OrganizedLines:
 
     @staticmethod
     def simple_line_repr(line, col):
-        total = line.quantity * line.price * (1 + line.tax / 100)
-        subtotal = line.quantity * line.price
+        total = round(line.quantity * line.price * (1 + line.tax / 100), 1)
+        subtotal = round(line.quantity * line.price, 2)
         ignore_spec = 'Yes' if line.ignore_spec else 'No'
         showing_condition = line.showing_condition or line.condition
         return {
@@ -2776,8 +2776,8 @@ class PurchaseProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
         line = self.lines[row]
         col = index.column()
         if role == Qt.DisplayRole:
-            total = line.quantity * line.price * (1 + line.tax / 100)
-            subtotal = line.quantity * line.price
+            total = round(line.quantity * line.price * (1 + line.tax / 100), 2)
+            subtotal = round(line.quantity * line.price, 2)
             # Allowing mixed and precised lines:
             if col == 0:
                 if line.description is not None:
@@ -4383,9 +4383,9 @@ class AdvancedLinesModel(BaseTable, QtCore.QAbstractTableModel):
             elif col == self.TAX:
                 return str(line.tax)
             elif col == self.SUBTOTAL:
-                return str(line.price * line.quantity)
+                return str(round(line.price * line.quantity, 2))
             elif col == self.TOTAL:
-                total = line.quantity * line.price * (1 + line.tax / 100)
+                total = round(line.quantity * line.price * (1 + line.tax / 100), 2)
                 return str(total)
 
     def setData(self, index: QModelIndex, value: typing.Any, role: int = ...) -> bool:
