@@ -1,3 +1,4 @@
+import sys
 import typing
 import math
 import os
@@ -997,7 +998,7 @@ class PurchaseInvoiceModel(BaseTable, QtCore.QAbstractTableModel):
 
     def __getitem__(self, index):
         return self.invoices[index].proforma
-    
+
     def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
         if not index.isValid():
             return
@@ -1214,7 +1215,7 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
 
     def __init__(self, filters=None, search_key=None, proxy=False, last=10):
         super().__init__()
-        self._headerData = ['Type & Num', 'Date', 'ETA', 'Partner', 'Agent', \
+        self._headerData = ['Type & Num', 'Date', 'ETA', 'Partner', 'Agent',\
                             'Financial', 'Logistic', 'Sent', 'Cancelled', 'Owing', 'Total', 'External Doc.',
                             'Invoiced', 'In Warehouse']
         self.name = 'proformas'
@@ -1308,7 +1309,6 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
                 self.proformas = list(self.proformas)
         else:
             self.proformas = query.all()
-
 
     def __getitem__(self, index):
         return self.proformas[index]
@@ -1512,7 +1512,7 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
 
         if proforma.reception is None:
             return False
-
+        id
         warehouse_lines = set(proforma.reception.lines)
         proforma_lines = set(proforma.lines)
 
@@ -1796,14 +1796,15 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
             elif col == self.AGENT:
                 return QtGui.QIcon(':\\agents')
             elif col == self.LOGISTIC:
-                if sale_empty(proforma):
+                if proforma.empty:
                     return QtGui.QColor(YELLOW)
-                elif sale_overflowed(proforma):
+                elif proforma.overflowed:
                     return QtGui.QColor(RED)
-                elif sale_partially_processed(proforma):
+                elif proforma.partially_processed:
                     return QtGui.QColor(ORANGE)
-                elif sale_completed(proforma):
+                elif proforma.completed:
                     return QtGui.QColor(GREEN)
+
             elif col == self.SENT:
                 return QtGui.QColor(GREEN if proforma.sent else YELLOW)
             elif col == self.CANCELLED:
@@ -6246,6 +6247,100 @@ class SIILogModel(BaseTable, QtCore.QAbstractTableModel):
                                     reverse=True if order == Qt.DescendingOrder else False)
             self.layoutChanged.emit()
 
+candidates = [
+    'ship',
+    'envio',
+    'envío',
+    'dhl',
+    'courier',
+    'freight',
+    'freigth'
+]
+
+candidates.extend([c.description for c in db.session.query(db.Courier)])
+
+def get_expenses_cost(proforma):
+    shipping_cost = 0
+    remaining_cost = 0
+    for line in proforma.lines:
+        if line.item_id is not None:
+            continue
+        else:
+            for candidate in candidates:
+                if line.description.lower().find(candidate.lower()) != -1:
+                    shipping_cost += line.price * line.quantity
+
+    # Search in associated expenses:
+    for expense in proforma.expenses:
+        for candidate in candidates:
+            if candidate in expense.note.lower():
+                shipping_cost += expense.amount
+                break
+        else:
+            remaining_cost += expense.amount
+    return remaining_cost, shipping_cost
+
+
+def get_stock_value(proforma):
+    stock_value = 0
+    for line in proforma.lines:
+        # This check works in purchase side of the business.
+        if line.item_id is not None or line.description in utils.descriptions:
+            stock_value += line.price * line.quantity
+    return stock_value
+
+
+def do_cost(imei):
+
+    rec_line = db.session.query(db.ReceptionLine).join(db.ReceptionSerie).\
+        where(db.ReceptionSerie.serie == imei).all()[-1]  # take last
+    proforma = rec_line.reception.proforma
+
+    proforma_line = None
+    for aux in proforma.lines:
+        if aux == rec_line:
+            proforma_line = aux
+            break
+
+    if not proforma_line:
+        raise ValueError('Fatal error could not match proforma purchase with warehouse')
+
+    base_price = proforma_line.price
+    remaining_expense, shipping_expense = get_expenses_cost(proforma)
+    shipping_delta = shipping_expense / proforma.total_quantity
+    remaining_expense_delta = base_price * remaining_expense / get_stock_value(proforma)
+
+    return base_price + shipping_delta + remaining_expense_delta
+
+
+def do_sell_price(imei):
+
+    exp = db.session.query(db.ExpeditionSerie).join(db.ExpeditionLine).\
+        join(db.Expedition).where(db.ExpeditionSerie.serie == imei).all()[-1]
+    proforma = exp.line.expedition.proforma
+    line = exp.line
+
+    for proforma_line in proforma.lines or proforma.advanced_lines:
+        if line == proforma_line:
+            return proforma_line.price
+
+    return 'Not found'
 
 if __name__ == '__main__':
-    do_sii()
+
+    from openpyxl import Workbook
+    wb = Workbook()
+    ws = wb.active
+
+    ws.append(('Serie', 'Cost', 'Sell', 'Sell - Cost'))
+
+    for serie in db.session.query(db.ExpeditionSerie.serie):
+        cost = do_cost(serie.serie)
+        sell = do_sell_price(serie.serie)
+        try:
+            ws.append((serie.serie, cost, sell, sell - cost))
+        except TypeError:
+            continue
+
+    wb.save('costes.xlsx')
+

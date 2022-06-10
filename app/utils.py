@@ -67,14 +67,13 @@ def is_object_presisted(object):
 def mixing_compatible(o, p):
     if o.item_id == p.item_id:
         return True
-    # First stocks must be same type and != -1 
+    # First, stocks must be same type and != -1
     if stock_type(o) == -1 or stock_type(p) == -1:
         return False
     if stock_type(o) != stock_type(o):
         return False
 
     # Once stock is same type, we are interested in base 
-
     d1, d2 = dirty_map.inverse[o.item_id], dirty_map.inverse[p.item_id]
 
     man1, cat1, mod1, *_ = d1.split('|')
@@ -115,8 +114,8 @@ def complete_descriptions(clean_map, dirty_map):
         mpn, man, cat, mod, cap, col, has_serie = dirty_repr.split('|')
         if mpn != '?':
             continue
-        else:
-            mpn = ''
+
+        mpn = ''
         if cap != '?' and col != '?':
             descriptions.update({
                 ' '.join((mpn, man, cat, mod, 'Mixed GB', 'Mixed Color')).strip(),
@@ -180,9 +179,7 @@ def mixed_to_clean_descriptions(mixed_description):
 
     return clean_descriptions
 
-
 descriptions = complete_descriptions(description_id_map, dirty_map)
-
 
 @functools.cache
 def get_itemids_from_mixed_description(mixed_description):
@@ -408,11 +405,9 @@ def build_description(lines):
 
     line = lines[0]
 
-    capacities = {dirty_map.inverse[line.item_id].split('|')[-3]
-                  for line in lines}
+    capacities = {dirty_map.inverse[line.item_id].split('|')[-3] for line in lines}
 
-    colors = {dirty_map.inverse[line.item_id].split('|')[-2]
-              for line in lines}
+    colors = {dirty_map.inverse[line.item_id].split('|')[-2] for line in lines}
 
     if stock_type(line.item_id) == CAP_COL:
 
@@ -464,3 +459,4 @@ def get_country_code(name):
 
 def get_last_date(days):
     return datetime.today() - timedelta(days)
+

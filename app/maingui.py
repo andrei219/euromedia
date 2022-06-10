@@ -233,7 +233,6 @@ class MainGui(Ui_MainGui, QMainWindow):
         elif prefix == 'proformas_sales_':
 
 
-
             self.proformas_sales_model = \
                 models.SaleProformaModel(filters=filters, search_key=search_key, last=last)
             self.proformas_sales_view.setModel(

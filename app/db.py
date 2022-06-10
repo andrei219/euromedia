@@ -445,7 +445,7 @@ class PurchaseProforma(Base):
         import utils
         return sum(
             line.quantity for line in self.lines
-            if line.item_id or line.description in utils.descriptions
+            if line.item_id is not None or line.description in utils.descriptions
         )
 
     @property
@@ -756,7 +756,8 @@ class SaleProforma(Base):
     @property
     def total_quantity(self):
         return sum(line.quantity for line in self.lines if line.item_id) or \
-               sum(line.quantity for line in self.advanced_lines if line.item_id)
+               sum(line.quantity for line in self.advanced_lines if line.item_id is not None or\
+                   line.mixed_description is not None)
 
     @property
     def total_processed(self):
@@ -1123,6 +1124,7 @@ class Reception(Base):
 
 
 class ReceptionLine(Base):
+
     __tablename__ = 'reception_lines'
 
     id = Column(Integer, primary_key=True)
@@ -1153,10 +1155,7 @@ class ReceptionLine(Base):
         ))
 
     def __hash__(self):
-        hashes = (hash(x) for x in (
-            self.item_id, self.description, self.spec,
-            self.condition
-        ))
+        hashes = (hash(x) for x in ( self.item_id, self.description, self.spec, self.condition))
         return functools.reduce(operator.xor, hashes, 0)
 
     def __repr__(self):
