@@ -1554,6 +1554,7 @@ class WhIncomingRmaLine(Base):
     problem = Column(String(100), nullable=True)
     why = Column(String(50), nullable=True, default="")
     condition = Column(String(50), nullable=False)
+    public_condition = Column(String(50), nullable=True)
     spec = Column(String(50), nullable=False)
     price = Column(Float(precision=32, decimal_return_scale=None), nullable=False)
 
@@ -1591,6 +1592,8 @@ class WhIncomingRmaLine(Base):
         self.condition = incoming_rma_line.condition
         self.spec = incoming_rma_line.spec
         self.price = incoming_rma_line.price
+        self.public_condition = incoming_rma_line.public
+
         try:
             self.invoice_type = session.query(SaleInvoice.type) \
                 .join(SaleProforma) \
@@ -1608,6 +1611,7 @@ class CreditNoteLine(Base):
     proforma_id = Column(Integer, ForeignKey('sale_proformas.id'))
     item_id = Column(Integer, ForeignKey('items.id'))
     condition = Column(String(50), nullable=False)
+    public_condition = Column(String(50), nullable=True)
     spec = Column(String(50), nullable=False)
     quantity = Column(Integer, nullable=False)
     price = Column(Float(precision=32, decimal_return_scale=None), nullable=False)
@@ -1627,6 +1631,7 @@ class CreditNoteLine(Base):
     def __init__(self, wh_line):
         self.item_id = wh_line.item_id
         self.condition = wh_line.condition
+        self.public_condition = wh_line.public_condition
         self.spec = wh_line.spec
         self.quantity = 1
         self.tax = 0

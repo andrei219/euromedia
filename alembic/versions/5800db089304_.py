@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 75b004eef824
-Revises: 
-Create Date: 2022-06-08 14:32:21.977409
+Revision ID: 5800db089304
+Revises: 578d3cce0cb7
+Create Date: 2022-06-13 19:11:55.186875
 
 """
 from alembic import op
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
-revision = '75b004eef824'
-down_revision = None
+revision = '5800db089304'
+down_revision = '578d3cce0cb7'
 branch_labels = None
 depends_on = None
 
@@ -42,7 +42,7 @@ def upgrade():
                existing_type=mysql.DOUBLE(asdecimal=True),
                type_=sa.Float(precision=32),
                existing_nullable=False)
-    op.add_column('credit_note_lines', sa.Column('sn', sa.String(length=100), nullable=False))
+    op.add_column('credit_note_lines', sa.Column('public_condition', sa.String(length=50), nullable=True))
     op.alter_column('credit_note_lines', 'price',
                existing_type=mysql.DOUBLE(asdecimal=True),
                type_=sa.Float(precision=32),
@@ -184,7 +184,7 @@ def downgrade():
                existing_type=sa.Float(precision=32),
                type_=mysql.DOUBLE(asdecimal=True),
                existing_nullable=False)
-    op.drop_column('credit_note_lines', 'sn')
+    op.drop_column('credit_note_lines', 'public_condition')
     op.alter_column('agents', 'fixed_perpiece',
                existing_type=sa.Float(precision=32),
                type_=mysql.DOUBLE(asdecimal=True),
