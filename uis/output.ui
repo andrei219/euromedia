@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Dialog</class>
+ <widget class="QDialog" name="Dialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1381</width>
+    <height>730</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <widget class="QTableView" name="view">
+   <property name="geometry">
+    <rect>
+     <x>60</x>
+     <y>40</y>
+     <width>1291</width>
+     <height>591</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QToolButton" name="_export">
+   <property name="geometry">
+    <rect>
+     <x>1100</x>
+     <y>650</y>
+     <width>120</width>
+     <height>60</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>MS Shell Dlg 2</family>
+     <pointsize>10</pointsize>
+     <weight>50</weight>
+     <italic>false</italic>
+     <bold>false</bold>
+    </font>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background:lightgray; </string>
+   </property>
+   <property name="text">
+    <string>Export</string>
+   </property>
+   <property name="icon">
+    <iconset resource="../app/icons.qrc">
+     <normaloff>:/excel</normaloff>:/excel</iconset>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>50</width>
+     <height>50</height>
+    </size>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonTextUnderIcon</enum>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="exit">
+   <property name="geometry">
+    <rect>
+     <x>1240</x>
+     <y>650</y>
+     <width>120</width>
+     <height>60</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background:lightgray; </string>
+   </property>
+   <property name="text">
+    <string>Exit</string>
+   </property>
+  </widget>
+ </widget>
+ <resources>
+  <include location="../app/icons.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>exit</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1277</x>
+     <y>662</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>892</x>
+     <y>641</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

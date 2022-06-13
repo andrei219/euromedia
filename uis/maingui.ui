@@ -51,7 +51,7 @@
      <number>0</number>
     </property>
     <property name="currentIndex">
-     <number>5</number>
+     <number>7</number>
     </property>
     <property name="iconSize">
      <size>
@@ -7723,6 +7723,25 @@
       </property>
       <property name="text">
        <string>Stock Valuation</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="tools_harvest">
+      <property name="geometry">
+       <rect>
+        <x>510</x>
+        <y>420</y>
+        <width>120</width>
+        <height>60</height>
+       </rect>
+      </property>
+      <property name="layoutDirection">
+       <enum>Qt::LeftToRight</enum>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background:lightgray; </string>
+      </property>
+      <property name="text">
+       <string>Harvest</string>
       </property>
      </widget>
     </widget>

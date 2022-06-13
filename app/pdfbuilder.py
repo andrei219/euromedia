@@ -299,8 +299,8 @@ class We:
         self.fiscal_number = 'B98815608'
         self.vat = 'VAT Nº:ESB98815608'
 
-        self.shipping_line1 = 'Calle Camino Real Nº22'
-        self.shipping_line2 = 'Local Bajo Izq.'
+        self.shipping_line1 = 'Calle G Nº22'
+        self.shipping_line2 = 'Pol. Ind. Toll La Alberca'
         self.shipping_city = 'Torrente'
         self.shipping_postcode = '46900'
         self.shipping_state = 'Valencia'

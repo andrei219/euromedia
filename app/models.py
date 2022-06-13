@@ -18,7 +18,7 @@ from PyQt5.QtCore import Qt
 
 from sqlalchemy.exc import InvalidRequestError, NoResultFound
 from sqlalchemy import func
-from sqlalchemy import or_
+from sqlalchemy import or_, and_
 from sqlalchemy.exc import IntegrityError
 
 import utils
@@ -6255,6 +6255,7 @@ class SIILogModel(BaseTable, QtCore.QAbstractTableModel):
                                     reverse=True if order == Qt.DescendingOrder else False)
             self.layoutChanged.emit()
 
+
 candidates = [
     'ship',
     'envio',
@@ -6267,34 +6268,67 @@ candidates = [
 
 candidates.extend([c.description for c in db.session.query(db.Courier)])
 
+
+@functools.cache
+def get_avg_rate(proforma):
+
+    if all((payment.rate == 1 for payment in proforma.payments)):
+        return 1
+
+    base = 0
+    base_with_rates = 0
+
+    for payment in proforma.payments:
+        base += payment.amount
+        base_with_rates += payment.amount / payment.rate
+
+    if base == 0:
+        return 'No payments yet'
+
+    if math.isclose(base, proforma.total_debt):
+        return base/base_with_rates
+
+
+@functools.cache
 def get_expenses_cost(proforma):
     shipping_cost = 0
     remaining_cost = 0
+
+    avg_rate = get_avg_rate(proforma)
+
+    # Search in lines:
     for line in proforma.lines:
-        if line.item_id is not None:
+        if line.item_id is not None or line.description in utils.descriptions:
             continue
         else:
             for candidate in candidates:
                 if line.description.lower().find(candidate.lower()) != -1:
-                    shipping_cost += line.price * line.quantity
+                    shipping_cost += line.price * line.quantity * (1 + line.tax / 100) / avg_rate
+                    break
+            else:
+                remaining_cost += line.price * line.quantity * (1 + line.tax / 100) / avg_rate
+
 
     # Search in associated expenses:
     for expense in proforma.expenses:
         for candidate in candidates:
-            if candidate in expense.note.lower():
+            if expense.note.lower().find(candidate.lower()) != -1:
                 shipping_cost += expense.amount
                 break
         else:
             remaining_cost += expense.amount
+
     return remaining_cost, shipping_cost
 
 
+@functools.cache
 def get_stock_value(proforma):
     stock_value = 0
     for line in proforma.lines:
         # This check works in purchase side of the business.
         if line.item_id is not None or line.description in utils.descriptions:
-            stock_value += line.price * line.quantity
+            stock_value += line.price * line.quantity * (1 + line.tax / 100)
+
     return stock_value
 
 
@@ -6302,6 +6336,7 @@ def do_cost(imei):
 
     rec_line = db.session.query(db.ReceptionLine).join(db.ReceptionSerie).\
         where(db.ReceptionSerie.serie == imei).all()[-1]  # take last
+
     proforma = rec_line.reception.proforma
 
     proforma_line = None
@@ -6313,12 +6348,74 @@ def do_cost(imei):
     if not proforma_line:
         raise ValueError('Fatal error could not match proforma purchase with warehouse')
 
+    avg_rate = get_avg_rate(proforma)
     base_price = proforma_line.price
-    remaining_expense, shipping_expense = get_expenses_cost(proforma)
+
+    remaining_expense, shipping_expense = get_expenses_cost(proforma)  # already rate applied
     shipping_delta = shipping_expense / proforma.total_quantity
     remaining_expense_delta = base_price * remaining_expense / get_stock_value(proforma)
+    return base_price / avg_rate + shipping_delta + remaining_expense_delta
 
-    return base_price + shipping_delta + remaining_expense_delta
+
+@functools.cache
+def get_stock_key(proforma):
+    if proforma.lines:
+        return lambda line: line.item_id is not None
+    elif proforma.advanced_lines:
+        return lambda line: line.item_id is not None or line.mixed_description is not None
+
+
+
+functools.cache
+def get_shipping_key(proforma):
+    if proforma.lines:
+        return lambda line, candidate: line.description.lower().find(candidate.lower()) != -1 or \
+            line.description.lower().find('term') != -1
+    elif proforma.advanced_lines:
+        return lambda line, candidate: line.free_description.lower().find(candidate.lower()) != -1 or \
+            line.free_description.lower().find('term') != -1
+
+
+@functools.cache
+def get_sell_expenses_cost(proforma):
+    shipping_cost = 0
+    remaining_cost = 0
+
+    avg_rate = get_avg_rate(proforma)
+
+    stock_key = get_stock_key(proforma)
+    shipping_key = get_shipping_key(proforma)
+
+    for line in proforma.lines or proforma.advanced_lines:
+        if stock_key(line):
+            continue
+        else:
+            for candidate in candidates:
+                if shipping_key(line, candidate):
+                    shipping_cost += line.price * line.quantity * (1 + line.tax / 100) / avg_rate
+                    break
+            else:
+                remaining_cost += line.price * line.quantity * (1 + line.tax / 100) / avg_rate
+
+    for expense in proforma.expenses:
+        for candidate in candidates:
+            if expense.note.lower().find(candidate.lower()) != -1:
+                shipping_cost -= expense.amount
+                break
+        else:
+            remaining_cost -= expense.amount
+
+    return remaining_cost, shipping_cost
+
+@functools.cache
+def get_sale_proforma_stock_value(proforma):
+    stock_value = 0
+    stock_key = get_stock_key(proforma)
+    for line in proforma.lines or proforma.advanced_lines:
+        if stock_key(line):
+            stock_value += line.price * line.quantity * (1 + line.tax / 100)
+
+    return stock_value
 
 
 def do_sell_price(imei):
@@ -6326,29 +6423,108 @@ def do_sell_price(imei):
     exp = db.session.query(db.ExpeditionSerie).join(db.ExpeditionLine).\
         join(db.Expedition).where(db.ExpeditionSerie.serie == imei).all()[-1]
     proforma = exp.line.expedition.proforma
-    line = exp.line
+    exp_line = exp.line
 
-    for proforma_line in proforma.lines or proforma.advanced_lines:
-        if line == proforma_line:
-            return proforma_line.price
+    proforma_line = None
+    for aux in proforma.lines or proforma.advanced_lines:
+        if aux == exp_line:
+            proforma_line = aux
+            break
+    if not proforma_line:
+        raise ValueError('Fatal error could not match warehouse with sale proforma')
 
-    return 'Not found'
+    avg_rate = get_avg_rate(proforma)
+    base_price = proforma_line.price
+    remaining_expense, shipping_expense = get_sell_expenses_cost(proforma)
+    shipping_delta = shipping_expense / proforma.total_quantity
+    remaining_expense_delta = base_price * remaining_expense / get_sale_proforma_stock_value(proforma)
+    return base_price / avg_rate + shipping_delta + remaining_expense_delta
 
-if __name__ == '__main__':
 
-    from openpyxl import Workbook
-    wb = Workbook()
-    ws = wb.active
+class HarvestModel(QtCore.QAbstractListModel):
 
-    ws.append(('Serie', 'Cost', 'Sell', 'Sell - Cost'))
+    def __init__(self):
+        super(HarvestModel, self).__init__()
+        self._elements = []
 
-    for serie in db.session.query(db.ExpeditionSerie.serie):
-        cost = do_cost(serie.serie)
-        sell = do_sell_price(serie.serie)
-        try:
-            ws.append((serie.serie, cost, sell, sell - cost))
-        except TypeError:
-            continue
+    def rowCount(self, parent: QModelIndex = ...) -> int:
+        return len(self._elements)
 
-    wb.save('costes.xlsx')
+    def columnCount(self, parent: QModelIndex = ...) -> int:
+        return 1
+
+    def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
+        if not index.isValid():
+            return
+        if role == Qt.DisplayRole:
+            return self._elements[index.row()]
+
+    def add(self, element):
+        self.layoutAboutToBeChanged.emit()
+        self._elements.append(element)
+        self.layoutChanged.emit()
+
+    def delete(self, rows):
+        self.layoutAboutToBeChanged.emit()
+        for row in sorted(rows, reverse=True):
+            try:
+                del self._elements[row]
+            except IndexError:
+                pass
+        self.layoutChanged.emit()
+
+    def delete_all(self):
+        self.layoutAboutToBeChanged.emit()
+        self._elements.clear()
+        self.layoutChanged.emit()
+
+    @property
+    def elements(self):
+        return self._elements
+
+
+class OutputRegister:
+    pass
+
+
+class OutputModel(BaseTable, QtCore.QAbstractTableModel):
+
+    PDOCTYPE, PNUMBER, PDATE, PPARTNER, PAGENT, PDESCRIPTION, PCONDITION, PSPEC, PSERIAL, PDOLAR, PRATE, PEURO, \
+    PSHIPPING, PEXPENSES, PTOTAL, SDOCTYPE, SDOCNUMBER, SDATE, SPARTNER, SAGENT, SDESCRIPTION, SCONDITION, \
+    SSPEC, SSERIAL, SDOLAR, SRATE, SEURO, SSHIPPING, STERMNS, SEXPENSES, STOTAL, SHARVEST = \
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, \
+        21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31
+
+    def __init__(self):
+        super().__init__()
+        self.name = '_registers'
+        self._registers = []
+        self._headerData = [
+            'Doc. Type', 'Doc. Nº', 'Date', 'Partner', 'Agent', 'Product', 'Condition', 'Spec.', 'Serial',
+            '$', 'Rate', '€', 'Shipping', 'Expenses', 'Total Cost €', 'Doc. Type', 'Doc. Nº', 'Date', 'Partner',
+            'Agent', 'Product', 'Condition', 'Spec', 'Serial', '$', 'Rate', '€', 'Shipping', 'Terms',
+            'Expenses', 'Total Income', 'Harvest'
+        ]
+
+
+    @classmethod
+    def by_period(cls, _from, to):
+        self = cls()
+        return self
+
+    @classmethod
+    def by_document(cls, type_dict, doc_numbers):
+        self = cls()
+        return self
+
+    @classmethod
+    def by_serials(cls, serials):
+        self = cls()
+        return  self
+
+
+
+
+
+
 

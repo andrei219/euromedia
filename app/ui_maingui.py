@@ -2131,6 +2131,11 @@ class Ui_MainGui(object):
         self.tools_stock_valuation.setLayoutDirection(QtCore.Qt.LeftToRight)
         self.tools_stock_valuation.setStyleSheet("background:lightgray; ")
         self.tools_stock_valuation.setObjectName("tools_stock_valuation")
+        self.tools_harvest = QtWidgets.QPushButton(self.tools_tab)
+        self.tools_harvest.setGeometry(QtCore.QRect(510, 420, 120, 60))
+        self.tools_harvest.setLayoutDirection(QtCore.Qt.LeftToRight)
+        self.tools_harvest.setStyleSheet("background:lightgray; ")
+        self.tools_harvest.setObjectName("tools_harvest")
         icon36 = QtGui.QIcon()
         icon36.addPixmap(QtGui.QPixmap(":/tools"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.main_tab.addTab(self.tools_tab, icon36, "")
@@ -2140,7 +2145,7 @@ class Ui_MainGui(object):
         MainGui.setStatusBar(self.statusBar)
 
         self.retranslateUi(MainGui)
-        self.main_tab.setCurrentIndex(5)
+        self.main_tab.setCurrentIndex(7)
         self.proformastab.setCurrentIndex(1)
         self.invoicestab.setCurrentIndex(0)
         self.warehouse.setCurrentIndex(2)
@@ -2552,6 +2557,7 @@ class Ui_MainGui(object):
         self.tools_sii.setText(_translate("MainGui", "AEAT - SII"))
         self.tools_trace.setText(_translate("MainGui", "Trace"))
         self.tools_stock_valuation.setText(_translate("MainGui", "Stock Valuation"))
+        self.tools_harvest.setText(_translate("MainGui", "Harvest"))
         self.main_tab.setTabText(self.main_tab.indexOf(self.tools_tab), _translate("MainGui", "Tools"))
         self.main_tab.setTabToolTip(self.main_tab.indexOf(self.tools_tab), _translate("MainGui", "Tools like grading, Changing warehouse, traceability, rebu, importing, etc"))
 import icons_rc

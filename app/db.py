@@ -358,6 +358,7 @@ RED, GREEN, YELLOW, ORANGE = '#FF7F7F', '#90EE90', '#FFFF66', '#FFD580'
 
 
 class PurchaseProforma(Base):
+
     __tablename__ = 'purchase_proformas'
 
     id = Column(Integer, primary_key=True)
@@ -402,6 +403,10 @@ class PurchaseProforma(Base):
     __table_args__ = (
         UniqueConstraint('type', 'number'),
     )
+
+    def __hash__(self):
+        return functools.reduce(operator.xor, (hash(x) for x in (self.type, self.number)), 0)
+
 
     @property
     def doc_repr(self):
@@ -693,10 +698,6 @@ class SaleProforma(Base):
 
     incoterm = Column(String(3), default='gbc')
 
-    @property
-    def doc_repr(self):
-        return str(self.type) + '-' + str(self.number).zfill(6)
-
     def __repr__(self):
         clasname = self.__class__.__name__
         return f'{clasname}(type={self.type}, number={self.number})'
@@ -704,6 +705,13 @@ class SaleProforma(Base):
     __table_args__ = (
         UniqueConstraint('type', 'number'),
     )
+
+    def __hash__(self):
+        return functools.reduce(operator.xor, (hash(x) for x in (self.type, self.number)), 0)
+
+    @property
+    def doc_repr(self):
+        return str(self.type) + '-' + str(self.number).zfill(6)
 
     @property
     def subtotal(self):
@@ -983,11 +991,7 @@ class AdvancedLine(Base):
         ))
 
     def __eq__(self, other):
-        return all((
-            self.item_id == other.item_id,
-            self.condition == other.condition,
-            self.spec == other.spec,
-        ))
+        return all((self.item_id == other.item_id, self.condition == other.condition, self.spec == other.spec, ))
 
     def __hash__(self):
         hashes = (hash(x) for x in (self.item_id, self.condition,self.spec))
@@ -1013,6 +1017,7 @@ class AdvancedLine(Base):
                                cascade='delete-orphan, save-update, delete')
 
 class AdvancedLineDefinition(Base):
+
     __tablename__ = 'advanced_lines_definition'
 
     id = Column(Integer, primary_key=True)

@@ -28,11 +28,13 @@ class PaymentForm(Ui_PaymentsForm, QDialog):
 
         self.date_line_edit.setText(today_date())
 
+        self.testgroup.toggled.connect(self.lineEdit.setEnabled)
+
 
         # enable rate:
 
         self.rate.setEnabled(not self.proforma.eur_currency)
-        self.rate.setText('0.0')
+        self.rate.setText('1.0')
 
     def addHandler(self):
         try:
@@ -53,11 +55,10 @@ class PaymentForm(Ui_PaymentsForm, QDialog):
         try:
             rate = self.rate.text().replace(',', '.') 
 
-            float(rate)
+            rate = float(rate)
         
         except ValueError:
-            QMessageBox.critical(self, 'Error - Update', \
-                'Error rate format. Enter a valid decimal number')
+            QMessageBox.critical(self, 'Error - Update', 'Error rate format. Enter a valid decimal number')
             return 
 
         info = self.info_lineedit.text()
@@ -68,7 +69,7 @@ class PaymentForm(Ui_PaymentsForm, QDialog):
             self.updateOwing()
             self.clearFields() 
 
-        except:
+        except Exception as ex:
             raise 
             QMessageBox.critical(self, 'Error - Update', 'Could not add payment')
     

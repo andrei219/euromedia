@@ -89,7 +89,8 @@ ACTIONS = [
     'available_stock',
     'trace',
     'tocn',
-    'sii'
+    'sii',
+    'harvest'
 ]
 
 
@@ -1368,6 +1369,11 @@ class MainGui(Ui_MainGui, QMainWindow):
         from change_form import ChangeForm
         d = ChangeForm(parent=self, hint='warehouse')
         d.exec_()
+
+    def tools_harvest_handler(self):
+        from harvest import Form
+        Form(self).exec_()
+
 
     def tools_create_warehouse_handler(self):
         from warehouse import Form
