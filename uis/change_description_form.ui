@@ -71,10 +71,10 @@
   <widget class="QPushButton" name="apply">
    <property name="geometry">
     <rect>
-     <x>270</x>
+     <x>260</x>
      <y>170</y>
-     <width>81</width>
-     <height>23</height>
+     <width>101</width>
+     <height>31</height>
     </rect>
    </property>
    <property name="text">

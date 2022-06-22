@@ -1059,13 +1059,16 @@ class MainGui(Ui_MainGui, QMainWindow):
     def invoices_sales_import_handler(self):
         from utils import get_open_file_path
         file_path = get_open_file_path(self, csv_filter=True)
-        print(file_path)
         if not file_path:
             return
         else:
-            results = models.resolve_dhl_expenses(file_path)
-            from dhl import Form
-            Form(self).exec_()
+            try:
+                resolved, unresolved = models.resolve_dhl_expenses(file_path)
+            except ValueError as ex:
+                QMessageBox.critical(self, 'Error', str(ex))
+            else:
+                from dhl import Form
+                Form(self, resolved, unresolved).exec_()
 
 
     def invoices_sales_print_handler(self):

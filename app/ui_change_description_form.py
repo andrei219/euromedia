@@ -31,7 +31,7 @@ class Ui_Dialog(object):
         self.to.setAlignment(QtCore.Qt.AlignCenter)
         self.to.setObjectName("to")
         self.apply = QtWidgets.QPushButton(Dialog)
-        self.apply.setGeometry(QtCore.QRect(270, 170, 81, 23))
+        self.apply.setGeometry(QtCore.QRect(260, 170, 101, 31))
         self.apply.setAutoDefault(False)
         self.apply.setDefault(False)
         self.apply.setObjectName("apply")

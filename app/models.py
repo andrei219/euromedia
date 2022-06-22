@@ -1,4 +1,5 @@
 import csv
+import re
 import sys
 import typing
 import math
@@ -5365,6 +5366,11 @@ class ChangeModel(BaseTable, QtCore.QAbstractTableModel):
         except:
             raise
 
+
+    def __len__(self):
+        return len(self.sns)
+
+
     def __contains__(self, sn):
         sn = sn.lower()
         for e in self.sns:
@@ -6790,18 +6796,44 @@ class OutputModel(BaseTable, QtCore.QAbstractTableModel):
         return self
 
 
-def extract_invoice(invoice_text):
-    return None
+def extract_doc_repr(invoice_text):
+    from re import search
+    return invoice_text[slice(* re.search(r'[1-6]\-0*\d+\Z', invoice_text).span())]
 
+
+def add_expense(doc_repr, amount):
+
+    type, number = doc_repr.split('-')
+    type, number = int(type), int(number)
+
+    sale_proforma = db.session.query(db.SaleProforma).join(db.SaleInvoice)\
+        .where(db.SaleInvoice.type == type, db.SaleInvoice.number == number).one()
+
+    from datetime import datetime
+    db.SaleExpense(datetime.now(), amount, 'Auto/Imported', sale_proforma)
+
+    db.session.commit()
 
 def resolve_dhl_expenses(file_path):
-    invoices_list = []
+    resolved = []
+    unresolved = []
+
     with open(file_path, 'r') as fp:
         reader = csv.DictReader(fp)
         for dict_row in reader:
             company = dict_row['Senders Name']
             if company.lower().find('euromedia') != -1:
                 invoice_text = dict_row['Shipment Reference 1']
+                try:
+                    doc_repr = extract_doc_repr(invoice_text)
+                except AttributeError:
+                    unresolved.append(invoice_text)
+                else:
+                    amount = dict_row['Total amount (excl. VAT)']
+                    add_expense(doc_repr, amount)
+                    resolved.append(doc_repr)
+
+        return resolved, unresolved
 
 
 def update_description(imei, to_item_id):

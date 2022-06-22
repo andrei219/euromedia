@@ -59,7 +59,8 @@ class ChangeForm(Ui_ChangeForm, QDialog):
         try:
             self.model.apply(name, comment)
         except:
-            raise 
+            raise
+            self.counter.setText(str(len(self.model)))
 
     def sn_handler(self):
         sn = self.sn.text() 
@@ -71,8 +72,9 @@ class ChangeForm(Ui_ChangeForm, QDialog):
             self.model.search(sn)
             self.view.resizeColumnToContents(1)
         except:
-            raise 
-
+            raise
+        else:
+            self.counter.setText(str(len(self.model)))
 
         self.sn.clear()
 
