@@ -17,6 +17,7 @@ class Ui_Dialog(object):
         Dialog.resize(1381, 730)
         self.view = QtWidgets.QTableView(Dialog)
         self.view.setGeometry(QtCore.QRect(60, 40, 1291, 591))
+        self.view.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
         self.view.setObjectName("view")
         self._export = QtWidgets.QToolButton(Dialog)
         self._export.setGeometry(QtCore.QRect(1100, 650, 120, 60))

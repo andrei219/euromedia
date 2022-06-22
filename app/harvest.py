@@ -77,47 +77,11 @@ class Form(Ui_Form, QDialog):
 
         elif self.by_serial.isChecked():
             serials = self.serial_model.elements
-            print('serials=', serials)
             if len(serials) == 0:
                 QMessageBox.critical(self, 'Error', 'Provide serials')
                 return
 
             OutputForm.by_serials(self, serials).exec_()
-
-
-    def asd(self):
-
-        _from, to = self._from.text() or None, self.to.text() or None
-        try:
-            _from = parse_date(_from)
-        except ValueError:
-            _from = None
-        except TypeError:
-            _from = None
-
-        try:
-            to = parse_date(to)
-        except ValueError:
-            to = None
-        except TypeError:
-            to = None
-
-        from output import Form
-
-        type_dict = {
-            'PurchaseProforma': self.purchase_pi.isChecked(),
-            'SaleProforma': self.sales_pi.isChecked(),
-            'SaleInvoice': self.sales_invoice.isChecked(),
-            'PurchaseInvoice': self.purchase_invoice.isChecked()
-        }
-
-        doc_numbers = self.document_model.elements
-
-        if len(doc_numbers) != 0 and not any(type_dict.values()):
-            QMessageBox.critical(self, 'Error', 'Choose document type')
-        else:
-            Form(parent=self, type_dict=type_dict, doc_numbers=doc_numbers,
-                 series=self.serial_model.elements, _from=_from, to=to).exec_()
 
     def add_document_handler(self):
         doc = self.document.text()

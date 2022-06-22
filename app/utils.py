@@ -24,8 +24,8 @@ from bidict import bidict
 import os
 
 EXCEL_FILTER = 'Archivos excel (*.xlsx)'
-PDF_FILETR = "Pdf Files (*.pdf)"
-
+PDF_FILTER = "Pdf Files (*.pdf)"
+CSV_FILTER = "Csv files (*.csv)"
 
 def mymap(db_class):
     return {o.fiscal_name: o.id for o in db.session.query(db_class.fiscal_name, db_class.id). \
@@ -288,11 +288,11 @@ def writeBase64Pdf(abspath, base64pdf):
 
 
 def askSaveFile(parent, filename):
-    return QFileDialog.getSaveFileName(parent, "Save File", get_desktop(), filter=PDF_FILETR)
+    return QFileDialog.getSaveFileName(parent, "Save File", get_desktop(), filter=PDF_FILTER)
 
 
 def askFilePath(parent):
-    return QFileDialog.getOpenFileName(parent, "Open File", get_desktop(), filter=PDF_FILETR)
+    return QFileDialog.getOpenFileName(parent, "Open File", get_desktop(), filter=PDF_FILTER)
 
 
 from PyQt5.QtWidgets import QTableView
@@ -335,7 +335,7 @@ def get_directory(parent):
 
 
 def get_file_path(parent, pdf_filter=False):
-    _filter = PDF_FILETR if pdf_filter else EXCEL_FILTER
+    _filter = PDF_FILTER if pdf_filter else EXCEL_FILTER
     file_path, _ = QFileDialog.getSaveFileName(
         parent,
         'Save File',
@@ -345,8 +345,14 @@ def get_file_path(parent, pdf_filter=False):
     return file_path
 
 
-def get_open_file_path(parent, pdf_filter=False):
-    _filter = PDF_FILETR if pdf_filter else EXCEL_FILTER
+def get_open_file_path(parent, pdf_filter=False, csv_filter=False):
+    _filter = PDF_FILTER if pdf_filter else EXCEL_FILTER
+    if pdf_filter:
+        _filter = PDF_FILTER
+    elif csv_filter:
+        _filter = CSV_FILTER
+    elif not pdf_filter:
+        _filter = EXCEL_FILTER
 
     filepath, _ = QFileDialog.getOpenFileName(
         parent,

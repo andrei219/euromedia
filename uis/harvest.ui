@@ -6,12 +6,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>582</width>
+    <width>593</width>
     <height>625</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Harvest</string>
   </property>
   <widget class="QPushButton" name="exit">
    <property name="geometry">
@@ -493,6 +493,29 @@
    </widget>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>by_document</tabstop>
+  <tabstop>purchase_pi</tabstop>
+  <tabstop>purchase_invoice</tabstop>
+  <tabstop>sales_pi</tabstop>
+  <tabstop>sales_invoice</tabstop>
+  <tabstop>document</tabstop>
+  <tabstop>document_view</tabstop>
+  <tabstop>add_document</tabstop>
+  <tabstop>delete_document</tabstop>
+  <tabstop>delete_all_document</tabstop>
+  <tabstop>by_period</tabstop>
+  <tabstop>_from</tabstop>
+  <tabstop>to</tabstop>
+  <tabstop>by_serial</tabstop>
+  <tabstop>serial</tabstop>
+  <tabstop>serial_view</tabstop>
+  <tabstop>add_serial</tabstop>
+  <tabstop>delete_serial</tabstop>
+  <tabstop>delete_all_serial</tabstop>
+  <tabstop>calculate</tabstop>
+  <tabstop>exit</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

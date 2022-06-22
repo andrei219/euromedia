@@ -36,4 +36,4 @@ class Form(Ui_Dialog, QDialog):
         return self
 
     def export_handler(self):
-        print('exporting data...')
+        pass

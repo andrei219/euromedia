@@ -1055,6 +1055,16 @@ class MainGui(Ui_MainGui, QMainWindow):
         else:
             QMessageBox.information(self, 'Success', 'Data exported successfully')
 
+    def invoices_sales_import_handler(self):
+        from utils import get_open_file_path
+        file_path = get_open_file_path(self, csv_filter=True)
+        print(file_path)
+        if not file_path:
+            return
+        else:
+            results = models.resolve_dhl_expenses(file_path)
+            from dhl import Form
+            Form(self).exec_()
 
 
     def invoices_sales_print_handler(self):
@@ -1371,6 +1381,7 @@ class MainGui(Ui_MainGui, QMainWindow):
         d.exec_()
 
     def tools_harvest_handler(self):
+        print('eee')
         from harvest import Form
         Form(self).exec_()
 

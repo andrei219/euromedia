@@ -501,9 +501,13 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.stock_view.resizeColumnToContents(3)
 
     def add_handler(self):
-        if not hasattr(self, 'stock_model'):return
+        if not hasattr(self, 'stock_model'):
+            return
 
         requested_stocks = self.stock_model.requested_stocks
+
+        for stock in requested_stocks:
+            print(stock)
 
         price = self.price.value()
         ignore = self.ignore.isChecked()

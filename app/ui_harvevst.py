@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_Form(object):
     def setupUi(self, Form):
         Form.setObjectName("Form")
-        Form.resize(582, 625)
+        Form.resize(593, 625)
         self.exit = QtWidgets.QPushButton(Form)
         self.exit.setGeometry(QtCore.QRect(470, 580, 100, 30))
         font = QtGui.QFont()
@@ -196,6 +196,26 @@ class Ui_Form(object):
         self.retranslateUi(Form)
         self.exit.clicked.connect(Form.close)
         QtCore.QMetaObject.connectSlotsByName(Form)
+        Form.setTabOrder(self.by_document, self.purchase_pi)
+        Form.setTabOrder(self.purchase_pi, self.purchase_invoice)
+        Form.setTabOrder(self.purchase_invoice, self.sales_pi)
+        Form.setTabOrder(self.sales_pi, self.sales_invoice)
+        Form.setTabOrder(self.sales_invoice, self.document)
+        Form.setTabOrder(self.document, self.document_view)
+        Form.setTabOrder(self.document_view, self.add_document)
+        Form.setTabOrder(self.add_document, self.delete_document)
+        Form.setTabOrder(self.delete_document, self.delete_all_document)
+        Form.setTabOrder(self.delete_all_document, self.by_period)
+        Form.setTabOrder(self.by_period, self._from)
+        Form.setTabOrder(self._from, self.to)
+        Form.setTabOrder(self.to, self.by_serial)
+        Form.setTabOrder(self.by_serial, self.serial)
+        Form.setTabOrder(self.serial, self.serial_view)
+        Form.setTabOrder(self.serial_view, self.add_serial)
+        Form.setTabOrder(self.add_serial, self.delete_serial)
+        Form.setTabOrder(self.delete_serial, self.delete_all_serial)
+        Form.setTabOrder(self.delete_all_serial, self.calculate)
+        Form.setTabOrder(self.calculate, self.exit)
 
     def retranslateUi(self, Form):
         _translate = QtCore.QCoreApplication.translate
