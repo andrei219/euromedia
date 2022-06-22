@@ -77,6 +77,7 @@ ACTIONS = [
     'change_spec',
     'create_condition',
     'change_condition',
+    'change_description',
     'check_inventory',
     'create_product',
     'view_pdf',
@@ -1380,11 +1381,13 @@ class MainGui(Ui_MainGui, QMainWindow):
         d = ChangeForm(parent=self, hint='warehouse')
         d.exec_()
 
-    def tools_harvest_handler(self):
-        print('eee')
-        from harvest import Form
+    def tools_change_description_handler(self):
+        from change_description_form import Form
         Form(self).exec_()
 
+    def tools_harvest_handler(self):
+        from harvest import Form
+        Form(self).exec_()
 
     def tools_create_warehouse_handler(self):
         from warehouse import Form

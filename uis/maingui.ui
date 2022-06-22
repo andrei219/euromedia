@@ -51,7 +51,7 @@
      <number>0</number>
     </property>
     <property name="currentIndex">
-     <number>4</number>
+     <number>7</number>
     </property>
     <property name="iconSize">
      <size>
@@ -7789,6 +7789,22 @@
       </property>
       <property name="text">
        <string>Harvest</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="tools_change_description">
+      <property name="geometry">
+       <rect>
+        <x>290</x>
+        <y>340</y>
+        <width>121</width>
+        <height>60</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background:lightgray; </string>
+      </property>
+      <property name="text">
+       <string>Change Description</string>
       </property>
      </widget>
     </widget>

@@ -6804,6 +6804,43 @@ def resolve_dhl_expenses(file_path):
                 invoice_text = dict_row['Shipment Reference 1']
 
 
+def update_description(imei, to_item_id):
+
+    db.session.query(db.CreditNoteLine).filter(db.CreditNoteLine.sn == imei)\
+        .update({db.CreditNoteLine.item_id: to_item_id})
+
+    db.session.query(db.Imei).filter(db.Imei.imei == imei)\
+        .update({db.Imei.item_id: to_item_id})
+
+    db.session.query(db.ImeiMask).filter(db.ImeiMask.imei == imei)\
+        .update({db.ImeiMask.item_id: to_item_id})
+
+    db.session.query(db.IncomingRmaLine).filter(db.IncomingRmaLine.sn == imei)\
+        .update({db.IncomingRmaLine.item_id: to_item_id})
+
+    db.session.query(db.ReceptionSerie).filter(db.ReceptionSerie.serie == imei)\
+        .update({db.ReceptionSerie.item_id: to_item_id})
+
+    db.session.query(db.WhIncomingRmaLine).filter(db.WhIncomingRmaLine.sn == imei)\
+        .update({db.WhIncomingRmaLine.item_id: to_item_id})
+
+    try:
+        line = db.session.query(db.ExpeditionLine).join(db.ExpeditionSerie)\
+            .where(db.ExpeditionSerie.serie == imei).all()[-1]
+    except IndexError:
+        pass
+    else:
+        line.item_id = to_item_id
+
+    try:
+        db.session.commit()
+    except Exception as ex:
+        raise ValueError(str(ex))
+
+
+def find_item_id_from_serie(serie):
+    return db.session.query(db.Imei.item_id).where(db.Imei.imei == serie).scalar()
+
 
 if __name__ == '__main__':
 
@@ -6857,7 +6894,8 @@ if __name__ == '__main__':
 
 
 
-
+# 352868110662396 from=11 pro max space gray 256 to 11 pro max midnight green 64
+# 356403874452838 from= 12 pro pacific blue 256 to 12 pro gold 256
 
 
 
