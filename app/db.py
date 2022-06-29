@@ -1034,6 +1034,19 @@ class AdvancedLineDefinition(Base):
 
     item = relationship('Item', uselist=False)
 
+
+    def __eq__(self, other):
+        return all((
+            other.item_id == self.item_id,
+            other.condition == self.condition,
+            other.spec == self.spec,
+        ))
+
+    def __hash__(self):
+        hashes = (hash(x) for x in (self.item_id, self.spec, self.condition))
+        return functools.reduce(operator.xor, hashes, 0)
+
+
     def __init__(self, item_id, condition, spec, quantity, showing_condition):
         self.item_id = item_id
         self.condition = condition
@@ -1790,15 +1803,21 @@ def create_init_data():
 
 
 def correct_mask():
+    print('correct_mask')
     for row in session.query(ImeiMask.origin_id).distinct():
+
+        print('row=', row)
         purchase_proforma = session.query(PurchaseProforma).join(PurchaseProformaLine). \
             where(PurchaseProformaLine.id == row.origin_id).first()
         if purchase_proforma.completed:
-            if all((
-                    sale.completed for sale in session.query(SaleProforma).join(AdvancedLine). \
+            print('purchase_proforma.completed')
+            if all(
+                    sale.completed or sale.cancelled for sale in session.query(SaleProforma).join(AdvancedLine).\
                     where(AdvancedLine.origin_id == row.origin_id)
-            )):
+            ):
+                print('not all sales completed')
                 stmt = delete(ImeiMask).where(ImeiMask.origin_id == row.origin_id)
+
                 session.execute(stmt)
     try:
         session.commit()

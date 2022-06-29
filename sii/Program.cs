@@ -9,7 +9,6 @@ using EasySII.Xml;
 using System.Text.Json; 
 
 
-
 class SIILine
 {
     public int quantity { get; set; }

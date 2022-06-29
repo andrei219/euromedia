@@ -45,6 +45,7 @@ class Form(Ui_Form, QDialog):
         self.by_serial.setEnabled(not enable)
 
     def calculate_handler(self):
+
         if self.by_document.isChecked():
             type_dict = {
                 'PurchaseProforma': self.purchase_pi.isChecked(),
@@ -66,7 +67,6 @@ class Form(Ui_Form, QDialog):
             OutputForm.by_document(self, type_dict, doc_numbers).exec_()
 
         elif self.by_period.isChecked():
-
             try:
                 _from, to = parse_date(self._from.text()), parse_date(self.to.text())
             except ValueError:

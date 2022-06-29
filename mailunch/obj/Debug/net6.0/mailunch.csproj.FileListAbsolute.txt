@@ -1,0 +1,15 @@
+C:\Users\Andrei\Desktop\projects\euromedia\mailunch\bin\Debug\net6.0\mailunch.exe
+C:\Users\Andrei\Desktop\projects\euromedia\mailunch\bin\Debug\net6.0\mailunch.deps.json
+C:\Users\Andrei\Desktop\projects\euromedia\mailunch\bin\Debug\net6.0\mailunch.runtimeconfig.json
+C:\Users\Andrei\Desktop\projects\euromedia\mailunch\bin\Debug\net6.0\mailunch.dll
+C:\Users\Andrei\Desktop\projects\euromedia\mailunch\bin\Debug\net6.0\mailunch.pdb
+C:\Users\Andrei\Desktop\projects\euromedia\mailunch\obj\Debug\net6.0\mailunch.csproj.AssemblyReference.cache
+C:\Users\Andrei\Desktop\projects\euromedia\mailunch\obj\Debug\net6.0\mailunch.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Andrei\Desktop\projects\euromedia\mailunch\obj\Debug\net6.0\mailunch.AssemblyInfoInputs.cache
+C:\Users\Andrei\Desktop\projects\euromedia\mailunch\obj\Debug\net6.0\mailunch.AssemblyInfo.cs
+C:\Users\Andrei\Desktop\projects\euromedia\mailunch\obj\Debug\net6.0\mailunch.csproj.CoreCompileInputs.cache
+C:\Users\Andrei\Desktop\projects\euromedia\mailunch\obj\Debug\net6.0\mailunch.dll
+C:\Users\Andrei\Desktop\projects\euromedia\mailunch\obj\Debug\net6.0\refint\mailunch.dll
+C:\Users\Andrei\Desktop\projects\euromedia\mailunch\obj\Debug\net6.0\mailunch.pdb
+C:\Users\Andrei\Desktop\projects\euromedia\mailunch\obj\Debug\net6.0\mailunch.genruntimeconfig.cache
+C:\Users\Andrei\Desktop\projects\euromedia\mailunch\obj\Debug\net6.0\ref\mailunch.dll

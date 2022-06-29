@@ -51,7 +51,7 @@
      <number>0</number>
     </property>
     <property name="currentIndex">
-     <number>7</number>
+     <number>5</number>
     </property>
     <property name="iconSize">
      <size>
@@ -5347,7 +5347,7 @@
        </rect>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>1</number>
       </property>
       <property name="iconSize">
        <size>
@@ -6257,6 +6257,47 @@
            </widget>
           </item>
          </layout>
+        </widget>
+        <widget class="QToolButton" name="warehouse_expeditions_dhl">
+         <property name="geometry">
+          <rect>
+           <x>200</x>
+           <y>10</y>
+           <width>70</width>
+           <height>60</height>
+          </rect>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>70</width>
+           <height>60</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>70</width>
+           <height>60</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>DHL</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../app/icons.qrc">
+           <normaloff>:/inventory</normaloff>:/inventory</iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>40</width>
+           <height>40</height>
+          </size>
+         </property>
+         <property name="toolButtonStyle">
+          <enum>Qt::ToolButtonTextUnderIcon</enum>
+         </property>
+         <property name="autoRaise">
+          <bool>true</bool>
+         </property>
         </widget>
        </widget>
        <widget class="QTableView" name="warehouse_expeditions_view">

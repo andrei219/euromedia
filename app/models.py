@@ -1697,6 +1697,7 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
         else:
             self.proformas = query.all()
 
+
     def data(self, index, role=Qt.DisplayRole):
         if not index.isValid():
             return
@@ -1932,6 +1933,7 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
         except:
             db.session.rollback()
             raise
+
 
     def toWarehouse(self, proforma, note):
 
@@ -6211,6 +6213,7 @@ def do_sii(_from=None, to=None, series=None):
 
 
 class SIILogModel(BaseTable, QtCore.QAbstractTableModel):
+
     NUMBER, DATE, STATUS, MESSAGE = 0, 1, 2, 3
 
     def __init__(self, registers):
@@ -6338,10 +6341,10 @@ fields = """
 defaults = ('', ) * len(fields.split())
 PurchaseRow = namedtuple('PurchaseRow', field_names=fields, defaults=defaults)
 
+
 def do_cost_price(imei):
 
     try:
-
         rec_serie = db.session.query(db.ReceptionSerie).join(db.ReceptionLine) \
             .join(db.Reception).join(db.PurchaseProforma) \
             .join(db.Partner, db.Partner.id == db.PurchaseProforma.partner_id) \
@@ -6380,12 +6383,12 @@ def do_cost_price(imei):
             doc_type = 'Proforma'
             date = proforma.date.strftime('%d/%m/%Y')
 
-            if math.isclose(avg_rate, 1):
-                dollar = 'Unknown'
-                euro = base_price
-            else:
-                dollar = base_price
-                euro = base_price / avg_rate
+        if math.isclose(avg_rate, 1):
+            dollar = 'Unknown'
+            euro = base_price
+        else:
+            dollar = base_price
+            euro = base_price / avg_rate
 
         try:
             item = proforma_line.item.clean_repr
@@ -6526,14 +6529,33 @@ def do_sale_price(imei):
 
         proforma = exp.line.expedition.proforma
         exp_line = exp.line
-
         proforma_line = None
+
+        # We need several process for each type of lines sale contains hence the swich
+        if proforma.credit_note_lines: # Rma check, Provisional, We need to define how to process rma
+            return SaleRow()
+        # We need several process for each type of lines sale contains hence the switch
+        elif proforma.lines:
+            for aux in proforma.lines:
+                if aux == exp_line:
+                    proforma_line = aux
+        elif proforma.advanced_lines:
+            for aux in proforma.advanced_lines:
+                if aux.item_id is not None and aux == exp_line:
+                    proforma_line = aux
+                elif aux.mixed_description is not None:
+                    if any(definition == exp_line for definition in aux.definitions):
+                        proforma_line = aux
+
+
         for aux in proforma.lines or proforma.advanced_lines:
+
             if aux == exp_line:
                 proforma_line = aux
                 break
 
         if not proforma_line:
+
             raise ValueError('Fatal error could not match warehouse with sale proforma')
 
         avg_rate = get_avg_rate(proforma)
@@ -6631,6 +6653,10 @@ class OutputRegister:
     def __init__(self, purchase_row, sale_row):
         self.__dict__.update(purchase_row._asdict())
         self.__dict__.update(sale_row._asdict())
+
+    @property
+    def astuple(self):
+        return tuple(self.__dict__.values())
 
 
 def zipped(doc_numbers):
@@ -6743,8 +6769,19 @@ class OutputModel(BaseTable, QtCore.QAbstractTableModel):
                     return register.stotal - register.ptotal
 
 
+    def export(self, file):
+        from openpyxl import Workbook
+        wb = Workbook()
+        ws = wb.active
+
+        for register in self._registers:
+            ws.append(register.astuple)
+
+        wb.save(file)
+
+
     @classmethod
-    def by_period(cls, _from, to):
+    def by_period(cls, _from, to, partner=None, agent=None):
         self = cls()
         # 1. Get imeis whose input is in that period:
         query = db.session.query(db.ReceptionSerie.serie).join(db.ReceptionLine)\
@@ -6752,7 +6789,9 @@ class OutputModel(BaseTable, QtCore.QAbstractTableModel):
             .where(_from < db.PurchaseProforma.date)\
             .where(db.PurchaseProforma.date < to)
 
-        append_registers(query, self)
+        append_registers(self,query)
+
+        return self
 
     @classmethod
     def by_document(cls, type_dict, doc_numbers):

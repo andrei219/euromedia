@@ -68,6 +68,7 @@ ACTIONS = [
     'newadv',
     'mail',
     'options',
+    'dhl',
     'process',
     'double_click',
     'search',
@@ -233,7 +234,6 @@ class MainGui(Ui_MainGui, QMainWindow):
 
 
         elif prefix == 'proformas_sales_':
-
 
             self.proformas_sales_model = \
                 models.SaleProformaModel(filters=filters, search_key=search_key, last=last)
@@ -811,7 +811,26 @@ class MainGui(Ui_MainGui, QMainWindow):
         )
 
     def proformas_sales_mail_handler(self):
-        print('sending mails')
+        proforma = self.get_sale_proforma()
+        if not proforma:
+            return
+        from utils import get_email_recipient
+        recipient = get_email_recipient(proforma)
+        if not recipient:
+            return
+
+        from pdfbuilder import build_document
+        temp_directory = os.path.abspath(os.path.join(os.curdir, 'temp'))
+
+        pdf_document = build_document(proforma, is_invoice=False)
+        abs_path = os.path.join(temp_directory, proforma.doc_repr + '.pdf')
+
+        pdf_document.output(abs_path)
+
+        import subprocess
+
+        completed_subprocess = subprocess.run(['mailunch.exe', recipient, abs_path])
+
 
     def proformas_sales_payments_handler(self, invoice=None):
         if invoice:
@@ -1067,7 +1086,7 @@ class MainGui(Ui_MainGui, QMainWindow):
             except ValueError as ex:
                 QMessageBox.critical(self, 'Error', str(ex))
             else:
-                from dhl import Form
+                from dhl_form import Form
                 Form(self, resolved, unresolved).exec_()
 
 
@@ -1075,7 +1094,47 @@ class MainGui(Ui_MainGui, QMainWindow):
         print('print to printer')
 
     def invoices_sales_mail_handler(self):
-        print('sending mails')
+        proforma = self.get_sales_invoice()
+        if not proforma:
+            return
+        from utils import get_email_recipient
+        recipient = get_email_recipient(proforma)
+        if not recipient:
+            return
+
+        from models import export_sale_excel
+        from pdfbuilder import build_document
+        doc_repr = proforma.invoice.doc_repr
+
+
+
+        temp_dir = os.path.abspath(os.path.join(os.curdir, 'temp'))
+
+        path1 = os.path.join(temp_dir, doc_repr + '.pdf')
+        path2 = os.path.join(temp_dir, 'series' + doc_repr + '.xlsx')
+
+        document = build_document(proforma, is_invoice=True)
+        document.output(path1)
+
+
+        try:
+            if not proforma.credit_note_lines:
+                export_sale_excel(proforma, path2)
+                generated = True
+            else:
+                generated = False
+                
+        except AttributeError:
+            generated = False
+
+        import subprocess
+        args = ['mailunch.exe', recipient, path1]
+
+        if generated:
+            args.append(path2)
+
+        completed_process = subprocess.run(args, shell=True)
+
 
     def get_sales_invoice(self):
         return self.get_invoice(
@@ -1219,12 +1278,21 @@ class MainGui(Ui_MainGui, QMainWindow):
                 'This expedition order is empty. I can not open'
             )
 
+    def warehouse_expeditions_dhl_handler(self):
+        from dhl import Form
+        expedition = self.get_expedition(self.warehouse_expeditions_view, self.warehouse_expeditions_model)
+        if expedition is None:
+            return
+        Form(self, expedition).exec_()
+
+
     def warehouse_expeditions_delete_handler(self):
         expedition = self.get_expedition(
             self.warehouse_expeditions_view,
             self.warehouse_expeditions_model
         )
-        if not expedition: return
+        if not expedition:
+            return
 
     def get_expedition(self, view, model):
         rows = {index.row() for index in view.selectedIndexes()}

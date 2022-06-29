@@ -15,9 +15,9 @@ class Form(Ui_Dialog, QDialog):
         self._export.clicked.connect(self.export_handler)
 
     @classmethod
-    def by_period(cls, parent, _from, to):
+    def by_period(cls, parent, _from, to, agent=None, partner=None):
         self = cls(parent)
-        self.model = OutputModel.by_period(_from, to)
+        self.model = OutputModel.by_period(_from, to, agent=agent, partner=partner)
         self.view.setModel(self.model)
         return self
 
@@ -36,4 +36,8 @@ class Form(Ui_Dialog, QDialog):
         return self
 
     def export_handler(self):
-        pass
+        from utils import get_file_path
+        file = get_file_path(self)
+        if not file:
+            return
+        self.model.export(file)

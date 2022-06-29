@@ -2,6 +2,7 @@
 import os
 import re
 import base64
+import sys
 from datetime import datetime, timedelta
 import functools
 
@@ -15,7 +16,7 @@ from PyQt5.QtWidgets import QFileDialog, QLineEdit
 from country_list import countries_for_language
 from schwifty import IBAN, BIC
 
-# Sqalchemy 
+# Sqalchemy
 from sqlalchemy.sql import select, func
 
 import db
@@ -37,7 +38,7 @@ dirty_map = bidict({item.dirty_repr: item.id for item in db.session.query(db.Ite
 description_id_map = bidict({item.clean_repr: item.id for item in db.session.query(db.Item)})
 
 # Build this map at import time
-# the new map will be man|cat|mod|cap|col -> item_id 
+# the new map will be man|cat|mod|cap|col -> item_id
 
 # STOCK TYPES:
 ONLY_COL, ONLY_CAP, CAP_COL = 1, 2, 3
@@ -73,7 +74,7 @@ def mixing_compatible(o, p):
     if stock_type(o) != stock_type(o):
         return False
 
-    # Once stock is same type, we are interested in base 
+    # Once stock is same type, we are interested in base
     d1, d2 = dirty_map.inverse[o.item_id], dirty_map.inverse[p.item_id]
 
     man1, cat1, mod1, *_ = d1.split('|')
@@ -189,7 +190,7 @@ def get_itemids_from_mixed_description(mixed_description):
     if mixed_description.count('Mixed') == 2:
         for dirty_desc in dirty_map:
             mpn, man, cat, mod, *_ = dirty_desc.split('|')
-            # if mpn == '?':mpn = '' 
+            # if mpn == '?':mpn = ''
             if mpn != '?':
                 continue
             else:
@@ -265,7 +266,7 @@ def validIban(iban):
     return True
 
 
-# Let the user pass a string or an IBAN object 
+# Let the user pass a string or an IBAN object
 # If the iban is not valid, do nothing
 def swiftFromIban(iban):
     if isinstance(iban, BIC) and iban.bic:
@@ -405,7 +406,7 @@ def setCompleter(field, data):
 def build_description(lines):
     # Si tiene mpn devuelve tal cual.
     # Toda la generalizacion que he ganado por un lado la estoy perdiendo
-    # en este otro, pero bueno, esto es menos grave, 
+    # en este otro, pero bueno, esto es menos grave,
     # toca la parte de representacion
     # no a la parte de gestion del inventario
 
@@ -465,4 +466,26 @@ def get_country_code(name):
 
 def get_last_date(days):
     return datetime.today() - timedelta(days)
+
+
+def get_email_recipient(proforma):
+    PATTERN = r'([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+'
+    recipient = None
+    for contact in proforma.partner.contacts:
+        if re.fullmatch(PATTERN, contact.email):
+            recipient = contact.email
+            break
+    return recipient
+
+
+
+
+
+
+
+
+
+
+
+
 

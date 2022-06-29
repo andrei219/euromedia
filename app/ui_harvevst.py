@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_Form(object):
     def setupUi(self, Form):
         Form.setObjectName("Form")
-        Form.resize(593, 625)
+        Form.resize(615, 646)
         self.exit = QtWidgets.QPushButton(Form)
         self.exit.setGeometry(QtCore.QRect(470, 580, 100, 30))
         font = QtGui.QFont()
@@ -219,7 +219,7 @@ class Ui_Form(object):
 
     def retranslateUi(self, Form):
         _translate = QtCore.QCoreApplication.translate
-        Form.setWindowTitle(_translate("Form", "Dialog"))
+        Form.setWindowTitle(_translate("Form", "Harvest"))
         self.exit.setText(_translate("Form", "Exit"))
         self.calculate.setText(_translate("Form", "Calculate"))
         self.label_7.setText(_translate("Form", "Harvest Check"))
