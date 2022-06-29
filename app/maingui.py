@@ -96,6 +96,19 @@ ACTIONS = [
 ]
 
 
+def clean_up_directories():
+    from contextlib import suppress
+    import os
+    with suppress(FileNotFoundError):
+        for file in filter(lambda s: s.endswith('.pdf'), os.listdir()):
+            os.remove(file)
+
+    for file in os.listdir(os.path.join(os.curdir, 'temp')):
+        os.remove(os.path.join(os.curdir, 'temp', file))
+
+            # Proformas purchases handlers:
+
+
 class MainGui(Ui_MainGui, QMainWindow):
 
     def __init__(self, parent=None):
@@ -530,15 +543,6 @@ class MainGui(Ui_MainGui, QMainWindow):
         except:
             QMessageBox.critical(self, 'Error', 'Error viewing the file')
             raise
-
-    def clean_up_directory(self):
-        from contextlib import suppress
-        import os
-        with suppress(FileNotFoundError):
-            for file in filter(lambda s: s.endswith('.pdf'), os.listdir()):
-                os.remove(file)
-
-                # Proformas purchases handlers:
 
     def proformas_purchases_view_pdf_handler(self):
         self.view_documents(
@@ -1106,8 +1110,6 @@ class MainGui(Ui_MainGui, QMainWindow):
         from pdfbuilder import build_document
         doc_repr = proforma.invoice.doc_repr
 
-
-
         temp_dir = os.path.abspath(os.path.join(os.curdir, 'temp'))
 
         path1 = os.path.join(temp_dir, doc_repr + '.pdf')
@@ -1118,12 +1120,9 @@ class MainGui(Ui_MainGui, QMainWindow):
 
 
         try:
-            if not proforma.credit_note_lines:
-                export_sale_excel(proforma, path2)
-                generated = True
-            else:
-                generated = False
-                
+            export_sale_excel(proforma, path2)
+            generated = True
+
         except AttributeError:
             generated = False
 
@@ -1507,7 +1506,7 @@ class MainGui(Ui_MainGui, QMainWindow):
         for w in self.opened_windows_instances:
             w.close()
 
-        self.clean_up_directory()
+        clean_up_directories()
 
         super().closeEvent(event)
 
