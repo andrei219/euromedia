@@ -833,7 +833,7 @@ class MainGui(Ui_MainGui, QMainWindow):
 
         import subprocess
 
-        completed_subprocess = subprocess.run(['mailunch.exe', recipient, abs_path])
+        completed_subprocess = subprocess.run(['mailunch.exe', 'A', recipient, abs_path])
 
 
     def proformas_sales_payments_handler(self, invoice=None):
@@ -1131,6 +1131,11 @@ class MainGui(Ui_MainGui, QMainWindow):
 
         if generated:
             args.append(path2)
+
+        if proforma.credit_note_lines:
+            args.insert(1, 'C')
+        else:
+            args.insert(1, 'B')
 
         completed_process = subprocess.run(args, shell=True)
 

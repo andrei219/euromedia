@@ -235,14 +235,49 @@ class Utility
 {
     public static void Main(String[] args)
     {
+        String subject = null;
+        String aux = null;
+        String andseries = null; 
         MAPI mapi = new MAPI();
 
-        mapi.AddRecipientTo(args[0]);
-        mapi.AddAttachment(args[1]); 
-            
-        try{mapi.AddAttachment(args[2]); } catch (IndexOutOfRangeException) { } 
+        mapi.AddRecipientTo(args[1]);
+        mapi.AddAttachment(args[2]);
 
-        mapi.SendMailPopup("Subject:Test", "This is the bodyyyyyyyy");
+        String doctype = args[0];
+
+
+        switch (doctype)
+        {
+            case "A":
+                subject = "Proforma ";
+                break;
+            case "B":
+                subject = "Invoice ";
+                break;
+            case "C":
+                subject = "Credit Note ";
+                break;
+
+
+        }
+
+        subject += new DirectoryInfo(args[2]).Name + " "; 
+
+
+        try{mapi.AddAttachment(args[3]);  andseries = "and series"; 
+        
+        } catch (IndexOutOfRangeException) { 
+        
+        
+        }
+        String body = "Attached " + subject; 
+
+        if (andseries != null)
+        {
+            body += " and series"; 
+        }
+
+        mapi.SendMailPopup(subject, body);
 
     }
 }

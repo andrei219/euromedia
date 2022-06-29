@@ -5430,7 +5430,7 @@ def generate_excel_rows(proforma):
     if proforma.warehouse_id is None:
         for line in proforma.invoice.wh_incoming_rma.lines:
             if line.accepted:
-                yield line.sn, line.item.clean_repr, line.public_condition, line.spec
+                yield line.sn, line.item.clean_repr, line.public_condition or line.condition, line.spec
     else:
         for eline in proforma.expedition.lines:
             condition = eline.showing_condition or eline.condition
