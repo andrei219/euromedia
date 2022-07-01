@@ -3205,7 +3205,7 @@ def change_layout_and_commit(func):
 
 
 class SerieModel(QtCore.QAbstractListModel):
-
+    ## OOOOOO branch dhl
     def __init__(self, line, expedition):
         super().__init__()
         self.expedition = expedition
