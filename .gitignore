@@ -4,3 +4,4 @@ venv
 *.pdf
 *.xlsx
 app/__pycache__
+alembic/__pycache__
