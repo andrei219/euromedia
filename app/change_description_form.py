@@ -29,8 +29,6 @@ class Form(Ui_Dialog, QDialog):
         except KeyError:
             QMessageBox.critical(self, 'Error', 'Device not found')
 
-
-
     def apply_handler(self):
         description = self.to.text()
         imei = self.serie.text()

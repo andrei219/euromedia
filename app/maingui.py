@@ -501,12 +501,11 @@ class MainGui(Ui_MainGui, QMainWindow):
             for row in rows:
                 proforma = model[row]
                 if not is_invoice:
-
-                    name = str(proforma.type) + '-' + str(proforma.number).zfill(6) + '.pdf'
+                    name = 'PI ' + proforma.doc_repr + '.pdf'
 
                 else:
-                    name = str(proforma.invoice.type) + '-' + \
-                           str(proforma.invoice.number).zfill(6) + '.pdf'
+                    name = 'INV ' + proforma.invoice.doc_repr + '.pdf'
+
                 pdf = build_document(proforma, is_invoice=is_invoice)
                 pdf.output(os.path.join(directory, name))
 
@@ -525,10 +524,10 @@ class MainGui(Ui_MainGui, QMainWindow):
             for row in rows:
                 document = model[row]
                 if not is_invoice:
-                    filename = str(document.type) + '-' + str(document.number).zfill(6)
+                    filename = 'PI ' + document.doc_repr + '.pdf'
                 else:
-                    filename = str(document.invoice.type) + '-' + str(document.invoice.number).zfill(6)
-                filename += '.pdf'
+                    filename = 'INV ' + document.invoice.doc_repr + '.pdf'
+
                 pdf = build_document(document, is_invoice=is_invoice)
                 from contextlib import suppress
 

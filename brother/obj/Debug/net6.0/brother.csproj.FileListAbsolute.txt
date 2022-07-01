@@ -1,0 +1,17 @@
+C:\Users\Andrei\Desktop\projects\euromedia\brother\bin\Debug\net6.0\brother.exe
+C:\Users\Andrei\Desktop\projects\euromedia\brother\bin\Debug\net6.0\brother.deps.json
+C:\Users\Andrei\Desktop\projects\euromedia\brother\bin\Debug\net6.0\brother.runtimeconfig.json
+C:\Users\Andrei\Desktop\projects\euromedia\brother\bin\Debug\net6.0\brother.dll
+C:\Users\Andrei\Desktop\projects\euromedia\brother\bin\Debug\net6.0\brother.pdb
+C:\Users\Andrei\Desktop\projects\euromedia\brother\obj\Debug\net6.0\brother.csproj.AssemblyReference.cache
+C:\Users\Andrei\Desktop\projects\euromedia\brother\obj\Debug\net6.0\brother.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Andrei\Desktop\projects\euromedia\brother\obj\Debug\net6.0\brother.AssemblyInfoInputs.cache
+C:\Users\Andrei\Desktop\projects\euromedia\brother\obj\Debug\net6.0\brother.AssemblyInfo.cs
+C:\Users\Andrei\Desktop\projects\euromedia\brother\obj\Debug\net6.0\brother.csproj.CoreCompileInputs.cache
+C:\Users\Andrei\Desktop\projects\euromedia\brother\obj\Debug\net6.0\brother.dll
+C:\Users\Andrei\Desktop\projects\euromedia\brother\obj\Debug\net6.0\refint\brother.dll
+C:\Users\Andrei\Desktop\projects\euromedia\brother\obj\Debug\net6.0\brother.pdb
+C:\Users\Andrei\Desktop\projects\euromedia\brother\obj\Debug\net6.0\brother.genruntimeconfig.cache
+C:\Users\Andrei\Desktop\projects\euromedia\brother\obj\Debug\net6.0\ref\brother.dll
+C:\Users\Andrei\Desktop\projects\euromedia\brother\bin\Debug\net6.0\Interop.bpac.dll
+C:\Users\Andrei\Desktop\projects\euromedia\brother\obj\Debug\net6.0\brother.csproj.CopyComplete

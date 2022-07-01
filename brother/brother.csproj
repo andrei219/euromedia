@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="Interop.bpac">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Brother bPAC3 SDK\Samples\VCS\NamePlt\bin\Release\Interop.bpac.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

@@ -6570,12 +6570,12 @@ def do_sale_price(imei):
         terms_delta = terms / proforma.total_quantity
         remaining_expense_delta = base_price * remaining_expense / get_sale_proforma_stock_value(proforma)
 
-
         try:
             doc_number = proforma.invoice.doc_repr
             doc_type = 'Invoice'
             date = proforma.invoice.date.strftime('%d/%m/%Y')
         except AttributeError:
+            print('attr error raised')
             doc_number = proforma.doc_repr
             doc_type = 'Proforma'
             date = proforma.date.strftime('%d/%m/%Y')
@@ -6774,9 +6774,9 @@ class OutputModel(BaseTable, QtCore.QAbstractTableModel):
         from openpyxl import Workbook
         wb = Workbook()
         ws = wb.active
-
+        ws.append(self._headerData)
         for register in self._registers:
-            ws.append(register.astuple)
+            ws.append(register.astuple + (register.stotal - register.ptotal,))
 
         wb.save(file)
 
