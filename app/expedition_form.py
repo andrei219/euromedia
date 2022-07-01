@@ -19,7 +19,6 @@ from sqlalchemy.exc import IntegrityError
 from exceptions import NotExistingStockOutput
 
 
-
 class Form(Ui_ExpeditionForm, QDialog):
 
     def __init__(self, parent, expedition):
