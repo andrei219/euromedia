@@ -92,7 +92,8 @@ ACTIONS = [
     'trace',
     'tocn',
     'sii',
-    'harvest'
+    'harvest',
+    'facks'
 ]
 
 
@@ -1476,10 +1477,12 @@ class MainGui(Ui_MainGui, QMainWindow):
         from spec import Form
         Form(self).exec_()
 
-
     def tools_sii_handler(self):
         from pysii import Form
         Form(self).exec_()
+
+    def tools_facks_handler(self):
+        pass
 
 
     def tab_changed(self, index):

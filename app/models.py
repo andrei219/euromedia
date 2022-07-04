@@ -3214,7 +3214,7 @@ class SerieModel(QtCore.QAbstractListModel):
         if not utils.has_serie(line):
             self.series = []
         else:
-            self.series = db.session.query(db.ExpeditionSerie).join(db.ExpeditionLine). \
+            self.series = db.session.query(db.ExpeditionSerie).join(db.ExpeditionLine).\
                 where(db.ExpeditionSerie.line_id == line.id).all()
 
             self.series_at_expedition_level = self.get_series_at_expedition_level()
@@ -3290,14 +3290,14 @@ class SerieModel(QtCore.QAbstractListModel):
 
         elif difference > 0:  # User wants to process, select and
 
-            ficticious_series = []
+            fictitious_series = []
             for invented in self.select_invented_from_imeis(limit=difference):
                 serie = db.ExpeditionSerie()
                 serie.serie = invented
                 serie.line = self.line
-                ficticious_series.append(serie)
+                fictitious_series.append(serie)
 
-            db.session.add_all(ficticious_series)
+            db.session.add_all(fictitious_series)
 
             try:
                 db.session.commit()
