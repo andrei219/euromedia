@@ -2600,7 +2600,7 @@ class Ui_MainGui(object):
         self.tools_stock_valuation.setText(_translate("MainGui", "Stock Valuation"))
         self.tools_harvest.setText(_translate("MainGui", "Harvest"))
         self.tools_change_description.setText(_translate("MainGui", "Change Description"))
-        self.tools_facks.setText(_translate("MainGui", "Facks"))
+        self.tools_facks.setText(_translate("MainGui", "Fucks"))
         self.main_tab.setTabText(self.main_tab.indexOf(self.tools_tab), _translate("MainGui", "Tools"))
         self.main_tab.setTabToolTip(self.main_tab.indexOf(self.tools_tab), _translate("MainGui", "Tools like grading, Changing warehouse, traceability, rebu, importing, etc"))
 import icons_rc

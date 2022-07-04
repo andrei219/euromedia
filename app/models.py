@@ -370,7 +370,8 @@ class AgentModel(QtCore.QAbstractTableModel):
         if not index.isValid():
             return
         row = index.row()
-        candidate_agent = self.agents[row]
+        candidate_agent = self.agents[
+            row]
         db.session.delete(candidate_agent)
         try:
             db.session.commit()
@@ -1697,7 +1698,6 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
         else:
             self.proformas = query.all()
 
-
     def data(self, index, role=Qt.DisplayRole):
         if not index.isValid():
             return
@@ -1934,7 +1934,6 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
             db.session.rollback()
             raise
 
-
     def toWarehouse(self, proforma, note):
 
         fast = True
@@ -2163,7 +2162,6 @@ class OrganizedLines:
     def append(self, price, ignore_spec, tax, showing, *stocks, row=None):
         if len(stocks) == 0:
             raise ValueError("Provide stocks")
-
 
         print('OrganizedLines.append:')
         for stock in stocks:
@@ -3214,7 +3212,7 @@ class SerieModel(QtCore.QAbstractListModel):
         if not utils.has_serie(line):
             self.series = []
         else:
-            self.series = db.session.query(db.ExpeditionSerie).join(db.ExpeditionLine).\
+            self.series = db.session.query(db.ExpeditionSerie).join(db.ExpeditionLine). \
                 where(db.ExpeditionSerie.line_id == line.id).all()
 
             self.series_at_expedition_level = self.get_series_at_expedition_level()
@@ -5368,10 +5366,8 @@ class ChangeModel(BaseTable, QtCore.QAbstractTableModel):
         except:
             raise
 
-
     def __len__(self):
         return len(self.sns)
-
 
     def __contains__(self, sn):
         sn = sn.lower()
@@ -6214,7 +6210,6 @@ def do_sii(_from=None, to=None, series=None):
 
 
 class SIILogModel(BaseTable, QtCore.QAbstractTableModel):
-
     NUMBER, DATE, STATUS, MESSAGE = 0, 1, 2, 3
 
     def __init__(self, registers):
@@ -6271,7 +6266,6 @@ candidates.extend([c.description for c in db.session.query(db.Courier)])
 # Works for both purchases and sales
 @functools.cache
 def get_avg_rate(proforma):
-
     if proforma.eur_currency:
         return 1
 
@@ -6339,12 +6333,11 @@ fields = """
     ptotal
     """
 
-defaults = ('', ) * len(fields.split())
+defaults = ('',) * len(fields.split())
 PurchaseRow = namedtuple('PurchaseRow', field_names=fields, defaults=defaults)
 
 
 def do_cost_price(imei):
-
     try:
         rec_serie = db.session.query(db.ReceptionSerie).join(db.ReceptionLine) \
             .join(db.Reception).join(db.PurchaseProforma) \
@@ -6494,9 +6487,8 @@ fields = """ sdoc_type sdoc_number sdate spartner sagent
           sitem scond sspec sserie sdollar srate seuro sship 
           sterm sexpenses stotal """
 
-defaults = ('', ) * ( len(fields.split()) - 1)
-defaults += (0, )
-
+defaults = ('',) * (len(fields.split()) - 1)
+defaults += (0,)
 
 SaleRow = namedtuple('SaleRow', field_names=fields, defaults=defaults)
 
@@ -6504,8 +6496,8 @@ SaleRow = namedtuple('SaleRow', field_names=fields, defaults=defaults)
 def get_rma_expenses(imei):
     expenses = 0
     try:
-        proforma = db.session.query(db.SaleProforma).join(db.SaleInvoice).join(db.WhIncomingRma)\
-        .join(db.WhIncomingRmaLine).where(db.WhIncomingRmaLine.sn == imei).all()[-1]
+        proforma = db.session.query(db.SaleProforma).join(db.SaleInvoice).join(db.WhIncomingRma) \
+            .join(db.WhIncomingRmaLine).where(db.WhIncomingRmaLine.sn == imei).all()[-1]
     except IndexError:
         return 0
     else:
@@ -6533,7 +6525,7 @@ def do_sale_price(imei):
         proforma_line = None
 
         # We need several process for each type of lines sale contains hence the swich
-        if proforma.credit_note_lines: # Rma check, Provisional, We need to define how to process rma
+        if proforma.credit_note_lines:  # Rma check, Provisional, We need to define how to process rma
             return SaleRow()
         # We need several process for each type of lines sale contains hence the switch
         elif proforma.lines:
@@ -6548,7 +6540,6 @@ def do_sale_price(imei):
                     if any(definition == exp_line for definition in aux.definitions):
                         proforma_line = aux
 
-
         for aux in proforma.lines or proforma.advanced_lines:
 
             if aux == exp_line:
@@ -6556,7 +6547,6 @@ def do_sale_price(imei):
                 break
 
         if not proforma_line:
-
             raise ValueError('Fatal error could not match warehouse with sale proforma')
 
         avg_rate = get_avg_rate(proforma)
@@ -6769,7 +6759,6 @@ class OutputModel(BaseTable, QtCore.QAbstractTableModel):
                 else:
                     return register.stotal - register.ptotal
 
-
     def export(self, file):
         from openpyxl import Workbook
         wb = Workbook()
@@ -6780,17 +6769,16 @@ class OutputModel(BaseTable, QtCore.QAbstractTableModel):
 
         wb.save(file)
 
-
     @classmethod
     def by_period(cls, _from, to, partner=None, agent=None):
         self = cls()
         # 1. Get imeis whose input is in that period:
-        query = db.session.query(db.ReceptionSerie.serie).join(db.ReceptionLine)\
-            .join(db.Reception).join(db.PurchaseProforma)\
-            .where(_from < db.PurchaseProforma.date)\
+        query = db.session.query(db.ReceptionSerie.serie).join(db.ReceptionLine) \
+            .join(db.Reception).join(db.PurchaseProforma) \
+            .where(_from < db.PurchaseProforma.date) \
             .where(db.PurchaseProforma.date < to)
 
-        append_registers(self,query)
+        append_registers(self, query)
 
         return self
 
@@ -6838,21 +6826,21 @@ class OutputModel(BaseTable, QtCore.QAbstractTableModel):
 
 def extract_doc_repr(invoice_text):
     from re import search
-    return invoice_text[slice(* re.search(r'[1-6]\-0*\d+\Z', invoice_text).span())]
+    return invoice_text[slice(*re.search(r'[1-6]\-0*\d+\Z', invoice_text).span())]
 
 
 def add_expense(doc_repr, amount):
-
     type, number = doc_repr.split('-')
     type, number = int(type), int(number)
 
-    sale_proforma = db.session.query(db.SaleProforma).join(db.SaleInvoice)\
+    sale_proforma = db.session.query(db.SaleProforma).join(db.SaleInvoice) \
         .where(db.SaleInvoice.type == type, db.SaleInvoice.number == number).one()
 
     from datetime import datetime
     db.SaleExpense(datetime.now(), amount, 'Auto/Imported', sale_proforma)
 
     db.session.commit()
+
 
 def resolve_dhl_expenses(file_path):
     resolved = []
@@ -6877,27 +6865,26 @@ def resolve_dhl_expenses(file_path):
 
 
 def update_description(imei, to_item_id):
-
-    db.session.query(db.CreditNoteLine).filter(db.CreditNoteLine.sn == imei)\
+    db.session.query(db.CreditNoteLine).filter(db.CreditNoteLine.sn == imei) \
         .update({db.CreditNoteLine.item_id: to_item_id})
 
-    db.session.query(db.Imei).filter(db.Imei.imei == imei)\
+    db.session.query(db.Imei).filter(db.Imei.imei == imei) \
         .update({db.Imei.item_id: to_item_id})
 
-    db.session.query(db.ImeiMask).filter(db.ImeiMask.imei == imei)\
+    db.session.query(db.ImeiMask).filter(db.ImeiMask.imei == imei) \
         .update({db.ImeiMask.item_id: to_item_id})
 
-    db.session.query(db.IncomingRmaLine).filter(db.IncomingRmaLine.sn == imei)\
+    db.session.query(db.IncomingRmaLine).filter(db.IncomingRmaLine.sn == imei) \
         .update({db.IncomingRmaLine.item_id: to_item_id})
 
-    db.session.query(db.ReceptionSerie).filter(db.ReceptionSerie.serie == imei)\
+    db.session.query(db.ReceptionSerie).filter(db.ReceptionSerie.serie == imei) \
         .update({db.ReceptionSerie.item_id: to_item_id})
 
-    db.session.query(db.WhIncomingRmaLine).filter(db.WhIncomingRmaLine.sn == imei)\
+    db.session.query(db.WhIncomingRmaLine).filter(db.WhIncomingRmaLine.sn == imei) \
         .update({db.WhIncomingRmaLine.item_id: to_item_id})
 
     try:
-        line = db.session.query(db.ExpeditionLine).join(db.ExpeditionSerie)\
+        line = db.session.query(db.ExpeditionLine).join(db.ExpeditionSerie) \
             .where(db.ExpeditionSerie.serie == imei).all()[-1]
     except IndexError:
         pass
@@ -6912,6 +6899,182 @@ def update_description(imei, to_item_id):
 
 def find_item_id_from_serie(serie):
     return db.session.query(db.Imei.item_id).where(db.Imei.imei == serie).scalar()
+
+
+class Fuck:
+
+    __slots__ = ['serie', 'from_', 'to']
+
+    def __init__(self, serie, from_, to):
+        self.serie = serie
+        self.from_ = from_
+        self.to = to
+
+
+class FuckExcel:
+
+    def __init__(self, sale_invoice: db.SaleInvoice):
+        partner = sale_invoice.proforma.partner
+        self.serie = sale_invoice.type
+        self.number = sale_invoice.number
+        self.doc_repr = sale_invoice.doc_repr
+        self.date = sale_invoice.date.strftime('%d/%m/%Y')
+        self.code = self.get_code(partner)
+        self.customer = partner.fiscal_name
+        self.nif = partner.fiscal_number
+        self.address = ' '.join((partner.billing_line1, partner.billing_line2))
+        self.postcode = partner.billing_postcode
+        self.state = partner.billing_state
+        self.payment = 'Transferencia'
+        self.total = sale_invoice.proforma.total_debt
+        self.tax = sale_invoice.proforma.tax
+        if sale_invoice.proforma.warehouse_id is None:
+            self.obs = sale_invoice.cn_repr
+        else:
+            self.obs = sale_invoice.proforma.note
+
+    def get_code(self, partner):
+        from io import StringIO
+
+        if not partner.fiscal_number:
+            return ""
+
+        buffer = StringIO()
+        for s in partner.fiscal_number:
+            if s.isdigit():
+                buffer.write(s)
+
+        try:
+            return "4300" + buffer.getvalue()[len(buffer.getvalue()) - 5:]
+        except IndexError:
+            return "4300" + buffer.getvalue()
+
+
+
+    @property
+    def as_tuple(self):
+        return tuple(self.__dict__.values())
+
+
+class FucksModel(BaseTable, QtCore.QAbstractTableModel):
+    SERIE, FROM, TO = 0, 1, 2
+
+    def __init__(self):
+        super().__init__()
+        self._headerData = ['Serie', 'From', 'To']
+        self.name = '_fucks'
+        self._fucks = [Fuck(i, '', '') for i in range(1, 7)]
+
+    def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
+        if not index.isValid():
+            return
+        row, column = index.row(), index.column()
+        if role == Qt.DisplayRole:
+            fuck = self._fucks[row]
+            if column == self.SERIE:
+                return fuck.serie
+            elif column == self.FROM:
+                return fuck.from_
+            elif column == self.TO:
+                return fuck.to
+
+    def flags(self, index: QModelIndex) -> Qt.ItemFlags:
+        if not index.isValid():
+            return
+
+        column = index.column()
+        if column in (self.FROM, self.TO):
+            return Qt.ItemFlags(super().flags(index) | Qt.ItemIsEditable)
+        else:
+            return Qt.ItemFlags(~Qt.ItemIsEditable)
+
+    def setData(self, index: QModelIndex, value: typing.Any, role: int = ...) -> bool:
+        if not index.isValid():
+            return
+
+        try:
+            number = int(value)
+        except ValueError:
+            return False
+
+        row, column = index.row(), index.column()
+        fuck = self._fucks[row]
+        if role == Qt.EditRole:
+            if column == self.FROM:
+                fuck.from_ = number
+                return True
+            elif column == self.TO:
+                fuck.to = number
+
+            return False
+        return False
+
+    def export(self):
+        import os
+        from openpyxl import Workbook
+
+        header = [
+            'Serie Factura',
+            'Nº Factura',
+            'Factura',
+            'Fecha',
+            'Código contable',
+            'Cliente',
+            'NIF',
+            'Dirección',
+            'Código postal',
+            'Población',
+            'Forma pago',
+            'Total Factura',
+            'IVA',
+            'Observaciones',
+
+        ]
+
+        target_dir = self.get_target_dir()
+        for fuck in self.fucks:
+            wb = Workbook()
+            ws = wb.active
+            ws.append(header)
+            for sale_invoice in db.session.query(db.SaleInvoice).\
+                    join(db.SaleProforma).join(db.Partner).where(
+                db.SaleInvoice.type == fuck.serie,
+                db.SaleInvoice.number > fuck.from_,
+                db.SaleInvoice.number < fuck.to
+            ):
+                ws.append(FuckExcel(sale_invoice).as_tuple)
+
+            filename = ''.join(('serie', str(fuck.serie), '.xlsx'))
+            wb.save(os.path.join(target_dir, filename))
+
+    @property
+    def fucks(self):
+        return [fuck for fuck in self._fucks if fuck.from_ != '']
+
+
+    def get_target_dir(self):
+
+        # return os.path.join(os.environ['USERPROFILE'], 'Desktop')
+
+        return os.path.join(os.environ['USERPROFILE'], 'Dropbox', 'Spain', 'Gestoria',\
+                'Euromedia', 'Facturas Ingreso', 'Automaticos', \
+                str(datetime.now().year), self.get_month_name())
+
+    def get_month_name(self):
+        return {
+            1: 'Enero',
+            2: 'Febrero',
+            3: 'Marzo',
+            4: 'Abril',
+            5: 'Mayo',
+            6: 'Junio',
+            7: 'Julio',
+            8: 'Agosto',
+            9: 'Septiembre',
+            10: 'Octubre',
+            11: 'Noviembre',
+            12: 'Diciembre'
+        }.get(datetime.now().month)
 
 
 if __name__ == '__main__':
@@ -6963,11 +7126,5 @@ if __name__ == '__main__':
         imei = input('Enter imei:')
         print('rma_cost=', get_rma_expenses(imei))
 
-
-
-
 # 352868110662396 from=11 pro max space gray 256 to 11 pro max midnight green 64
 # 356403874452838 from= 12 pro pacific blue 256 to 12 pro gold 256
-
-
-

@@ -6,6 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <PlatformTarget>x86</PlatformTarget>
+    <Platforms>AnyCPU;ARM32;x86</Platforms>
   </PropertyGroup>
 
   <ItemGroup>

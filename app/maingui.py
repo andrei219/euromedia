@@ -1481,7 +1481,8 @@ class MainGui(Ui_MainGui, QMainWindow):
         Form(self).exec_()
 
     def tools_facks_handler(self):
-        pass
+        from facks import Form
+        Form(self).exec_()
 
 
     def tab_changed(self, index):

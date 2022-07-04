@@ -30,7 +30,7 @@ class Printer
 
     public static void Main(String[] args)
     {
-        string path = @"..\..\..\..\lbxs\Expedition Label.lbx";
+        string path = @"C:\Users\Andrei\Desktop\projects\euromedia\lbxs\Expedition Label.lbx";
         Printer printer = new();
         printer.Print(path, "", "", "", "", "");
     }
