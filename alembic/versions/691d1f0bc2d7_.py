@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 5800db089304
-Revises: 578d3cce0cb7
-Create Date: 2022-06-13 19:11:55.186875
+Revision ID: 691d1f0bc2d7
+Revises: 
+Create Date: 2022-07-01 13:29:48.994773
 
 """
 from alembic import op
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
-revision = '5800db089304'
-down_revision = '578d3cce0cb7'
+revision = '691d1f0bc2d7'
+down_revision = None
 branch_labels = None
 depends_on = None
 
@@ -42,11 +42,13 @@ def upgrade():
                existing_type=mysql.DOUBLE(asdecimal=True),
                type_=sa.Float(precision=32),
                existing_nullable=False)
-    op.add_column('credit_note_lines', sa.Column('public_condition', sa.String(length=50), nullable=True))
     op.alter_column('credit_note_lines', 'price',
                existing_type=mysql.DOUBLE(asdecimal=True),
                type_=sa.Float(precision=32),
                existing_nullable=False)
+    op.add_column('expedition_series', sa.Column('box_number', sa.Integer(), nullable=False))
+    op.add_column('expedition_series', sa.Column('box_id', sa.String(length=50), nullable=True))
+    op.create_unique_constraint(None, 'expedition_series', ['box_id'])
     op.alter_column('incoming_rma_lines', 'price',
                existing_type=mysql.DOUBLE(asdecimal=True),
                type_=sa.Float(precision=32),
@@ -180,11 +182,13 @@ def downgrade():
                existing_type=sa.Float(precision=32),
                type_=mysql.DOUBLE(asdecimal=True),
                existing_nullable=False)
+    op.drop_constraint(None, 'expedition_series', type_='unique')
+    op.drop_column('expedition_series', 'box_id')
+    op.drop_column('expedition_series', 'box_number')
     op.alter_column('credit_note_lines', 'price',
                existing_type=sa.Float(precision=32),
                type_=mysql.DOUBLE(asdecimal=True),
                existing_nullable=False)
-    op.drop_column('credit_note_lines', 'public_condition')
     op.alter_column('agents', 'fixed_perpiece',
                existing_type=sa.Float(precision=32),
                type_=mysql.DOUBLE(asdecimal=True),

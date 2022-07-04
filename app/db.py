@@ -1223,6 +1223,8 @@ class ExpeditionSerie(Base):
     line_id = Column(Integer, ForeignKey('expedition_lines.id'))
     serie = Column(String(50), nullable=False)
     created_on = Column(DateTime, default=datetime.now)
+    box_number = Column(Integer, nullable=False, default=0)
+    box_id = Column(String(50), unique=True)
 
     line = relationship('ExpeditionLine', backref=backref('series'))
 

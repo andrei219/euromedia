@@ -32,8 +32,7 @@ class Printer
     {
         string path = @"..\..\..\..\lbxs\Expedition Label.lbx";
         Printer printer = new();
-        Console.WriteLine("Args: " + args.ToString()); 
-        // printer.Print(path, "", "", "", "", "");
+        printer.Print(path, "", "", "", "", "");
     }
 }
 
