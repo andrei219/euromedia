@@ -6902,13 +6902,16 @@ def find_item_id_from_serie(serie):
 
 
 class Fuck:
-
     __slots__ = ['serie', 'from_', 'to']
 
     def __init__(self, serie, from_, to):
         self.serie = serie
         self.from_ = from_
         self.to = to
+
+    def __repr__(self):
+        cls_name = self.__class__.__name__
+        return f"{cls_name}(serie={self.serie}, from={self.from_}, to={self.to})"
 
 
 class FuckExcel:
@@ -6949,12 +6952,29 @@ class FuckExcel:
         except IndexError:
             return "4300" + buffer.getvalue()
 
-
-
     @property
     def as_tuple(self):
         return tuple(self.__dict__.values())
 
+
+def get_month_name(month):
+    return {
+        1: 'Enero',
+        2: 'Febrero',
+        3: 'Marzo',
+        4: 'Abril',
+        5: 'Mayo',
+        6: 'Junio',
+        7: 'Julio',
+        8: 'Agosto',
+        9: 'Septiembre',
+        10: 'Octubre',
+        11: 'Noviembre',
+        12: 'Diciembre'
+    }.get(month)
+
+def month_key(sale):
+    return sale.date.month
 
 class FucksModel(BaseTable, QtCore.QAbstractTableModel):
     SERIE, FROM, TO = 0, 1, 2
@@ -7009,7 +7029,7 @@ class FucksModel(BaseTable, QtCore.QAbstractTableModel):
             return False
         return False
 
-    def export(self):
+    def export_old(self):
         import os
         from openpyxl import Workbook
 
@@ -7036,7 +7056,7 @@ class FucksModel(BaseTable, QtCore.QAbstractTableModel):
             wb = Workbook()
             ws = wb.active
             ws.append(header)
-            for sale_invoice in db.session.query(db.SaleInvoice).\
+            for sale_invoice in db.session.query(db.SaleInvoice). \
                     join(db.SaleProforma).join(db.Partner).where(
                 db.SaleInvoice.type == fuck.serie,
                 db.SaleInvoice.number > fuck.from_,
@@ -7047,34 +7067,66 @@ class FucksModel(BaseTable, QtCore.QAbstractTableModel):
             filename = ''.join(('serie', str(fuck.serie), '.xlsx'))
             wb.save(os.path.join(target_dir, filename))
 
+    def get_query(self, type, from_, to):
+        return db.session.query(db.SaleInvoice). \
+            join(db.SaleProforma).join(db.Partner).where(
+            db.SaleInvoice.type == type,
+            db.SaleInvoice.number > from_,
+            db.SaleInvoice.number < to
+        )
+
+    def export(self):
+        import os
+        from openpyxl import Workbook
+
+        header = [
+            'Serie Factura',
+            'Nº Factura',
+            'Factura',
+            'Fecha',
+            'Código contable',
+            'Cliente',
+            'NIF',
+            'Dirección',
+            'Código postal',
+            'Población',
+            'Forma pago',
+            'Total Factura',
+            'IVA',
+            'Observaciones',
+        ]
+
+        for fuck in self.fucks:
+            print(fuck)
+            query = self.get_query(fuck.serie, fuck.from_, fuck.to)
+            sales = query.all()
+            sales = sorted(sales, key=month_key)
+            for month, sales_group in groupby(sales, key=month_key):
+                target_dir = self.get_target_dir(month)
+                wb = Workbook()
+                ws = wb.active
+                ws.append(header)
+                for sale in list(sales_group):
+                    ws.append(FuckExcel(sale).as_tuple)
+
+                filename = ''.join(('serie', str(fuck.serie), '.xlsx'))
+                wb.save(os.path.join(target_dir, filename))
+
+
     @property
     def fucks(self):
         return [fuck for fuck in self._fucks if fuck.from_ != '']
 
+    def get_target_dir(self, month):
+        path = os.path.join(os.environ['USERPROFILE'], 'Dropbox', 'Spain', 'Gestoria', 'Euromedia',\
+                            'Facturas Ingreso', 'Automaticos', str(datetime.now().year), \
+                            get_month_name(month))
 
-    def get_target_dir(self):
-
-        # return os.path.join(os.environ['USERPROFILE'], 'Desktop')
-
-        return os.path.join(os.environ['USERPROFILE'], 'Dropbox', 'Spain', 'Gestoria',\
-                'Euromedia', 'Facturas Ingreso', 'Automaticos', \
-                str(datetime.now().year), self.get_month_name())
-
-    def get_month_name(self):
-        return {
-            1: 'Enero',
-            2: 'Febrero',
-            3: 'Marzo',
-            4: 'Abril',
-            5: 'Mayo',
-            6: 'Junio',
-            7: 'Julio',
-            8: 'Agosto',
-            9: 'Septiembre',
-            10: 'Octubre',
-            11: 'Noviembre',
-            12: 'Diciembre'
-        }.get(datetime.now().month)
+        if os.path.exists(path):
+            return path
+        else:
+            os.mkdir(path)
+            return path
 
 
 if __name__ == '__main__':
