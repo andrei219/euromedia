@@ -7071,8 +7071,8 @@ class FucksModel(BaseTable, QtCore.QAbstractTableModel):
         return db.session.query(db.SaleInvoice). \
             join(db.SaleProforma).join(db.Partner).where(
             db.SaleInvoice.type == type,
-            db.SaleInvoice.number > from_,
-            db.SaleInvoice.number < to
+            db.SaleInvoice.number >= from_,
+            db.SaleInvoice.number <= to
         )
 
     def export(self):
