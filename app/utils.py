@@ -478,8 +478,9 @@ def get_email_recipient(proforma):
     return recipient
 
 
-
-
+def match_doc_repr(doc_repr):
+    DOC_PATTERN = '^[1-6]\-0*\d+\Z'
+    return re.match(DOC_PATTERN, doc_repr)
 
 
 

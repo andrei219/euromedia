@@ -11,6 +11,7 @@ from itertools import groupby, product
 from operator import attrgetter
 from datetime import datetime, timedelta
 
+import sqlalchemy
 from sqlalchemy.sql import exists
 
 from PyQt5 import QtCore
@@ -6973,8 +6974,10 @@ def get_month_name(month):
         12: 'Diciembre'
     }.get(month)
 
+
 def month_key(sale):
     return sale.date.month
+
 
 class FucksModel(BaseTable, QtCore.QAbstractTableModel):
     SERIE, FROM, TO = 0, 1, 2
@@ -7112,13 +7115,12 @@ class FucksModel(BaseTable, QtCore.QAbstractTableModel):
                 filename = ''.join(('serie', str(fuck.serie), '.xlsx'))
                 wb.save(os.path.join(target_dir, filename))
 
-
     @property
     def fucks(self):
         return [fuck for fuck in self._fucks if fuck.from_ != '']
 
     def get_target_dir(self, month):
-        path = os.path.join(os.environ['USERPROFILE'], 'Dropbox', 'Spain', 'Gestoria', 'Euromedia',\
+        path = os.path.join(os.environ['USERPROFILE'], 'Dropbox', 'Spain', 'Gestoria', 'Euromedia', \
                             'Facturas Ingreso', 'Automaticos', str(datetime.now().year), \
                             get_month_name(month))
 
@@ -7129,54 +7131,130 @@ class FucksModel(BaseTable, QtCore.QAbstractTableModel):
             return path
 
 
-if __name__ == '__main__':
+class StockValuationEntry:
 
-    # _headerData = [
-    #     'Doc. Type', 'Doc. Nº', 'Date', 'Partner', 'Agent', 'Product', 'Condition', 'Spec.', 'Serial',
-    #     '$', 'Rate', '€', 'Shipping', 'Expenses', 'Total Cost €', 'Doc. Type', 'Doc. Nº', 'Date', 'Partner',
-    #     'Agent', 'Product', 'Condition', 'Spec', 'Serial', '$', 'Rate', '€', 'Shipping', 'Terms',
-    #     'Expenses', 'Total Income', 'Harvest'
-    # ]
-    #
-    # DOC_PATTERN = '^[1-6]\-0*\d+\Z'
-    # import re
-    # while True:
-    #     doc_number = input('Proforma Purchase Doc number: ')
-    #     if not re.match(DOC_PATTERN, doc_number):
-    #         print('Incorrect format')
-    #         continue
-    #     else:
-    #         s = doc_number.split('-')
-    #         type, number = int(s[0]), int(s[1])
-    #
-    #         series = db.session.query(db.ReceptionSerie).join(db.ReceptionLine).join(db.Reception)\
-    #             .join(db.PurchaseProforma).where(db.PurchaseProforma.type == type)\
-    #             .where(db.PurchaseProforma.number == number).all()
-    #
-    #         from openpyxl import Workbook
-    #
-    #         wb = Workbook()
-    #         ws = wb.active
-    #
-    #         ws.append(_headerData)
-    #
-    #         for register in series:
-    #             serie = register.serie
-    #             purchase_row, sale_row = do_cost_price(serie), do_sale_price(serie)
-    #
-    #             try:
-    #                 harvest = sale_row.total - purchase_row.total
-    #             except AttributeError:
-    #                 harvest = 0
-    #
-    #             ws.append(do_cost_price(serie) + do_sale_price(serie) + (harvest,))
-    #
-    #         wb.save('costes.xlsx')
-    #
+    def __init__(self, purchase_row: PurchaseRow, external):
+        self.description = purchase_row.pitem
+        self.condition = purchase_row.pcond
+        self.spec = purchase_row.pspec
+        self.serial = purchase_row.pserie
+        self.date = purchase_row.pdate
+        self.partner = purchase_row.ppartner
 
-    while True:
-        imei = input('Enter imei:')
-        print('rma_cost=', get_rma_expenses(imei))
+        prefix = 'INV ' if purchase_row.pdoc_type.startswith('Inv') else 'PI '
+        self.doc = prefix + purchase_row.pdoc_number
 
-# 352868110662396 from=11 pro max space gray 256 to 11 pro max midnight green 64
-# 356403874452838 from= 12 pro pacific blue 256 to 12 pro gold 256
+        self.external = external
+        self.cost = purchase_row.ptotal
+
+    @property
+    def as_tuple(self):
+        return tuple(self.__dict__.values())
+
+
+def get_external_from_imei(imei):
+    try:
+        return db.session.query(db.PurchaseProforma.external).join(db.Reception).\
+                join(db.ReceptionLine).join(db.ReceptionSerie).\
+                where(db.ReceptionSerie.serie == imei).all()[-1].external
+    except IndexError:
+        return ''
+
+class StockValuationModel(BaseTable, QtCore.QAbstractTableModel):
+    DESC, COND, SPEC, SERIAL, DATE, PARTNER, DOC_REPR, EXTERNAL_DOC, COST = 0, 1, 2, 3, 4, 5, 6, 7, 8
+
+    def __init__(self):
+        super().__init__()
+        self.name = 'registers'
+        self.registers = []
+        self._headerData = [
+            'Description',
+            'Condition',
+            'Spec',
+            'Serial',
+            'Purchase Date',
+            'Partner',
+            'Nº Doc',
+            'External Doc',
+            'Cost'
+        ]
+
+    def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
+        if not index.isValid():
+            return
+
+        row, col = index.row(), index.column()
+        if role == Qt.DisplayRole:
+            reg = self.registers[row]
+            if col == self.DESC:
+                return reg.description
+            elif col == self.COND:
+                return reg.condition
+            elif col == self.SPEC:
+                return reg.spec
+            elif col == self.SERIAL:
+                return reg.serial
+            elif col == self.DATE:
+                return reg.date
+            elif col == self.PARTNER:
+                return reg.partner
+            elif col == self.DOC_REPR:
+                return reg.doc
+            elif col == self.EXTERNAL_DOC:
+                return reg.external
+            elif col == self.COST:
+                return reg.cost
+
+    @classmethod
+    def by_document(cls, doc_repr, proforma=False):
+        type, number = doc_repr.split('-')
+        type, number = int(type), int(number)
+        if not proforma:
+            try:
+                register = db.session.query(db.PurchaseProforma.type, db.PurchaseProforma.number).\
+                    join(db.PurchaseInvoice).where(db.PurchaseInvoice.type == type).\
+                    where(db.PurchaseInvoice.number == number).one()
+            except sqlalchemy.exc.NoResultFound:
+                raise ValueError("No results found")
+            else:
+                type = register.type
+                number = register.number
+
+        self = cls()
+
+        for register in db.session.query(db.ReceptionSerie.serie, db.PurchaseProforma.external).join(db.ReceptionLine).\
+                join(db.Reception).join(db.PurchaseProforma). \
+                where(db.PurchaseProforma.type == type). \
+                where(db.PurchaseProforma.number == number):
+
+            self.registers.append(StockValuationEntry(do_cost_price(register.serie), register.external))
+
+        return self
+
+    @classmethod
+    def by_imei(cls, imei):
+        self = cls()
+        external = get_external_from_imei(imei)
+        self.registers.append(StockValuationEntry(do_cost_price(imei), external))
+        return self
+
+    @classmethod
+    def by_warehouse(cls, warehouse_id):
+        self = cls()
+        print(warehouse_id)
+        for register in db.session.query(db.Imei.imei).where(db.Imei.warehouse_id == warehouse_id):
+            external = get_external_from_imei(register.imei)
+            self.registers.append(StockValuationEntry(do_cost_price(register.imei), external))
+
+        return self
+
+    def export(self, filepath):
+        from openpyxl import Workbook
+        wb = Workbook()
+        ws = wb.active
+        ws.append(self._headerData)
+        for register in self.registers:
+            ws.append(register.as_tuple)
+
+        wb.save(filepath)
+

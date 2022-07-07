@@ -93,7 +93,8 @@ ACTIONS = [
     'tocn',
     'sii',
     'harvest',
-    'facks'
+    'facks',
+    'stock_valuation'
 ]
 
 
@@ -1484,9 +1485,13 @@ class MainGui(Ui_MainGui, QMainWindow):
         from facks import Form
         Form(self).exec_()
 
+    def tools_stock_valuation_handler(self):
+        from stock_valuation import Form
+        Form(self).exec_()
+
 
     def tab_changed(self, index):
-        # Clean up the filters also 
+        # Clean up the filters also
         # And complete the rest of the models
         db.session.commit()
 
