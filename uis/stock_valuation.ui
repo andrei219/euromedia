@@ -72,9 +72,9 @@
    <property name="geometry">
     <rect>
      <x>387</x>
-     <y>100</y>
-     <width>200</width>
-     <height>87</height>
+     <y>106</y>
+     <width>191</width>
+     <height>81</height>
     </rect>
    </property>
    <property name="title">
@@ -90,10 +90,36 @@
     <property name="geometry">
      <rect>
       <x>30</x>
-      <y>40</y>
+      <y>50</y>
       <width>137</width>
       <height>20</height>
      </rect>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="warehouse_grouped">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>20</y>
+      <width>71</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Grouped</string>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="warehouse_itemized">
+    <property name="geometry">
+     <rect>
+      <x>110</x>
+      <y>20</y>
+      <width>82</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Itemized</string>
     </property>
    </widget>
   </widget>

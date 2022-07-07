@@ -7131,7 +7131,17 @@ class FucksModel(BaseTable, QtCore.QAbstractTableModel):
             return path
 
 
-class StockValuationEntry:
+class Tupable:
+
+    @property
+    def as_tuple(self):
+        return tuple(self.__dict__.values())
+
+class StockValuationEntryDocument(Tupable):
+    pass
+
+
+class StockValuationEntryImei(Tupable):
 
     def __init__(self, purchase_row: PurchaseRow, external):
         self.description = purchase_row.pitem
@@ -7147,9 +7157,9 @@ class StockValuationEntry:
         self.external = external
         self.cost = purchase_row.ptotal
 
-    @property
-    def as_tuple(self):
-        return tuple(self.__dict__.values())
+
+class StockValuationEntryWarehouse(Tupable):
+    pass 
 
 
 def get_external_from_imei(imei):
@@ -7160,18 +7170,32 @@ def get_external_from_imei(imei):
     except IndexError:
         return ''
 
-class StockValuationModel(BaseTable, QtCore.QAbstractTableModel):
-    DESC, COND, SPEC, SERIAL, DATE, PARTNER, DOC_REPR, EXTERNAL_DOC, COST = 0, 1, 2, 3, 4, 5, 6, 7, 8
 
-    def __init__(self):
+class Exportable:
+
+    def export(self, filepath):
+        from openpyxl import Workbook
+        wb = Workbook()
+        ws = wb.active
+        ws.append(self._headerData)
+        for entry in self.entries:
+            ws.append(entry.as_tuple)
+
+        wb.save(filepath)
+
+
+class StockValuationModelDocument(Exportable, BaseTable, QtCore.QAbstractTableModel):
+    DESC, COND, SPEC, QNT, DATE, PARTNER, DOC_REPR, EXTERNAL_DOC, COST = 0, 1, 2, 3, 4, 5, 6, 7, 8
+
+    def __init__(self, doc_repr, proforma=False):
         super().__init__()
-        self.name = 'registers'
-        self.registers = []
+        self.name = 'entries'
+        self.entries = []
         self._headerData = [
             'Description',
             'Condition',
             'Spec',
-            'Serial',
+            'Qnt',
             'Purchase Date',
             'Partner',
             'Nº Doc',
@@ -7179,13 +7203,177 @@ class StockValuationModel(BaseTable, QtCore.QAbstractTableModel):
             'Cost'
         ]
 
+        self.init_data(doc_repr, proforma=proforma)
+
     def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
         if not index.isValid():
             return
 
         row, col = index.row(), index.column()
         if role == Qt.DisplayRole:
-            reg = self.registers[row]
+            reg = self.entries[row]
+            if col == self.DESC:
+                return reg.description
+            elif col == self.COND:
+                return reg.condition
+            elif col == self.SPEC:
+                return reg.spec
+            elif col == self.QNT:
+                return reg.qnt
+            elif col == self.DATE:
+                return reg.date
+            elif col == self.PARTNER:
+                return reg.partner
+            elif col == self.DOC_REPR:
+                return reg.doc
+            elif col == self.EXTERNAL_DOC:
+                return reg.external
+            elif col == self.COST:
+                return reg.cost
+
+    def init_data(self, doc_repr, proforma=False):
+        type, number = doc_repr.split('-')
+        type, number = int(type), int(number)
+        if not proforma:
+            try:
+                purchase_proforma = db.session.query(db.PurchaseProforma).\
+                    join(db.PurchaseInvoice).where(db.PurchaseInvoice.type == type).\
+                    where(db.PurchaseInvoice.number == number).one()
+            except sqlalchemy.exc.NoResultFound:
+                raise ValueError("No results found")
+        else:
+
+            try:
+                purchase_proforma = db.session.query(db.PurchaseProforma).\
+                    where(db.PurchaseProforma.type == type).\
+                    where(db.PurchaseProforma.number == number).one()
+            except sqlalchemy.exc.NoResultFound:
+                raise ValueError("No results found")
+
+        for line in purchase_proforma.lines:
+
+            entry = StockValuationEntryDocument()
+            entry.description = line.description or line.item.clean_repr
+            entry.condition = line.condition
+            entry.spec = line.spec 
+            entry.qnt = line.quantity
+            if not proforma:
+                entry.date = purchase_proforma.invoice.date.strftime('%d/%m/%Y')
+            else:
+                entry.date = purchase_proforma.date.strftime('%d/%m/%Y')
+            
+            entry.partner = purchase_proforma.partner.fiscal_name
+            entry.doc = purchase_proforma.doc_repr if proforma else purchase_proforma.invoice.doc_repr
+            entry.external = purchase_proforma.external
+            
+            avg_rate = get_avg_rate(purchase_proforma)
+            if isinstance(avg_rate, str):
+                raise ValueError('I could not find mean rate')
+            
+            base_price = line.price / avg_rate
+
+            remaining_expense, shipping_expense = get_purchase_expenses_breakdown(purchase_proforma)  # already rate applied
+            shipping_delta = shipping_expense / purchase_proforma.total_quantity
+            remaining_expense_delta = base_price * remaining_expense / get_purchase_stock_value(purchase_proforma)
+
+            entry.cost = base_price + shipping_delta + remaining_expense_delta
+
+            self.entries.append(entry)
+
+
+class StockValuationEntryWarehouse:
+
+    def __init__(self, purchase_row: PurchaseRow, external):
+        self.description = purchase_row.pitem
+        self.condition = purchase_row.pcond
+        self.spec = purchase_row.pspec
+        self.serial = purchase_row.pserie
+        self.qnt = 1
+        self.date = purchase_row.pdate
+        self.partner = purchase_row.ppartner
+
+        prefix = 'INV ' if purchase_row.pdoc_type.startswith('Inv') else 'PI '
+        self.doc = prefix + purchase_row.pdoc_number
+
+        self.external = external
+        self.cost = purchase_row.ptotal
+
+
+    @property
+    def as_tuple(self):
+        return tuple(self.__dict__.values())
+
+
+class StockValuationEntryWarehouseNoSerie:
+
+
+    def __init__(self, description, condition, spec,date, partner, doc, external, cost, qnt) :
+        self.description = description
+        self.condition = condition
+        self.spec = spec
+        self.date = date
+        self.partner = partner
+        self.doc = doc
+        self.external = external
+        self.cost = cost
+        self.serial = '' 
+        self.qnt = qnt
+
+
+class StockValuationModelWarehouse(Exportable, BaseTable, QtCore.QAbstractTableModel):
+    DESC, COND, SPEC, SERIAL, QNT, DATE, PARTNER, DOC_REPR, EXTERNAL_DOC, COST = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
+
+    def __init__(self, warehouse_id):
+        super().__init__()
+        self.name = 'entries'
+        self.entries = []
+        self._headerData = [
+            'Description',
+            'Condition',
+            'Spec',
+            'Serial',
+            'Qnt',
+            'Purchase Date',
+            'Partner',
+            'Nº Doc',
+            'External Doc',
+            'Cost'
+        ]
+
+        registers = []
+        for register in db.session.query(db.Imei.imei).where(db.Imei.warehouse_id == warehouse_id):
+            external = get_external_from_imei(register.imei)
+            registers.append(StockValuationEntryWarehouse(do_cost_price(register.imei), external))
+
+        has_not_serie = lambda object: utils.valid_uuid(object.serial)
+        has_serie = lambda object: not utils.valid_uuid(object.serial)
+
+
+        uuid_group = list(filter(has_not_serie, registers))
+        sn_group = filter(has_serie, registers)
+
+        key = operator.attrgetter('description', 'condition', 'spec', 'cost')
+        uuid_group = sorted(uuid_group, key=key)
+
+        for entry in sn_group:
+            self.entries.append(entry)
+
+        key = operator.attrgetter('description', 'condition', 'spec', 'date', 'partner', 'doc', 'external', 'cost')
+
+        for key, group in groupby(iterable=uuid_group, key=key):
+            description, condition, spec, date, partner, doc, external, cost = key
+            
+            self.entries.append(StockValuationEntryWarehouseNoSerie(
+                description, condition, spec, date, partner, doc, external, cost, len(list(group)))
+            )  
+            
+    def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
+        if not index.isValid():
+            return
+
+        row, col = index.row(), index.column()
+        if role == Qt.DisplayRole:
+            reg = self.entries[row]
             if col == self.DESC:
                 return reg.description
             elif col == self.COND:
@@ -7204,57 +7392,55 @@ class StockValuationModel(BaseTable, QtCore.QAbstractTableModel):
                 return reg.external
             elif col == self.COST:
                 return reg.cost
+            elif col == self.QNT:
+                return reg.qnt
 
-    @classmethod
-    def by_document(cls, doc_repr, proforma=False):
-        type, number = doc_repr.split('-')
-        type, number = int(type), int(number)
-        if not proforma:
-            try:
-                register = db.session.query(db.PurchaseProforma.type, db.PurchaseProforma.number).\
-                    join(db.PurchaseInvoice).where(db.PurchaseInvoice.type == type).\
-                    where(db.PurchaseInvoice.number == number).one()
-            except sqlalchemy.exc.NoResultFound:
-                raise ValueError("No results found")
-            else:
-                type = register.type
-                number = register.number
 
-        self = cls()
+class StockValuationModelImei(Exportable, BaseTable, QtCore.QAbstractTableModel):
+    DESC, COND, SPEC, SERIAL, DATE, PARTNER, DOC_REPR, EXTERNAL_DOC, COST, QNT = 0, 1, 2, 3, 4, 5, 6, 7, 8,9
 
-        for register in db.session.query(db.ReceptionSerie.serie, db.PurchaseProforma.external).join(db.ReceptionLine).\
-                join(db.Reception).join(db.PurchaseProforma). \
-                where(db.PurchaseProforma.type == type). \
-                where(db.PurchaseProforma.number == number):
+    def __init__(self, imei):
+        super().__init__()
+        self._headerData = [
+            'Description',
+            'Condition',
+            'Spec',
+            'Serial',
+            'Purchase Date',
+            'Partner',
+            'Nº Doc',
+            'External Doc',
+            'Cost'
+        ]
 
-            self.registers.append(StockValuationEntry(do_cost_price(register.serie), register.external))
-
-        return self
-
-    @classmethod
-    def by_imei(cls, imei):
-        self = cls()
         external = get_external_from_imei(imei)
-        self.registers.append(StockValuationEntry(do_cost_price(imei), external))
-        return self
+        self.name = 'entries'
+        self.entries = []
+        self.entries.append(StockValuationEntryImei(do_cost_price(imei), external))
 
-    @classmethod
-    def by_warehouse(cls, warehouse_id):
-        self = cls()
-        print(warehouse_id)
-        for register in db.session.query(db.Imei.imei).where(db.Imei.warehouse_id == warehouse_id):
-            external = get_external_from_imei(register.imei)
-            self.registers.append(StockValuationEntry(do_cost_price(register.imei), external))
 
-        return self
+    def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
+        if not index.isValid():
+            return
 
-    def export(self, filepath):
-        from openpyxl import Workbook
-        wb = Workbook()
-        ws = wb.active
-        ws.append(self._headerData)
-        for register in self.registers:
-            ws.append(register.as_tuple)
-
-        wb.save(filepath)
-
+        row, col = index.row(), index.column()
+        if role == Qt.DisplayRole:
+            reg = self.entries[row]
+            if col == self.DESC:
+                return reg.description
+            elif col == self.COND:
+                return reg.condition
+            elif col == self.SPEC:
+                return reg.spec
+            elif col == self.SERIAL:
+                return reg.serial
+            elif col == self.DATE:
+                return reg.date
+            elif col == self.PARTNER:
+                return reg.partner
+            elif col == self.DOC_REPR:
+                return reg.doc
+            elif col == self.EXTERNAL_DOC:
+                return reg.external
+            elif col == self.COST:
+                return reg.cost

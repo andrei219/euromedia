@@ -2,7 +2,10 @@
 from PyQt5.QtWidgets import QDialog, QMessageBox
 from ui_stock_valuation import Ui_Dialog
 
-from models import StockValuationModel
+from models import StockValuationModelDocument
+from models import StockValuationModelImei
+from models import StockValuationModelWarehouse
+
 
 import utils
 
@@ -49,7 +52,7 @@ class Form(Ui_Dialog, QDialog):
             doc_repr = self.document.text()
             if utils.match_doc_repr(doc_repr):
                 try:
-                    self.model = StockValuationModel.by_document(
+                    self.model = StockValuationModelDocument(
                         doc_repr=doc_repr,
                         proforma=self.proforma.isChecked()
                     )
@@ -57,9 +60,8 @@ class Form(Ui_Dialog, QDialog):
                 except ValueError as ex:
                     QMessageBox.critical(self, 'Error', str(ex))
 
-
         elif self.by_serial.isChecked():
-            self.model = StockValuationModel.by_imei(self.serial.text())
+            self.model = StockValuationModelImei(self.serial.text())
             self.view.setModel(self.model)
 
         elif self.by_warehouse.isChecked():
@@ -68,7 +70,7 @@ class Form(Ui_Dialog, QDialog):
             except KeyError:
                 return
             else:
-                self.model = StockValuationModel.by_warehouse(warehouse_id)
+                self.model = StockValuationModelWarehouse(warehouse_id)
                 self.view.setModel(self.model)
 
 
