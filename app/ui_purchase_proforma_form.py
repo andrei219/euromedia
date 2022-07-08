@@ -123,7 +123,7 @@ class Ui_PurchaseProformaForm(object):
         self.price_spinbox.setStyleSheet("font-weight:normal; ")
         self.price_spinbox.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.price_spinbox.setDecimals(2)
-        self.price_spinbox.setMinimum(1.0)
+        self.price_spinbox.setMinimum(0.0)
         self.price_spinbox.setMaximum(999999999.99)
         self.price_spinbox.setObjectName("price_spinbox")
         self.label_22 = QtWidgets.QLabel(self.groupBox)
