@@ -8,6 +8,8 @@ from ui_payments_form import Ui_PaymentsForm
 from utils import parse_date, today_date
 
 from models import PaymentModel
+from models import caches_clear
+
 
 class PaymentForm(Ui_PaymentsForm, QDialog):
 
@@ -36,6 +38,8 @@ class PaymentForm(Ui_PaymentsForm, QDialog):
         self.rate.setEnabled(not self.proforma.eur_currency)
         self.rate.setText('1.0')
 
+
+
     def addHandler(self):
         try:
             date = parse_date(self.date_line_edit.text())
@@ -54,7 +58,6 @@ class PaymentForm(Ui_PaymentsForm, QDialog):
 
         try:
             rate = self.rate.text().replace(',', '.') 
-
             rate = float(rate)
         
         except ValueError:
@@ -72,7 +75,9 @@ class PaymentForm(Ui_PaymentsForm, QDialog):
         except Exception as ex:
             raise 
             QMessageBox.critical(self, 'Error - Update', 'Could not add payment')
-    
+        else:
+            caches_clear()
+
     def deleteHandler(self):
         indexes = self.view.selectedIndexes()
         if not indexes:
@@ -84,8 +89,8 @@ class PaymentForm(Ui_PaymentsForm, QDialog):
             self.updateOwing()
         except ValueError as ex:
             QMessageBox.critical(self, 'Error - Update', str(ex))
-
-
+        else:
+            caches_clear()
 
     def updateOwing(self):
         self.owing_lineedit.setText(str(self.proforma.total_debt - self.proforma.total_paid))
@@ -119,13 +124,7 @@ class PaymentForm(Ui_PaymentsForm, QDialog):
         self.total_linedit.setText(str(self.proforma.total_debt))
         self.owing_lineedit.setText(str(self.proforma.total_debt - self.proforma.total_paid))
 
-
     def closeEvent(self, event):
-        # Es importante hacer esto porque si  no
-        # los cambios solo seran guardados en la base 
-        # cuando se ejecute un proximo commit 
-        # Queremos que esten alli lo antes posible
-        # Por si otra persona quiere consultar pagos.
         import db
         try:
             db.session.commit()
@@ -133,7 +132,6 @@ class PaymentForm(Ui_PaymentsForm, QDialog):
             db.session.rollback()  
             raise
         super().closeEvent(event)
-
 
     @property
     def total(self):

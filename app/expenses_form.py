@@ -7,6 +7,7 @@ from ui_expenses_form import Ui_ExpenseForm
 
 from utils import parse_date
 from models import ExpenseModel
+from models import caches_clear
 
 class ExpenseForm(Ui_ExpenseForm, QDialog):
     def __init__(self, parent, proforma, sale=False):
@@ -47,6 +48,8 @@ class ExpenseForm(Ui_ExpenseForm, QDialog):
         except:
             raise 
             QMessageBox.critical(self, 'Error - Update', 'Could not add expense')
+        else:
+            caches_clear()
 
     def deleteExpenses(self):
         indexes = self.view.selectedIndexes() 
@@ -59,6 +62,8 @@ class ExpenseForm(Ui_ExpenseForm, QDialog):
         except:
             raise 
             QMessageBox.critical(self, 'Error - Update', 'Could not delete expenses')
+        else:
+            caches_clear()
 
     def updateSpent(self):
         self.spent_line_edit.setText(str(self.model.spent)) 

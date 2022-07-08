@@ -1493,6 +1493,7 @@ class MainGui(Ui_MainGui, QMainWindow):
     def tab_changed(self, index):
         # Clean up the filters also
         # And complete the rest of the models
+
         db.session.commit()
 
         if index == 1:

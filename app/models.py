@@ -7159,7 +7159,7 @@ class StockValuationEntryImei(Tupable):
 
 
 class StockValuationEntryWarehouse(Tupable):
-    pass 
+    pass
 
 
 def get_external_from_imei(imei):
@@ -7273,6 +7273,7 @@ class StockValuationModelDocument(Exportable, BaseTable, QtCore.QAbstractTableMo
             base_price = line.price / avg_rate
 
             remaining_expense, shipping_expense = get_purchase_expenses_breakdown(purchase_proforma)  # already rate applied
+
             shipping_delta = shipping_expense / purchase_proforma.total_quantity
             remaining_expense_delta = base_price * remaining_expense / get_purchase_stock_value(purchase_proforma)
 
@@ -7444,3 +7445,15 @@ class StockValuationModelImei(Exportable, BaseTable, QtCore.QAbstractTableModel)
                 return reg.external
             elif col == self.COST:
                 return reg.cost
+
+
+def caches_clear():
+    get_avg_rate.cache_clear()
+    get_purchase_expenses_breakdown.cache_clear()
+    get_purchase_stock_value.cache_clear()
+    get_sale_stock_key.cache_clear()
+    get_sale_shipping_key.cache_clear()
+    get_sale_terms_key.cache_clear()
+    get_sale_breakdown.cache_clear()
+    get_sale_proforma_stock_value.cache_clear()
+
