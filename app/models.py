@@ -6268,6 +6268,7 @@ candidates.extend([c.description for c in db.session.query(db.Courier)])
 @functools.cache
 def get_avg_rate(proforma):
     if proforma.eur_currency:
+        print('proforma.eur_currency')
         return 1
 
     if all(payment.rate == 1 for payment in proforma.payments):
@@ -6279,6 +6280,8 @@ def get_avg_rate(proforma):
     for payment in proforma.payments:
         base += payment.amount
         base_with_rates += payment.amount / payment.rate
+
+    print(f'base={base}, base_with_rates={base_with_rates}, total_debt={proforma.total_debt}, base/base_with_rate={base/base_with_rates}')
 
     if base == 0:
         return 'No payments yet'
@@ -6301,10 +6304,10 @@ def get_purchase_expenses_breakdown(proforma):
         else:
             for candidate in candidates:
                 if line.description.lower().find(candidate.lower()) != -1:
-                    shipping_cost += line.price * line.quantity * (1 + line.tax / 100) / avg_rate
+                    shipping_cost += line.price * line.quantity * (1 + line.tax / 100)
                     break
             else:
-                remaining_cost += line.price * line.quantity * (1 + line.tax / 100) / avg_rate
+                remaining_cost += line.price * line.quantity * (1 + line.tax / 100)
 
     # Search in associated expenses:
     for expense in proforma.expenses:
@@ -7270,14 +7273,15 @@ class StockValuationModelDocument(Exportable, BaseTable, QtCore.QAbstractTableMo
             if isinstance(avg_rate, str):
                 raise ValueError('I could not find mean rate')
             
-            base_price = line.price / avg_rate
+            base_price = line.price
 
             remaining_expense, shipping_expense = get_purchase_expenses_breakdown(purchase_proforma)  # already rate applied
 
             shipping_delta = shipping_expense / purchase_proforma.total_quantity
+
             remaining_expense_delta = base_price * remaining_expense / get_purchase_stock_value(purchase_proforma)
 
-            entry.cost = base_price + shipping_delta + remaining_expense_delta
+            entry.cost = base_price/avg_rate + shipping_delta + remaining_expense_delta
 
             self.entries.append(entry)
 

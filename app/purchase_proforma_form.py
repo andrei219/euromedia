@@ -84,7 +84,7 @@ class Form(Ui_PurchaseProformaForm, QWidget):
         self.subtotal_spinbox.valueChanged.connect(subtotalOrTaxChanged)
         self.type_combo_box.currentTextChanged.connect(typeChanged)
 
-        self.partner_line_edit.textChanged.connect(self.partnerSearch)
+        self.partner_line_edit.returnPressed.connect(self.partnerSearch)
         self.addButton.clicked.connect(self.addHandler)
         self.deleteButton.clicked.connect(self.deleteHandler)
         self.save_button.clicked.connect(self.saveHandler)
@@ -349,7 +349,6 @@ class EditableForm(Form):
             self.date_line_edit.setText(str(p.date.strftime('%d%m%Y')))
             self.eta_line_edit.setText(str(p.eta.strftime('%d%m%Y')))
 
-        self.partner_line_edit.setText(p.partner.fiscal_name)
         self.agent_combobox.setCurrentText(p.agent.fiscal_name)
         self.warehouse_combobox.setCurrentText(p.warehouse.description)
         self.courier_combobox.setCurrentText(p.courier.description)
@@ -357,6 +356,8 @@ class EditableForm(Form):
         self.warranty_spinbox.setValue(p.warranty)
         self.days_credit_spinbox.setValue(p.credit_days)
         self.eur_radio_button.setChecked(p.eur_currency)
+        self.usd_radio_button.setChecked(not p.eur_currency)
+
         self.with_credit_spinbox.setValue(p.credit_amount)
         self.external_line_edit.setText(p.external)
         self.tracking_line_edit.setText(p.tracking)
@@ -364,6 +365,8 @@ class EditableForm(Form):
         self.we_pay_we_ship_shipping_radio_button.setChecked(p.we_pay_we_ship)
         self.we_pay_they_ship_shipping_radio_button.setChecked(p.we_pay_they_ship)
         self.note.setText(p.note)
+        self.partner_line_edit.setText(p.partner.fiscal_name)
+
 
     def saveHandler(self):
         if not self._validHeader():
