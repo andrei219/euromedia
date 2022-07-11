@@ -1,8 +1,6 @@
 from PyQt5 import QtGui
 from PyQt5.QtWidgets import QTableView
 
-from run import app
-
 
 class MenuTable(QTableView):
 
