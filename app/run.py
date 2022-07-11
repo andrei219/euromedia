@@ -6,8 +6,8 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import QtWidgets 
 
-QtWidgets.QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
-QtWidgets.QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
+# QtWidgets.QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
+# QtWidgets.QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
 
 
 

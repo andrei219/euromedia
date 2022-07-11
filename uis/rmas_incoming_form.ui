@@ -81,7 +81,7 @@
     <bool>true</bool>
    </property>
   </widget>
-  <widget class="QTableView" name="view">
+  <widget class="MenuTable" name="view">
    <property name="geometry">
     <rect>
      <x>30</x>
@@ -172,7 +172,23 @@
     <bool>false</bool>
    </property>
   </widget>
+  <zorder>save</zorder>
+  <zorder>exit</zorder>
+  <zorder>sn</zorder>
+  <zorder>check</zorder>
+  <zorder>label_3</zorder>
+  <zorder>delete_</zorder>
+  <zorder>label_4</zorder>
+  <zorder>date</zorder>
+  <zorder>view</zorder>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>MenuTable</class>
+   <extends>QTableView</extends>
+   <header>menutable.h</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="../app/icons.qrc"/>
  </resources>

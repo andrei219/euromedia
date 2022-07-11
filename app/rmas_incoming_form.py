@@ -1,5 +1,4 @@
-
-
+from PyQt5 import QtGui
 from PyQt5.QtWidgets import QWidget, QMessageBox, QTableView
 from ui_rmas_incoming_form import Ui_Form
 
@@ -47,6 +46,10 @@ class Form(Ui_Form, QWidget):
         self.view.setSelectionMode(QTableView.SingleSelection)
         self.view.setAlternatingRowColors(True)
         self.view.setSelectionBehavior(QTableView.SelectRows)
+
+
+    def contextMenuEvent(self, a0: QtGui.QContextMenuEvent) -> None:
+        self.menu = QtGui.QMenu()
 
 
     def set_model(self):
