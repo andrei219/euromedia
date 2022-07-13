@@ -10,7 +10,7 @@ from models import SIILogModel
 
 class Form(Ui_Dialog, QDialog):
 
-    def __init__(self, parent, registers):
+    def __init__(self, parent):
         super(Form, self).__init__(parent)
         self.setupUi(self)
 
