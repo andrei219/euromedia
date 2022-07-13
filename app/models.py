@@ -864,7 +864,7 @@ class SaleInvoiceModel(QtCore.QAbstractTableModel):
 
     def sort(self, section, order):
         reverse = True if order == Qt.AscendingOrder else False
-        if section == self.__class__.TYPE_NUM:
+        if section == self.TYPE_NUM:
             self.layoutAboutToBeChanged.emit()
             self.invoices.sort(
                 key=lambda p: (p.invoice.type, p.invoice.number),
@@ -872,15 +872,21 @@ class SaleInvoiceModel(QtCore.QAbstractTableModel):
             )
             self.layoutChanged.emit()
 
-        elif section == self.__class__.PROFORMA:
+        elif section == self.PROFORMA:
             self.layoutAboutToBeChanged.emit()
             self.invoices.sort(
                 key=lambda p: (p.type, p.number),
                 reverse=reverse
             )
             self.layoutChanged.emit()
+        elif section == self.DATE:
+            self.layoutAboutToBeChanged.emit()
+            self.invoices.sort(
+                key = lambda p: p.invoice.date,
+                reverse=reverse
+            )
+            self.layoutChanged.emit() 
         else:
-
             self.layoutAboutToBeChanged.emit()
             self.parent_model.sort(section, order)
             self.layoutChanged.emit()
@@ -1653,7 +1659,11 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
             except ValueError:
                 pass
             else:
-                predicates.append(db.SaleProforma.number == n)
+
+                if proxy:
+                    predicates.append(db.SaleInvoice.number == n)
+                else:
+                    predicates.append(db.SaleProforma.number == n)
 
             query = query.where(or_(*predicates))
 
@@ -6258,7 +6268,8 @@ candidates = [
     'dhl',
     'courier',
     'freight',
-    'freigth'
+    'freigth',
+
 ]
 
 candidates.extend([c.description for c in db.session.query(db.Courier)])
