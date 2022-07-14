@@ -4,11 +4,18 @@ from ui_credit_note_form import Ui_Form
 
 from PyQt5.QtWidgets import QWidget, QTableView
 from PyQt5.QtWidgets import QMessageBox
+from PyQt5.QtCore import Qt
 
 from models import CreditNoteLineModel
 
 import utils
 from db import session
+
+
+def mouse_press_event(self, event):
+    if event.button() == Qt.LeftButton:
+        print('eee')
+
 
 class Form(Ui_Form, QWidget):
 
@@ -24,8 +31,11 @@ class Form(Ui_Form, QWidget):
         self.save.clicked.connect(self.save_handler)
         self.set_form()
 
+
     def set_handlers(self):
+
         self.save.clicked.connect(self.save_handler)
+
 
 
     def closeEvent(self, a0: QtGui.QCloseEvent) -> None:

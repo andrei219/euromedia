@@ -94,7 +94,7 @@ courier_id_map = bidict({
 })
 warehouse_id_map = bidict({
     w.description: w.id
-    for w in db.session.query(db.Warehouse.description, db.Warehouse.id)
+    for w in db.session.query(db.Warehouse.description, db.Warehouse.id).order_by(db.Warehouse.id)
 })
 
 import uuid

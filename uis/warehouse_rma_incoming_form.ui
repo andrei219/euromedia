@@ -69,7 +69,7 @@
     <bool>true</bool>
    </property>
   </widget>
-  <widget class="QTableView" name="view">
+  <widget class="ClipView" name="view">
    <property name="geometry">
     <rect>
      <x>40</x>
@@ -162,6 +162,13 @@
    </property>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ClipView</class>
+   <extends>QTableView</extends>
+   <header location="global">clipview</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="../app/icons.qrc"/>
  </resources>

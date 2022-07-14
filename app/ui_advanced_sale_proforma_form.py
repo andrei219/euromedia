@@ -228,7 +228,7 @@ class Ui_Form(object):
         self.groupBox.setGeometry(QtCore.QRect(40, 250, 1121, 281))
         self.groupBox.setFlat(True)
         self.groupBox.setObjectName("groupBox")
-        self.lines_view = QtWidgets.QTableView(self.groupBox)
+        self.lines_view = ClipView(self.groupBox)
         self.lines_view.setEnabled(True)
         self.lines_view.setGeometry(QtCore.QRect(0, 20, 1121, 261))
         self.lines_view.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
@@ -253,7 +253,7 @@ class Ui_Form(object):
         self.groupBox_5 = QtWidgets.QGroupBox(Form)
         self.groupBox_5.setGeometry(QtCore.QRect(30, 570, 891, 291))
         self.groupBox_5.setObjectName("groupBox_5")
-        self.stock_view = QtWidgets.QTableView(self.groupBox_5)
+        self.stock_view = ClipView(self.groupBox_5)
         self.stock_view.setGeometry(QtCore.QRect(0, 80, 891, 211))
         self.stock_view.setObjectName("stock_view")
         self.groupBox_6 = QtWidgets.QGroupBox(self.groupBox_5)
@@ -475,3 +475,4 @@ class Ui_Form(object):
         self.label_2.setText(_translate("Form", "Credit N.:"))
         self.label_3.setText(_translate("Form", "Pending:"))
         self.label_38.setText(_translate("Form", "Total "))
+from clipview import ClipView

@@ -25,7 +25,7 @@
    <property name="title">
     <string>Previous Lines:</string>
    </property>
-   <widget class="QTableView" name="lines_view">
+   <widget class="ClipView" name="lines_view">
     <property name="geometry">
      <rect>
       <x>0</x>
@@ -171,7 +171,7 @@
    <property name="title">
     <string>Available Physical Stock:</string>
    </property>
-   <widget class="QTableView" name="stock_view">
+   <widget class="ClipView" name="stock_view">
     <property name="geometry">
      <rect>
       <x>0</x>
@@ -194,7 +194,7 @@
    <property name="title">
     <string>Selected Stock Per Line:</string>
    </property>
-   <widget class="QTableView" name="defined_view">
+   <widget class="ClipView" name="defined_view">
     <property name="geometry">
      <rect>
       <x>0</x>
@@ -258,6 +258,13 @@
    </property>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ClipView</class>
+   <extends>QTableView</extends>
+   <header location="global">clipview</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
   <connection>

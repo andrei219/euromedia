@@ -132,6 +132,7 @@ class Completer:
                 self.stock_base.conditions.union({'Mix'}) 
             )
 
+
 class Form(Ui_SalesProformaForm, QWidget):
 
     def __init__(self, parent, view):

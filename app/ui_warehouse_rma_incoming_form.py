@@ -32,7 +32,7 @@ class Ui_Form(object):
         self.partner.setGeometry(QtCore.QRect(350, 47, 311, 20))
         self.partner.setReadOnly(True)
         self.partner.setObjectName("partner")
-        self.view = QtWidgets.QTableView(Form)
+        self.view = ClipView(Form)
         self.view.setGeometry(QtCore.QRect(40, 120, 881, 331))
         self.view.setObjectName("view")
         self.save = QtWidgets.QToolButton(Form)
@@ -69,4 +69,5 @@ class Ui_Form(object):
         self.label_2.setText(_translate("Form", "Partner:"))
         self.save.setText(_translate("Form", "Save"))
         self.exit.setText(_translate("Form", "Exit"))
+from clipview import ClipView
 import icons_rc

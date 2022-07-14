@@ -55,7 +55,7 @@
     <enum>Qt::Horizontal</enum>
    </property>
   </widget>
-  <widget class="QTableView" name="lines_view">
+  <widget class="ClipView" name="lines_view">
    <property name="geometry">
     <rect>
      <x>50</x>
@@ -1484,6 +1484,13 @@
    </property>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ClipView</class>
+   <extends>QTableView</extends>
+   <header location="global">clipview</header>
+  </customwidget>
+ </customwidgets>
  <tabstops>
   <tabstop>description_line_edit</tabstop>
   <tabstop>condition_line_edit</tabstop>

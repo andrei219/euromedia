@@ -4966,7 +4966,8 @@ class DefinedSeriesModel(QtCore.QAbstractListModel):
         return len(self.series)
 
     def data(self, index, role=Qt.DisplayRole):
-        if not index.isValid(): return
+        if not index.isValid():
+            return
         if role == Qt.DisplayRole:
             return self.series[index.row()]
 

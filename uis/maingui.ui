@@ -269,7 +269,7 @@
        <pixmap resource="../app/icons.qrc">:/search</pixmap>
       </property>
      </widget>
-     <widget class="QTableView" name="agents_view">
+     <widget class="ClipView" name="agents_view">
       <property name="geometry">
        <rect>
         <x>10</x>
@@ -459,7 +459,7 @@
        </layout>
       </widget>
      </widget>
-     <widget class="QTableView" name="partners_view">
+     <widget class="ClipView" name="partners_view">
       <property name="geometry">
        <rect>
         <x>10</x>
@@ -558,10 +558,10 @@
           </font>
          </property>
          <property name="toolTip">
-          <string>Filter Purchase Proformas By Series</string>
+          <string/>
          </property>
          <property name="statusTip">
-          <string>Filter Purchase Proformas By Series</string>
+          <string/>
          </property>
          <property name="styleSheet">
           <string notr="true">background-color:rgb(208, 208, 208); </string>
@@ -684,10 +684,10 @@
           </font>
          </property>
          <property name="toolTip">
-          <string>Filter Purchase Proformas By Financial Status</string>
+          <string/>
          </property>
          <property name="statusTip">
-          <string>Filter Purchase Proformas By Financial Status</string>
+          <string/>
          </property>
          <property name="styleSheet">
           <string notr="true">background-color:rgb(208, 208, 208); </string>
@@ -771,10 +771,10 @@
           </font>
          </property>
          <property name="toolTip">
-          <string>Filter Purchase Proformas By Logistic Status</string>
+          <string/>
          </property>
          <property name="statusTip">
-          <string>Filter Purchase Proformas By Logistic Status</string>
+          <string/>
          </property>
          <property name="styleSheet">
           <string notr="true">background-color:rgb(208, 208, 208); </string>
@@ -858,10 +858,10 @@
           </font>
          </property>
          <property name="toolTip">
-          <string>Filter Purchase Proformas By Shipment Status</string>
+          <string/>
          </property>
          <property name="statusTip">
-          <string>Filter Purchase Proformas By Shipment Status</string>
+          <string/>
          </property>
          <property name="styleSheet">
           <string notr="true">background-color:rgb(208, 208, 208); </string>
@@ -980,10 +980,10 @@
           </font>
          </property>
          <property name="toolTip">
-          <string>Filter Purchase Proformas By Logistic Status</string>
+          <string/>
          </property>
          <property name="statusTip">
-          <string>Filter Purchase Proformas By Logistic Status</string>
+          <string/>
          </property>
          <property name="styleSheet">
           <string notr="true">background-color:rgb(208, 208, 208); </string>
@@ -1185,10 +1185,10 @@
              </size>
             </property>
             <property name="toolTip">
-             <string>Cancel Purchase Proforma</string>
+             <string/>
             </property>
             <property name="statusTip">
-             <string>Cancel Purchase Proforma</string>
+             <string/>
             </property>
             <property name="text">
              <string>Cancel</string>
@@ -1369,13 +1369,13 @@
              </size>
             </property>
             <property name="toolTip">
-             <string>Add New Payment</string>
+             <string/>
             </property>
             <property name="toolTipDuration">
              <number>-1</number>
             </property>
             <property name="statusTip">
-             <string>Add New Payment</string>
+             <string/>
             </property>
             <property name="text">
              <string>Payments</string>
@@ -1413,10 +1413,10 @@
              </size>
             </property>
             <property name="toolTip">
-             <string>Add New Expense</string>
+             <string/>
             </property>
             <property name="statusTip">
-             <string>Add New Expense</string>
+             <string/>
             </property>
             <property name="text">
              <string>Expenses</string>
@@ -1454,10 +1454,10 @@
              </size>
             </property>
             <property name="toolTip">
-             <string>Add New Expense</string>
+             <string/>
             </property>
             <property name="statusTip">
-             <string>Add New Expense</string>
+             <string/>
             </property>
             <property name="text">
              <string>Docs</string>
@@ -1514,10 +1514,10 @@
              </size>
             </property>
             <property name="toolTip">
-             <string>Build An Invoice From This Proforma</string>
+             <string/>
             </property>
             <property name="statusTip">
-             <string>Build An Invoice From This Proforma</string>
+             <string/>
             </property>
             <property name="text">
              <string>To Invoice</string>
@@ -1555,10 +1555,10 @@
              </size>
             </property>
             <property name="toolTip">
-             <string>Send Proforma For Reception</string>
+             <string/>
             </property>
             <property name="statusTip">
-             <string>Send Proforma For Reception</string>
+             <string/>
             </property>
             <property name="text">
              <string>To WH</string>
@@ -1596,10 +1596,10 @@
              </size>
             </property>
             <property name="toolTip">
-             <string>Add Tracking String</string>
+             <string/>
             </property>
             <property name="statusTip">
-             <string>Add Tracking String</string>
+             <string/>
             </property>
             <property name="text">
              <string>Ship</string>
@@ -1625,7 +1625,7 @@
          </layout>
         </widget>
        </widget>
-       <widget class="QTableView" name="proformas_purchases_view">
+       <widget class="ClipView" name="proformas_purchases_view">
         <property name="geometry">
          <rect>
           <x>220</x>
@@ -1764,10 +1764,10 @@
           </rect>
          </property>
          <property name="toolTip">
-          <string>Filter Sale Proformas By Series</string>
+          <string/>
          </property>
          <property name="statusTip">
-          <string>Filter Sale Proformas By Series</string>
+          <string/>
          </property>
          <property name="styleSheet">
           <string notr="true">background-color:rgb(208, 208, 208); </string>
@@ -1890,10 +1890,10 @@
           </font>
          </property>
          <property name="toolTip">
-          <string>Filter Sale Proformas By Financial Status</string>
+          <string/>
          </property>
          <property name="statusTip">
-          <string>Filter Sale Proformas By Financial Status</string>
+          <string/>
          </property>
          <property name="styleSheet">
           <string notr="true">background-color:rgb(208, 208, 208); </string>
@@ -1977,10 +1977,10 @@
           </font>
          </property>
          <property name="toolTip">
-          <string>Filter Sale Proformas By Logistic Status</string>
+          <string/>
          </property>
          <property name="statusTip">
-          <string>Filter Sale Proformas By Logistic Status</string>
+          <string/>
          </property>
          <property name="styleSheet">
           <string notr="true">background-color:rgb(208, 208, 208); </string>
@@ -2038,10 +2038,10 @@
           </font>
          </property>
          <property name="toolTip">
-          <string>Filter Sale Proformas By Shipment Status</string>
+          <string/>
          </property>
          <property name="statusTip">
-          <string>Filter Sale Proformas By Shipment Status</string>
+          <string/>
          </property>
          <property name="styleSheet">
           <string notr="true">background-color:rgb(208, 208, 208); </string>
@@ -2173,10 +2173,10 @@
           </font>
          </property>
          <property name="toolTip">
-          <string>Filter Purchase Proformas By Logistic Status</string>
+          <string/>
          </property>
          <property name="statusTip">
-          <string>Filter Purchase Proformas By Logistic Status</string>
+          <string/>
          </property>
          <property name="styleSheet">
           <string notr="true">background-color:rgb(208, 208, 208); </string>
@@ -2382,10 +2382,10 @@
              </size>
             </property>
             <property name="toolTip">
-             <string>Cancel Purchase Proforma</string>
+             <string/>
             </property>
             <property name="statusTip">
-             <string>Cancel Purchase Proforma</string>
+             <string/>
             </property>
             <property name="text">
              <string>Define</string>
@@ -2423,10 +2423,10 @@
              </size>
             </property>
             <property name="toolTip">
-             <string>Cancel Purchase Proforma</string>
+             <string/>
             </property>
             <property name="statusTip">
-             <string>Cancel Purchase Proforma</string>
+             <string/>
             </property>
             <property name="text">
              <string>Cancel</string>
@@ -2712,10 +2712,10 @@
              </size>
             </property>
             <property name="toolTip">
-             <string>Add New Payment</string>
+             <string/>
             </property>
             <property name="statusTip">
-             <string>Add New Payment</string>
+             <string/>
             </property>
             <property name="text">
              <string>Payments</string>
@@ -2753,10 +2753,10 @@
              </size>
             </property>
             <property name="toolTip">
-             <string>Add New Expense</string>
+             <string/>
             </property>
             <property name="statusTip">
-             <string>Add New Expense</string>
+             <string/>
             </property>
             <property name="text">
              <string>Expenses</string>
@@ -2794,10 +2794,10 @@
              </size>
             </property>
             <property name="toolTip">
-             <string>Add New Expense</string>
+             <string/>
             </property>
             <property name="statusTip">
-             <string>Add New Expense</string>
+             <string/>
             </property>
             <property name="text">
              <string>Docs</string>
@@ -2854,10 +2854,10 @@
              </size>
             </property>
             <property name="toolTip">
-             <string>Build An Invoice From This Proforma</string>
+             <string/>
             </property>
             <property name="statusTip">
-             <string>Build An Invoice From This Proforma</string>
+             <string/>
             </property>
             <property name="text">
              <string>To Invoice</string>
@@ -2895,10 +2895,10 @@
              </size>
             </property>
             <property name="toolTip">
-             <string>Send Proforma For Expedition</string>
+             <string/>
             </property>
             <property name="statusTip">
-             <string>Send Proforma For Expedition</string>
+             <string/>
             </property>
             <property name="text">
              <string>To WH</string>
@@ -2936,10 +2936,10 @@
              </size>
             </property>
             <property name="toolTip">
-             <string>Add Tracking String</string>
+             <string/>
             </property>
             <property name="statusTip">
-             <string>Add Tracking String</string>
+             <string/>
             </property>
             <property name="text">
              <string>Ship</string>
@@ -2977,10 +2977,10 @@
              </size>
             </property>
             <property name="toolTip">
-             <string>Add Tracking String</string>
+             <string/>
             </property>
             <property name="statusTip">
-             <string>Add Tracking String</string>
+             <string/>
             </property>
             <property name="text">
              <string>Un/Ready To Go</string>
@@ -3006,7 +3006,7 @@
          </layout>
         </widget>
        </widget>
-       <widget class="QTableView" name="proformas_sales_view">
+       <widget class="ClipView" name="proformas_sales_view">
         <property name="geometry">
          <rect>
           <x>220</x>
@@ -3077,7 +3077,7 @@
        </font>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <property name="iconSize">
        <size>
@@ -3179,10 +3179,10 @@
           </font>
          </property>
          <property name="toolTip">
-          <string>Filter Purchase Invoices By Series</string>
+          <string/>
          </property>
          <property name="statusTip">
-          <string>Filter Purchase Invoices By Series</string>
+          <string/>
          </property>
          <property name="styleSheet">
           <string notr="true">background-color:rgb(208, 208, 208); </string>
@@ -3305,10 +3305,10 @@
           </font>
          </property>
          <property name="toolTip">
-          <string>Filter Purchase Invoices By Financial Status</string>
+          <string/>
          </property>
          <property name="statusTip">
-          <string>Filter Purchase Invoices By Financial Status</string>
+          <string/>
          </property>
          <property name="styleSheet">
           <string notr="true">background-color:rgb(208, 208, 208); </string>
@@ -3392,10 +3392,10 @@
           </font>
          </property>
          <property name="toolTip">
-          <string>Filter Purchase Invoices By Logistic Status</string>
+          <string/>
          </property>
          <property name="statusTip">
-          <string>Filter Purchase Invoices By Logistic Status</string>
+          <string/>
          </property>
          <property name="styleSheet">
           <string notr="true">background-color:rgb(208, 208, 208); </string>
@@ -3479,10 +3479,10 @@
           </font>
          </property>
          <property name="toolTip">
-          <string>Filter Purchase Invoices By Shipment Status</string>
+          <string/>
          </property>
          <property name="statusTip">
-          <string>Filter Purchase Invoices By Shipment Status</string>
+          <string/>
          </property>
          <property name="styleSheet">
           <string notr="true">background-color:rgb(208, 208, 208); </string>
@@ -3587,11 +3587,14 @@
            <pointsize>10</pointsize>
           </font>
          </property>
+         <property name="contextMenuPolicy">
+          <enum>Qt::PreventContextMenu</enum>
+         </property>
          <property name="toolTip">
-          <string>Filter Purchase Invoices By Financial Status</string>
+          <string/>
          </property>
          <property name="statusTip">
-          <string>Filter Purchase Invoices By Financial Status</string>
+          <string/>
          </property>
          <property name="styleSheet">
           <string notr="true">background-color:rgb(208, 208, 208); </string>
@@ -3851,13 +3854,13 @@
              </size>
             </property>
             <property name="toolTip">
-             <string>Add New Payment</string>
+             <string/>
             </property>
             <property name="toolTipDuration">
              <number>-1</number>
             </property>
             <property name="statusTip">
-             <string>Add New Payment</string>
+             <string/>
             </property>
             <property name="text">
              <string>Payment</string>
@@ -3895,10 +3898,10 @@
              </size>
             </property>
             <property name="toolTip">
-             <string>Add New Expense</string>
+             <string/>
             </property>
             <property name="statusTip">
-             <string>Add New Expense</string>
+             <string/>
             </property>
             <property name="text">
              <string>Expense</string>
@@ -3936,10 +3939,10 @@
              </size>
             </property>
             <property name="toolTip">
-             <string>Add New Expense</string>
+             <string/>
             </property>
             <property name="statusTip">
-             <string>Add New Expense</string>
+             <string/>
             </property>
             <property name="text">
              <string>Docs</string>
@@ -3977,10 +3980,10 @@
              </size>
             </property>
             <property name="toolTip">
-             <string>Send Invoice For Reception</string>
+             <string/>
             </property>
             <property name="statusTip">
-             <string>Send Invoice For Reception</string>
+             <string/>
             </property>
             <property name="text">
              <string>To WH</string>
@@ -4037,10 +4040,10 @@
              </size>
             </property>
             <property name="toolTip">
-             <string>Add Tracking String</string>
+             <string/>
             </property>
             <property name="statusTip">
-             <string>Add Tracking String</string>
+             <string/>
             </property>
             <property name="text">
              <string>Ship</string>
@@ -4204,10 +4207,10 @@
           </font>
          </property>
          <property name="toolTip">
-          <string>Filter Sale Invoices By Series</string>
+          <string/>
          </property>
          <property name="statusTip">
-          <string>Filter Sale Invoices By Series</string>
+          <string/>
          </property>
          <property name="styleSheet">
           <string notr="true">background-color:rgb(208, 208, 208); </string>
@@ -4330,10 +4333,10 @@
           </font>
          </property>
          <property name="toolTip">
-          <string>Filter Sale Invoices By Financial Status</string>
+          <string/>
          </property>
          <property name="statusTip">
-          <string>Filter Sale Invoices By Financial Status</string>
+          <string/>
          </property>
          <property name="styleSheet">
           <string notr="true">background-color:rgb(208, 208, 208); </string>
@@ -4417,10 +4420,10 @@
           </font>
          </property>
          <property name="toolTip">
-          <string>Filter Sale Invoices By Logistic Status</string>
+          <string/>
          </property>
          <property name="statusTip">
-          <string>Filter Sale Invoices By Logistic Status</string>
+          <string/>
          </property>
          <property name="styleSheet">
           <string notr="true">background-color:rgb(208, 208, 208); </string>
@@ -4491,10 +4494,10 @@
           </font>
          </property>
          <property name="toolTip">
-          <string>Filter Sale Invoices By Shipment Status</string>
+          <string/>
          </property>
          <property name="statusTip">
-          <string>Filter Sale Invoices By Shipment Status</string>
+          <string/>
          </property>
          <property name="styleSheet">
           <string notr="true">background-color:rgb(208, 208, 208); </string>
@@ -4626,10 +4629,10 @@
           </font>
          </property>
          <property name="toolTip">
-          <string>Filter Sale Invoices By Financial Status</string>
+          <string/>
          </property>
          <property name="statusTip">
-          <string>Filter Sale Invoices By Financial Status</string>
+          <string/>
          </property>
          <property name="styleSheet">
           <string notr="true">background-color:rgb(208, 208, 208); </string>
@@ -4981,10 +4984,10 @@
              </size>
             </property>
             <property name="toolTip">
-             <string>Add New Payment</string>
+             <string/>
             </property>
             <property name="statusTip">
-             <string>Add New Payment</string>
+             <string/>
             </property>
             <property name="text">
              <string>Payments</string>
@@ -5022,10 +5025,10 @@
              </size>
             </property>
             <property name="toolTip">
-             <string>Add New Expense</string>
+             <string/>
             </property>
             <property name="statusTip">
-             <string>Add New Expense</string>
+             <string/>
             </property>
             <property name="text">
              <string>Expenses</string>
@@ -5063,10 +5066,10 @@
              </size>
             </property>
             <property name="toolTip">
-             <string>Add New Expense</string>
+             <string/>
             </property>
             <property name="statusTip">
-             <string>Add New Expense</string>
+             <string/>
             </property>
             <property name="text">
              <string>Docs</string>
@@ -5123,10 +5126,10 @@
              </size>
             </property>
             <property name="toolTip">
-             <string>Send Invoice For Expedition</string>
+             <string/>
             </property>
             <property name="statusTip">
-             <string>Send Invoice For Expedition</string>
+             <string/>
             </property>
             <property name="text">
              <string>To WH</string>
@@ -5164,10 +5167,10 @@
              </size>
             </property>
             <property name="toolTip">
-             <string>Add Tracking String</string>
+             <string/>
             </property>
             <property name="statusTip">
-             <string>Add Tracking String</string>
+             <string/>
             </property>
             <property name="text">
              <string>Ship</string>
@@ -5205,10 +5208,10 @@
              </size>
             </property>
             <property name="toolTip">
-             <string>Add Tracking String</string>
+             <string/>
             </property>
             <property name="statusTip">
-             <string>Add Tracking String</string>
+             <string/>
             </property>
             <property name="text">
              <string>Un/Ready To Go</string>
@@ -5255,10 +5258,10 @@
           </size>
          </property>
          <property name="toolTip">
-          <string>Add Tracking String</string>
+          <string/>
          </property>
          <property name="statusTip">
-          <string>Add Tracking String</string>
+          <string/>
          </property>
          <property name="text">
           <string>Import DHL Exp.</string>
@@ -5347,7 +5350,7 @@
        </rect>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>3</number>
       </property>
       <property name="iconSize">
        <size>
@@ -5449,10 +5452,10 @@
           </font>
          </property>
          <property name="toolTip">
-          <string>Filter Warehouse Reception Orders By Status</string>
+          <string/>
          </property>
          <property name="statusTip">
-          <string>Filter Warehouse Reception Orders By Status</string>
+          <string/>
          </property>
          <property name="styleSheet">
           <string notr="true">background-color:rgb(208, 208, 208); </string>
@@ -5584,10 +5587,10 @@
           </font>
          </property>
          <property name="toolTip">
-          <string>Filter Warehouse Reception Orders By Status</string>
+          <string/>
          </property>
          <property name="statusTip">
-          <string>Filter Warehouse Reception Orders By Status</string>
+          <string/>
          </property>
          <property name="styleSheet">
           <string notr="true">background-color:rgb(208, 208, 208); </string>
@@ -5838,7 +5841,7 @@
          </layout>
         </widget>
        </widget>
-       <widget class="QTableView" name="warehouse_receptions_view">
+       <widget class="ClipView" name="warehouse_receptions_view">
         <property name="geometry">
          <rect>
           <x>220</x>
@@ -5940,10 +5943,10 @@
           </font>
          </property>
          <property name="toolTip">
-          <string>Filter Warehouse Expedition Orders By Status</string>
+          <string/>
          </property>
          <property name="statusTip">
-          <string>Filter Warehouse Expedition Orders By Status</string>
+          <string/>
          </property>
          <property name="styleSheet">
           <string notr="true">background-color:rgb(208, 208, 208); </string>
@@ -6075,10 +6078,10 @@
           </font>
          </property>
          <property name="toolTip">
-          <string>Filter Warehouse Expedition Orders By Status</string>
+          <string/>
          </property>
          <property name="statusTip">
-          <string>Filter Warehouse Expedition Orders By Status</string>
+          <string/>
          </property>
          <property name="styleSheet">
           <string notr="true">background-color:rgb(208, 208, 208); </string>
@@ -6261,7 +6264,7 @@
         <widget class="QToolButton" name="warehouse_expeditions_dhl">
          <property name="geometry">
           <rect>
-           <x>200</x>
+           <x>180</x>
            <y>10</y>
            <width>70</width>
            <height>60</height>
@@ -6300,7 +6303,7 @@
          </property>
         </widget>
        </widget>
-       <widget class="QTableView" name="warehouse_expeditions_view">
+       <widget class="ClipView" name="warehouse_expeditions_view">
         <property name="geometry">
          <rect>
           <x>220</x>
@@ -6431,7 +6434,7 @@
          </property>
         </widget>
        </widget>
-       <widget class="QTableView" name="warehouse_incoming_rmas_view">
+       <widget class="ClipView" name="warehouse_incoming_rmas_view">
         <property name="geometry">
          <rect>
           <x>210</x>
@@ -6646,7 +6649,7 @@
          </property>
         </widget>
        </widget>
-       <widget class="QTableView" name="warehouse_outgoing_rma_view">
+       <widget class="ClipView" name="warehouse_outgoing_rma_view">
         <property name="geometry">
          <rect>
           <x>210</x>
@@ -6793,7 +6796,7 @@
        </rect>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <property name="iconSize">
        <size>
@@ -6890,10 +6893,10 @@
              </size>
             </property>
             <property name="toolTip">
-             <string>Create New RMA Order</string>
+             <string/>
             </property>
             <property name="statusTip">
-             <string>Create New RMA Order</string>
+             <string/>
             </property>
             <property name="text">
              <string>New</string>
@@ -6931,10 +6934,10 @@
              </size>
             </property>
             <property name="toolTip">
-             <string>Send RMA Order To Warehouse For Further Ckecking</string>
+             <string/>
             </property>
             <property name="statusTip">
-             <string>Send RMA Order To Warehouse For Further Ckecking</string>
+             <string/>
             </property>
             <property name="text">
              <string>To WH</string>
@@ -6960,7 +6963,7 @@
          </layout>
         </widget>
        </widget>
-       <widget class="QTableView" name="rmas_incoming_view">
+       <widget class="ClipView" name="rmas_incoming_view">
         <property name="geometry">
          <rect>
           <x>200</x>
@@ -7170,10 +7173,10 @@
              </size>
             </property>
             <property name="toolTip">
-             <string>Crete New RMA Order</string>
+             <string/>
             </property>
             <property name="statusTip">
-             <string>Crete New RMA Order</string>
+             <string/>
             </property>
             <property name="text">
              <string>New</string>
@@ -7211,10 +7214,10 @@
              </size>
             </property>
             <property name="toolTip">
-             <string>Open Selected RMA Order</string>
+             <string/>
             </property>
             <property name="statusTip">
-             <string>Open Selected RMA Order</string>
+             <string/>
             </property>
             <property name="text">
              <string>Open</string>
@@ -7252,10 +7255,10 @@
              </size>
             </property>
             <property name="toolTip">
-             <string>Send RMA Order To Warehouse For Further Ckecking</string>
+             <string/>
             </property>
             <property name="statusTip">
-             <string>Send RMA Order To Warehouse For Further Ckecking</string>
+             <string/>
             </property>
             <property name="text">
              <string>To WH</string>
@@ -7293,10 +7296,10 @@
              </size>
             </property>
             <property name="toolTip">
-             <string>Print RMA Order</string>
+             <string/>
             </property>
             <property name="statusTip">
-             <string>Print Rma Order</string>
+             <string/>
             </property>
             <property name="text">
              <string>Print</string>
@@ -7322,7 +7325,7 @@
          </layout>
         </widget>
        </widget>
-       <widget class="QTableView" name="rma_outgoing_view">
+       <widget class="ClipView" name="rma_outgoing_view">
         <property name="geometry">
          <rect>
           <x>200</x>
@@ -7887,6 +7890,13 @@
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ClipView</class>
+   <extends>QTableView</extends>
+   <header location="global">clipview</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="../app/icons.qrc"/>
  </resources>

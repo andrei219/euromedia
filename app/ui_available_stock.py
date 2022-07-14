@@ -19,7 +19,7 @@ class Ui_Form(object):
         icon.addPixmap(QtGui.QPixmap(":/warehouse"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         Form.setWindowIcon(icon)
         Form.setStyleSheet("")
-        self.view = QtWidgets.QTableView(Form)
+        self.view = ClipView(Form)
         self.view.setGeometry(QtCore.QRect(50, 120, 941, 611))
         self.view.setObjectName("view")
         self.exit = QtWidgets.QToolButton(Form)
@@ -103,4 +103,5 @@ class Ui_Form(object):
         self.physical.setText(_translate("Form", "Physical"))
         self.excel.setText(_translate("Form", "Excel"))
         self.whatsapp.setText(_translate("Form", "WhatsApp"))
+from clipview import ClipView
 import icons_rc

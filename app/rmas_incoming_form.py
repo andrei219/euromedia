@@ -47,11 +47,6 @@ class Form(Ui_Form, QWidget):
         self.view.setAlternatingRowColors(True)
         self.view.setSelectionBehavior(QTableView.SelectRows)
 
-
-    def contextMenuEvent(self, a0: QtGui.QContextMenuEvent) -> None:
-        self.menu = QtGui.QMenu()
-
-
     def set_model(self):
         self.lines_model = RmaIncomingLineModel(self.order.lines)
         self.view.setModel(self.lines_model)

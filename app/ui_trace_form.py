@@ -36,7 +36,7 @@ class Ui_Form(object):
         self.trace_view = QtWidgets.QTableView(Form)
         self.trace_view.setGeometry(QtCore.QRect(10, 112, 1371, 241))
         self.trace_view.setObjectName("trace_view")
-        self.sn = QtWidgets.QLineEdit(Form)
+        self.sn = ClipLineEdit(Form)
         self.sn.setGeometry(QtCore.QRect(30, 35, 300, 20))
         self.sn.setInputMask("")
         self.sn.setText("")
@@ -44,7 +44,7 @@ class Ui_Form(object):
         self.sn.setClearButtonEnabled(False)
         self.sn.setObjectName("sn")
         self.label = QtWidgets.QLabel(Form)
-        self.label.setGeometry(QtCore.QRect(10, 360, 120, 20))
+        self.label.setGeometry(QtCore.QRect(10, 360, 121, 20))
         self.label.setObjectName("label")
         self.label_2 = QtWidgets.QLabel(Form)
         self.label_2.setGeometry(QtCore.QRect(470, 360, 120, 20))
@@ -77,3 +77,4 @@ class Ui_Form(object):
         self.label_3.setText(_translate("Form", "Spec Changes:"))
         self.label_4.setText(_translate("Form", "Purchased/Sold/Returned on:"))
         self.label_5.setText(_translate("Form", "Description:"))
+from clipview import ClipLineEdit

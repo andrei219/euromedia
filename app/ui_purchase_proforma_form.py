@@ -30,7 +30,7 @@ class Ui_PurchaseProformaForm(object):
         self.line.setFrameShape(QtWidgets.QFrame.HLine)
         self.line.setFrameShadow(QtWidgets.QFrame.Sunken)
         self.line.setObjectName("line")
-        self.lines_view = QtWidgets.QTableView(PurchaseProformaForm)
+        self.lines_view = ClipView(PurchaseProformaForm)
         self.lines_view.setGeometry(QtCore.QRect(50, 380, 1071, 331))
         self.lines_view.setObjectName("lines_view")
         self.deleteButton = QtWidgets.QToolButton(PurchaseProformaForm)
@@ -541,4 +541,5 @@ class Ui_PurchaseProformaForm(object):
         self.label_32.setText(_translate("PurchaseProformaForm", "Total "))
         self.label_31.setText(_translate("PurchaseProformaForm", "Tax:"))
         self.save_button_2.setText(_translate("PurchaseProformaForm", "EXIT"))
+from clipview import ClipView
 import icons_rc

@@ -6,14 +6,14 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>894</width>
-    <height>481</height>
+    <width>891</width>
+    <height>478</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <widget class="QTableView" name="view">
+  <widget class="ClipView" name="view">
    <property name="geometry">
     <rect>
      <x>60</x>
@@ -175,6 +175,13 @@
    </property>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ClipView</class>
+   <extends>QTableView</extends>
+   <header location="global">clipview</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="../app/icons.qrc"/>
  </resources>

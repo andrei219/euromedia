@@ -88,7 +88,7 @@
     </rect>
    </property>
   </widget>
-  <widget class="QLineEdit" name="sn">
+  <widget class="ClipLineEdit" name="sn">
    <property name="geometry">
     <rect>
      <x>30</x>
@@ -189,6 +189,13 @@
    </property>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ClipLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header location="global">clipview</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
   <connection>

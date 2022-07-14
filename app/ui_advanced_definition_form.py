@@ -1,8 +1,3 @@
-
-
-
-
-# -*- coding: utf-8 -*-
 # -*- coding: utf-8 -*-
 
 # Form implementation generated from reading ui file '.\uis\advanced_definition_form.ui'
@@ -19,11 +14,11 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_Form(object):
     def setupUi(self, Form):
         Form.setObjectName("Form")
-        Form.resize(1335, 938)
+        Form.resize(1326, 913)
         self.groupBox = QtWidgets.QGroupBox(Form)
         self.groupBox.setGeometry(QtCore.QRect(20, 130, 1271, 341))
         self.groupBox.setObjectName("groupBox")
-        self.lines_view = QtWidgets.QTableView(self.groupBox)
+        self.lines_view = ClipView(self.groupBox)
         self.lines_view.setGeometry(QtCore.QRect(0, 30, 1271, 311))
         self.lines_view.setObjectName("lines_view")
         self.groupBox_2 = QtWidgets.QGroupBox(Form)
@@ -85,13 +80,13 @@ class Ui_Form(object):
         self.groupBox_3 = QtWidgets.QGroupBox(Form)
         self.groupBox_3.setGeometry(QtCore.QRect(20, 480, 611, 311))
         self.groupBox_3.setObjectName("groupBox_3")
-        self.stock_view = QtWidgets.QTableView(self.groupBox_3)
+        self.stock_view = ClipView(self.groupBox_3)
         self.stock_view.setGeometry(QtCore.QRect(0, 20, 611, 291))
         self.stock_view.setObjectName("stock_view")
         self.groupBox_4 = QtWidgets.QGroupBox(Form)
         self.groupBox_4.setGeometry(QtCore.QRect(660, 480, 631, 311))
         self.groupBox_4.setObjectName("groupBox_4")
-        self.defined_view = QtWidgets.QTableView(self.groupBox_4)
+        self.defined_view = ClipView(self.groupBox_4)
         self.defined_view.setGeometry(QtCore.QRect(0, 20, 631, 291))
         self.defined_view.setObjectName("defined_view")
         self.delete_ = QtWidgets.QPushButton(Form)
@@ -101,10 +96,10 @@ class Ui_Form(object):
         self.update.setGeometry(QtCore.QRect(560, 800, 71, 31))
         self.update.setObjectName("update")
         self.save = QtWidgets.QPushButton(Form)
-        self.save.setGeometry(QtCore.QRect(1000, 880, 91, 31))
+        self.save.setGeometry(QtCore.QRect(1200, 860, 91, 31))
         self.save.setObjectName("save")
         self.cancel = QtWidgets.QPushButton(Form)
-        self.cancel.setGeometry(QtCore.QRect(900, 880, 81, 31))
+        self.cancel.setGeometry(QtCore.QRect(1100, 860, 81, 31))
         self.cancel.setObjectName("cancel")
 
         self.retranslateUi(Form)
@@ -126,3 +121,4 @@ class Ui_Form(object):
         self.update.setText(_translate("Form", "Update"))
         self.save.setText(_translate("Form", "Save"))
         self.cancel.setText(_translate("Form", "Cancel"))
+from clipview import ClipView

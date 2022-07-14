@@ -175,7 +175,7 @@
    <property name="title">
     <string>DEFINED DEVICES SUMMARY:</string>
    </property>
-   <widget class="QTableView" name="view">
+   <widget class="ClipView" name="view">
     <property name="geometry">
      <rect>
       <x>0</x>
@@ -906,6 +906,13 @@
    </property>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ClipView</class>
+   <extends>QTableView</extends>
+   <header location="global">clipview</header>
+  </customwidget>
+ </customwidgets>
  <tabstops>
   <tabstop>sn</tabstop>
   <tabstop>actual_item</tabstop>

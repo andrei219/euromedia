@@ -81,7 +81,7 @@
     <bool>true</bool>
    </property>
   </widget>
-  <widget class="MenuTable" name="view">
+  <widget class="ClipView" name="view">
    <property name="geometry">
     <rect>
      <x>30</x>
@@ -184,9 +184,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>MenuTable</class>
+   <class>ClipView</class>
    <extends>QTableView</extends>
-   <header>menutable.h</header>
+   <header location="global">clipview</header>
   </customwidget>
  </customwidgets>
  <resources>

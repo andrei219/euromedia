@@ -19,7 +19,7 @@ class Ui_InventoryForm(object):
         icon.addPixmap(QtGui.QPixmap(":/warehouse"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         InventoryForm.setWindowIcon(icon)
         InventoryForm.setStyleSheet("")
-        self.view = QtWidgets.QTableView(InventoryForm)
+        self.view = ClipView(InventoryForm)
         self.view.setGeometry(QtCore.QRect(50, 150, 941, 731))
         self.view.setObjectName("view")
         self.toolButton = QtWidgets.QToolButton(InventoryForm)
@@ -78,4 +78,5 @@ class Ui_InventoryForm(object):
         self.warehouse.setPlaceholderText(_translate("InventoryForm", "Warehouse..."))
         self.apply.setText(_translate("InventoryForm", "Apply"))
         self.excel.setText(_translate("InventoryForm", "Excel"))
+from clipview import ClipView
 import icons_rc

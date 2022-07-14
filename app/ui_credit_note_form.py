@@ -24,11 +24,11 @@ class Ui_Form(object):
         self.groupBox.setAutoFillBackground(True)
         self.groupBox.setFlat(True)
         self.groupBox.setObjectName("groupBox")
-        self.view = QtWidgets.QTableView(self.groupBox)
+        self.view = ClipView(self.groupBox)
         self.view.setEnabled(True)
         self.view.setGeometry(QtCore.QRect(40, 30, 1121, 401))
         self.view.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
-        self.view.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
+        self.view.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectItems)
         self.view.setObjectName("view")
         self.cancel = QtWidgets.QPushButton(Form)
         self.cancel.setGeometry(QtCore.QRect(1170, 900, 91, 31))
@@ -321,3 +321,4 @@ class Ui_Form(object):
         self.label_35.setText(_translate("Form", "Total "))
         self.quantity.setText(_translate("Form", "Quantity:"))
         self.save.setText(_translate("Form", "Save"))
+from clipview import ClipView

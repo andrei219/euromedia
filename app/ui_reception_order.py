@@ -59,7 +59,7 @@ class Ui_Form(object):
         self.groupBox_2 = QtWidgets.QGroupBox(Form)
         self.groupBox_2.setGeometry(QtCore.QRect(70, 490, 731, 361))
         self.groupBox_2.setObjectName("groupBox_2")
-        self.view = QtWidgets.QTableView(self.groupBox_2)
+        self.view = ClipView(self.groupBox_2)
         self.view.setGeometry(QtCore.QRect(0, 20, 731, 341))
         self.view.setObjectName("view")
         self.groupBox_3 = QtWidgets.QGroupBox(Form)
@@ -336,4 +336,5 @@ class Ui_Form(object):
         self.automatic.setTitle(_translate("Form", "AUTOMATIC INPUT"))
         self.label_8.setText(_translate("Form", "IMEI/SN LENGHT:"))
         self.exit.setText(_translate("Form", "EXIT"))
+from clipview import ClipView
 import icons_rc

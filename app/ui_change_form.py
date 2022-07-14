@@ -14,8 +14,8 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_ChangeForm(object):
     def setupUi(self, ChangeForm):
         ChangeForm.setObjectName("ChangeForm")
-        ChangeForm.resize(894, 481)
-        self.view = QtWidgets.QTableView(ChangeForm)
+        ChangeForm.resize(891, 478)
+        self.view = ClipView(ChangeForm)
         self.view.setGeometry(QtCore.QRect(60, 60, 461, 391))
         self.view.setObjectName("view")
         self.sn = QtWidgets.QLineEdit(ChangeForm)
@@ -78,4 +78,5 @@ class Ui_ChangeForm(object):
         self.exit.setText(_translate("ChangeForm", "Exit"))
         self.label.setText(_translate("ChangeForm", "New:"))
         self.label_3.setText(_translate("ChangeForm", "Counter:"))
+from clipview import ClipView
 import icons_rc

@@ -38,7 +38,7 @@ class Ui_Form(object):
         self.exit.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
         self.exit.setAutoRaise(True)
         self.exit.setObjectName("exit")
-        self.view = MenuTable(Form)
+        self.view = ClipView(Form)
         self.view.setGeometry(QtCore.QRect(30, 60, 1541, 531))
         self.view.setObjectName("view")
         self.sn = QtWidgets.QLineEdit(Form)
@@ -85,5 +85,5 @@ class Ui_Form(object):
         self.label_3.setText(_translate("Form", "IMEI/SN:"))
         self.delete_.setText(_translate("Form", "Delete"))
         self.label_4.setText(_translate("Form", "Date:"))
-from menutable import MenuTable
+from clipview import ClipView
 import icons_rc

@@ -110,13 +110,15 @@ def clean_up_directories():
 
             # Proformas purchases handlers:
 
-
+from clipboard import ClipBoard
 class MainGui(Ui_MainGui, QMainWindow):
 
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setupUi(self)
         self.setCentralWidget(self.main_tab)
+
+        self.clipboard = ClipBoard(data='', form=self)
 
         # For closing
         self.opened_windows_instances = set()
@@ -176,8 +178,6 @@ class MainGui(Ui_MainGui, QMainWindow):
             except ValueError:
                 if last_field.text() == '':
                     last = 366
-
-
 
         if prefix == 'agents_':
             self.agents_model = models.AgentModel(search_key=search_key)
