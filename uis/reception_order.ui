@@ -198,7 +198,7 @@
    <property name="title">
     <string>SN/IMEIS:</string>
    </property>
-   <widget class="QListView" name="snlist">
+   <widget class="ClipListView" name="snlist">
     <property name="geometry">
      <rect>
       <x>0</x>
@@ -907,6 +907,11 @@
   </widget>
  </widget>
  <customwidgets>
+  <customwidget>
+   <class>ClipListView</class>
+   <extends>QListView</extends>
+   <header location="global">clipview</header>
+  </customwidget>
   <customwidget>
    <class>ClipView</class>
    <extends>QTableView</extends>

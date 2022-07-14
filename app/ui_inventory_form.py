@@ -33,7 +33,7 @@ class Ui_InventoryForm(object):
         self.groupBox = QtWidgets.QGroupBox(InventoryForm)
         self.groupBox.setGeometry(QtCore.QRect(50, 20, 941, 111))
         self.groupBox.setObjectName("groupBox")
-        self.description = QtWidgets.QLineEdit(self.groupBox)
+        self.description = ClipLineEdit(self.groupBox)
         self.description.setGeometry(QtCore.QRect(30, 50, 321, 20))
         self.description.setAlignment(QtCore.Qt.AlignCenter)
         self.description.setObjectName("description")
@@ -78,5 +78,5 @@ class Ui_InventoryForm(object):
         self.warehouse.setPlaceholderText(_translate("InventoryForm", "Warehouse..."))
         self.apply.setText(_translate("InventoryForm", "Apply"))
         self.excel.setText(_translate("InventoryForm", "Excel"))
-from clipview import ClipView
+from clipview import ClipLineEdit, ClipView
 import icons_rc

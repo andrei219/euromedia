@@ -68,7 +68,7 @@
    <property name="title">
     <string>FILTERS:</string>
    </property>
-   <widget class="QLineEdit" name="description">
+   <widget class="ClipLineEdit" name="description">
     <property name="geometry">
      <rect>
       <x>30</x>
@@ -183,6 +183,11 @@
   <customwidget>
    <class>ClipView</class>
    <extends>QTableView</extends>
+   <header>clipview</header>
+  </customwidget>
+  <customwidget>
+   <class>ClipLineEdit</class>
+   <extends>QLineEdit</extends>
    <header location="global">clipview</header>
   </customwidget>
  </customwidgets>

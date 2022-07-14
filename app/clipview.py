@@ -4,11 +4,7 @@ from PyQt5.QtWidgets import QTableView
 from PyQt5.QtWidgets import QLineEdit
 from PyQt5.QtWidgets import QListView
 
-
-
-
 from clipboard import ClipBoard
-
 
 class ClipView(QTableView):
 
