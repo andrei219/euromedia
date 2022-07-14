@@ -1132,9 +1132,12 @@ class Reception(Base):
     note = Column(String(50))
     created_on = Column(DateTime, default=datetime.now)
 
-    def __init__(self, proforma, note):
+    auto = Column(Boolean, nullable=False, default=False)
+
+    def __init__(self, proforma, note, auto=False):
         self.proforma = proforma
         self.note = note
+        self.auto = auto
 
     __table_args__ = (
         UniqueConstraint('proforma_id', name='purchase_reception_from_onlyone_proforma'),

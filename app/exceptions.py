@@ -28,3 +28,6 @@ class NotExistingStockOutput(Exception):
 
 class NotExistingStockInMask(Exception):
     pass
+
+class AutomaticReceptionDeleteError(Exception):
+    pass

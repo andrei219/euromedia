@@ -12,7 +12,7 @@ from operator import attrgetter
 from datetime import datetime, timedelta
 
 import sqlalchemy
-from sqlalchemy.sql import exists
+from sqlalchemy import exists
 
 from PyQt5 import QtCore
 from PyQt5 import QtGui
@@ -1574,7 +1574,7 @@ def build_associated_reception(sale_proforma):
             db.PurchaseProformaLine.id == origin_id
         ).first()
 
-    reception = db.Reception(proforma, note='Created automatically')
+    reception = db.Reception(proforma, note='Created automatically', auto=True)
     db.session.add(reception)
 
     for line in proforma.lines:
@@ -3199,7 +3199,6 @@ class ExpenseModel(BaseTable, QtCore.QAbstractTableModel):
 
 from functools import wraps
 
-
 def change_layout_and_commit(func):
     wraps(func)
 
@@ -3211,6 +3210,11 @@ def change_layout_and_commit(func):
         return r
 
     return wrapper
+
+
+def expedition_series_contains(serie):
+
+    return db.session.query(exists().where(db.ExpeditionSerie.serie == serie)).scalar()
 
 
 class SerieModel(QtCore.QAbstractListModel):
@@ -4914,8 +4918,12 @@ class ReceptionSeriesModel:
                 raise
 
     def delete(self, series):
-        delete_targets = [r for r in self.reception_series \
-                          if r.serie in series]
+        delete_targets = [r for r in self.reception_series if r.serie in series]
+        # Prevent deleting:
+        if self.reception.auto and \
+                any(expedition_series_contains(serie.serie) for serie in delete_targets):
+            from exceptions import AutomaticReceptionDeleteError
+            raise AutomaticReceptionDeleteError
 
         for t in delete_targets:
             db.session.delete(t)
@@ -7472,3 +7480,7 @@ def caches_clear():
     get_sale_breakdown.cache_clear()
     get_sale_proforma_stock_value.cache_clear()
 
+if __name__ == '__main__':
+
+    while True:
+        print(expedition_series_contains(input('Enter serie:')))

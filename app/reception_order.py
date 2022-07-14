@@ -6,7 +6,11 @@ from PyQt5.QtWidgets import QAbstractItemView
 from ui_reception_order import Ui_Form
 
 import models 
-import utils 
+
+import utils
+
+from exceptions import AutomaticReceptionDeleteError
+
 
 from utils import setCompleter
 
@@ -23,6 +27,8 @@ def reload_utils():
     from importlib import reload 
     global utils
     utils = reload(utils)
+
+
 
 class Form(QDialog, Ui_Form):
 
@@ -61,17 +67,15 @@ class Form(QDialog, Ui_Form):
             self.commit.setDisabled(True)
             self.automatic.setDisabled(True)
 
-
     def setHandlers(self):
         self.next.clicked.connect(self.next_handler)
         self.prev.clicked.connect(self.prev_handler)
         self.commit.clicked.connect(self.commit_handler)
         self.delete_button.clicked.connect(self.delete_handler)
         self.search.clicked.connect(self.search_handler) 
-        self.actual_spec.editingFinished.connect(lambda : self.sn.setFocus(True))
-        self.actual_item.editingFinished.connect(lambda : self.actual_condition.setFocus(True))
-        self.actual_condition.editingFinished.connect(lambda : self.actual_spec.setFocus(True))
-
+        self.actual_spec.editingFinished.connect(lambda: self.sn.setFocus(True))
+        self.actual_item.editingFinished.connect(lambda: self.actual_condition.setFocus(True))
+        self.actual_condition.editingFinished.connect(lambda: self.actual_spec.setFocus(True))
 
     def setCompleters(self):
         conditions = utils.conditions.difference({'Mix'})
@@ -83,13 +87,11 @@ class Form(QDialog, Ui_Form):
 
         self.set_actual_item_completer()
 
-
     def set_actual_item_completer(self):
         line = self.reception.lines[self.current_index]
         if line.description is not None:
             data = utils.mixed_to_clean_descriptions(line.description)
             setCompleter(self.actual_item, data)
-
 
     def on_automatic_toggled(self, on):
         if on:
@@ -114,7 +116,6 @@ class Form(QDialog, Ui_Form):
         else:
             self.lines_group.setStyleSheet('background-color:"#FF7F7F"')
             self.overflow.setText('OVERFLOW')
-
 
     def populateHeader(self):
         self.reception_number.setText(str(self.reception.id).zfill(6))
@@ -146,7 +147,6 @@ class Form(QDialog, Ui_Form):
             self.snlist.model().clear() 
         except AttributeError as ex:
            pass 
-
 
     def populate_body(self):
         line = self.reception.lines[self.current_index]
@@ -223,7 +223,7 @@ class Form(QDialog, Ui_Form):
             self.current_index += 1
         self.populate_body()
 
-    def commit_handler(self):   
+    def commit_handler(self):
 
         if self.imei_check.isChecked():
             from pyvalidator import is_imei
@@ -323,10 +323,10 @@ class Form(QDialog, Ui_Form):
         except ValueError:
             return 
         
-    
     def get_selected_group(self):
         rows = {i.row() for i in self.view.selectedIndexes()}
-        if not rows:return
+        if not rows:
+            return
         row = rows.pop()
         group = self.view.model().groups[row]
         return group.description, group.condition, \
@@ -343,20 +343,25 @@ class Form(QDialog, Ui_Form):
     def delete_handler(self):
         try:
             if self.all.isChecked():
-                    self.rs_model.delete(
-                        self.snlist.model().series 
-                    )
+
+                    self.rs_model.delete(self.snlist.model().series)
             else:
                 indexes = self.snlist.selectedIndexes()
-                if not indexes: return
+                if not indexes:
+                    return
                 self.rs_model.delete(
                     [
                         self.snlist.model().series[index.row()]
                         for index in indexes
                     ]
                 )
+
+        except AutomaticReceptionDeleteError:
+            QMessageBox.critical(self, 'Error', "Can't delete this serie. It was entered automatically")
+            return
+
         except:
-            raise 
+            raise
 
         try:
             description, condition, spec, _ = self.get_selected_group()
@@ -381,14 +386,13 @@ class Form(QDialog, Ui_Form):
             processed_in_line > line.quantity
         )
 
-
     def search_handler(self):
         serie = self.search_line_edit.text() 
         try:
             if serie and serie in self.snlist.model():
                 index = self.snlist.model().index_of(serie)
                 index = self.snlist.model().index(index, 0)
-                self.snlist.selectionModel().setCurrentIndex(index, \
+                self.snlist.selectionModel().setCurrentIndex(index,\
                     QItemSelectionModel.SelectCurrent)
 
             else:
