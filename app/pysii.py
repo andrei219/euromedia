@@ -23,7 +23,6 @@ class Form(Ui_Dialog, QDialog):
             checkbox.setChecked(True)
 
     def send_handler(self):
-
         try:
             _from, to = self.get_dates()
 
@@ -43,7 +42,6 @@ class Form(Ui_Dialog, QDialog):
         except ValueError as ex:
             QMessageBox.critical(self, 'Error', str(ex))
         else:
-            self.populate_last_sent()
             from siilog import Form
             Form(self, registers).exec_()
 
