@@ -406,7 +406,7 @@ class PDF(FPDF):
             if not is_invoice:
                 self.doc_header = 'SALE ORDER'
             else:
-                self.doc_header = 'SALE INVOICE'
+                self.doc_header = 'COMMERCIAL INVOICE'
 
         elif type(document) == PurchaseProforma:
             self.lines = PurchaseLinesPDFRepr(document.lines)
@@ -421,7 +421,7 @@ class PDF(FPDF):
         self.image(LOGO_RELATIVE_PATH, w=70, h=18.2)
         self.set_font('Arial', 'B', 18)
         self.set_xy(127.5, 13.35)
-        self.cell(68, 17, self.doc_header, 1, 0, 'C')
+        self.cell(74, 17, self.doc_header, 1, 0, 'C')
 
         self.print_buyer()
         self.print_supplier()
