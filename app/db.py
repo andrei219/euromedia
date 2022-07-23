@@ -1806,21 +1806,16 @@ def create_init_data():
 
 
 def correct_mask():
-    print('correct_mask')
     for row in session.query(ImeiMask.origin_id).distinct():
 
-        print('row=', row)
         purchase_proforma = session.query(PurchaseProforma).join(PurchaseProformaLine). \
             where(PurchaseProformaLine.id == row.origin_id).first()
         if purchase_proforma.completed:
-            print('purchase_proforma.completed')
             if all(
                     sale.completed or sale.cancelled for sale in session.query(SaleProforma).join(AdvancedLine).\
                     where(AdvancedLine.origin_id == row.origin_id)
             ):
-                print('not all sales completed')
                 stmt = delete(ImeiMask).where(ImeiMask.origin_id == row.origin_id)
-
                 session.execute(stmt)
     try:
         session.commit()

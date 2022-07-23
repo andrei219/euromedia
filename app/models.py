@@ -6278,6 +6278,7 @@ candidates = [
     'courier',
     'freight',
     'freigth',
+    'service fee'
 
 ]
 
@@ -7275,6 +7276,9 @@ class StockValuationModelDocument(Exportable, BaseTable, QtCore.QAbstractTableMo
 
         for line in purchase_proforma.lines:
 
+            if line.item_id is None and line.description not in utils.descriptions:
+                continue
+
             entry = StockValuationEntryDocument()
             entry.description = line.description or line.item.clean_repr
             entry.condition = line.condition
@@ -7292,16 +7296,17 @@ class StockValuationModelDocument(Exportable, BaseTable, QtCore.QAbstractTableMo
             avg_rate = get_avg_rate(purchase_proforma)
             if isinstance(avg_rate, str):
                 raise ValueError('I could not find mean rate')
-            
+
             base_price = line.price
-
             remaining_expense, shipping_expense = get_purchase_expenses_breakdown(purchase_proforma)  # already rate applied
-
             shipping_delta = shipping_expense / purchase_proforma.total_quantity
-
             remaining_expense_delta = base_price * remaining_expense / get_purchase_stock_value(purchase_proforma)
 
-            entry.cost = base_price/avg_rate + shipping_delta + remaining_expense_delta
+            print(f'Line={line}, base={base_price}, rem={remaining_expense}, shipping={shipping_expense}')
+            print(f'rem_delta={remaining_expense_delta},  ship_delta={shipping_delta}')
+            print('*' * 100)
+
+            entry.cost = base_price / avg_rate + shipping_delta + remaining_expense_delta
 
             self.entries.append(entry)
 
