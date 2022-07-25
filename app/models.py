@@ -817,6 +817,7 @@ class PartnerContactModel(QtCore.QAbstractTableModel):
 
 
 class SaleInvoiceModel(QtCore.QAbstractTableModel):
+
     TYPE_NUM, DATE, PROFORMA = 0, 1, 16
 
     def __init__(self, search_key=None, filters=None, last=10):
@@ -7301,10 +7302,6 @@ class StockValuationModelDocument(Exportable, BaseTable, QtCore.QAbstractTableMo
             remaining_expense, shipping_expense = get_purchase_expenses_breakdown(purchase_proforma)  # already rate applied
             shipping_delta = shipping_expense / purchase_proforma.total_quantity
             remaining_expense_delta = base_price * remaining_expense / get_purchase_stock_value(purchase_proforma)
-
-            print(f'Line={line}, base={base_price}, rem={remaining_expense}, shipping={shipping_expense}')
-            print(f'rem_delta={remaining_expense_delta},  ship_delta={shipping_delta}')
-            print('*' * 100)
 
             entry.cost = base_price / avg_rate + shipping_delta + remaining_expense_delta
 

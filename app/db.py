@@ -385,7 +385,7 @@ class PurchaseProforma(Base):
     agent_id = Column(Integer, ForeignKey('agents.id'))
     invoice_id = Column(Integer, ForeignKey('purchase_invoices.id'))
 
-    invoice = relationship('PurchaseInvoice', uselist=False)
+    invoice = relationship('PurchaseInvoice', backref=backref('proformas'))
     partner = relationship('Partner', uselist=False)
     courier = relationship('Courier', uselist=False)
     warehouse = relationship('Warehouse', uselist=False)
@@ -587,9 +587,6 @@ class PurchaseInvoice(Base):
     date = Column(Date, default=datetime.now)
     eta = Column(Date, default=datetime.now)
 
-
-    proforma = relationship('PurchaseProforma', uselist=False, back_populates='invoice')
-
     @property
     def payments(self):
         return self.proforma.payments
@@ -691,7 +688,11 @@ class SaleProforma(Base):
     courier = relationship('Courier', uselist=False)
     warehouse = relationship('Warehouse', uselist=False)
     agent = relationship('Agent', uselist=False)
-    invoice = relationship('SaleInvoice', uselist=False)
+
+    # invoice = relationship('SaleInvoice', uselist=False)
+
+    invoice = relationship('SaleInvoice', backref=backref('proformas'))
+
     expedition = relationship('Expedition', uselist=False, back_populates='proforma')
 
     warning = Column(String(50), nullable=True)
@@ -866,9 +867,8 @@ class SaleInvoice(Base):
     eta = Column(Date, default=datetime.now)
 
     parent_id = Column(Integer, ForeignKey('sale_invoices.id'))
-    wh_incoming_rma = relationship('WhIncomingRma', uselist=False, back_populates='sale_invoice')
 
-    proforma = relationship('SaleProforma', uselist=False, back_populates='invoice')
+    wh_incoming_rma = relationship('WhIncomingRma', uselist=False, back_populates='sale_invoice')
 
     def __repr__(self):
         clasname = self.__class__.__name__

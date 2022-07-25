@@ -335,6 +335,7 @@ class EditableForm(Form):
         self.save_button.clicked.connect(self.saveHandler)
 
     def proforma_to_form(self):
+
         p = self.proforma
 
         if self.is_invoice:
