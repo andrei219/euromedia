@@ -31,7 +31,7 @@ class Form(Ui_Form, QWidget):
         super().__init__()
         self.setupUi(self)
         setCommonViewConfig(self.stock_view)
-        self.model = view.model()
+        self.model = view
         self.init_template()
         self.parent = parent
         self.lines_model = AdvancedLinesModel(self.proforma, self)
@@ -52,7 +52,7 @@ class Form(Ui_Form, QWidget):
         db.session.flush()
         self.date.setText(date.today().strftime('%d%m%Y'))
         self.type.setCurrentText('1')
-        self.number.setText(str(self.model.nextNumberOfType(1)).zfill(6))
+        self.number.setText(str(self.model.purchase_proforma_next_number(1)).zfill(6))
 
     def set_handlers(self):
         self.partner.returnPressed.connect(self.partner_search)
@@ -272,7 +272,7 @@ class Form(Ui_Form, QWidget):
                 raise
 
     def type_changed(self, type):
-        next_num = self.model.nextNumberOfType(int(type))
+        next_num = self.model.purchase_proforma_next_number(int(type))
         self.number.setText(str(next_num).zfill(6))
 
     def save_handler(self):
@@ -389,7 +389,7 @@ class EditableForm(Form):
         Form(self, self.proforma).exec_()
 
     def save_template(self):
-        self.model.updateWarehouse(self.proforma)
+        self.model.update_purchase_warehouse(self.proforma)
 
     def disable_if_cancelled(self):
         if self.proforma.cancelled:

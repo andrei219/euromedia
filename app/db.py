@@ -541,6 +541,14 @@ class PurchaseProformaLine(Base):
     # receptions when they are already created and user
     # wants the update proforma.
 
+    @property
+    def subtotal(self):
+        return round(self.quantity * self.price, 2)
+
+    @property
+    def total(self):
+        return round(self.quantity * self.price * ( 1 + self.tax/100), 2)
+
     def __eq__(self, other):
         return all((
             other.item_id == self.item_id,
@@ -564,6 +572,7 @@ class PurchaseProformaLine(Base):
 
 
 class PurchaseDocument(Base):
+
     __tablename__ = 'purchase_documents'
 
     id = Column(Integer, primary_key=True)
@@ -579,6 +588,7 @@ class PurchaseDocument(Base):
 
 
 class PurchaseInvoice(Base):
+
     __tablename__ = 'purchase_invoices'
 
     id = Column(Integer, primary_key=True)
@@ -589,16 +599,43 @@ class PurchaseInvoice(Base):
 
     @property
     def payments(self):
-        return self.proforma.payments
+        return [payment for proforma in self.proformas for payment in proforma.payments]
 
     @property
     def doc_repr(self):
         return str(self.type) + '-' + str(self.number).zfill(6)
 
+    @property
+    def subtotal(self):
+        return round(sum(p.subtotal for p in self.proformas), 2)
+
+    @property
+    def tax(self):
+        return round(sum(p.tax for p in self.proformas), 2)
 
     @property
     def total_debt(self):
-        return self.proforma.total_debt
+        return sum(proforma.total_debt for proforma in self.proformas)
+
+    @property
+    def total_paid(self):
+        return round(sum(p.amount for p in self.payments), 2)
+
+    @property
+    def not_paid(self):
+        return math.isclose(self.total_paid, 0)
+
+    @property
+    def partially_paid(self):
+        return 0 < self.total_paid < self.total_debt
+
+    @property
+    def fully_paid(self):
+        return math.isclose(self.total_debt, self.total_paid)
+
+    @property
+    def overpaid(self):
+        return 0 < self.total_debt < self.total_paid
 
     def __init__(self, type, number):
         self.type = type
@@ -607,6 +644,95 @@ class PurchaseInvoice(Base):
     __table_args__ = (
         UniqueConstraint('type', 'number'),
     )
+
+    @property
+    def logistic_status_string(self):
+        if all(p.empty for p in self.proformas):
+            return 'Empty'
+        elif any(p.overflowed for p in self.proformas):
+            return 'Overflowed'
+        elif any(p.partially_processed for p in self.proformas):
+            return 'Partially received'
+        elif all(p.completed for p in self.proformas):
+            return 'Completed'
+
+    @property
+    def financial_status_string(self):
+        if self.not_paid:
+            return 'Not Paid'
+        elif self.partially_paid:
+            return 'Partially Paid'
+        elif self.fully_paid:
+            return 'Paid'
+        elif self.overpaid:
+            return 'They Owe'
+
+    @property
+    def partner(self):
+        return self.proformas[0].partner.fiscal_name  # Always at least one, by design
+
+    @property
+    def agent(self):
+        name = self.proformas[0].agent.fiscal_name
+        try:
+            return name.split()[0]
+        except IndexError:
+            return name
+
+    @property
+    def sent(self):
+        if all(p.sent for p in self.proformas):
+            return 'Yes'
+        elif all(not p.sent for p in self.proformas):
+            return 'No'
+        elif any(not p.sent for p in self.proformas):
+            return 'Partially'
+
+
+    @property
+    def cancelled(self):
+        if all(p.cancelled for p in self.proformas):
+            return 'Yes'
+        elif all(not p.cancelled for p in self.proformas):
+            return 'No'
+        elif any(not p.cancelled for p in self.proformas):
+            return 'Partially'
+
+    @property
+    def currency(self):
+        return ' EUR' if self.proformas[0].eur_currency else ' USD'
+
+    @property
+    def owing_string(self):
+        return str(self.total_debt - self.total_paid) + self.currency
+
+    @property
+    def total(self):
+        return str(self.total_debt) + self.currency
+
+    @property
+    def external(self):
+        s = ', '.join(p.external for p in self.proformas)
+        if s == ', ':
+            return 'Unknown'
+        if s.count(',') == 1:
+            return s.replace(', ', '')
+        return s
+
+
+    @property
+    def inwh(self):
+        if all(p.reception is not None for p in self.proformas):
+            return 'Yes'
+        elif all(p.reception is None for p in self.proformas):
+            return 'No'
+        elif any(p.reception is None for p in self.proformas):
+            return 'Partially'
+
+    @property
+    def origin_proformas(self):
+        return ', '.join(p.doc_repr for p in self.proformas)
+
 
 
 class PurchasePayment(Base):
@@ -689,7 +815,6 @@ class SaleProforma(Base):
     warehouse = relationship('Warehouse', uselist=False)
     agent = relationship('Agent', uselist=False)
 
-    # invoice = relationship('SaleInvoice', uselist=False)
 
     invoice = relationship('SaleInvoice', backref=backref('proformas'))
 
@@ -879,6 +1004,11 @@ class SaleInvoice(Base):
         self.number = number
 
     @property
+    def payments(self):
+        return [payment for proforma in self.proformas for payment in proforma.payments]
+
+
+    @property
     def cn_total(self):
         return round(sum(
             invoice.subtotal for invoice in session.query(SaleInvoice).
@@ -890,10 +1020,38 @@ class SaleInvoice(Base):
         return session.query(SaleInvoice.parent_id).\
             where(SaleInvoice.id == self.id).scalar() is not None
 
-
     @property
     def subtotal(self):
-        return self.proforma.subtotal
+        return round(sum(p.subtotal for p in self.proformas), 2)
+
+
+    @property
+    def total_debt(self):
+        return "" # TODO
+
+    @property
+    def tax(self):
+        return round(sum(p.tax for p in self.proformas), 2)
+
+    @property
+    def total_paid(self):
+        return round(sum(p.amount for p in self.payments), 2)
+
+    @property
+    def not_paid(self):
+        return math.isclose(self.total_paid, 0)
+
+    @property
+    def partially_paid(self):
+        return 0 < self.total_paid < self.total_debt
+
+    @property
+    def fully_paid(self):
+        return math.isclose(self.total_debt, self.total_paid)
+
+    @property
+    def overpaid(self):
+        return 0 < self.total_debt < self.total_paid
 
     @property
     def doc_repr(self):
@@ -906,6 +1064,8 @@ class SaleInvoice(Base):
     __table_args__ = (
         UniqueConstraint('type', 'number', name='unique_sales_sale_invoices'),
     )
+
+
 
 
 class SaleProformaLine(Base):
@@ -1540,13 +1700,17 @@ class ConditionChange(Base):
 
 
 class WhIncomingRma(Base):
+
     __tablename__ = 'wh_incoming_rmas'
 
     id = Column(Integer, primary_key=True)
+
     incoming_rma_id = Column(Integer, ForeignKey('incoming_rmas.id'), nullable=False)
+
     sale_invoice_id = Column(Integer, ForeignKey('sale_invoices.id'))
 
     incoming_rma = relationship('IncomingRma', back_populates='wh_incoming_rma')
+
     sale_invoice = relationship('SaleInvoice', back_populates='wh_incoming_rma')
 
     __table_args__ = (
@@ -1830,3 +1994,8 @@ def company_name():
 
 def year():
     return '2022'
+
+
+if __name__ == '__main__':
+
+    create_init_data()

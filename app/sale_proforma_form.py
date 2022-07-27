@@ -144,7 +144,7 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.setupUi(self)
         self.setCombos()
         
-        self.model = view.model() 
+        self.model = view
         self.init_template() 
         self.parent = parent
         self.lines_model = SaleProformaLineModel(self.proforma, self)
@@ -187,7 +187,7 @@ class Form(Ui_SalesProformaForm, QWidget):
  
         self.date.setText(date.today().strftime('%d%m%Y'))
         self.type.setCurrentText('1')
-        self.number.setText(str(self.model.nextNumberOfType(1)).zfill(6))
+        self.number.setText(str(self.model.purchase_proforma_next_number(1)).zfill(6))
 
         self.warehouse.currentTextChanged.connect(self.warehouse_changed)
         # Solo interesa en formulario nuevo
@@ -308,7 +308,7 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.search.setFocus(True)
 
     def typeChanged(self, type):
-        next_num = self.model.nextNumberOfType(int(type))
+        next_num = self.model.purchase_proforma_next_number(int(type))
         self.number.setText(str(next_num).zfill(6))
 
     def setCombos(self):
@@ -668,7 +668,7 @@ class EditableForm(Form):
         Form(self, self.proforma).exec_()
 
     def save_template(self):
-        self.model.updateWarehouse(self.proforma)
+        self.model.update_purchase_warehouse(self.proforma)
 
 
     def disable_warehouse(self):

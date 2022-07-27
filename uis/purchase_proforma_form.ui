@@ -64,6 +64,9 @@
      <height>331</height>
     </rect>
    </property>
+   <property name="selectionBehavior">
+    <enum>QAbstractItemView::SelectRows</enum>
+   </property>
   </widget>
   <widget class="QToolButton" name="deleteButton">
    <property name="geometry">
@@ -181,7 +184,7 @@
     </item>
    </layout>
   </widget>
-  <widget class="QGroupBox" name="groupBox">
+  <widget class="QGroupBox" name="create_line_group">
    <property name="geometry">
     <rect>
      <x>50</x>
@@ -1419,7 +1422,7 @@
     <bool>true</bool>
    </property>
   </widget>
-  <widget class="QToolButton" name="save_button_2">
+  <widget class="QToolButton" name="exit">
    <property name="geometry">
     <rect>
      <x>1210</x>
@@ -1530,7 +1533,7 @@
  </resources>
  <connections>
   <connection>
-   <sender>save_button_2</sender>
+   <sender>exit</sender>
    <signal>clicked()</signal>
    <receiver>PurchaseProformaForm</receiver>
    <slot>close()</slot>

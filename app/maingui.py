@@ -230,7 +230,7 @@ class MainGui(Ui_MainGui, QMainWindow):
 
             self.invoices_purchases_view.resizeColumnToContents(3)
             self.invoices_purchases_view.resizeColumnToContents(4)
-
+            self.invoices_purchases_view.resizeColumnToContents(13)
 
 
         elif prefix == 'invoices_sales_':
@@ -555,23 +555,24 @@ class MainGui(Ui_MainGui, QMainWindow):
         self.selection_changed_generic(self.proformas_purchases_view)
 
     def proformas_purchases_double_click_handler(self, index):
-        self.proformas_purchases_launch_form(index)
+        row = index.row()
+        proforma = self.proformas_purchases_model[index.row()]
+        self.epp = purchase_proforma_form.EditableForm(proforma)
+        self.epp.show()
 
     def proformas_purchases_new_handler(self):
-        self.proformas_purchases_launch_form()
+        self.ppf = purchase_proforma_form.Form(self.proformas_purchases_view)
+        self.ppf.show()
+
 
     def proformas_purchases_cancel_handler(self):
         indexes = self.proformas_purchases_view.selectedIndexes()
         if not indexes:
             return
-        try:
-            if QMessageBox.question(self, 'Proformas - Cancel', 'Cancel proforma/s ?', \
-                                    QMessageBox.Yes | QMessageBox.No) == QMessageBox.No:
-                return
-            self.proformas_purchases_model.cancel(indexes)
-        except:
-            raise
-            QMessageBox.critical(self, 'Update Error', 'Error updating proformas')
+        if QMessageBox.question(self, 'Proformas - Cancel', 'Cancel proforma/s ?',\
+                                QMessageBox.Yes | QMessageBox.No) == QMessageBox.No:
+            return
+        self.proformas_purchases_model.cancel(indexes)
 
     def proformas_purchases_print_handler(self):
         print('print')
@@ -603,20 +604,24 @@ class MainGui(Ui_MainGui, QMainWindow):
         pass
 
     def proformas_purchases_toinv_handler(self):
-        proforma = self.get_proforma_purchase()
 
-        if not proforma:
+        rows = {index.row() for index in self.proformas_purchases_view.selectedIndexes()}
+
+        model = self.proformas_purchases_model
+        if any(model[row].cancelled for row in rows):
+            QMessageBox.critical(self, 'Error', 'Cancelled proforma/s')
             return
 
-        if proforma.cancelled:
-            QMessageBox.critical(self, 'Error', 'Cancelled proforma')
+        if any(model[row].invoice is not None for row in rows):
+            QMessageBox.critical(self, 'Error', 'Invoice already associated')
             return
-        if proforma.invoice is not None:
-            QMessageBox.critical(self, 'Error', f'Invoice {proforma.invoice.doc_repr} already associated')
-            return
-        invoice = self.proformas_purchases_model.associateInvoice(proforma)
-        QMessageBox.information(self, 'Success', f'{invoice.doc_repr} created.')
 
+        try:
+            invoice = self.proformas_purchases_model.associateInvoice(rows)
+        except ValueError as ex:
+            QMessageBox.critical(self, 'Error', str(ex))
+        else:
+            QMessageBox.information(self, 'Success', f'{invoice.doc_repr} created.')
 
     def proformas_purchases_towh_handler(self, invoice=None):
         if invoice:
@@ -654,31 +659,6 @@ class MainGui(Ui_MainGui, QMainWindow):
             except:
                 QMessageBox.critical(self, 'Update - Error', 'Error updating proforma')
                 raise
-
-    def proformas_purchases_launch_form(self, index=None, proforma=None, is_invoice=False):
-        if proforma:
-            self.epp = purchase_proforma_form.EditableForm(
-                self,
-                self.proformas_purchases_view,
-                proforma,
-                is_invoice=is_invoice
-            )
-            self.epp.show()
-        elif index:
-            proforma = self.proformas_purchases_model.proformas[index.row()]
-            self.epp = purchase_proforma_form.EditableForm(
-                self,
-                self.proformas_purchases_view,
-                proforma,
-                is_invoice=is_invoice
-            )
-            self.epp.show()
-        else:
-            self.pp = purchase_proforma_form.Form(
-                self,
-                self.proformas_purchases_view,
-            )
-            self.pp.show()
 
     def get_proforma_purchase(self):
         rows = {index.row() for index in \
@@ -966,7 +946,9 @@ class MainGui(Ui_MainGui, QMainWindow):
 
     def invoices_purchases_double_click_handler(self, index):
         invoice = self.invoices_purchases_model[index.row()]
-        self.proformas_purchases_launch_form(proforma=invoice, is_invoice=True)
+        from purchase_invoice_form import Form
+        self.f = Form(invoice)
+        self.f.show()
 
     def invoices_purchases_export_handler(self):
         self.export_documents(
