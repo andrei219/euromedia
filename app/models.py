@@ -5448,13 +5448,21 @@ def generate_excel_rows(proforma):
             if line.accepted:
                 yield line.sn, line.item.clean_repr, line.public_condition or line.condition, line.spec
     else:
+
         for eline in proforma.expedition.lines:
-            condition = eline.showing_condition or eline.condition
+            condition = get_condition(eline)
             spec = get_spec(eline)
             description = eline.item.clean_repr
+
             for serie in eline.series:
                 yield serie.serie, description, condition, spec
 
+
+def get_condition(eline: db.ExpeditionLine):
+    lines_iter = eline.expedition.proforma.lines or eline.expedition.proforma.advanced_lines
+    for pline in lines_iter:
+        if pline == eline:
+            return pline.showing_condition or pline.condition
 
 def get_spec(eline: db.ExpeditionLine):
     for pline in eline.expedition.proforma.lines:
