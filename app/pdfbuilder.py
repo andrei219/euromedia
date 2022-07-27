@@ -8,7 +8,7 @@ from fpdf import FPDF
 from db import SaleInvoice
 from db import SaleProforma
 from db import PurchaseProforma
-from db import SaleProforma
+from db import PurchaseInvoice
 
 # CONSTANTS:
 
@@ -85,10 +85,6 @@ def get_space_position(text, length=95):
             return position_prev
 
 
-# Deberiamos hacer una superclase que contenga attsetters
-# que implemente esta conversion
-# asi no tendriamos que llamar 10 VECES la misma funcion
-# pero no estamos pa mas dolores de cabeza
 def dot_comma_number_repr(str_number):
     count = str_number.count(',')
     return str_number.replace('.', ',').replace(',', '.', count)
@@ -312,11 +308,15 @@ class We:
 class TableData:
 
     def __init__(self, document, *, is_invoice):
+
         self.Date = document.invoice.date.strftime('%d-%m-%Y') \
             if is_invoice else document.date.strftime('%d-%m-%Y')
+
         self.Document_No = str(document.invoice.type) + '-' + str(document.invoice.number). \
             zfill(6) if is_invoice else str(document.type) + '-' + str(document.number).zfill(6)
+
         self.Agent = document.agent.fiscal_name.split()[0]
+
         self.Incoterms = document.incoterm
         # self.Delivery_Date = document.invoice.eta.strftime('%d-%m-%Y') if is_invoice \
         #     else document.eta.strftime('%d-%m-%Y')
@@ -360,17 +360,16 @@ class TotalsData:
 
 class PDF(FPDF):
 
-    def __init__(self, document, *, is_invoice):
+    def __init__(self, document):
         self.last_condition_y_position = None
         global utils
         from importlib import reload
         utils = reload(utils)
         super().__init__()
-        self.is_invoice = is_invoice
         self.document = document
-        self.resolve_header_and_lines_repr(document, is_invoice)
+        self.resolve_header_and_lines_repr(document)
         self.we = We()
-        self.table_data = TableData(document, is_invoice=is_invoice)
+        self.table_data = TableData(document)
         self.totals_data = TotalsData(document)
 
         self.conditions = [
@@ -505,16 +504,16 @@ class PDF(FPDF):
 
         name, doc_type = None, None
 
-        if type(self.document) == SaleProforma and self.is_invoice:
+        if type(self.document) == SaleInvoice:
             name = 'Factura'
             doc_type = self.document.invoice.type
-        elif type(self.document) == SaleProforma and not self.is_invoice:
+        elif type(self.document) == SaleProforma:
             name = 'Proforma'
             doc_type = self.document.type
-        elif type(self.document) == PurchaseProforma and not self.is_invoice:
+        elif type(self.document) == PurchaseProforma:
             name = 'Proforma'
             doc_type = self.document.type
-        elif type(self.document) == PurchaseProforma and self.is_invoice:
+        elif type(self.document) == PurchaseInvoice:
             name = 'Factura'
             doc_type = self.document.invoice.type
 
@@ -750,8 +749,8 @@ class PDF(FPDF):
 
             self.set_xy(x_start, self.y_start)
 
-def build_document(document, *, is_invoice):
-    pdf = PDF(document, is_invoice=is_invoice)
+def build_document(document):
+    pdf = PDF(document)
     pdf.alias_nb_pages()
     pdf.set_auto_page_break(True, 10)
     pdf.add_page()
@@ -759,21 +758,3 @@ def build_document(document, *, is_invoice):
     pdf.print_footer()
     return pdf
 
-
-if __name__ == '__main__':
-    from db import SaleProforma, session, PurchaseProforma
-
-    sale = session.query(SaleProforma).first()
-    purchase = session.query(PurchaseProforma).first()
-
-    pdf = build_document(sale, is_invoice=False)
-
-    pdf.output('test.pdf')
-
-    # from itertools import product
-
-    # for doc, is_invoice in product(
-    #     [purchase, sale], 
-    #     [False ,True]
-    # ):     
-    #     build_document(doc, is_invoice=is_invoice)

@@ -491,65 +491,9 @@ class MainGui(Ui_MainGui, QMainWindow):
             self.opened_windows_instances.add(self.p)
             self.opened_windows_classes.add(partner_form.PartnerForm)
 
-    def export_documents(self, view, model, is_invoice=False):
-        ixs = view.selectedIndexes()
-        if not ixs: return
-        directory = get_directory(self)
-        if not directory:
-            return
-        rows = {i.row() for i in ixs}
-        rows = {i.row() for i in ixs}
-        try:
-            for row in rows:
-                proforma = model[row]
-                if not is_invoice:
-                    name = 'PI ' + proforma.doc_repr + '.pdf'
-
-                else:
-                    name = 'INV ' + proforma.invoice.doc_repr + '.pdf'
-
-                pdf = build_document(proforma, is_invoice=is_invoice)
-                pdf.output(os.path.join(directory, name))
-
-
-        except:
-            QMessageBox.critical(self, 'Error', 'Error exporting documents')
-            raise
-        else:
-            QMessageBox.information(self, 'Success', 'Document exported successfully')
-
-    def view_documents(self, view, model, is_invoice=False):
-        ixs = view.selectedIndexes()
-        if not ixs: return
-        rows = {i.row() for i in ixs}
-        try:
-            for row in rows:
-                document = model[row]
-                if not is_invoice:
-                    filename = 'PI ' + document.doc_repr + '.pdf'
-                else:
-                    filename = 'INV ' + document.invoice.doc_repr + '.pdf'
-
-                pdf = build_document(document, is_invoice=is_invoice)
-                from contextlib import suppress
-
-                pdf.output(filename)
-
-                import subprocess
-                subprocess.Popen((filename,), shell=True)
-
-                # with suppress(FileNotFoundError):
-                #     os.remove(filename)
-
-        except:
-            QMessageBox.critical(self, 'Error', 'Error viewing the file')
-            raise
-
     def proformas_purchases_view_pdf_handler(self):
-        self.view_documents(
-            self.proformas_purchases_view,
-            self.proformas_purchases_model
-        )
+        pass
+
 
     def proformas_purchases_selection_changed(self, selection_model):
         self.selection_changed_generic(self.proformas_purchases_view)
@@ -578,10 +522,7 @@ class MainGui(Ui_MainGui, QMainWindow):
         print('print')
 
     def proformas_purchases_export_handler(self):
-        self.export_documents(
-            self.proformas_purchases_view,
-            self.proformas_purchases_model
-        )
+        pass
 
     def proformas_purchases_payments_handler(self, invoice=None):
         if invoice:
