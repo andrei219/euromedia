@@ -10,6 +10,8 @@ from collections import namedtuple
 from itertools import groupby, product, combinations
 from operator import attrgetter
 from datetime import datetime, timedelta
+from collections.abc import Iterable
+
 
 import sqlalchemy
 from sqlalchemy import exists
@@ -817,7 +819,6 @@ class PartnerContactModel(QtCore.QAbstractTableModel):
 
 
 class SaleInvoiceModel_old(QtCore.QAbstractTableModel):
-
     TYPE_NUM, DATE, PROFORMA = 0, 1, 16
 
     def __init__(self, search_key=None, filters=None, last=10):
@@ -883,7 +884,7 @@ class SaleInvoiceModel_old(QtCore.QAbstractTableModel):
         elif section == self.DATE:
             self.layoutAboutToBeChanged.emit()
             self.invoices.sort(
-                key = lambda p: p.invoice.date,
+                key=lambda p: p.invoice.date,
                 reverse=reverse
             )
             self.layoutChanged.emit()
@@ -916,18 +917,20 @@ class SaleInvoiceModel_old(QtCore.QAbstractTableModel):
 
 
 class SaleInvoiceModel(BaseTable, QtCore.QAbstractTableModel):
-    
+    TYPENUM, DATE, ETA, PARTNER, AGENT, FINANCIAL, LOGISTIC, SENT, CANCELLED, OWING, \
+    TOTAL, EXT, INWH, PROFORMA = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13
+
     def __init__(self, filters=None, search_key=None, last=10):
         super().__init__()
         self._headerData = [
-            'Type & Num', 'Date', 'Partner', 'Agent',
+            'Type & Num', 'Date', 'ETA', 'Partner', 'Agent',
             'Financial', 'Logistic', 'Sent', 'Cancelled', 'Owing',
             'Total', 'Ext. Doc.', 'In WH', 'Proforma'
         ]
         self.name = 'invoices'
 
-        query = db.session.query(db.SaleInvoice).join(db.SaleProforma).\
-            join(db.Agent, db.Agent.id == db.SaleProforma.id).\
+        query = db.session.query(db.SaleInvoice).join(db.SaleProforma). \
+            join(db.Agent, db.Agent.id == db.SaleProforma.agent_id). \
             join(db.Partner, db.Partner.id == db.SaleProforma.partner_id)
 
         # TODO: search key, last, and filters
@@ -1010,11 +1013,61 @@ class SaleInvoiceModel(BaseTable, QtCore.QAbstractTableModel):
         return self.invoices[item]
 
 
+
 class SaleInvoiceLineModel(BaseTable, QtCore.QAbstractTableModel):
+
+    DESCRIPTION, CONDITION, SPEC, PUBLIC_CONDITION, QUANTITY, \
+    PRICE, SUBTOTAL, TAX, TOTAL = 0, 1, 2, 3, 4, 5, 6, 7, 8
 
     def __init__(self, invoice):
         super().__init__()
+        self.invoice = invoice
+        self.name = 'lines'
+        self._headerData = [
+            'Description',
+            'Condition',
+            'Spec',
+            'Public Condition',
+            'Qty.',
+            'Price ',
+            'Subtotal',
+            'Tax ',
+            'Total'
+        ]
 
+        self.lines = [line for proforma in invoice.proformas for line in proforma.advanced_lines or proforma.lines]
+
+    def get_data(self, line, col):
+        if col == self.CONDITION:
+            return line.condition
+        elif col == self.PUBLIC_CONDITION:
+            return line.showing_condition
+        elif col == self.SPEC:
+            return line.spec
+        elif col == self.QUANTITY:
+            return line.quantity
+        elif col == self.PRICE:
+            return line.price
+        elif col == self.TAX:
+            return line.tax
+        elif col == self.SUBTOTAL:
+            return str(line.subtotal)
+        elif col == self.TOTAL:
+            return str(line.total)
+        elif col == self.DESCRIPTION:
+            if isinstance(line, db.AdvancedLine):
+                return line.free_description or line.mixed_description or utils.description_id_map.inverse[line.item_id]
+            elif isinstance(line, db.SaleProformaLine):
+                return line.description or utils.description_id_map.inverse[line.item_id]
+
+
+    def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
+        if not index.isValid():
+            return
+        row, col = index.row(), index.column()
+        line = self.lines[row]
+        if role == Qt.DisplayRole:
+            return self.get_data(line, col)
 
 
 class PurchaseInvoiceModel(BaseTable, QtCore.QAbstractTableModel):
@@ -1030,8 +1083,8 @@ class PurchaseInvoiceModel(BaseTable, QtCore.QAbstractTableModel):
         ]
 
         self.name = 'invoices'
-        query = db.session.query(db.PurchaseInvoice).join(db.PurchaseProforma).\
-            join(db.Agent, db.Agent.id == db.PurchaseProforma.agent_id).\
+        query = db.session.query(db.PurchaseInvoice).join(db.PurchaseProforma). \
+            join(db.Agent, db.Agent.id == db.PurchaseProforma.agent_id). \
             join(db.Partner, db.Partner.id == db.PurchaseProforma.partner_id)
 
         if search_key:
@@ -1068,11 +1121,10 @@ class PurchaseInvoiceModel(BaseTable, QtCore.QAbstractTableModel):
         if filters:
 
             if filters['types']:
-                self.invoices = filter(lambda i:i.type in filters['types'], self.invoices)
+                self.invoices = filter(lambda i: i.type in filters['types'], self.invoices)
 
             if isinstance(self.invoices, filter):
                 self.invoices = list(self.invoices)
-
 
     def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
         if not index.isValid():
@@ -1216,7 +1268,6 @@ def buildReceptionLine(line, reception):
 
 
 def update_purchase_warehouse(proforma):
-
     if proforma.reception is None:
         return False
 
@@ -1268,8 +1319,8 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
             db.Partner.id == db.PurchaseProforma.partner_id
         )
 
-        query = db.session.query(db.PurchaseProforma).\
-            join(db.Partner, db.Partner.id == db.PurchaseProforma.partner_id).\
+        query = db.session.query(db.PurchaseProforma). \
+            join(db.Partner, db.Partner.id == db.PurchaseProforma.partner_id). \
             join(db.Agent, db.Agent.id == db.PurchaseProforma.agent_id)
 
         query = query.where(db.PurchaseProforma.date > utils.get_last_date(last))
@@ -1499,12 +1550,12 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
             db.session.rollback()
             raise
 
-    def associateInvoice(self, rows:set):
+    def associateInvoice(self, rows: set):
         for r1, r2 in combinations(rows, r=2):
             p1, p2 = self.proformas[r1], self.proformas[r2]
             if not all((
-                p1.type == p2.type, p1.agent_id == p2.agent_id, p1.partner_id == p2.partner_id,
-                p1.eur_currency == p2.eur_currency
+                    p1.type == p2.type, p1.agent_id == p2.agent_id, p1.partner_id == p2.partner_id,
+                    p1.eur_currency == p2.eur_currency
             )):
                 raise ValueError('Incompatible proformas')
 
@@ -1596,6 +1647,44 @@ def build_associated_reception(sale_proforma):
         db.session.commit()
     except IntegrityError:
         db.session.rollback()
+
+
+def build_expedition_line(line, expedition):
+    exp_line = db.ExpeditionLine()
+    exp_line.condition = line.condition
+    exp_line.spec = line.spec
+    exp_line.item_id = line.item_id
+    exp_line.quantity = line.quantity
+
+    exp_line.expedition = expedition
+
+
+def update_sale_warehouse(proforma):
+    if proforma.expedition is None:
+        return
+
+    wh_lines = set(proforma.expedition.lines)
+    pr_lines = set(proforma.lines or proforma.advanced_lines)
+
+    for line in wh_lines.difference(pr_lines):
+        line.quantity = 0
+        if len(line.series) == 0:
+            db.session.delete(line)
+
+    for line in pr_lines.difference(wh_lines):
+        if item_key(line):
+            build_expedition_line(line, proforma.expedition)
+
+    for pline in pr_lines:
+        for whline in wh_lines:
+            if pline == whline:
+                whline.quantity = pline.quantity
+
+    try:
+        db.session.commit()
+    except Exception as ex:
+        db.session.rollback()
+        raise
 
 
 class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
@@ -1921,14 +2010,41 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
             db.session.rollback()
             raise
 
-    def associateInvoice(self, proforma):
+    def associateInvoice(self, rows: set):
+        if any(
+            bool(self.proformas[row].credit_note_lines)
+            for row in rows
+        ):
+            raise ValueError('Incompatible proformas')
+
+        for r1, r2 in combinations(rows, r=2):
+            p1, p2 = self.proformas[r1], self.proformas[r2]
+            if not all((
+                    p1.type == p2.type, p1.agent_id == p2.agent_id, p1.partner_id == p2.partner_id,
+                    p1.eur_currency == p2.eur_currency
+            )):
+                raise ValueError('Incompatible proformas')
+
+
+        for row in rows:
+            break  # Peek an element (set is not subscriptable)
+
+        any_proforma = self.proformas[row]
+
         current_num = db.session.query(func.max(db.SaleInvoice.number)). \
-            where(db.SaleInvoice.type == proforma.type).scalar()
+            where(db.SaleInvoice.type == any_proforma.type).scalar()
+
         if current_num:
             next_num = current_num + 1
         else:
             next_num = 1
-        proforma.invoice = db.SaleInvoice(proforma.type, next_num)
+
+        invoice = db.SaleInvoice(any_proforma.type, next_num)
+
+        for row in rows:
+            proforma = self.proformas[row]
+            proforma.invoice = invoice
+
         try:
             db.session.commit()
             return proforma.invoice
@@ -2036,84 +2152,6 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
             for stock in query
         ))
 
-    def build_expedition_line(self, line, expedition):
-
-        exp_line = db.ExpeditionLine()
-        exp_line.condition = line.condition
-        exp_line.spec = line.spec
-        exp_line.item_id = line.item_id
-        exp_line.quantity = line.quantity
-
-        exp_line.expedition = expedition
-
-    def updateWarehouse(self, proforma):
-        if proforma.expedition is None:
-            return
-
-        wh_lines = set(proforma.expedition.lines)
-        pr_lines = set(proforma.lines or proforma.advanced_lines)
-
-        for line in wh_lines.difference(pr_lines):
-            line.quantity = 0
-            if len(line.series) == 0:
-                db.session.delete(line)
-
-        for line in pr_lines.difference(wh_lines):
-            if item_key(line):
-                self.build_expedition_line(line, proforma.expedition)
-
-        for pline in pr_lines:
-            for whline in wh_lines:
-                if pline == whline:
-                    whline.quantity = pline.quantity
-
-        try:
-            db.session.commit()
-        except Exception as ex:
-            db.session.rollback()
-            raise
-
-    def s(self, proforma):
-        if proforma.expedition is None:
-            return
-
-        added_lines = self.difference(proforma)
-
-        for line in added_lines:
-            self.build_expedition_line(line, proforma.expedition)
-
-        deleted_lines = self.difference(proforma, direction='expedition_proforma')
-
-        for line in deleted_lines:
-            line.quantity = 0
-            if len(line.series) == 0:
-                # Corner case:
-                # Solo hay 1
-                # Borras la serie en el almacen
-                # y se queda a 0
-                # borras la linea en la factura
-                # entonces queda
-                try:
-                    db.session.delete(line)
-                except InvalidRequestError:
-                    pass
-
-        # for line in added_lines:
-        #     self.build_expedition_line(line, proforma.expedition)
-
-        # Update quantity
-        # Update showing condition
-        for pline in filter(item_key, proforma.lines):
-            for eline in proforma.expedition.lines:
-                if self.pline_eline_equal(pline, eline):
-                    eline.quantity = pline.quantity
-                    eline.showing_condition = pline.showing_condition
-        try:
-            db.session.commit()
-        except Exception:
-            db.session.rollback()
-            raise
-
     def pline_eline_equal(self, pline, eline):
         return all((
             pline.item_id == eline.item_id,
@@ -2139,7 +2177,6 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
                 yield pline
 
 
-from collections.abc import Iterable
 
 
 class OrganizedLines:
@@ -3212,6 +3249,7 @@ class ExpenseModel(BaseTable, QtCore.QAbstractTableModel):
 
 from functools import wraps
 
+
 def change_layout_and_commit(func):
     wraps(func)
 
@@ -3226,7 +3264,6 @@ def change_layout_and_commit(func):
 
 
 def expedition_series_contains(serie):
-
     return db.session.query(exists().where(db.ExpeditionSerie.serie == serie)).scalar()
 
 
@@ -6315,7 +6352,8 @@ def get_avg_rate(proforma):
         base += payment.amount
         base_with_rates += payment.amount / payment.rate
 
-    print(f'base={base}, base_with_rates={base_with_rates}, total_debt={proforma.total_debt}, base/base_with_rate={base/base_with_rates}')
+    print(
+        f'base={base}, base_with_rates={base_with_rates}, total_debt={proforma.total_debt}, base/base_with_rate={base / base_with_rates}')
 
     if base == 0:
         return 'No payments yet'
@@ -7174,6 +7212,7 @@ class Tupable:
     def as_tuple(self):
         return tuple(self.__dict__.values())
 
+
 class StockValuationEntryDocument(Tupable):
     pass
 
@@ -7201,9 +7240,9 @@ class StockValuationEntryWarehouse(Tupable):
 
 def get_external_from_imei(imei):
     try:
-        return db.session.query(db.PurchaseProforma.external).join(db.Reception).\
-                join(db.ReceptionLine).join(db.ReceptionSerie).\
-                where(db.ReceptionSerie.serie == imei).all()[-1].external
+        return db.session.query(db.PurchaseProforma.external).join(db.Reception). \
+            join(db.ReceptionLine).join(db.ReceptionSerie). \
+            where(db.ReceptionSerie.serie == imei).all()[-1].external
     except IndexError:
         return ''
 
@@ -7273,16 +7312,16 @@ class StockValuationModelDocument(Exportable, BaseTable, QtCore.QAbstractTableMo
         type, number = int(type), int(number)
         if not proforma:
             try:
-                purchase_proforma = db.session.query(db.PurchaseProforma).\
-                    join(db.PurchaseInvoice).where(db.PurchaseInvoice.type == type).\
+                purchase_proforma = db.session.query(db.PurchaseProforma). \
+                    join(db.PurchaseInvoice).where(db.PurchaseInvoice.type == type). \
                     where(db.PurchaseInvoice.number == number).one()
             except sqlalchemy.exc.NoResultFound:
                 raise ValueError("No results found")
         else:
 
             try:
-                purchase_proforma = db.session.query(db.PurchaseProforma).\
-                    where(db.PurchaseProforma.type == type).\
+                purchase_proforma = db.session.query(db.PurchaseProforma). \
+                    where(db.PurchaseProforma.type == type). \
                     where(db.PurchaseProforma.number == number).one()
             except sqlalchemy.exc.NoResultFound:
                 raise ValueError("No results found")
@@ -7311,7 +7350,8 @@ class StockValuationModelDocument(Exportable, BaseTable, QtCore.QAbstractTableMo
                 raise ValueError('I could not find mean rate')
 
             base_price = line.price
-            remaining_expense, shipping_expense = get_purchase_expenses_breakdown(purchase_proforma)  # already rate applied
+            remaining_expense, shipping_expense = get_purchase_expenses_breakdown(
+                purchase_proforma)  # already rate applied
             shipping_delta = shipping_expense / purchase_proforma.total_quantity
             remaining_expense_delta = base_price * remaining_expense / get_purchase_stock_value(purchase_proforma)
 
@@ -7337,7 +7377,6 @@ class StockValuationEntryWarehouse:
         self.external = external
         self.cost = purchase_row.ptotal
 
-
     @property
     def as_tuple(self):
         return tuple(self.__dict__.values())
@@ -7345,8 +7384,7 @@ class StockValuationEntryWarehouse:
 
 class StockValuationEntryWarehouseNoSerie:
 
-
-    def __init__(self, description, condition, spec,date, partner, doc, external, cost, qnt) :
+    def __init__(self, description, condition, spec, date, partner, doc, external, cost, qnt):
         self.description = description
         self.condition = condition
         self.spec = spec
@@ -7386,7 +7424,6 @@ class StockValuationModelWarehouse(Exportable, BaseTable, QtCore.QAbstractTableM
 
         has_not_serie = lambda object: utils.valid_uuid(object.serial)
         has_serie = lambda object: not utils.valid_uuid(object.serial)
-
 
         uuid_group = list(filter(has_not_serie, registers))
         sn_group = filter(has_serie, registers)
@@ -7436,7 +7473,7 @@ class StockValuationModelWarehouse(Exportable, BaseTable, QtCore.QAbstractTableM
 
 
 class StockValuationModelImei(Exportable, BaseTable, QtCore.QAbstractTableModel):
-    DESC, COND, SPEC, SERIAL, DATE, PARTNER, DOC_REPR, EXTERNAL_DOC, COST, QNT = 0, 1, 2, 3, 4, 5, 6, 7, 8,9
+    DESC, COND, SPEC, SERIAL, DATE, PARTNER, DOC_REPR, EXTERNAL_DOC, COST, QNT = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
 
     def __init__(self, imei):
         super().__init__()
@@ -7456,7 +7493,6 @@ class StockValuationModelImei(Exportable, BaseTable, QtCore.QAbstractTableModel)
         self.name = 'entries'
         self.entries = []
         self.entries.append(StockValuationEntryImei(do_cost_price(imei), external))
-
 
     def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
         if not index.isValid():
@@ -7494,6 +7530,7 @@ def caches_clear():
     get_sale_terms_key.cache_clear()
     get_sale_breakdown.cache_clear()
     get_sale_proforma_stock_value.cache_clear()
+
 
 if __name__ == '__main__':
 

@@ -129,7 +129,6 @@ class PurchaseLinePDFRepr(LinePDFRepr):
 
         self.tax = str(line.tax) + '%'
 
-
         self.total = dot_comma_number_repr(self.total)
         self.price = dot_comma_number_repr(self.price)
 
@@ -239,7 +238,6 @@ class LinesPDFRepr:
             self.lines.insert(index, LinePDFRepr.fake(line.description, space_position))
             line.description = line.description[space_position:].strip()
 
-
         start = 1
         prev = self.lines[0]
         for i, actual_line in enumerate(self.lines):
@@ -261,12 +259,12 @@ class SaleLinesPDFRepr(LinesPDFRepr):
         ]
         self.add_counter()
 
+
 class CreditLinesPDFRepr(LinesPDFRepr):
 
     def __init__(self, lines):
         self.lines = list(map(CreditLinePDFRepr, lines))
         self.add_counter()
-
 
 
 class PurchaseLinesPDFRepr(LinesPDFRepr):
@@ -305,7 +303,7 @@ class We:
         self.phone = '+34 633 333 973'
 
 
-class TableData:
+class TableData_old:
 
     def __init__(self, document, *, is_invoice):
 
@@ -330,12 +328,40 @@ class TableData:
         return iter(self.__dict__.items())
 
 
+class TableData:
+
+    def __init__(self, document):
+
+        if isinstance(document, (SaleInvoice, PurchaseInvoice)):
+            document = document.proformas[0]
+
+        self.Date = document.date.strftime('%d-%m-%Y')
+        self.Document_No = document.doc_repr
+        self.Agent = document.agent.fiscal_name.split()[0]
+        self.Incoterms = document.incoterm
+        self.External_Doc = document.external
+        self.Currency = 'EUR' if document.eur_currency else 'USD'
+
+    def __iter__(self):
+        return iter(self.__dict__.items())
+
+
 class TotalsData:
 
     def __init__(self, document):
-        try:
-            lines = document.advanced_lines or document.lines
-        except AttributeError:
+
+        if isinstance(document, SaleInvoice):
+            # TODO
+            pass
+
+        elif isinstance(document, SaleProforma):
+            # TODO
+            pass
+
+        elif isinstance(document, PurchaseInvoice):
+            lines = [line for proforma in document.proformas for line in proforma.lines]
+
+        elif isinstance(document, PurchaseProforma):
             lines = document.lines
 
         self.Total_excl_VAT = document.subtotal
@@ -390,11 +416,11 @@ class PDF(FPDF):
             '4 - Approved devices must be sent back within 5 days.'
         ]
 
-    def resolve_header_and_lines_repr(self, document, is_invoice):
-        from db import SaleProforma, PurchaseProforma
-        if type(document) == SaleProforma:
-            self.we_buy = False
+    def resolve_header_and_lines_repr(self, document):
 
+        if isinstance(document, SaleProforma):
+            self.we_buy = False
+            self.doc_header = 'SALE ORDER'
             if document.lines:
                 self.lines = SaleLinesPDFRepr(document.lines)
             elif document.advanced_lines:
@@ -402,18 +428,22 @@ class PDF(FPDF):
             elif document.credit_note_lines:
                 self.lines = CreditLinesPDFRepr(document.credit_note_lines)
 
-            if not is_invoice:
-                self.doc_header = 'SALE ORDER'
-            else:
-                self.doc_header = 'COMMERCIAL INVOICE'
-
-        elif type(document) == PurchaseProforma:
-            self.lines = PurchaseLinesPDFRepr(document.lines)
+        elif isinstance(document, SaleInvoice):
+            # TODO merge lines
+            self.lines = None
+            self.we_buy = False
+            self.doc_header = 'COMMERCIAL INVOICE'
+        elif isinstance(document, PurchaseProforma):
             self.we_buy = True
-            if not is_invoice:
-                self.doc_header = 'PURCHASE ORDER'
-            else:
-                self.doc_header = 'PURCHASE INVOICE'
+            self.doc_header = 'PURCHASE ORDER'
+            self.lines = PurchaseLinesPDFRepr(document.lines)
+
+        elif isinstance(document, PurchaseInvoice):
+            self.we_buy = True
+            self.doc_header = 'PURCHASE INVOICE'
+            lines = [line for proforma in document.proformas for line in proforma.lines]
+            self.lines = PurchaseLinesPDFRepr(lines)
+
 
     def header(self, print_lines_header=True):
         self.set_xy(18.75, 13.53)
@@ -655,7 +685,7 @@ class PDF(FPDF):
         self.print_helper(partner, x, y, header='Buyer:')
 
     def print_supplier(self):
-        partner = self.document.partner if self.we_buy else self.we
+        partner = self.document.partner_object if self.we_buy else self.we
         x, y = SUPPLIER_BASE
         self.print_helper(partner, x, y, header='Supplier:')
 
@@ -737,7 +767,7 @@ class PDF(FPDF):
                 except TypeError:
                     print_lines_header = False
 
-                self.cell(increment, txt=element, align='R' if i >= 2 else 'L', caller=self, \
+                self.cell(increment, txt=element, align='R' if i >= 2 else 'L', caller=self,\
                           print_lines_header=print_lines_header)
                 x += increment
                 self.set_x(x)

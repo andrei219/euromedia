@@ -22,6 +22,7 @@ class Form(Ui_PurchaseProformaForm, QWidget):
         self.model = PurchaseInvoiceLineModel(invoice)
         self.lines_view.setModel(self.model)
         self.create_line_group.setVisible(False)
+        self.create_line_group.setDisabled(True)
         self.note.setPlaceholderText('Purchase Invoice Note (Max 255) ...')
         self.setWindowTitle('Invoice Form')
 

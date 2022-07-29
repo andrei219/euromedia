@@ -1,4 +1,5 @@
 import os
+import subprocess
 
 from PyQt5.QtWidgets import (
     QMainWindow,
@@ -6,6 +7,8 @@ from PyQt5.QtWidgets import (
     QMessageBox,
 )
 from sqlalchemy.exc import IntegrityError
+
+from clipboard import ClipBoard
 
 import advanced_definition_form
 import rmas_incoming_form
@@ -24,6 +27,7 @@ import reception_order
 import sale_proforma_form
 import documents_form
 from db import PurchaseProforma, PurchaseDocument, SaleDocument, SaleProforma, correct_mask
+from models import SaleProformaModel, PurchaseProformaModel
 from pdfbuilder import build_document
 from ui_maingui import Ui_MainGui
 from utils import (
@@ -108,9 +112,26 @@ def clean_up_directories():
     for file in os.listdir(os.path.join(os.curdir, 'temp')):
         os.remove(os.path.join(os.curdir, 'temp', file))
 
-            # Proformas purchases handlers:
 
-from clipboard import ClipBoard
+def get_prefix(model, document):
+    if isinstance(model, (SaleProformaModel, PurchaseProformaModel)):
+        return 'PI '
+    return 'INV'
+
+
+def view_document(view, model):
+    ixs = view.selectedIndexes()
+    if not ixs:
+        return
+    row = {i.row() for i in ixs}.pop()
+    document = model[row]
+    filename = get_prefix(model, document) + document.doc_repr + '.pdf'
+    pdf = build_document(document)
+    pdf.output(filename)
+
+    subprocess.Popen((filename,), shell=True)
+
+
 class MainGui(Ui_MainGui, QMainWindow):
 
     def __init__(self, parent=None):
@@ -134,18 +155,6 @@ class MainGui(Ui_MainGui, QMainWindow):
         self.set_handlers()
 
         self.main_tab.currentChanged.connect(self.tab_changed)
-
-        # self.proformas_purchases_view.selectionModel().\
-        #     selectionChanged.connect(self.proformas_purchases_selection_changed)
-
-        # self.proformas_sales_view.selectionModel().\
-        #     selectionChanged.connect(self.proformas_sales_selection_changed)
-
-        # self.invoices_sales_view.selectionModel().\
-        #     selectionChanged.connect(self.invoices_sales_selection_changed)
-
-        # self.invoices_purchases_view.selectionModel().\
-        #     selectionChanged.connect(self.invoices_purchases_selection_changed)
 
     def selection_changed_generic(self, view):
         rows = {i.row() for i in view.selectedIndexes()}
@@ -194,7 +203,6 @@ class MainGui(Ui_MainGui, QMainWindow):
             self.partners_view.resizeColumnToContents(2)
             self.partners_view.resizeColumnToContents(3)
             self.partners_view.resizeColumnToContents(7)
-
 
         elif prefix == 'proformas_purchases_':
 
@@ -492,7 +500,13 @@ class MainGui(Ui_MainGui, QMainWindow):
             self.opened_windows_classes.add(partner_form.PartnerForm)
 
     def proformas_purchases_view_pdf_handler(self):
-        pass
+        try:
+            view_document(
+                self.proformas_purchases_view,
+                self.proformas_purchases_model
+            )
+        except Exception:
+            QMessageBox.critical(self, 'Error', 'Error viewing the file')
 
 
     def proformas_purchases_selection_changed(self, selection_model):
@@ -545,8 +559,9 @@ class MainGui(Ui_MainGui, QMainWindow):
         pass
 
     def proformas_purchases_toinv_handler(self):
-
         rows = {index.row() for index in self.proformas_purchases_view.selectedIndexes()}
+        if not rows:
+            return
 
         model = self.proformas_purchases_model
         if any(model[row].cancelled for row in rows):
@@ -558,7 +573,7 @@ class MainGui(Ui_MainGui, QMainWindow):
             return
 
         try:
-            invoice = self.proformas_purchases_model.associateInvoice(rows)
+            invoice = model.associateInvoice(rows)
         except ValueError as ex:
             QMessageBox.critical(self, 'Error', str(ex))
         else:
@@ -575,13 +590,11 @@ class MainGui(Ui_MainGui, QMainWindow):
                 ok, note = getNote(self, proforma)
                 if ok:
                     self.proformas_purchases_model.toWarehouse(proforma, note)
-                    QMessageBox.information(self, 'Information',
-                                            'Successfully created warehouse reception')
+                    QMessageBox.information(self, 'Information', 'Successfully created warehouse reception')
             except IntegrityError as ex:
                 if ex.orig.args[0] == 1048:
                     d = 'Invoice' if invoice else 'Proforma'
-                    QMessageBox.critical(self, 'Update - Error',
-                                         f'Warehouse reception for this {d} already exists')
+                    QMessageBox.critical(self, 'Update - Error', f'Warehouse reception for this {d} already exists')
 
     def proformas_purchases_ship_handler(self, invoice=None):
         if invoice:
@@ -779,17 +792,25 @@ class MainGui(Ui_MainGui, QMainWindow):
         pass
 
     def proformas_sales_toinv_handler(self):
-        proforma = self.get_sale_proforma()
-        if proforma:
-            if proforma.cancelled:
-                QMessageBox.information( self, 'Information', "Cannot build invoice from cancelled proforma")
-                return
-            try:
-                proforma.invoice.type
-                QMessageBox.information(self,'Information', f"Invoice already associated: {proforma.invoice.doc_repr}")
-            except AttributeError:
-                invoice = self.proformas_sales_model.associateInvoice(proforma)
-                QMessageBox.information(self, 'Information', f"Invoice {invoice.doc_repr} created")
+
+        rows = {index.row() for index in self.proformas_sales_view.selectedIndexes()}
+        if not rows:
+            return
+        model = self.proformas_sales_model
+        if any(model[row].cancelled for row in rows):
+            QMessageBox.critical(self, 'Error', 'Cancelled proforma/s')
+            return
+
+        if any(model[row].invoice is not None for row in rows):
+            QMessageBox.critical(self, 'Error', 'Invoice already associated')
+            return
+
+        try:
+            invoice = model.associateInvoice(rows)
+        except ValueError as ex:
+            QMessageBox.critical(self, 'Error', str(ex))
+        else:
+            QMessageBox.information(self, 'Success', f'{invoice.doc_repr} created')
 
 
     def proformas_sales_towh_handler(self, invoice=None):
@@ -855,11 +876,15 @@ class MainGui(Ui_MainGui, QMainWindow):
         self.advsp.show()
 
     def invoices_purchases_view_pdf_handler(self):
-        self.view_documents(
-            self.invoices_purchases_view,
-            self.invoices_purchases_model,
-            is_invoice=True
-        )
+        try:
+            view_document(
+                self.invoices_purchases_view,
+                self.invoices_purchases_model
+            )
+        except Exception:
+            QMessageBox.critical(self, 'Error', 'Error viewing the file')
+            raise
+
 
     def invoices_purchases_selection_changed(self):
         self.selection_changed_generic(self.invoices_purchases_view)
@@ -940,38 +965,18 @@ class MainGui(Ui_MainGui, QMainWindow):
         self.proformas_sales_expenses_handler(invoice=invoice)
 
     def invoices_sales_double_click_handler(self, index):
-        try:
-            proforma = self.invoices_sales_model[index.row()]
-        except:
+        from sale_invoice_form import Form
+
+        rows = {i.row() for i in self.invoices_sales_view.selectedIndexes()}
+        if len(rows) != 1:
             return
+        row = rows.pop()
+        invoice = self.invoices_sales_model[row]
 
-        if proforma.advanced_lines:
-            self.sp = advanced_sale_proforma_form.get_form(
-                self,
-                self.proformas_sales_view,
-                proforma,
-                is_invoice=True
-            )
-        elif proforma.lines:
-            self.sp = sale_proforma_form.get_form(
-                self,
-                self.proformas_sales_view,
-                proforma,
-                is_invoice=True,
-            )
-        elif proforma.credit_note_lines:
-            from credit_note_form import Form
-            self.sp = Form(self, proforma, is_invoice=True)
+        self.sip = Form(invoice)
 
-        else:
-            self.sp = sale_proforma_form.get_form(
-                self,
-                self.proformas_sales_view,
-                proforma,
-                is_invoice=True
-            )
+        self.sip.show()
 
-        self.sp.show()
 
     def invoices_sales_ready_handler(self):
         indexes = self.invoices_sales_view.selectedIndexes()
