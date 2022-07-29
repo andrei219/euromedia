@@ -506,7 +506,8 @@ class MainGui(Ui_MainGui, QMainWindow):
                 self.proformas_purchases_model
             )
         except Exception:
-            QMessageBox.critical(self, 'Error', 'Error viewing the file')
+            # QMessageBox.critical(self, 'Error', 'Error viewing the file')
+            raise
 
 
     def proformas_purchases_selection_changed(self, selection_model):
@@ -912,7 +913,7 @@ class MainGui(Ui_MainGui, QMainWindow):
 
     def invoices_purchases_double_click_handler(self, index):
         invoice = self.invoices_purchases_model[index.row()]
-        from purchase_invoice_form import Form
+        from invoice_form import Form
         self.f = Form(invoice)
         self.f.show()
 
@@ -965,12 +966,14 @@ class MainGui(Ui_MainGui, QMainWindow):
         self.proformas_sales_expenses_handler(invoice=invoice)
 
     def invoices_sales_double_click_handler(self, index):
-        from sale_invoice_form import Form
+
+        from invoice_form import Form
 
         rows = {i.row() for i in self.invoices_sales_view.selectedIndexes()}
         if len(rows) != 1:
             return
         row = rows.pop()
+
         invoice = self.invoices_sales_model[row]
 
         self.sip = Form(invoice)

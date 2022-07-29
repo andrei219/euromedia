@@ -200,7 +200,6 @@ class Form(Ui_PurchaseProformaForm, QWidget):
         proforma.credit_amount = self.with_credit_spinbox.value()
         proforma.credit_days = self.days_credit_spinbox.value()
         proforma.incoterm = self.incoterms_combo_box.currentText()
-        proforma.external = self.external_line_edit.text()
         proforma.tracking = self.tracking_line_edit.text()
         proforma.note = self.note.toPlainText()[0:255]
         return proforma
@@ -328,7 +327,6 @@ class EditableForm(Form):
         self.usd_radio_button.setChecked(not p.eur_currency)
 
         self.with_credit_spinbox.setValue(p.credit_amount)
-        self.external_line_edit.setText(p.external)
         self.tracking_line_edit.setText(p.tracking)
         self.they_pay_they_ship_shipping_radio_button.setChecked(p.they_pay_they_ship)
         self.we_pay_we_ship_shipping_radio_button.setChecked(p.we_pay_we_ship)

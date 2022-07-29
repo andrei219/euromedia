@@ -9,11 +9,14 @@ from db import Agent, Partner
 from models import (
     AdvancedLinesModel,
     IncomingStockModel,
-    computeCreditAvailable
+    computeCreditAvailable,
+    sale_proforma_next_number,
+    update_sale_warehouse
 )
 from sale_proforma_form import Form
 from ui_advanced_sale_proforma_form import Ui_Form
 from utils import setCommonViewConfig
+
 
 MESSAGE = "This presale is only for incoming stock \n {}. For others stocks create new presale"
 
@@ -31,7 +34,7 @@ class Form(Ui_Form, QWidget):
         super().__init__()
         self.setupUi(self)
         setCommonViewConfig(self.stock_view)
-        self.model = view
+        self.model = view.model()
         self.init_template()
         self.parent = parent
         self.lines_model = AdvancedLinesModel(self.proforma, self)
@@ -52,7 +55,7 @@ class Form(Ui_Form, QWidget):
         db.session.flush()
         self.date.setText(date.today().strftime('%d%m%Y'))
         self.type.setCurrentText('1')
-        self.number.setText(str(self.model.purchase_proforma_next_number(1)).zfill(6))
+        self.number.setText(str(sale_proforma_next_number(1)).zfill(6))
 
     def set_handlers(self):
         self.partner.returnPressed.connect(self.partner_search)
@@ -102,7 +105,6 @@ class Form(Ui_Form, QWidget):
         self.days.setValue(p.credit_days)
         self.eur.setChecked(p.eur_currency)
         self.credit.setValue(p.credit_amount)
-        self.external.setText(p.external)
         self.tracking.setText(p.tracking)
         self.they_pay_we_ship.setChecked(p.they_pay_we_ship)
         self.they_pay_they_ship.setChecked(p.they_pay_they_ship)
@@ -272,7 +274,7 @@ class Form(Ui_Form, QWidget):
                 raise
 
     def type_changed(self, type):
-        next_num = self.model.purchase_proforma_next_number(int(type))
+        next_num = sale_proforma_next_number(int(type))
         self.number.setText(str(next_num).zfill(6))
 
     def save_handler(self):
@@ -345,7 +347,6 @@ class Form(Ui_Form, QWidget):
         self.proforma.credit_amount = self.credit.value()
         self.proforma.credit_days = self.days.value()
         self.proforma.incoterm = self.incoterms.currentText()
-        self.proforma.external = self.external.text()
         self.proforma.tracking = self.tracking.text()
         self.proforma.note = self.note.toPlainText()[0:255]
 
@@ -389,7 +390,7 @@ class EditableForm(Form):
         Form(self, self.proforma).exec_()
 
     def save_template(self):
-        self.model.update_purchase_warehouse(self.proforma)
+        update_sale_warehouse(self.proforma)
 
     def disable_if_cancelled(self):
         if self.proforma.cancelled:

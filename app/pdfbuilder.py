@@ -280,6 +280,7 @@ class AdvancedLinesPDFRepr(LinesPDFRepr):
         self.lines = list(map(AdvancedSaleLinePDFRepr, lines))
         self.add_counter()
 
+
 class We:
     def __init__(self):
         self.fiscal_name = 'Euromedia Investment Group, S.L.'
@@ -303,31 +304,6 @@ class We:
         self.phone = '+34 633 333 973'
 
 
-class TableData_old:
-
-    def __init__(self, document, *, is_invoice):
-
-        self.Date = document.invoice.date.strftime('%d-%m-%Y') \
-            if is_invoice else document.date.strftime('%d-%m-%Y')
-
-        self.Document_No = str(document.invoice.type) + '-' + str(document.invoice.number). \
-            zfill(6) if is_invoice else str(document.type) + '-' + str(document.number).zfill(6)
-
-        self.Agent = document.agent.fiscal_name.split()[0]
-
-        self.Incoterms = document.incoterm
-        # self.Delivery_Date = document.invoice.eta.strftime('%d-%m-%Y') if is_invoice \
-        #     else document.eta.strftime('%d-%m-%Y')
-
-        self.External_Doc = document.external
-
-        self.Currency = 'EUR' if document.eur_currency else \
-            'USD '
-
-    def __iter__(self):
-        return iter(self.__dict__.items())
-
-
 class TableData:
 
     def __init__(self, document):
@@ -339,7 +315,12 @@ class TableData:
         self.Document_No = document.doc_repr
         self.Agent = document.agent.fiscal_name.split()[0]
         self.Incoterms = document.incoterm
-        self.External_Doc = document.external
+
+        try:
+            self.External_Doc = document.external_document
+        except AttributeError:
+            self.External_Doc = ''
+
         self.Currency = 'EUR' if document.eur_currency else 'USD'
 
     def __iter__(self):
@@ -778,6 +759,7 @@ class PDF(FPDF):
                 self.y_start += INNER_LINE_Y_INCREMENT
 
             self.set_xy(x_start, self.y_start)
+
 
 def build_document(document):
     pdf = PDF(document)

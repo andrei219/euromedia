@@ -50,28 +50,6 @@
      </item>
     </layout>
    </widget>
-   <widget class="QWidget" name="layoutWidget_3">
-    <property name="geometry">
-     <rect>
-      <x>429</x>
-      <y>160</y>
-      <width>215</width>
-      <height>29</height>
-     </rect>
-    </property>
-    <layout class="QHBoxLayout" name="horizontalLayout_7">
-     <item>
-      <widget class="QLabel" name="label_17">
-       <property name="text">
-        <string>External Nº:</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="external"/>
-     </item>
-    </layout>
-   </widget>
    <widget class="QWidget" name="layoutWidget_4">
     <property name="geometry">
      <rect>

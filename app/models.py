@@ -818,104 +818,6 @@ class PartnerContactModel(QtCore.QAbstractTableModel):
         return True
 
 
-class SaleInvoiceModel_old(QtCore.QAbstractTableModel):
-    TYPE_NUM, DATE, PROFORMA = 0, 1, 16
-
-    def __init__(self, search_key=None, filters=None, last=10):
-        super().__init__()
-        self.parent_model = SaleProformaModel(
-            filters=filters,
-            search_key=search_key,
-            proxy=True,
-            last=last
-        )
-
-        self.parent_model._headerData.remove('Inv.')
-
-    def rowCount(self, index=QModelIndex()):
-        return self.parent_model.rowCount(index)
-
-    def columnCount(self, index=QModelIndex()):
-        return self.parent_model.columnCount(index)
-
-    def headerCount(self, index=QModelIndex()):
-        return self.parent_model.headerCount(index)
-
-    def headerData(self, section, orientation, role=Qt.DisplayRole):
-        return self.parent_model.headerData(section, orientation, role)
-
-    def data(self, index, role=Qt.DisplayRole):
-        if not index.isValid():
-            return
-        row, column = index.row(), index.column()
-        proforma = self.invoices[row]
-        if role == Qt.DisplayRole:
-            if column == self.TYPE_NUM:
-                return str(proforma.invoice.type) + '-' + \
-                       str(proforma.invoice.number).zfill(6)
-            elif column == self.PROFORMA:
-                return str(proforma.type) + '-' + str(proforma.number).zfill(6)
-
-            elif column == self.DATE:
-                return proforma.invoice.date.strftime('%d/%m/%Y')
-
-            else:
-                return self.parent_model.data(index, role)
-
-        return self.parent_model.data(index, role)
-
-    def sort(self, section, order):
-        reverse = True if order == Qt.AscendingOrder else False
-        if section == self.TYPE_NUM:
-            self.layoutAboutToBeChanged.emit()
-            self.invoices.sort(
-                key=lambda p: (p.invoice.type, p.invoice.number),
-                reverse=reverse
-            )
-            self.layoutChanged.emit()
-
-        elif section == self.PROFORMA:
-            self.layoutAboutToBeChanged.emit()
-            self.invoices.sort(
-                key=lambda p: (p.type, p.number),
-                reverse=reverse
-            )
-            self.layoutChanged.emit()
-        elif section == self.DATE:
-            self.layoutAboutToBeChanged.emit()
-            self.invoices.sort(
-                key=lambda p: p.invoice.date,
-                reverse=reverse
-            )
-            self.layoutChanged.emit()
-        else:
-            self.layoutAboutToBeChanged.emit()
-            self.parent_model.sort(section, order)
-            self.layoutChanged.emit()
-
-    def ready(self, indexes):
-        rows = {index.row() for index in indexes}
-        for row in rows:
-            invoice = self[row]
-            invoice.ready = True if not invoice.ready else False
-
-        try:
-            db.session.commit()
-            self.layoutChanged.emit()
-        except:
-            db.session.rollback()
-            raise
-
-    def __getattr__(self, name):
-        if name == 'invoices':
-            return self.parent_model.proformas
-        else:
-            return getattr(self, name)
-
-    def __getitem__(self, index):
-        return self.invoices[index]
-
-
 class SaleInvoiceModel(BaseTable, QtCore.QAbstractTableModel):
     TYPENUM, DATE, ETA, PARTNER, AGENT, FINANCIAL, LOGISTIC, SENT, CANCELLED, OWING, \
     TOTAL, EXT, INWH, PROFORMA = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13
@@ -931,7 +833,8 @@ class SaleInvoiceModel(BaseTable, QtCore.QAbstractTableModel):
 
         query = db.session.query(db.SaleInvoice).join(db.SaleProforma). \
             join(db.Agent, db.Agent.id == db.SaleProforma.agent_id). \
-            join(db.Partner, db.Partner.id == db.SaleProforma.partner_id)
+            join(db.Partner, db.Partner.id == db.SaleProforma.partner_id).\
+            where(db.SaleInvoice.date > utils.get_last_date(last))
 
         # TODO: search key, last, and filters
 
@@ -966,6 +869,7 @@ class SaleInvoiceModel(BaseTable, QtCore.QAbstractTableModel):
             ][col]
 
         elif role == Qt.DecorationRole:
+
             if col == self.DATE or col == self.ETA:
                 return QtGui.QIcon(':\calendar')
 
@@ -992,6 +896,12 @@ class SaleInvoiceModel(BaseTable, QtCore.QAbstractTableModel):
                 elif logistic_status_string == 'Completed':
                     return QtGui.QColor(GREEN)
 
+            elif col == self.AGENT:
+                return QtGui.QIcon(':\\agents')
+
+            elif col == self.PARTNER:
+                return QtGui.QIcon(':\partners')
+
             elif col == self.SENT:
                 sent = invoice.sent
                 if sent == 'Yes':
@@ -1009,9 +919,9 @@ class SaleInvoiceModel(BaseTable, QtCore.QAbstractTableModel):
                 elif invoice.cancelled == 'No':
                     return QtGui.QColor(GREEN)
 
+
     def __getitem__(self, item):
         return self.invoices[item]
-
 
 
 class SaleInvoiceLineModel(BaseTable, QtCore.QAbstractTableModel):
@@ -1060,6 +970,18 @@ class SaleInvoiceLineModel(BaseTable, QtCore.QAbstractTableModel):
             elif isinstance(line, db.SaleProformaLine):
                 return line.description or utils.description_id_map.inverse[line.item_id]
 
+    def delete(self, rows):
+        for row in rows:
+            line = self.lines[row]
+            db.session.delete(line)
+
+        db.session.flush()
+
+        self.layoutAboutToBeChanged.emit()
+        for row in reversed(list(rows)):
+            del self.lines[row]
+        self.layoutChanged.emit()
+
 
     def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
         if not index.isValid():
@@ -1070,7 +992,10 @@ class SaleInvoiceLineModel(BaseTable, QtCore.QAbstractTableModel):
             return self.get_data(line, col)
 
 
+
+
 class PurchaseInvoiceModel(BaseTable, QtCore.QAbstractTableModel):
+
     TYPENUM, DATE, ETA, PARTNER, AGENT, FINANCIAL, LOGISTIC, SENT, CANCELLED, OWING, \
     TOTAL, EXT, INWH, PROFORMA = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13
 
@@ -1168,9 +1093,11 @@ class PurchaseInvoiceModel(BaseTable, QtCore.QAbstractTableModel):
                 elif financial_status_string == 'They Owe':
                     return QtGui.QColor(RED)
 
-            # Not very fun but I don't feel good
-            # putting this code in the database definition
-            # layer
+            elif col == self.PARTNER:
+                return QtGui.QIcon(':\partners')
+            elif col == self.AGENT:
+                return QtGui.QIcon(':\\agents')
+
             elif col == self.LOGISTIC:
                 if logistic_status_string == 'Empty':
                     return QtGui.QColor(YELLOW)
@@ -1304,12 +1231,12 @@ def purchase_proforma_next_number(type):
 
 class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
     TYPE_NUM, DATE, ETA, PARTNER, AGENT, FINANCIAL, LOGISTIC, SENT, CANCELLED, \
-    OWING, TOTAL, EXTERNAL, INVOICED, IN_WAREHOUSE = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13
+    OWING, TOTAL, INVOICED, IN_WAREHOUSE = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12
 
     def __init__(self, filters=None, search_key=None, last=10):
         super().__init__()
         self._headerData = ['Type & Num', 'Date', 'ETA', 'Partner', 'Agent', \
-                            'Financial', 'Logistic', 'Sent', 'Cancelled', 'Owing', 'Total', 'External Doc.',
+                            'Financial', 'Logistic', 'Sent', 'Cancelled', 'Owing', 'Total',
                             'Invoiced', 'In Warehouse']
         self.name = 'proformas'
 
@@ -1449,8 +1376,6 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
                 sign = ' -€' if proforma.eur_currency else ' $'
                 return str(proforma.total_debt) + sign
 
-            elif col == self.EXTERNAL:
-                return str(proforma.external)
 
         elif role == Qt.DecorationRole:
             if col == PurchaseProformaModel.FINANCIAL:
@@ -1687,49 +1612,35 @@ def update_sale_warehouse(proforma):
         raise
 
 
+def sale_proforma_next_number(type):
+    Session = db.sessionmaker(bind=db.get_engine())
+    with Session.begin() as session:
+        current_num = db.session.query(func.max(db.SaleProforma.number)). \
+            where(db.SaleProforma.type == type).scalar()
+        return 1 if current_num is None else current_num + 1
+
+
 class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
     TYPE_NUM, DATE, PARTNER, AGENT, FINANCIAL, LOGISTIC, SENT, \
-    CANCELLED, OWING, TOTAL, ADVANCED, DEFINED, READY, EXTERNAL, IN_WAREHOUSE, \
+    CANCELLED, OWING, TOTAL, ADVANCED, DEFINED, READY, IN_WAREHOUSE, \
     WARNING, INVOICED = \
-        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15
 
     def __init__(self, search_key=None, filters=None, proxy=False, last=10):
         super().__init__()
         self._headerData = ['Type & Num', 'Date', 'Partner', 'Agent',
                             'Financial', 'Logistic', 'Sent', 'Cancelled',
                             'Owes', 'Total', 'Presale', 'Defined', 'Ready To Go',
-                            'External Doc.', 'In WH', 'Warning', 'Inv.'
-                            ]
+                            'In WH', 'Warning', 'Inv.']
 
         self.proformas = []
         self.name = 'proformas'
-
-        # query = db.session.query(db.SaleProforma). \
-        #     select_from(db.Agent, db.Partner). \
-        #     where(
-        #         db.Agent.id == db.SaleProforma.agent_id,
-        #         db.Partner.id == db.SaleProforma.partner_id,
-        #         db.Warehouse.id == db.SaleProforma.warehouse_id,
-        #         db.SaleInvoice.id == db.SaleProforma.sale_invoice_id
-        # )
 
         query = db.session.query(db.SaleProforma). \
             join(db.Agent, db.Agent.id == db.SaleProforma.agent_id). \
             join(db.Partner, db.Partner.id == db.SaleProforma.partner_id). \
             join(db.Warehouse, db.Warehouse.id == db.SaleProforma.warehouse_id, isouter=True). \
             join(db.SaleInvoice, db.SaleInvoice.id == db.SaleProforma.sale_invoice_id, isouter=True)
-
-        # May be warehouse_id or sale_invoice_id is NULL, then left outer join used
-
-        # query = db.session.query(db.SaleProforma).join(db.Agent).join(db.Partner).\
-        #     join(db.SaleInvoice, isouter=True)
-
-        # query = db.session.query(db.SaleProforma).\
-        #     join(db.Agent, db.Agent.id == db.SaleProforma.agent_id).\
-        #     join(db.Partner, db.Partner.id == db.SaleProforma.partner_id).\
-        #     join(db.Warehouse, db.Warehouse.id == db.SaleProforma.warehouse_id)
-
-        # print(query)
 
         if proxy:
             self._headerData.append('From proforma')
@@ -1831,7 +1742,10 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
                 return proforma.warning
 
             elif col == self.INVOICED:
-                return 'Yes' if proforma.invoice is not None else 'No'
+                try:
+                    return proforma.invoice.doc_repr
+                except AttributeError:
+                    return 'No'
 
             elif col == self.IN_WAREHOUSE:
                 return 'Yes' if proforma.expedition is not None else 'No'
@@ -1883,11 +1797,8 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
                 line_iter = filter(line_with_stock_key, iter(proforma.lines or proforma.advanced_lines))
                 return 'Yes' if all([line.defined for line in line_iter]) else 'No'
 
-
             elif col == self.READY:
                 return 'Yes' if proforma.ready else 'No'
-            elif col == self.EXTERNAL:
-                return proforma.external or 'Unknown'
 
         elif role == Qt.DecorationRole:
             if col == self.FINANCIAL:
@@ -1970,7 +1881,7 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
                 self.layoutChanged.emit()
 
     def add(self, proforma):
-        proforma.number = self.nextNumberOfType(proforma.type)
+        proforma.number = sale_proforma_next_number(proforma.type)
         db.session.add(proforma)
         try:
             db.session.commit()
@@ -1980,7 +1891,7 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
         except IntegrityError:
             db.session.rollback()
             try:
-                proforma.number = self.nextNumberOfType(proforma.type)
+                proforma.number = sale_proforma_next_number(proforma.type)
                 db.session.add(proforma)
                 db.session.commit()
                 self.layoutAboutToBeChanged.emit()
@@ -1989,13 +1900,6 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
             except:
                 db.session.rollback()
                 raise
-
-    def nextNumberOfType(self, type):
-        Session = db.sessionmaker(bind=db.get_engine())
-        with Session.begin() as session:
-            current_num = db.session.query(func.max(db.SaleProforma.number)). \
-                where(db.SaleProforma.type == type).scalar()
-            return 1 if current_num is None else current_num + 1
 
     def cancel(self, indexes):
         rows = {index.row() for index in indexes}
@@ -3401,13 +3305,14 @@ class SerieModel(QtCore.QAbstractListModel):
 
 class ExpeditionModel(BaseTable, QtCore.QAbstractTableModel):
     ID, WAREHOUSE, DATE, TOTAL, PROCESSED, LOGISTIC, CANCELLED, PARTNER, \
-    AGENT, WARNING, FROM_PROFORMA, READY, EXTERNAL, PRESALE = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13
+    AGENT, WARNING, FROM_PROFORMA, READY, PRESALE = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12
 
     def __init__(self, search_key=None, filters=None, last=10):
         super().__init__()
         self._headerData = ['Expedition ID', 'Warehouse', 'Date', 'Total', 'Processed',
                             'Logistic', 'Cancelled', 'Partner', 'Agent', 'Warning', 'From Proforma', 'Ready To Go',
-                            'External Doc.', 'Presale']
+                            'Presale']
+
         self.name = 'expeditions'
 
         query = db.session.query(db.Expedition). \
@@ -3496,8 +3401,6 @@ class ExpeditionModel(BaseTable, QtCore.QAbstractTableModel):
                 return str(expedition.proforma.type) + '-' + str(expedition.proforma.number).zfill(6)
             elif column == self.READY:
                 return 'Yes' if expedition.proforma.ready else 'No'
-            elif column == self.EXTERNAL:
-                return expedition.proforma.external or 'Unknown'
 
         elif role == Qt.DecorationRole:
 
@@ -3553,12 +3456,12 @@ class ExpeditionModel(BaseTable, QtCore.QAbstractTableModel):
 
 class ReceptionModel(BaseTable, QtCore.QAbstractTableModel):
     ID, WAREHOUSE, TOTAL, PROCESSED, LOGISTIC, CANCELLED, PARTNER, \
-    AGENT, WARNING, FROM_PROFORMA, EXTERNAL = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10
+    AGENT, WARNING, FROM_PROFORMA= 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
 
     def __init__(self, search_key=None, filters=None, last=10):
         super().__init__()
         self._headerData = ['Reception ID', 'Warehouse', 'Total', 'Processed', 'Logistic', 'Cancelled',
-                            'Partner', 'Agent', 'Warning', 'From Proforma', 'External Doc.']
+                            'Partner', 'Agent', 'Warning', 'From Proforma']
         self.name = 'receptions'
 
         query = db.session.query(db.Reception). \
@@ -3638,8 +3541,6 @@ class ReceptionModel(BaseTable, QtCore.QAbstractTableModel):
                 return reception.note
             elif column == ReceptionModel.FROM_PROFORMA:
                 return str(reception.proforma.type) + '-' + str(reception.proforma.number).zfill(6)
-            elif column == self.EXTERNAL:
-                return reception.proforma.external or 'Unknown'
 
         elif role == Qt.DecorationRole:
             if column == ReceptionModel.AGENT:
@@ -7107,52 +7008,6 @@ class FucksModel(BaseTable, QtCore.QAbstractTableModel):
             return False
         return False
 
-    def export_old(self):
-        import os
-        from openpyxl import Workbook
-
-        header = [
-            'Serie Factura',
-            'Nº Factura',
-            'Factura',
-            'Fecha',
-            'Código contable',
-            'Cliente',
-            'NIF',
-            'Dirección',
-            'Código postal',
-            'Población',
-            'Forma pago',
-            'Total Factura',
-            'IVA',
-            'Observaciones',
-
-        ]
-
-        target_dir = self.get_target_dir()
-        for fuck in self.fucks:
-            wb = Workbook()
-            ws = wb.active
-            ws.append(header)
-            for sale_invoice in db.session.query(db.SaleInvoice). \
-                    join(db.SaleProforma).join(db.Partner).where(
-                db.SaleInvoice.type == fuck.serie,
-                db.SaleInvoice.number > fuck.from_,
-                db.SaleInvoice.number < fuck.to
-            ):
-                ws.append(FuckExcel(sale_invoice).as_tuple)
-
-            filename = ''.join(('serie', str(fuck.serie), '.xlsx'))
-            wb.save(os.path.join(target_dir, filename))
-
-    def get_query(self, type, from_, to):
-        return db.session.query(db.SaleInvoice). \
-            join(db.SaleProforma).join(db.Partner).where(
-            db.SaleInvoice.type == type,
-            db.SaleInvoice.number >= from_,
-            db.SaleInvoice.number <= to
-        )
-
     def export(self):
         import os
         from openpyxl import Workbook
@@ -7175,7 +7030,6 @@ class FucksModel(BaseTable, QtCore.QAbstractTableModel):
         ]
 
         for fuck in self.fucks:
-            print(fuck)
             query = self.get_query(fuck.serie, fuck.from_, fuck.to)
             sales = query.all()
             sales = sorted(sales, key=month_key)
@@ -7205,7 +7059,6 @@ class FucksModel(BaseTable, QtCore.QAbstractTableModel):
             os.mkdir(path)
             return path
 
-
 class Tupable:
 
     @property
@@ -7230,7 +7083,6 @@ class StockValuationEntryImei(Tupable):
         prefix = 'INV ' if purchase_row.pdoc_type.startswith('Inv') else 'PI '
         self.doc = prefix + purchase_row.pdoc_number
 
-        self.external = external
         self.cost = purchase_row.ptotal
 
 
@@ -7261,7 +7113,7 @@ class Exportable:
 
 
 class StockValuationModelDocument(Exportable, BaseTable, QtCore.QAbstractTableModel):
-    DESC, COND, SPEC, QNT, DATE, PARTNER, DOC_REPR, EXTERNAL_DOC, COST = 0, 1, 2, 3, 4, 5, 6, 7, 8
+    DESC, COND, SPEC, QNT, DATE, PARTNER, DOC_REPR, COST = 0, 1, 2, 3, 4, 5, 6, 7
 
     def __init__(self, doc_repr, proforma=False):
         super().__init__()
@@ -7275,7 +7127,6 @@ class StockValuationModelDocument(Exportable, BaseTable, QtCore.QAbstractTableMo
             'Purchase Date',
             'Partner',
             'Nº Doc',
-            'External Doc',
             'Cost'
         ]
 
@@ -7302,8 +7153,6 @@ class StockValuationModelDocument(Exportable, BaseTable, QtCore.QAbstractTableMo
                 return reg.partner
             elif col == self.DOC_REPR:
                 return reg.doc
-            elif col == self.EXTERNAL_DOC:
-                return reg.external
             elif col == self.COST:
                 return reg.cost
 
@@ -7343,7 +7192,6 @@ class StockValuationModelDocument(Exportable, BaseTable, QtCore.QAbstractTableMo
 
             entry.partner = purchase_proforma.partner.fiscal_name
             entry.doc = purchase_proforma.doc_repr if proforma else purchase_proforma.invoice.doc_repr
-            entry.external = purchase_proforma.external
 
             avg_rate = get_avg_rate(purchase_proforma)
             if isinstance(avg_rate, str):
@@ -7374,7 +7222,6 @@ class StockValuationEntryWarehouse:
         prefix = 'INV ' if purchase_row.pdoc_type.startswith('Inv') else 'PI '
         self.doc = prefix + purchase_row.pdoc_number
 
-        self.external = external
         self.cost = purchase_row.ptotal
 
     @property
@@ -7384,21 +7231,20 @@ class StockValuationEntryWarehouse:
 
 class StockValuationEntryWarehouseNoSerie:
 
-    def __init__(self, description, condition, spec, date, partner, doc, external, cost, qnt):
+    def __init__(self, description, condition, spec, date, partner, doc, cost, qnt):
         self.description = description
         self.condition = condition
         self.spec = spec
         self.date = date
         self.partner = partner
         self.doc = doc
-        self.external = external
         self.cost = cost
         self.serial = ''
         self.qnt = qnt
 
 
 class StockValuationModelWarehouse(Exportable, BaseTable, QtCore.QAbstractTableModel):
-    DESC, COND, SPEC, SERIAL, QNT, DATE, PARTNER, DOC_REPR, EXTERNAL_DOC, COST = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
+    DESC, COND, SPEC, SERIAL, QNT, DATE, PARTNER, DOC_REPR, COST = 0, 1, 2, 3, 4, 5, 6, 7, 8
 
     def __init__(self, warehouse_id):
         super().__init__()
@@ -7413,13 +7259,11 @@ class StockValuationModelWarehouse(Exportable, BaseTable, QtCore.QAbstractTableM
             'Purchase Date',
             'Partner',
             'Nº Doc',
-            'External Doc',
             'Cost'
         ]
 
         registers = []
         for register in db.session.query(db.Imei.imei).where(db.Imei.warehouse_id == warehouse_id):
-            external = get_external_from_imei(register.imei)
             registers.append(StockValuationEntryWarehouse(do_cost_price(register.imei), external))
 
         has_not_serie = lambda object: utils.valid_uuid(object.serial)
@@ -7464,8 +7308,6 @@ class StockValuationModelWarehouse(Exportable, BaseTable, QtCore.QAbstractTableM
                 return reg.partner
             elif col == self.DOC_REPR:
                 return reg.doc
-            elif col == self.EXTERNAL_DOC:
-                return reg.external
             elif col == self.COST:
                 return reg.cost
             elif col == self.QNT:
@@ -7473,7 +7315,7 @@ class StockValuationModelWarehouse(Exportable, BaseTable, QtCore.QAbstractTableM
 
 
 class StockValuationModelImei(Exportable, BaseTable, QtCore.QAbstractTableModel):
-    DESC, COND, SPEC, SERIAL, DATE, PARTNER, DOC_REPR, EXTERNAL_DOC, COST, QNT = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
+    DESC, COND, SPEC, SERIAL, DATE, PARTNER, DOC_REPR, COST, QNT = 0, 1, 2, 3, 4, 5, 6, 7, 8
 
     def __init__(self, imei):
         super().__init__()
@@ -7485,11 +7327,9 @@ class StockValuationModelImei(Exportable, BaseTable, QtCore.QAbstractTableModel)
             'Purchase Date',
             'Partner',
             'Nº Doc',
-            'External Doc',
             'Cost'
         ]
 
-        external = get_external_from_imei(imei)
         self.name = 'entries'
         self.entries = []
         self.entries.append(StockValuationEntryImei(do_cost_price(imei), external))

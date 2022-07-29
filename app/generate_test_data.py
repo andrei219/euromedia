@@ -45,8 +45,6 @@ def grouped(rows):
     key = lambda r:(r[0], r[1], r[2])
     rows = sorted(rows, key=key)
 
-    
-
     for k, g in groupby(rows, key=key):
         for e in g:
             yield e

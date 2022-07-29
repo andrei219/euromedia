@@ -54,6 +54,7 @@ Base = declarative_base()
 
 
 class Warehouse(Base):
+
     __tablename__ = 'warehouses'
 
     id = Column(Integer, primary_key=True)
@@ -120,6 +121,7 @@ class Condition(Base):
 
 
 class Item(Base):
+
     __tablename__ = 'items'
 
     id = Column(Integer, primary_key=True)
@@ -393,7 +395,6 @@ class PurchaseProforma(Base):
     reception = relationship('Reception', uselist=False, backref='proforma')
 
     tracking = Column(String(50))
-    external = Column(String(50))
 
     credit_amount = Column(Float(precision=32, decimal_return_scale=None), default=0.0)
     credit_days = Column(Integer, default=0, nullable=False)
@@ -596,6 +597,8 @@ class PurchaseInvoice(Base):
     number = Column(Integer, nullable=False)
     date = Column(Date, default=datetime.now)
     eta = Column(Date, default=datetime.now)
+    external_document = Column(String(50))
+    note = Column(String(255))
 
     @property
     def payments(self):
@@ -712,12 +715,7 @@ class PurchaseInvoice(Base):
 
     @property
     def external(self):
-        s = ', '.join(p.external for p in self.proformas)
-        if s == ', ':
-            return 'Unknown'
-        if s.count(',') == 0:
-            return s.replace(', ', '')
-        return s
+        return self.external_document or 'Unknown'
 
 
     @property
@@ -810,7 +808,6 @@ class SaleProforma(Base):
     credit_amount = Column(Float(precision=32, decimal_return_scale=None), default=0.0)
     credit_days = Column(Integer, default=0)
     tracking = Column(String(50))
-    external = Column(String(50))
 
     ready = Column(Boolean, nullable=False, default=False)
 
@@ -818,7 +815,6 @@ class SaleProforma(Base):
     courier = relationship('Courier', uselist=False)
     warehouse = relationship('Warehouse', uselist=False)
     agent = relationship('Agent', uselist=False)
-
 
     invoice = relationship('SaleInvoice', backref=backref('proformas'))
 
@@ -994,6 +990,8 @@ class SaleInvoice(Base):
     number = Column(Integer, nullable=False)
     date = Column(Date, default=datetime.now)
     eta = Column(Date, default=datetime.now)
+    external_document = Column(String(50))
+    note = Column(String(255))
 
     parent_id = Column(Integer, ForeignKey('sale_invoices.id'))
 
@@ -1129,12 +1127,7 @@ class SaleInvoice(Base):
 
     @property
     def external(self):
-        s = ', '.join(p.external for p in self.proformas)
-        if s == ', ':
-            return 'Unknown'
-        if s.count(',') == 1:
-            return s.replace(', ', '')
-        return s
+        return self.external_document or 'Unknown'
 
     @property
     def inwh(self):
