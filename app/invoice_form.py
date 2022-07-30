@@ -20,6 +20,7 @@ class Form(Ui_InvoiceForm, QWidget):
         super().__init__()
         self.setupUi(self)
         self.invoice = invoice
+        self.warehouse.setDisabled(True)
 
         if isinstance(invoice, SaleInvoice):
             self.model = SaleInvoiceLineModel(invoice)
@@ -51,8 +52,8 @@ class Form(Ui_InvoiceForm, QWidget):
             (self.agent, utils.agent_id_map.keys()),
             (self.warehouse, utils.warehouse_id_map.keys()),
             (self.courier, utils.courier_id_map.keys())
-        ]: combo.addItems(data)
-
+        ]:
+            combo.addItems(data)
 
     def populate_form(self):
 
@@ -80,7 +81,7 @@ class Form(Ui_InvoiceForm, QWidget):
 
         # TODO
         # self.we_pay_they_ship.setChecked(p.we_pay_they_ship)
-        self.partner.setText(p.partner.fiscal_name)
+        self.partner.setText(p.partner_name)
 
     def update_objects(self):
         self.invoice.date = utils.parse_date(self.date.text())

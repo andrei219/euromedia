@@ -90,7 +90,7 @@ class ExpenseForm(Ui_ExpenseForm, QDialog):
         doc_number = str(type) + '-' + str(number).zfill(6)
         self.document_line_edit.setText(doc_number)
         self.document_date_line_edit.setText(self.proforma.date.strftime('%d/%m/%Y'))
-        self.partner_line_edit.setText(self.proforma.partner.fiscal_name)
+        self.partner_line_edit.setText(self.proforma.partner_name.fiscal_name)
         self.updateSpent() 
 
     def closeEvent(self, event):

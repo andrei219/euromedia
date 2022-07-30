@@ -511,6 +511,14 @@ class PurchaseProforma(Base):
         elif self.completed:
             return "Completed"
 
+    @property
+    def partner_name(self):
+        return self.partner.fiscal_name
+
+    @property
+    def partner_object(self):
+        return self.partner
+
 
 class PurchaseProformaLine(Base):
     __tablename__ = 'purchase_proforma_lines'
@@ -671,8 +679,8 @@ class PurchaseInvoice(Base):
             return 'They Owe'
 
     @property
-    def partner(self):
-        return self.proformas[0].partner.fiscal_name  # Always at least one, by design
+    def partner_name(self):
+        return self.proformas[0].partner_name  # Always at least one, by design
 
     @property
     def agent(self):
@@ -734,7 +742,7 @@ class PurchaseInvoice(Base):
 
     @property
     def partner_object(self):
-        return self.proformas[0].partner
+        return self.proformas[0].partner_name
 
 
 class PurchasePayment(Base):
@@ -924,6 +932,13 @@ class SaleProforma(Base):
             return False
         return False
 
+    @property
+    def partner_name(self):
+        return self.partner.fiscal_name
+
+    @property
+    def partner_object(self):
+        return self.partner
 
 class SalePayment(Base):
     __tablename__ = 'sale_payments'
@@ -1088,12 +1103,12 @@ class SaleInvoice(Base):
         return self.proformas[0].agent.fiscal_name.split()[0]
 
     @property
-    def partner(self):
-        return self.proformas[0].partner.fiscal_name
+    def partner_name(self):
+        return self.proformas[0].partner_name
 
     @property
     def partner_object(self):
-        return self.proformas[0].partner
+        return self.proformas[0].partner_object
 
     @property
     def sent(self):
@@ -1144,7 +1159,7 @@ class SaleInvoice(Base):
 
     @property
     def partner_object(self):
-        return self.proformas[0].partner
+        return self.proformas[0].partner_object
 
     __table_args__ = (
         UniqueConstraint('type', 'number', name='unique_sales_sale_invoices'),
@@ -2001,7 +2016,7 @@ class IncomingRmaLine(Base):
 
         if reception_serie is not None:
             self.recpt = reception_serie.created_on.date()
-            self.supp = reception_serie.line.reception.proforma.partner.fiscal_name
+            self.supp = reception_serie.line.reception.proforma.partner_name
             self.wtyendsupp = self.recpt + timedelta(reception_serie.line.reception.proforma.warranty)
 
             line = reception_serie.line
@@ -2028,8 +2043,8 @@ class IncomingRmaLine(Base):
                     expedition_serie.line.spec
                 ))
                 self.public = expedition_serie.line.showing_condition
-                self.cust = expedition_serie.line.expedition.proforma.partner.fiscal_name
-                self.cust_id = expedition_serie.line.expedition.proforma.partner.id
+                self.cust = expedition_serie.line.expedition.proforma.partner_name
+                self.cust_id = expedition_serie.line.expedition.proforma.partner_name.id
                 self.agent_id = expedition_serie.line.expedition.proforma.agent.id
                 try:
                     self.saledate = expedition_serie.line.expedition.proforma.invoice.date
@@ -2038,7 +2053,7 @@ class IncomingRmaLine(Base):
                 self.exped = expedition_serie.created_on.date()
                 self.wtyendcust = self.exped + timedelta(expedition_serie.line.expedition.proforma.warranty)
 
-                self.sold_to = expedition_serie.line.expedition.proforma.partner
+                self.sold_to = expedition_serie.line.expedition.proforma.partner_name
 
                 self.problem = ''
                 self.why = ''

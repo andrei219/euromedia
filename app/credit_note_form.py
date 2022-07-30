@@ -67,7 +67,7 @@ class Form(Ui_Form, QWidget):
             self.number.setText(str(self.proforma.number))
             self.date.setText(self.proforma.date.strftime('%d%m%Y'))
 
-        self.partner.setText(p.partner.fiscal_name)
+        self.partner.setText(p.partner_name.fiscal_name)
         self.agent.setCurrentText(p.agent.fiscal_name)
         self.courier.setCurrentText(p.courier.description)
         self.incoterms.setCurrentText(p.incoterm)

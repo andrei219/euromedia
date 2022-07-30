@@ -118,7 +118,7 @@ class PaymentForm(Ui_PaymentsForm, QDialog):
         document_number = type + '-' + number
         self.document_line_edit.setText(document_number)
         
-        self.partner_line_edit.setText(self.proforma.partner.fiscal_name)
+        self.partner_line_edit.setText(self.proforma.partner_name.fiscal_name)
         self.document_date_line_edit.setText(self.proforma.date.strftime('%d/%m/%Y'))
 
         self.total_linedit.setText(str(self.proforma.total_debt))

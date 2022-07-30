@@ -855,7 +855,7 @@ class SaleInvoiceModel(BaseTable, QtCore.QAbstractTableModel):
                 invoice.doc_repr,
                 invoice.date.strftime('%d/%m/%Y'),
                 invoice.eta.strftime('%d/%m/%Y'),
-                invoice.partner,
+                invoice.partner_name,
                 invoice.agent,
                 invoice.financial_status_string,
                 logistic_status_string,
@@ -944,7 +944,8 @@ class SaleInvoiceLineModel(BaseTable, QtCore.QAbstractTableModel):
             'Tax ',
             'Total'
         ]
-
+        
+        # Credit notes are excluded
         self.lines = [line for proforma in invoice.proformas for line in proforma.advanced_lines or proforma.lines]
 
     def get_data(self, line, col):
@@ -1066,7 +1067,7 @@ class PurchaseInvoiceModel(BaseTable, QtCore.QAbstractTableModel):
                 invoice.doc_repr,
                 invoice.date.strftime('%d/%m/%Y'),
                 invoice.eta.strftime('%d/%m/%Y'),
-                invoice.partner,
+                invoice.partner_name,
                 invoice.agent,
                 invoice.financial_status_string,
                 logistic_status_string,
@@ -1352,7 +1353,7 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
                 return 'Yes' if proforma.reception is not None else 'No'
 
             elif col == PurchaseProformaModel.PARTNER:
-                return proforma.partner.fiscal_name
+                return proforma.partner_name
             elif col == PurchaseProformaModel.AGENT:
                 return proforma.agent.fiscal_name
             elif col == PurchaseProformaModel.FINANCIAL:
@@ -1734,7 +1735,7 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
             elif col == self.DATE:
                 return proforma.date.strftime('%d/%m/%Y')
             elif col == self.PARTNER:
-                return proforma.partner.fiscal_name
+                return proforma.partner_name
             elif col == self.AGENT:
                 return proforma.agent.fiscal_name.split()[0]
 
@@ -1919,7 +1920,7 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
             bool(self.proformas[row].credit_note_lines)
             for row in rows
         ):
-            raise ValueError('Incompatible proformas')
+            raise ValueError('Credit Note already exists')
 
         for r1, r2 in combinations(rows, r=2):
             p1, p2 = self.proformas[r1], self.proformas[r2]
@@ -3372,7 +3373,7 @@ class ExpeditionModel(BaseTable, QtCore.QAbstractTableModel):
             elif column == self.TOTAL:
                 return str(expedition_total_quantity(expedition))
             elif column == self.PARTNER:
-                return expedition.proforma.partner.fiscal_name
+                return expedition.proforma.partner_name
             elif column == self.PROCESSED:
                 return str(sale_total_processed(expedition))
             elif column == self.LOGISTIC:
@@ -3441,7 +3442,7 @@ class ExpeditionModel(BaseTable, QtCore.QAbstractTableModel):
                 self.ID: 'id',
                 self.WAREHOUSE: 'proforma.warehouse_id',
                 self.CANCELLED: 'proforma.cancelled',
-                self.PARTNER: 'proforma.partner.fiscal_name',
+                self.PARTNER: 'proforma.partner_name',
                 self.AGENT: 'proforma.agent.fiscal_name',
                 self.READY: 'proforma.ready',
                 self.DATE: 'proforma.date'
@@ -3521,7 +3522,7 @@ class ReceptionModel(BaseTable, QtCore.QAbstractTableModel):
             elif column == ReceptionModel.TOTAL:
                 return str(purchase_total_quantity(reception))
             elif column == ReceptionModel.PARTNER:
-                return reception.proforma.partner.fiscal_name
+                return reception.proforma.partner_name
             elif column == ReceptionModel.PROCESSED:
                 return str(purchase_total_processed(reception))
             elif column == ReceptionModel.LOGISTIC:
@@ -3574,7 +3575,7 @@ class ReceptionModel(BaseTable, QtCore.QAbstractTableModel):
                 ReceptionModel.ID: 'id',
                 ReceptionModel.WAREHOUSE: 'proforma.warehouse_id',
                 ReceptionModel.CANCELLED: 'proforma.cancelled',
-                ReceptionModel.PARTNER: 'proforma.partner.fiscal_name',
+                ReceptionModel.PARTNER: 'proforma._name',
                 ReceptionModel.AGENT: 'proforma.agent.fiscal_name',
             }.get(section)
 
@@ -3595,7 +3596,7 @@ class ReceptionModel(BaseTable, QtCore.QAbstractTableModel):
 
             sheet.append([
                 'Reception Id = ' + str(reception.id),
-                'Partner = ' + reception.proforma.partner.fiscal_name,
+                'Partner = ' + reception.proforma.partner_name,
                 'Agent = ' + reception.proforma.agent.fiscal_name,
                 'Date = ' + str(reception.proforma.date)
             ])
@@ -5376,7 +5377,7 @@ def export_sale_excel(proforma, file_path):
     sheet.append([
         'Document Date = ' + document_date,
         'Document Number = ' + type_num,
-        'Customer = ' + proforma.partner.trading_name,
+        'Customer = ' + proforma.partner_name.trading_name,
         'Supplier = ' + 'Euromedia Investment Group S.L. ',
         'Agent = ' + proforma.agent.fiscal_name.split()[0]
     ])
@@ -5892,7 +5893,7 @@ class OperationModel(BaseTable, QtCore.QAbstractTableModel):
             except AttributeError:
                 te.date = r.line.reception.proforma.date
 
-            te.partner = r.line.reception.proforma.partner.fiscal_name
+            te.partner = r.line.reception.proforma.partner_name
             te.picking = r.created_on
 
             self.entries.append(te)
@@ -5913,7 +5914,8 @@ class OperationModel(BaseTable, QtCore.QAbstractTableModel):
             except AttributeError:
                 te.date = r.line.expedition.proforma.date
 
-            te.partner = r.line.expedition.proforma.partner.fiscal_name
+            te.partner = r.line.expedition.proforma.partner_name
+
             te.picking = r.created_on
 
             self.entries.append(te)
@@ -6018,7 +6020,7 @@ class AvailableNoteModel(BaseTable, QtCore.QAbstractTableModel):
 
         self.name = 'invoices'
         self.invoices = db.session.query(db.SaleInvoice).join(db.SaleProforma).join(db.Partner). \
-            where(db.Partner.id == invoice.proforma.partner.id). \
+            where(db.Partner.id == invoice.proforma.partner_name.id). \
             where(db.SaleProforma.warehouse_id == None). \
             where(db.SaleInvoice.parent_id == None).all()
 
@@ -6100,9 +6102,9 @@ class SIIInvoice:
 
     def __init__(self, invoice):
         self.invoice_number = invoice.doc_repr
-        self.partner_name = invoice.proforma.partner.fiscal_name
-        self.partner_ident = invoice.proforma.partner.fiscal_number
-        self.country_code = utils.get_country_code(invoice.proforma.partner.billing_country)
+        self.partner_name = invoice.proforma.partner_name
+        self.partner_ident = invoice.proforma.partner_name
+        self.country_code = utils.get_country_code(invoice.proforma.partner_name.billing_country)
         self.invoice_date = invoice.date.strftime('%d-%m-%Y')
 
         self.lines = []
@@ -6370,7 +6372,7 @@ def do_cost_price(imei):
             pdoc_type=doc_type,
             pdoc_number=doc_number,
             pdate=date,
-            ppartner=proforma.partner.fiscal_name,
+            ppartner=proforma.partner_name,
             pagent=proforma.agent.fiscal_name.split()[0],
             pitem=item,
             pcond=rec_serie.line.condition,
@@ -6558,7 +6560,7 @@ def do_sale_price(imei):
             sdoc_type=doc_type,
             sdoc_number=doc_number,
             sdate=date,
-            spartner=proforma.partner.fiscal_name,
+            spartner=proforma.partner_name,
             sagent=proforma.agent.fiscal_name.split()[0],
             sitem=exp.line.item.clean_repr,
             scond=exp.line.condition,
@@ -6894,7 +6896,7 @@ class Fuck:
 class FuckExcel:
 
     def __init__(self, sale_invoice: db.SaleInvoice):
-        partner = sale_invoice.proforma.partner
+        partner = sale_invoice.proforma.partner_name
         self.serie = sale_invoice.type
         self.number = sale_invoice.number
         self.doc_repr = sale_invoice.doc_repr
@@ -7190,7 +7192,7 @@ class StockValuationModelDocument(Exportable, BaseTable, QtCore.QAbstractTableMo
             else:
                 entry.date = purchase_proforma.date.strftime('%d/%m/%Y')
 
-            entry.partner = purchase_proforma.partner.fiscal_name
+            entry.partner = purchase_proforma.partner_name
             entry.doc = purchase_proforma.doc_repr if proforma else purchase_proforma.invoice.doc_repr
 
             avg_rate = get_avg_rate(purchase_proforma)

@@ -472,7 +472,7 @@ def get_last_date(days):
 def get_email_recipient(proforma):
     PATTERN = r'([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+'
     recipient = None
-    for contact in proforma.partner.contacts:
+    for contact in proforma.partner_name.contacts:
         if re.fullmatch(PATTERN, contact.email):
             recipient = contact.email
             break

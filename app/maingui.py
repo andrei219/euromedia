@@ -935,11 +935,7 @@ class MainGui(Ui_MainGui, QMainWindow):
 
     # SALES INVOICE HANDLER:
     def invoices_sales_view_pdf_handler(self):
-        self.view_documents(
-            self.invoices_sales_view,
-            self.invoices_sales_model,
-            is_invoice=True
-        )
+        view_document(self.invoices_sales_view, self.invoices_sales_model)
 
     def invoices_sales_selection_changed(self):
         self.selection_changed_generic(self.invoices_sales_view)

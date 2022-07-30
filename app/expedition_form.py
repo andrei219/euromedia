@@ -181,7 +181,7 @@ class Form(Ui_ExpeditionForm, QDialog):
     def populateHeader(self):
         self.expedition_number.setText(str(self.expedition.id).zfill(6))
         self.date.setText(str(self.expedition.created_on.strftime('%d/%m/%Y')))
-        self.partner.setText(self.expedition.proforma.partner.fiscal_name)
+        self.partner.setText(self.expedition.proforma.partner_name.fiscal_name)
         self.agent.setText(self.expedition.proforma.agent.fiscal_name)
         self.warehouse.setText(self.expedition.proforma.warehouse.description)
         self.expedition_total.setText(str(sale_total_quantity(self.expedition)))

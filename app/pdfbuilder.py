@@ -190,7 +190,7 @@ class CreditLinePDFRepr(LinePDFRepr):
         self.description += f', {line.public_condition or line.condition} condt.'
         self.description += f', {line.spec} spec.'
 
-        self.total = '{:,.2f}'.format(round(line.price * line.quantity* ( 1 + line.tax /100), 2))
+        self.total = '{:,.2f}'.format(round(line.price * line.quantity * (1 + line.tax / 100), 2))
         self.price = '{:,.2f}'.format(round(line.price, 2))
         self.tax = str(line.tax) + '%'
         self.total = dot_comma_number_repr(self.total)
@@ -216,7 +216,7 @@ class AdvancedSaleLinePDFRepr(LinePDFRepr):
 
         self.tax = str(line.tax) + '%'
 
-        self.total = '{:,.2f}'.format(round(line.price * line.quantity* ( 1 + line.tax /100), 2))
+        self.total = '{:,.2f}'.format(round(line.price * line.quantity * ( 1 + line.tax /100), 2))
         self.price = '{:,.2f}'.format(round(line.price, 2))
         self.total = dot_comma_number_repr(self.total)
         self.price = dot_comma_number_repr(self.price)
@@ -281,6 +281,14 @@ class AdvancedLinesPDFRepr(LinesPDFRepr):
         self.add_counter()
 
 
+class MixedUPLinesPDFRepr(LinesPDFRepr):
+
+    def __init__(self, objects: list):
+        self.lines = []
+        for object in objects:
+            self.lines.extend(object.lines)
+        self.add_counter()
+
 class We:
     def __init__(self):
         self.fiscal_name = 'Euromedia Investment Group, S.L.'
@@ -322,6 +330,8 @@ class TableData:
             self.External_Doc = ''
 
         self.Currency = 'EUR' if document.eur_currency else 'USD'
+
+
 
     def __iter__(self):
         return iter(self.__dict__.items())
@@ -411,9 +421,31 @@ class PDF(FPDF):
 
         elif isinstance(document, SaleInvoice):
             # TODO merge lines
-            self.lines = None
+            if len(document.proformas) > 1:
+                print('len > 1')
+                print('len=', len(document.proformas))
+                lines_objects = []
+                for proforma in document.proformas:
+                    if proforma.lines:
+                        lines_objects.append(SaleLinesPDFRepr(proforma.lines))
+                    elif proforma.advanced_lines:
+                        lines_objects.append(AdvancedSaleLinePDFRepr(proforma.lines))
+
+                self.lines = MixedUPLinesPDFRepr(lines_objects)
+
+            else:
+                proforma = document.proformas[0]
+                if proforma.lines:
+                    self.lines = SaleLinesPDFRepr(proforma.lines)
+                elif proforma.credit_note_lines:
+                    self.lines = CreditLinesPDFRepr(proforma.credit_note_lines)
+                elif proforma.advanced_lines:
+                    self.lines = AdvancedLinesPDFRepr(proforma.advanced_lines)
+
             self.we_buy = False
             self.doc_header = 'COMMERCIAL INVOICE'
+
+
         elif isinstance(document, PurchaseProforma):
             self.we_buy = True
             self.doc_header = 'PURCHASE ORDER'
@@ -498,7 +530,7 @@ class PDF(FPDF):
         self.x = LEFT_MARGIN + 4
         self.y += Y_INCREMENT
         self.set_font('Arial', size=8)
-        self.cell(0, txt=self.document.note)
+        self.cell(0, txt=self.document.note or '')
         self.y += ADDITIONAL_TEXT_TERM_INCREMENT
 
     def print_vertical_line(self):
@@ -515,18 +547,12 @@ class PDF(FPDF):
 
         name, doc_type = None, None
 
-        if type(self.document) == SaleInvoice:
-            name = 'Factura'
-            doc_type = self.document.invoice.type
-        elif type(self.document) == SaleProforma:
+        if isinstance(self.document, (SaleProforma, PurchaseProforma)):
             name = 'Proforma'
-            doc_type = self.document.type
-        elif type(self.document) == PurchaseProforma:
-            name = 'Proforma'
-            doc_type = self.document.type
-        elif type(self.document) == PurchaseInvoice:
+        else:
             name = 'Factura'
-            doc_type = self.document.invoice.type
+
+        doc_type = self.document.type
 
         title = 'General Terms and Conditions:'
 
@@ -661,7 +687,7 @@ class PDF(FPDF):
             self.print_terms()
 
     def print_buyer(self):
-        partner = self.we if self.we_buy else self.document.partner
+        partner = self.we if self.we_buy else self.document.partner_object
         x, y = BUYER_BASE
         self.print_helper(partner, x, y, header='Buyer:')
 
@@ -671,7 +697,7 @@ class PDF(FPDF):
         self.print_helper(partner, x, y, header='Supplier:')
 
     def print_delivery_address(self):
-        partner = self.we if self.we_buy else self.document.partner
+        partner = self.we if self.we_buy else self.document.partner_object
         x, y = DELIVERY_ADDRESS_BASE
         self.print_helper(partner, x, y, header='DELIVERY ADDRESS:')
 
