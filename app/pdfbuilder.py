@@ -277,6 +277,7 @@ class PurchaseLinesPDFRepr(LinesPDFRepr):
 class AdvancedLinesPDFRepr(LinesPDFRepr):
 
     def __init__(self, lines):
+        print(lines)
         self.lines = list(map(AdvancedSaleLinePDFRepr, lines))
         self.add_counter()
 
@@ -422,15 +423,15 @@ class PDF(FPDF):
         elif isinstance(document, SaleInvoice):
             # TODO merge lines
             if len(document.proformas) > 1:
-                print('len > 1')
-                print('len=', len(document.proformas))
                 lines_objects = []
+
                 for proforma in document.proformas:
                     if proforma.lines:
                         lines_objects.append(SaleLinesPDFRepr(proforma.lines))
                     elif proforma.advanced_lines:
-                        lines_objects.append(AdvancedSaleLinePDFRepr(proforma.lines))
+                        lines_objects.append(AdvancedLinesPDFRepr(proforma.advanced_lines))
 
+                print(lines_objects)
                 self.lines = MixedUPLinesPDFRepr(lines_objects)
 
             else:
