@@ -149,18 +149,23 @@ class MainGui(Ui_MainGui, QMainWindow):
 
     def selection_changed_generic(self, view):
         rows = {i.row() for i in view.selectedIndexes()}
-        total, paid = 0, 0
+        total, paid, device_count = 0, 0, 0
 
         for row in rows:
             doc = view.model()[row]
             paid += sum(p.amount for p in doc.payments)
             total += doc.total_debt
+            device_count += doc.device_count
 
         name = view.objectName()
         prefix = name[0:name.rfind('_') + 1]
 
         getattr(self, prefix + 'total').setText('Total: ' + str(round(total, 2)))
         getattr(self, prefix + 'paid').setText('Paid: ' + str(round(paid, 2)))
+        try:
+            getattr(self, prefix + 'device_count').setText('Dev. Count: ' + str(device_count))
+        except AttributeError:
+            pass
 
     def init_models(self):
         for prefix in PREFIXES:

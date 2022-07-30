@@ -798,6 +798,16 @@ class SaleProforma(Base):
             return False
         return False
 
+    @property
+    def device_count(self):
+        if self.credit_note_lines:
+            return -len(self.credit_note_lines)
+        try:
+            return sum(len(line.series) for line in self.expedition.lines)
+        except AttributeError:
+            return 0
+
+
 
 class SalePayment(Base):
     __tablename__ = 'sale_payments'
@@ -902,6 +912,10 @@ class SaleInvoice(Base):
     @property
     def cn_repr(self):
         return 'CN ' + self.doc_repr
+
+    @property
+    def device_count(self):
+        return self.proforma.device_count
 
     __table_args__ = (
         UniqueConstraint('type', 'number', name='unique_sales_sale_invoices'),
