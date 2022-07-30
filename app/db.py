@@ -485,6 +485,13 @@ class PurchaseProforma(Base):
         return False
 
     @property
+    def device_count(self):
+        try:
+            return sum(len(line.series) for line in self.reception.lines)
+        except AttributeError:
+            return 0
+
+    @property
     def owing(self):
         return self.total_debt - self.total_paid
 
@@ -602,6 +609,10 @@ class PurchaseInvoice(Base):
     @property
     def total_debt(self):
         return self.proforma.total_debt
+
+    @property
+    def device_count(self):
+        return self.proforma.device_count
 
     def __init__(self, type, number):
         self.type = type

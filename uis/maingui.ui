@@ -3077,7 +3077,7 @@
        </font>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <property name="iconSize">
        <size>
@@ -4082,13 +4082,23 @@
        <widget class="QWidget" name="">
         <property name="geometry">
          <rect>
-          <x>1096</x>
-          <y>617</y>
-          <width>721</width>
+          <x>1030</x>
+          <y>620</y>
+          <width>791</width>
           <height>18</height>
          </rect>
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout">
+         <item>
+          <widget class="QLabel" name="invoices_purchases_device_count">
+           <property name="styleSheet">
+            <string notr="true">font-weight:bold; </string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
          <item>
           <widget class="QLabel" name="invoices_purchases_total">
            <property name="styleSheet">
