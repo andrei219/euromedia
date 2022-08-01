@@ -1126,6 +1126,26 @@ class PurchaseInvoiceModel(BaseTable, QtCore.QAbstractTableModel):
                 elif invoice.cancelled == 'No':
                     return QtGui.QColor(GREEN)
 
+
+    def sort(self, section: int, order: Qt.SortOrder = ...) -> None:
+        reverse = True if order == Qt.AscendingOrder else False
+        if section == self.TYPENUM:
+            self.layoutAboutToBeChanged.emit()
+            self.invoices.sort(key=lambda i : (i.type, i.number), reverse=reverse)
+            self.layoutChanged.emit()
+        else:
+            attr = {
+                self.DATE: 'date',
+                self.PARTNER: 'partner_name',
+                self.AGENT: 'agent',
+                self.ETA:'eta'
+            }.get(section)
+
+            if attr:
+                self.layoutAboutToBeChanged.emit()
+                self.invoices.sort(key=operator.attrgetter(attr), reverse=reverse)
+                self.layoutChanged.emit()
+
     def __getitem__(self, item):
         return self.invoices[item]
 
@@ -3365,26 +3385,21 @@ class ExpeditionModel(BaseTable, QtCore.QAbstractTableModel):
         expedition = self.expeditions[index.row()]
         column = index.column()
 
+        logisitic_status_string = expedition.logistic_status_string
+
         if role == Qt.DisplayRole:
             if column == self.ID:
                 return str(expedition.id).zfill(6)
             elif column == self.WAREHOUSE:
                 return expedition.proforma.warehouse.description
             elif column == self.TOTAL:
-                return str(expedition_total_quantity(expedition))
+                return expedition.total_quantity
             elif column == self.PARTNER:
                 return expedition.proforma.partner_name
             elif column == self.PROCESSED:
-                return str(sale_total_processed(expedition))
+                return expedition.total_processed
             elif column == self.LOGISTIC:
-                if expedition.proforma.empty:
-                    return 'Empty'
-                elif expedition.proforma.overflowed:
-                    return 'Overflowed'
-                elif expedition.proforma.partially_processed:
-                    return 'Partially Prepared'
-                elif expedition.proforma.completed:
-                    return 'Completed'
+                return logisitic_status_string
 
             elif column == self.PRESALE:
                 return 'Yes' if expedition.proforma.advanced_lines else 'No'
@@ -3414,13 +3429,13 @@ class ExpeditionModel(BaseTable, QtCore.QAbstractTableModel):
             elif column == self.PARTNER:
                 return QtGui.QIcon(':\partners')
             elif column == self.LOGISTIC:
-                if sale_empty(expedition):
+                if logisitic_status_string == 'Empty':
                     return QtGui.QColor(YELLOW)
-                elif sale_overflowed(expedition):
+                elif logisitic_status_string == 'Overflowed':
                     return QtGui.QColor(RED)
-                elif sale_partially_processed(expedition):
+                elif logisitic_status_string == 'Partially Processed':
                     return QtGui.QColor(ORANGE)
-                elif sale_completed(expedition):
+                elif logisitic_status_string == 'Completed':
                     return QtGui.QColor(GREEN)
             elif column == self.CANCELLED:
                 return QtGui.QColor(RED if expedition.proforma.cancelled else GREEN)

@@ -1355,6 +1355,41 @@ class Expedition(Base):
 
     proforma = relationship('SaleProforma', back_populates='expedition')
 
+    @property
+    def total_quantity(self):
+        return self.proforma.total_quantity
+
+    @property
+    def total_processed(self):
+        return self.proforma.total_processed
+
+    @property
+    def empty(self):
+        return self.proforma.empty
+
+    @property
+    def overflowed(self):
+        return self.proforma.overflowed
+
+    @property
+    def partially_processed(self):
+        return self.proforma.partially_processed
+
+    @property
+    def completed(self):
+        return self.proforma.completed
+
+    @property
+    def logistic_status_string(self):
+        if self.empty:
+            return 'Empty'
+        elif self.overflowed:
+            return 'Overflowed'
+        elif self.partially_processed:
+            return 'Partially Processed'
+        elif self.completed:
+            return 'Completed'
+
     __table_args__ = (
         UniqueConstraint('proforma_id', name='sale_expedition_from_onlyone_proforma'),
     )

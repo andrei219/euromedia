@@ -6,6 +6,7 @@ from PyQt5.QtWidgets import (
     QTableView,
     QMessageBox,
 )
+from pywin.scintilla import view
 from sqlalchemy.exc import IntegrityError
 
 from clipboard import ClipBoard
@@ -630,11 +631,7 @@ class MainGui(Ui_MainGui, QMainWindow):
         self.asp.show()
 
     def proformas_sales_view_pdf_handler(self):
-        self.view_documents(
-            self.proformas_sales_view,
-            self.proformas_sales_model
-        )
-
+        view_document(self.proformas_sales_view,self.proformas_sales_model)
 
     def proformas_sales_export_excel_handler(self):
 

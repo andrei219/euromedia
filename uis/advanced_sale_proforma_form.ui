@@ -682,22 +682,6 @@
      </item>
     </layout>
    </widget>
-   <widget class="QPushButton" name="applycn">
-    <property name="enabled">
-     <bool>false</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>980</x>
-      <y>140</y>
-      <width>101</width>
-      <height>41</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Apply C.N.</string>
-    </property>
-   </widget>
   </widget>
   <widget class="QGroupBox" name="groupBox">
    <property name="geometry">

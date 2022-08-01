@@ -318,19 +318,19 @@ class TableData:
     def __init__(self, document):
 
         if isinstance(document, (SaleInvoice, PurchaseInvoice)):
-            document = document.proformas[0]
-
-        self.Date = document.date.strftime('%d-%m-%Y')
-        self.Document_No = document.doc_repr
-        self.Agent = document.agent.fiscal_name.split()[0]
-        self.Incoterms = document.incoterm
-
-        try:
+            proforma = document.proformas[0]
+            self.Date = document.date.strftime('%d-%m-%Y')
+            self.Document_No = document.doc_repr
             self.External_Doc = document.external_document
-        except AttributeError:
+        else:
+            proforma = document
+            self.Date = proforma.date.strftime('%d-%m-%Y')
+            self.Document_No = proforma.doc_repr
             self.External_Doc = ''
 
-        self.Currency = 'EUR' if document.eur_currency else 'USD'
+        self.Agent = proforma.agent.fiscal_name.split()[0]
+        self.Incoterms = proforma.incoterm
+        self.Currency = 'EUR' if proforma.eur_currency else 'USD'
 
 
 
@@ -342,19 +342,19 @@ class TotalsData:
 
     def __init__(self, document):
 
-        if isinstance(document, SaleInvoice):
-            # TODO
-            pass
-
-        elif isinstance(document, SaleProforma):
-            # TODO
-            pass
-
-        elif isinstance(document, PurchaseInvoice):
-            lines = [line for proforma in document.proformas for line in proforma.lines]
-
-        elif isinstance(document, PurchaseProforma):
-            lines = document.lines
+        # if isinstance(document, SaleInvoice):
+        #     # TODO
+        #     pass
+        #
+        # elif isinstance(document, SaleProforma):
+        #     # TODO
+        #     pass
+        #
+        # elif isinstance(document, PurchaseInvoice):
+        #     lines = [line for proforma in document.proformas for line in proforma.lines]
+        #
+        # elif isinstance(document, PurchaseProforma):
+        #     lines = document.lines
 
         self.Total_excl_VAT = document.subtotal
         self.Total_VAT = document.tax
