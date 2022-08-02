@@ -47,7 +47,6 @@ class Form(Ui_Form, QWidget):
         self.type_filter = None
         self.number_filter = None
 
-        self.is_invoice = False
 
     def init_template(self):
         self.proforma = db.SaleProforma()
@@ -84,19 +83,11 @@ class Form(Ui_Form, QWidget):
         ]: utils.setCompleter(field, data)
 
     def proforma_to_form(self):
-
         p = self.proforma
-
-        if self.is_invoice:
-            self.type.setCurrentText(str(p.invoice.type))
-            self.number.setText(str(p.invoice.number))
-            self.date.setText(str(p.invoice.date.strftime('%d%m%Y')))
-        else:
-            self.type.setCurrentText(str(p.type))
-            self.number.setText(str(p.number))
-            self.date.setText(str(p.date.strftime('%d%m%Y')))
-
-        self.partner.setText(p.partner.fiscal_name)
+        self.type.setCurrentText(str(p.type))
+        self.number.setText(str(p.number))
+        self.date.setText(str(p.date.strftime('%d%m%Y')))
+        self.partner.setText(p.partner_name)
         self.agent.setCurrentText(p.agent.fiscal_name)
         self.warehouse.setCurrentText(p.warehouse.description)
         self.courier.setCurrentText(p.courier.description)
@@ -326,15 +317,9 @@ class Form(Ui_Form, QWidget):
 
     def _form_to_proforma(self):
 
-        if self.is_invoice:
-            self.proforma.invoice.type = int(self.type.currentText())
-            self.proforma.invoice.number = int(self.number.text())
-            self.proforma.invoice.date = utils.parse_date(self.date.text())
-        else:
-            self.proforma.type = int(self.type.currentText())
-            self.proforma.number = int(self.number.text())
-            self.proforma.date = utils.parse_date(self.date.text())
-
+        self.proforma.type = int(self.type.currentText())
+        self.proforma.number = int(self.number.text())
+        self.proforma.date = utils.parse_date(self.date.text())
         self.proforma.warranty = self.warranty.value()
         self.proforma.they_pay_they_ship = self.they_pay_they_ship.isChecked()
         self.proforma.they_pay_we_ship = self.they_pay_we_ship.isChecked()
@@ -358,36 +343,20 @@ class Form(Ui_Form, QWidget):
 
 class EditableForm(Form):
 
-    def __init__(self, parent, view, proforma, is_invoice=False):
+    def __init__(self, parent, view, proforma):
         reload_utils()
         print(proforma)
         self.proforma = proforma
         super().__init__(parent, view)
         self.update_totals()
 
-        self.is_invoice = is_invoice
-
-        if is_invoice:
-            self.setWindowTitle('Proforma Invoice / Edit')
-            self.applycn.setEnabled(True)
-        else:
-            self.setWindowTitle('Proforma Edit')
-
         self.proforma_to_form()
         self.warehouse.setEnabled(False)
         self.disable_if_cancelled()
 
-    def init_template(self):
-        self.applycn.clicked.connect(self.applycn_handler)
-
-    # Solo necsita commit en editable. Pero aun asi necesitamos
-    # este metodo por seguir el template pattern
-    # aunque este vacio.
 
 
-    def applycn_handler(self):
-        from apply_credit_note_form import Form
-        Form(self, self.proforma).exec_()
+
 
     def save_template(self):
         update_sale_warehouse(self.proforma)
@@ -403,6 +372,5 @@ class EditableForm(Form):
             self.save.setEnabled(False)
 
 
-def get_form(parent, view, proforma=None, is_invoice=False):
-    return EditableForm(parent, view, proforma, is_invoice=is_invoice) if proforma \
-        else Form(parent, view)
+def get_form(parent, view, proforma=None,):
+    return EditableForm(parent, view, proforma) if proforma else Form(parent, view)

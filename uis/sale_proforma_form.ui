@@ -16,7 +16,7 @@
    </font>
   </property>
   <property name="windowTitle">
-   <string>Sale Proforma / Invoice</string>
+   <string>Edit Proforma</string>
   </property>
   <property name="toolTip">
    <string>Press Return Key to see the results </string>

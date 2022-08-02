@@ -72,7 +72,7 @@ class Form(Ui_Form, QWidget):
         self.courier.setCurrentText(p.courier.description)
         self.incoterms.setCurrentText(p.incoterm)
         self.eur.setChecked(p.eur_currency)
-        self.tracking.setText(p.tracking)                 
+        self.tracking.setText(p.tracking)
         self.they_pay_we_ship.setChecked(p.they_pay_we_ship)
         self.they_pay_they_ship.setChecked(p.they_pay_they_ship)
         self.we_pay_we_ship.setChecked(p.we_pay_we_ship)

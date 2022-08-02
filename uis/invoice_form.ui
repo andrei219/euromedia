@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>1159</width>
-    <height>878</height>
+    <height>875</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -97,7 +97,7 @@
   <widget class="QToolButton" name="save">
    <property name="geometry">
     <rect>
-     <x>960</x>
+     <x>940</x>
      <y>770</y>
      <width>81</width>
      <height>61</height>
@@ -828,133 +828,10 @@
     </item>
    </layout>
   </widget>
-  <widget class="QLabel" name="label_30">
-   <property name="geometry">
-    <rect>
-     <x>473</x>
-     <y>764</y>
-     <width>51</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="layoutDirection">
-    <enum>Qt::LeftToRight</enum>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">font-weight:bold; </string>
-   </property>
-   <property name="text">
-    <string>Subtotal:</string>
-   </property>
-  </widget>
-  <widget class="QLineEdit" name="subtotal">
-   <property name="geometry">
-    <rect>
-     <x>540</x>
-     <y>764</y>
-     <width>191</width>
-     <height>22</height>
-    </rect>
-   </property>
-   <property name="minimumSize">
-    <size>
-     <width>121</width>
-     <height>22</height>
-    </size>
-   </property>
-   <property name="layoutDirection">
-    <enum>Qt::LeftToRight</enum>
-   </property>
-   <property name="readOnly">
-    <bool>true</bool>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label_32">
-   <property name="geometry">
-    <rect>
-     <x>473</x>
-     <y>820</y>
-     <width>32</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="layoutDirection">
-    <enum>Qt::LeftToRight</enum>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">font-weight:bold; </string>
-   </property>
-   <property name="text">
-    <string>Total </string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label_31">
-   <property name="geometry">
-    <rect>
-     <x>473</x>
-     <y>792</y>
-     <width>24</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="layoutDirection">
-    <enum>Qt::LeftToRight</enum>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">font-weight:bold; </string>
-   </property>
-   <property name="text">
-    <string>Tax:</string>
-   </property>
-  </widget>
-  <widget class="QLineEdit" name="tax">
-   <property name="geometry">
-    <rect>
-     <x>540</x>
-     <y>792</y>
-     <width>191</width>
-     <height>22</height>
-    </rect>
-   </property>
-   <property name="minimumSize">
-    <size>
-     <width>121</width>
-     <height>22</height>
-    </size>
-   </property>
-   <property name="layoutDirection">
-    <enum>Qt::LeftToRight</enum>
-   </property>
-   <property name="readOnly">
-    <bool>true</bool>
-   </property>
-  </widget>
-  <widget class="QLineEdit" name="total">
-   <property name="geometry">
-    <rect>
-     <x>540</x>
-     <y>820</y>
-     <width>191</width>
-     <height>22</height>
-    </rect>
-   </property>
-   <property name="minimumSize">
-    <size>
-     <width>121</width>
-     <height>22</height>
-    </size>
-   </property>
-   <property name="layoutDirection">
-    <enum>Qt::LeftToRight</enum>
-   </property>
-   <property name="readOnly">
-    <bool>true</bool>
-   </property>
-  </widget>
   <widget class="QToolButton" name="exit">
    <property name="geometry">
     <rect>
-     <x>1060</x>
+     <x>1040</x>
      <y>770</y>
      <width>71</width>
      <height>61</height>
@@ -1049,6 +926,150 @@
      <height>22</height>
     </size>
    </property>
+  </widget>
+  <widget class="QPushButton" name="apply_cn">
+   <property name="geometry">
+    <rect>
+     <x>890</x>
+     <y>200</y>
+     <width>75</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Apply C.N</string>
+   </property>
+  </widget>
+  <widget class="QWidget" name="">
+   <property name="geometry">
+    <rect>
+     <x>469</x>
+     <y>730</y>
+     <width>192</width>
+     <height>132</height>
+    </rect>
+   </property>
+   <layout class="QFormLayout" name="formLayout">
+    <item row="0" column="0">
+     <widget class="QLabel" name="label_30">
+      <property name="layoutDirection">
+       <enum>Qt::LeftToRight</enum>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">font-weight:bold; </string>
+      </property>
+      <property name="text">
+       <string>Subtotal:</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="1">
+     <widget class="QLineEdit" name="subtotal">
+      <property name="minimumSize">
+       <size>
+        <width>121</width>
+        <height>22</height>
+       </size>
+      </property>
+      <property name="layoutDirection">
+       <enum>Qt::LeftToRight</enum>
+      </property>
+      <property name="readOnly">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="0">
+     <widget class="QLabel" name="label_31">
+      <property name="layoutDirection">
+       <enum>Qt::LeftToRight</enum>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">font-weight:bold; </string>
+      </property>
+      <property name="text">
+       <string>Tax:</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="1">
+     <widget class="QLineEdit" name="tax">
+      <property name="minimumSize">
+       <size>
+        <width>121</width>
+        <height>22</height>
+       </size>
+      </property>
+      <property name="layoutDirection">
+       <enum>Qt::LeftToRight</enum>
+      </property>
+      <property name="readOnly">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="0">
+     <widget class="QLabel" name="label_33">
+      <property name="layoutDirection">
+       <enum>Qt::LeftToRight</enum>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">font-weight:bold; </string>
+      </property>
+      <property name="text">
+       <string>CN:</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="1">
+     <widget class="QLineEdit" name="lineEdit"/>
+    </item>
+    <item row="3" column="0">
+     <widget class="QLabel" name="label_34">
+      <property name="layoutDirection">
+       <enum>Qt::LeftToRight</enum>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">font-weight:bold; </string>
+      </property>
+      <property name="text">
+       <string>Pending:</string>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="1">
+     <widget class="QLineEdit" name="lineEdit_2"/>
+    </item>
+    <item row="4" column="0">
+     <widget class="QLabel" name="label_32">
+      <property name="layoutDirection">
+       <enum>Qt::LeftToRight</enum>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">font-weight:bold; </string>
+      </property>
+      <property name="text">
+       <string>Total </string>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="1">
+     <widget class="QLineEdit" name="total">
+      <property name="minimumSize">
+       <size>
+        <width>121</width>
+        <height>22</height>
+       </size>
+      </property>
+      <property name="layoutDirection">
+       <enum>Qt::LeftToRight</enum>
+      </property>
+      <property name="readOnly">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+   </layout>
   </widget>
  </widget>
  <customwidgets>
