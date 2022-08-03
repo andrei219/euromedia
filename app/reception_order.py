@@ -120,10 +120,10 @@ class Form(QDialog, Ui_Form):
     def populateHeader(self):
         self.reception_number.setText(str(self.reception.id).zfill(6))
         self.date.setText(self.reception.created_on.strftime('%d/%m/%Y'))
-        self.partner.setText(self.reception.proforma.partner_name.fiscal_name)
+        self.partner.setText(self.reception.proforma.partner_name)
         self.agent.setText(self.reception.proforma.agent.fiscal_name)
         self.warehouse.setText(self.reception.proforma.warehouse.description)
-        self.reception_total.setText(str(self._total()))
+        self.reception_total.setText(str(self.reception.total_quantity))
         self.processed.setReadOnly(True)
     
     def block_unblock_widgets(self, has_serie:bool):

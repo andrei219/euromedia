@@ -91,155 +91,9 @@ def computeCreditAvailable(partner_id):
     return max_credit + paid - total - credit_taken
 
 
-# Proformas utils::
-
-
-# Utils for sales:
-# Payments:
-def sale_total_debt(proforma):
-    return sum(line.quantity * line.price for line in proforma.lines) or \
-           sum(line.quantity * line.price for line in proforma.advanced_lines)
-
-
-def sale_total_paid(proforma):
-    return sum(payment.amount for payment in proforma.payments)
-
-
-def sale_not_paid(proforma):
-    return math.isclose(sale_total_paid(proforma), 0)
-
-
-def sale_partially_paid(proforma):
-    return 0 < sale_total_paid(proforma) < sale_total_debt(proforma)
-
-
-def sale_fully_paid(proforma):
-    return math.isclose(sale_total_paid(proforma), sale_total_debt(proforma))
-
-
-def sale_overpaid(proforma):
-    return 0 < sale_total_debt(proforma) < sale_total_paid(proforma)
-
-
-# Warehouse:
-def sale_total_quantity(proforma):
-    return sum(line.quantity for line in proforma.lines if line.item_id) or \
-           sum(line.quantity for line in proforma.advanced_lines if line.item_id)
-
-
-def expedition_total_quantity(expedition):
-    return sum(line.quantity for line in expedition.lines)
-
-
-def sale_total_processed(proforma):
-    expedition = proforma if isinstance(proforma, db.Expedition) else proforma.expedition
-    try:
-        return sum(1
-                   for line in expedition.lines
-                   for serie in line.series)
-    except AttributeError:
-        return 0
-
-
-def sale_empty(proforma):
-    return sale_total_processed(proforma) == 0
-
-
-def sale_partially_processed(proforma):
-    return 0 < sale_total_processed(proforma) < sale_total_quantity(proforma)
-
-
-def sale_completed(proforma):
-    return sale_total_processed(proforma) == sale_total_quantity(proforma)
-
-
-def sale_overflowed(proforma):
-    return 0 < sale_total_quantity(proforma) < sale_total_processed(proforma)
-
-
-# Purchase Proforma Utils:
-# Reuse method sales, simetric in payments
-def purchase_total_debt(proforma):
-    return sum(line.quantity * line.price for line in proforma.lines)
-
-
-def purchase_total_paid(proforma):
-    return sale_total_paid(proforma)
-
-
-def purchase_not_paid(proforma):
-    return math.isclose(purchase_total_paid(proforma), 0)
-
-
-def purchase_partially_paid(proforma):
-    return 0 < purchase_total_paid(proforma) < purchase_total_debt(proforma)
-
-
-def purchase_fully_paid(proforma):
-    return math.isclose(purchase_total_paid(proforma), purchase_total_debt(proforma))
-
-
-def purchase_overpaid(proforma):
-    return 0 < purchase_total_debt(proforma) < purchase_total_paid(proforma)
-
-
-# Warehouse:
-def purchase_total_quantity(proforma):
-    return sum(
-        line.quantity for line in proforma.lines
-        if line.item_id or line.description in utils.descriptions
-    )
-
-
-def purchase_total_processed(proforma):
-    # Method called with proforma object and reception object:
-    # Type-check first
-    reception = proforma if isinstance(proforma, db.Reception) else proforma.reception
-    try:
-        return sum(1
-                   for line in reception.lines
-                   for serie in line.series
-                   )
-    except AttributeError:
-        return 0
-
-
-def purchase_empty(proforma):
-    return purchase_total_processed(proforma) == 0
-
-
-def purchase_partially_processed(proforma):
-    return 0 < purchase_total_processed(proforma) < purchase_total_quantity(proforma)
-
-
-def purchase_completed(proforma):
-    return purchase_total_processed(proforma) == purchase_total_quantity(proforma)
-
-
-def reception_overflowed(reception):
-    for line in reception.lines:
-        try:
-            if len(line.series) > line.quantity:
-                return True
-        except AttributeError:
-            raise
-    return False
-
-
-def purchase_overflowed(proforma):
-    return reception_overflowed(proforma.reception)
-
-
-# return 0 < purchase_total_quantity(proforma) < purchase_total_processed(proforma)
-
-
-def sale_completed(proforma):
-    return sale_total_processed(proforma) == sale_total_quantity(proforma)
-
-
 def stock_gap():
     return not all(
-        sale_completed(proforma)
+        proforma.completed
         for proforma in db.session.query(db.SaleProforma)
             .where(db.SaleProforma.cancelled == False)
             .order_by(db.SaleProforma.id.desc())
@@ -918,7 +772,6 @@ class SaleInvoiceModel(BaseTable, QtCore.QAbstractTableModel):
                     return QtGui.QColor(ORANGE)
                 elif invoice.cancelled == 'No':
                     return QtGui.QColor(GREEN)
-
 
     def __getitem__(self, item):
         return self.invoices[item]
@@ -3504,13 +3357,13 @@ class ReceptionModel(BaseTable, QtCore.QAbstractTableModel):
             self.receptions = query.all()
             if filters['logistic']:
                 if 'empty' in filters['logistic']:
-                    self.receptions = filter(lambda r: purchase_empty(r), self.receptions)
+                    self.receptions = filter(lambda r: r.empty, self.receptions)
                 if 'overflowed' in filters['logistic']:
-                    self.receptions = filter(lambda r: reception_overflowed(r), self.receptions)
+                    self.receptions = filter(lambda r: r.overflowed, self.receptions)
                 if 'partially_processed' in filters['logistic']:
-                    self.receptions = filter(lambda r: purchase_partially_processed(r), self.receptions)
+                    self.receptions = filter(lambda r: r.partially_processed, self.receptions)
                 if "completed" in filters['logistic']:
-                    self.receptions = filter(lambda r: purchase_completed(r), self.receptions)
+                    self.receptions = filter(lambda r: r.completed, self.receptions)
 
             if filters['cancelled']:
                 if 'cancelled' in filters['cancelled']:
@@ -3528,27 +3381,20 @@ class ReceptionModel(BaseTable, QtCore.QAbstractTableModel):
             return
         reception = self.receptions[index.row()]
         column = index.column()
-
+        logistic_status_string = reception.logistic_status_string
         if role == Qt.DisplayRole:
             if column == ReceptionModel.ID:
                 return str(reception.id).zfill(6)
             elif column == ReceptionModel.WAREHOUSE:
                 return reception.proforma.warehouse.description
             elif column == ReceptionModel.TOTAL:
-                return str(purchase_total_quantity(reception))
+                return str(reception.total_quantity)
             elif column == ReceptionModel.PARTNER:
                 return reception.proforma.partner_name
             elif column == ReceptionModel.PROCESSED:
-                return str(purchase_total_processed(reception))
+                return str(reception.total_processed)
             elif column == ReceptionModel.LOGISTIC:
-                if purchase_empty(reception):
-                    return "Empty"
-                elif reception_overflowed(reception):
-                    return 'Overflowed'
-                elif purchase_partially_processed(reception):
-                    return 'Partially Received'
-                elif purchase_completed(reception):
-                    return "Completed"
+                return logistic_status_string
             elif column == ReceptionModel.CANCELLED:
                 return "Yes" if reception.proforma.cancelled else "No"
             elif column == ReceptionModel.AGENT:
@@ -3564,13 +3410,13 @@ class ReceptionModel(BaseTable, QtCore.QAbstractTableModel):
             elif column == ReceptionModel.PARTNER:
                 return QtGui.QIcon(':\partners')
             elif column == ReceptionModel.LOGISTIC:
-                if purchase_empty(reception):
+                if logistic_status_string == 'Empty':
                     return QtGui.QColor(YELLOW)
-                elif reception_overflowed(reception):
+                elif logistic_status_string == 'Overflowed':
                     return QtGui.QColor(RED)
-                elif purchase_partially_processed(reception):
+                elif logistic_status_string == 'Partially Prepared':
                     return QtGui.QColor(ORANGE)
-                elif purchase_completed(reception):
+                elif logistic_status_string == 'Completed':
                     return QtGui.QColor(GREEN)
             elif column == ReceptionModel.CANCELLED:
                 return QtGui.QColor(RED) if reception.proforma.cancelled \
@@ -3703,7 +3549,6 @@ class ReceptionModel(BaseTable, QtCore.QAbstractTableModel):
 
 
 import operator, functools
-
 
 class StockEntry:
 

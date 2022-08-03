@@ -871,6 +871,9 @@ class SaleProforma(Base):
             return self.invoice.applied
         return False
 
+    # Posible fuente de error de precision en este método,
+    # Es el invonveniente de usar floats
+    # Deberias usar el modulo Decimal
     @property
     def total_debt(self):
         return round(self.subtotal + self.tax, 2)
@@ -898,7 +901,7 @@ class SaleProforma(Base):
     @property
     def total_quantity(self):
         return sum(line.quantity for line in self.lines if line.item_id) or \
-               sum(line.quantity for line in self.advanced_lines if line.item_id is not None or\
+               sum(line.quantity for line in self.advanced_lines if line.item_id is not None or \
                    line.mixed_description is not None)
 
     @property
@@ -1444,10 +1447,47 @@ class Reception(Base):
 
     auto = Column(Boolean, nullable=False, default=False)
 
+    @property
+    def total_quantity(self):
+        return self.proforma.total_quantity
+
+    @property
+    def total_processed(self):
+        return self.proforma.total_processed
+
+    @property
+    def empty(self):
+        return self.proforma.empty
+
+    @property
+    def overflowed(self):
+        return self.proforma.overflowed
+
+
     def __init__(self, proforma, note, auto=False):
         self.proforma = proforma
         self.note = note
         self.auto = auto
+
+    @property
+    def partially_processed(self):
+        return self.proforma.partially_processed
+
+    @property
+    def completed(self):
+        return self.proforma.completed
+
+    @property
+    def logistic_status_string(self):
+        if self.empty:
+            return 'Empty'
+        elif self.overflowed:
+            return 'Overflowed'
+        elif self.partially_processed:
+            return 'Partially Prepared'
+        elif self.completed:
+            return 'Completed'
+
 
     __table_args__ = (
         UniqueConstraint('proforma_id', name='purchase_reception_from_onlyone_proforma'),
