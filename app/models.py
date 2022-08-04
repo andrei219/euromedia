@@ -738,14 +738,12 @@ class SaleInvoiceModel(BaseTable, QtCore.QAbstractTableModel):
                     return QtGui.QColor(RED)
 
             # Not very fun but I don't feel good
-            # putting this code in the database definition
-            # layer
             elif col == self.LOGISTIC:
                 if logistic_status_string == 'Empty':
                     return QtGui.QColor(YELLOW)
                 elif logistic_status_string == 'Overflowed':
                     return QtGui.QColor(RED)
-                elif logistic_status_string == 'Partially received':
+                elif logistic_status_string == 'Partially Prepared':
                     return QtGui.QColor(ORANGE)
                 elif logistic_status_string == 'Completed':
                     return QtGui.QColor(GREEN)
@@ -7223,6 +7221,68 @@ class StockValuationModelImei(Exportable, BaseTable, QtCore.QAbstractTableModel)
                 return reg.cost
 
 
+class InvoicePaymentModel(BaseTable, QtCore.QAbstractTableModel):
+
+    PROFORMA, TOTAL, PAID, PENDING = 0, 1, 2, 3
+
+    def __init__(self, invoice):
+        super().__init__()
+        self.invoice = invoice
+        self._headerData = ['Proforma', 'Total', 'Paid', 'Pending']
+        self.proformas = invoice.proformas
+        self.name = 'proformas'
+    
+    def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
+        if not index.isValid():
+            return
+        row, col = index.row(), index.column()
+        proforma = self.proformas[row]
+        paid = sum(p.amount for p in proforma.payments)
+        total_debt = proforma.total_debt
+        if role == Qt.DisplayRole:
+            return [
+                proforma.doc_repr, 
+                total_debt,
+                paid,
+                total_debt - paid
+            ][col]
+
+    def complete_payments(self, rate, note):
+        orm_class = db.SalePayment if isinstance(self.invoice, db.SaleInvoice)\
+            else db.PurchasePayment
+        for p in self.invoice.proformas:
+            print('p=', p)
+            db.session.add(
+                orm_class(
+                    date=datetime.now(),
+                    amount=p.total_debt,
+                    rate=rate,
+                    proforma=p,
+                    note=note
+                )
+            )
+
+        db.session.commit()
+
+    def __getitem__(self, item):
+        return self.proformas[item]
+
+
+class InvoiceExpensesModel(BaseTable, QtCore.QAbstractTableModel):
+
+    def __init__(self, invoice):
+        super().__init__()
+        self.invoice = invoice
+        self.name = 'expenses'
+        self.expenses = [
+            expense 
+            for proforma in self.invoice.proformas
+            for expense in proforma.expenses
+        ]
+        
+    def add(self):
+        pass 
+    
 def caches_clear():
     get_avg_rate.cache_clear()
     get_purchase_expenses_breakdown.cache_clear()

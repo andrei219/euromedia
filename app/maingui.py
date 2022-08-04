@@ -133,7 +133,24 @@ def view_document(view, model):
     subprocess.Popen((filename,), shell=True)
 
 
+def export_documents(view, model):
+    rows = {i.row() for i in view.selectedIndexes()}
+    if not rows:
+        return
+    directory = get_directory(self)
+
+    for row in rows:
+        doc = model[row]
+        if isinstance(doc, (db.SaleInvoice, db.PurchaseInvoice)):
+            name = 'INV ' + doc.doc_repr + '.pdf'
+        else:
+            name = 'PI ' + doc.doc_repr + '.pdf'
+
+        pdf = build_document(doc)
+        pdf.output(os.path.join(directory, name))
+
 class MainGui(Ui_MainGui, QMainWindow):
+
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -156,6 +173,22 @@ class MainGui(Ui_MainGui, QMainWindow):
         self.set_handlers()
 
         self.main_tab.currentChanged.connect(self.tab_changed)
+
+    def export_documents(self, view, model):
+        rows = {i.row() for i in view.selectedIndexes()}
+        if not rows:
+            return
+        directory = get_directory(self)
+
+        for row in rows:
+            doc = model[row]
+            if isinstance(doc, (db.SaleInvoice, db.PurchaseInvoice)):
+                name = 'INV ' + doc.doc_repr + '.pdf'
+            else:
+                name = 'PI ' + doc.doc_repr + '.pdf'
+
+            pdf = build_document(doc)
+            pdf.output(os.path.join(directory, name))
 
     def selection_changed_generic(self, view):
         rows = {i.row() for i in view.selectedIndexes()}
@@ -538,7 +571,12 @@ class MainGui(Ui_MainGui, QMainWindow):
         print('print')
 
     def proformas_purchases_export_handler(self):
-        pass
+        self.export_documents(
+            self.proformas_purchases_view,
+            self.proformas_purchases_model
+        )
+        QMessageBox.critical(self, 'Success', 'Document Exported successfully')
+
 
     def proformas_purchases_payments_handler(self, invoice=None):
         if invoice:
@@ -746,6 +784,7 @@ class MainGui(Ui_MainGui, QMainWindow):
             self.proformas_sales_view,
             self.proformas_sales_model
         )
+        QMessageBox.critical(self, 'Success', 'Document Exported successfully')
 
     def proformas_sales_mail_handler(self):
         proforma = self.get_sale_proforma()
@@ -888,8 +927,15 @@ class MainGui(Ui_MainGui, QMainWindow):
         self.selection_changed_generic(self.invoices_purchases_view)
 
     def invoices_purchases_payments_handler(self):
-        invoice = self.get_purchases_invoice()
-        self.proformas_purchases_payments_handler(invoice=invoice.proforma)
+        rows = {i.row() for i in self.invoices_purchases_view.selectedIndexes()}
+        if len(rows) != 1:
+            return
+        row = rows.pop()
+        invoice = self.invoices_purchases_model[row]
+        from invoice_payment_form import Form
+
+        Form(self, invoice).exec_()
+
 
     def invoices_purchases_ship_handler(self):
         invoice = self.get_purchases_invoice()
@@ -905,8 +951,15 @@ class MainGui(Ui_MainGui, QMainWindow):
         # documents_form.Form(self, invoice, is_invoice=True).exec_()
 
     def invoices_purchases_expenses_handler(self):
-        invoice = self.get_purchases_invoice()
-        self.proformas_purchases_expenses_handler(invoice=invoice.proforma)
+        rows = {i.row() for i in self.invoices_purchases_view.selectedIndexes()}
+        if len(rows) != 1:
+            print('ee')
+            return
+
+        row = rows.pop()
+        invoice = self.invoices_purchases_model[row]
+        from invoices_expenses_form import Form
+        Form(self, invoice).exec_()
 
     def invoices_purchases_double_click_handler(self, index):
         invoice = self.invoices_purchases_model[index.row()]
@@ -918,8 +971,8 @@ class MainGui(Ui_MainGui, QMainWindow):
         self.export_documents(
             self.invoices_purchases_view,
             self.invoices_purchases_model,
-            is_invoice=True
         )
+        QMessageBox.critical(self, 'Success', 'Document Exported successfully')
 
     def invoices_purchases_print_handler(self):
         print('print ')
@@ -938,8 +991,15 @@ class MainGui(Ui_MainGui, QMainWindow):
         self.selection_changed_generic(self.invoices_sales_view)
 
     def invoices_sales_payments_handler(self):
-        invoice = self.get_sales_invoice()
-        self.proformas_sales_payments_handler(invoice=invoice)
+        rows = {i.row() for i in self.invoices_sales_view.selectedIndexes()}
+        if len(rows) != 1:
+            return
+
+        row = rows.pop()
+        invoice = self.invoices_sales_model[row]
+        from invoice_payment_form import Form
+
+        Form(self, invoice).exec_()
 
     def invoices_sales_ship_handler(self):
         invoice = self.get_sales_invoice()
@@ -955,8 +1015,17 @@ class MainGui(Ui_MainGui, QMainWindow):
         pass
 
     def invoices_sales_expenses_handler(self):
-        invoice = self.get_sales_invoice()
-        self.proformas_sales_expenses_handler(invoice=invoice)
+        rows = {i.row() for i in self.invoices_sales_view.selectedIndexes()}
+        if len(rows) != 1:
+            return
+
+        row = rows.pop()
+        invoice = self.invoices_sales_model[row]
+
+        from invoices_expenses_form import Form
+
+        Form(self, invoice).exec_()
+
 
     def invoices_sales_double_click_handler(self, index):
 
@@ -982,8 +1051,8 @@ class MainGui(Ui_MainGui, QMainWindow):
         self.export_documents(
             self.invoices_sales_view,
             self.invoices_sales_model,
-            is_invoice=True
         )
+        QMessageBox.critical(self, 'Success', 'Document Exported successfully')
 
     def invoices_sales_export_excel_handler(self):
 

@@ -37,7 +37,7 @@ class Ui_PaymentsForm(object):
         self.groupBox.setGeometry(QtCore.QRect(30, 160, 831, 73))
         self.groupBox.setObjectName("groupBox")
         self.layoutWidget = QtWidgets.QWidget(self.groupBox)
-        self.layoutWidget.setGeometry(QtCore.QRect(13, 29, 800, 32))
+        self.layoutWidget.setGeometry(QtCore.QRect(13, 29, 869, 32))
         self.layoutWidget.setObjectName("layoutWidget")
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout(self.layoutWidget)
         self.horizontalLayout_2.setContentsMargins(0, 0, 0, 0)
@@ -169,13 +169,6 @@ class Ui_PaymentsForm(object):
         self.exit = QtWidgets.QPushButton(PaymentsForm)
         self.exit.setGeometry(QtCore.QRect(788, 574, 80, 30))
         self.exit.setObjectName("exit")
-        self.testgroup = QtWidgets.QGroupBox(PaymentsForm)
-        self.testgroup.setGeometry(QtCore.QRect(100, 550, 120, 41))
-        self.testgroup.setCheckable(True)
-        self.testgroup.setObjectName("testgroup")
-        self.lineEdit = QtWidgets.QLineEdit(PaymentsForm)
-        self.lineEdit.setGeometry(QtCore.QRect(270, 560, 113, 20))
-        self.lineEdit.setObjectName("lineEdit")
 
         self.retranslateUi(PaymentsForm)
         self.exit.clicked.connect(PaymentsForm.close)
@@ -211,5 +204,4 @@ class Ui_PaymentsForm(object):
         self.label_1.setText(_translate("PaymentsForm", "Partner:"))
         self.all.setText(_translate("PaymentsForm", "All"))
         self.exit.setText(_translate("PaymentsForm", "Exit"))
-        self.testgroup.setTitle(_translate("PaymentsForm", "GroupBox"))
 import icons_rc

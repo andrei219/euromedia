@@ -666,6 +666,9 @@ class PurchaseInvoice(Base):
             return 'Partially received'
         elif all(p.completed for p in self.proformas):
             return 'Completed'
+        elif any(p.empty for p in self.proformas) \
+                and any(p.completed for p in self.proformas):
+            return 'Partially received'
 
     @property
     def financial_status_string(self):
@@ -1086,9 +1089,12 @@ class SaleInvoice(Base):
         elif any(p.overflowed for p in self.proformas):
             return 'Overflowed'
         elif any(p.partially_processed for p in self.proformas):
-            return 'Partially received'
+            return 'Partially Prepared'
         elif all(p.completed for p in self.proformas):
             return 'Completed'
+        elif any(p.completed for p in self.proformas) and \
+            any(p.empty for p in self.prformas):
+                return 'Partially Prepared'
 
     @property
     def financial_status_string(self):
