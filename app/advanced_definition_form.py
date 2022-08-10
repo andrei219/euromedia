@@ -66,7 +66,7 @@ class Form(Ui_Form, QWidget):
         self.save.clicked.connect(self.save_handler)
 
     def set_header(self):
-        self.partner.setText(self.proforma.partner_name.fiscal_name)
+        self.partner.setText(self.proforma.partner_name)
         doc = str(self.proforma.type) + '-' + str(self.proforma.number).zfill(6)
         self.document.setText(doc)
         self.date.setText(self.proforma.date.strftime('%d/%m/%Y'))

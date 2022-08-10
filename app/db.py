@@ -72,6 +72,7 @@ class Warehouse(Base):
 
 
 class Courier(Base):
+
     __tablename__ = 'couriers'
 
     id = Column(Integer, primary_key=True)
@@ -83,6 +84,7 @@ class Courier(Base):
 
 
 class Spec(Base):
+
     __tablename__ = 'specs'
 
     id = Column(Integer, primary_key=True)
@@ -104,6 +106,7 @@ class Spec(Base):
 
 
 class Condition(Base):
+
     __tablename__ = 'conditions'
 
     id = Column(Integer, primary_key=True)
@@ -745,7 +748,7 @@ class PurchaseInvoice(Base):
 
     @property
     def partner_object(self):
-        return self.proformas[0].partner_name
+        return self.proformas[0].partner
 
 
 class PurchasePayment(Base):
@@ -789,6 +792,7 @@ class PurchaseExpense(Base):
 
 
 class SaleProforma(Base):
+
     __tablename__ = 'sale_proformas'
 
     id = Column(Integer, primary_key=True)
@@ -1050,6 +1054,8 @@ class SaleInvoice(Base):
     def total_debt(self):
         return sum(proforma.total_debt for proforma in self.proformas)
 
+
+
     @property
     def tax(self):
         return round(sum(p.tax for p in self.proformas), 2)
@@ -1105,7 +1111,7 @@ class SaleInvoice(Base):
         elif self.fully_paid:
             return 'Paid'
         elif self.overpaid:
-            return 'They Owe'
+            return 'We Owe'
 
     @property
     def agent(self):
@@ -1117,7 +1123,7 @@ class SaleInvoice(Base):
 
     @property
     def partner_object(self):
-        return self.proformas[0].partner_object
+        return self.proformas[0].partner
 
     @property
     def sent(self):
@@ -1169,6 +1175,21 @@ class SaleInvoice(Base):
     @property
     def partner_object(self):
         return self.proformas[0].partner_object
+
+    @property
+    def ready(self):
+        if self.proformas[0].credit_note_lines:
+            return 'No'
+        elif all(p.ready for p in self.proformas):
+            return 'Yes'
+        elif any(p.ready for p in self.proformas):
+            return 'Partially'
+        elif all(not p.ready for p in self.proformas):
+            return 'No'
+
+    @property
+    def partner_id(self):
+        return self.proformas[0].partner.id
 
     __table_args__ = (
         UniqueConstraint('type', 'number', name='unique_sales_sale_invoices'),

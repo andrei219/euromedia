@@ -179,7 +179,6 @@ class Form(Ui_SalesProformaForm, QWidget):
     def adjust_view(self):
         self.view.resizeColumnToContents(2)
         self.view.resizeColumnToContents(3)
-        
 
     def init_template(self):
         self.proforma = db.SaleProforma() 
@@ -581,7 +580,7 @@ class Form(Ui_SalesProformaForm, QWidget):
     def closeEvent(self, event):
         db.session.rollback()     
 
-    def update_totals(self, note=0.0):
+    def update_totals(self):
         self.total.setText(str(self.proforma.total_debt))
         self.ptax.setText(str(self.proforma.tax))
         self.cn.setText(str(self.proforma.cn_total))
@@ -634,8 +633,6 @@ class EditableForm(Form):
     
     def __init__(self, parent, view, proforma):
         self.proforma = proforma
-        self.old_type = proforma.type
-        self.old_number = proforma.number
 
         super().__init__(parent, view)
         self.update_totals()

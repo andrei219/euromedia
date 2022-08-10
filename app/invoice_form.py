@@ -37,15 +37,12 @@ class Form(Ui_InvoiceForm, QWidget):
 
         self.populate_form()
 
-        self.set_totals()
+        self.update_totals()
 
         self.save.clicked.connect(self.save_handler)
         self.delete_.clicked.connect(self.delete_handler)
+        self.apply_cn.clicked.connect(self.apply_cn_handler)
 
-    def set_totals(self):
-        self.subtotal.setText(str(self.invoice.subtotal))
-        self.tax.setText(str(self.invoice.tax))
-        self.total.setText(str(self.invoice.total_debt))
 
     def setCombos(self):
         for combo, data in [
@@ -138,6 +135,22 @@ class Form(Ui_InvoiceForm, QWidget):
 
         return True
 
+    def update_totals(self):
+        self.total.setText(str(self.invoice.total_debt))
+        self.tax.setText(str(self.invoice.tax))
+        try:
+            self.cn.setText(str(self.invoice.cn_total))
+        except AttributeError:
+            self.cn.setText(str(0))
+
+        self.pending.setText(str(self.invoice.total_debt - self.invoice.total_paid))
+        self.subtotal.setText(str(self.invoice.subtotal))
+        self.quantity.setText('Qnt.: ' + str(self.model.quantity))
+
+    def apply_cn_handler(self):
+        from apply_credit_note_form import Form
+        Form(self, self.invoice).exec_()
+
     def delete_handler(self):
         self.model.delete({i.row() for i in self.view.selectedIndexes()})
         self.set_totals()
@@ -153,6 +166,9 @@ class Form(Ui_InvoiceForm, QWidget):
 
         session.commit()
         QMessageBox.information(self, 'Success', 'Data updated')
+
+
+
 
     def closeEvent(self, a0: QtGui.QCloseEvent) -> None:
         session.rollback()

@@ -133,24 +133,7 @@ def view_document(view, model):
     subprocess.Popen((filename,), shell=True)
 
 
-def export_documents(view, model):
-    rows = {i.row() for i in view.selectedIndexes()}
-    if not rows:
-        return
-    directory = get_directory(self)
-
-    for row in rows:
-        doc = model[row]
-        if isinstance(doc, (db.SaleInvoice, db.PurchaseInvoice)):
-            name = 'INV ' + doc.doc_repr + '.pdf'
-        else:
-            name = 'PI ' + doc.doc_repr + '.pdf'
-
-        pdf = build_document(doc)
-        pdf.output(os.path.join(directory, name))
-
 class MainGui(Ui_MainGui, QMainWindow):
-
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -164,9 +147,7 @@ class MainGui(Ui_MainGui, QMainWindow):
         # Prevent creating multiple
         self.opened_windows_classes = set()
 
-
         self.main_tab.setCurrentIndex(0)
-
 
         self.init_models()
 
@@ -180,6 +161,9 @@ class MainGui(Ui_MainGui, QMainWindow):
             return
         directory = get_directory(self)
 
+        if not directory:
+            return False
+
         for row in rows:
             doc = model[row]
             if isinstance(doc, (db.SaleInvoice, db.PurchaseInvoice)):
@@ -189,6 +173,8 @@ class MainGui(Ui_MainGui, QMainWindow):
 
             pdf = build_document(doc)
             pdf.output(os.path.join(directory, name))
+
+        return True
 
     def selection_changed_generic(self, view):
         rows = {i.row() for i in view.selectedIndexes()}
@@ -242,9 +228,7 @@ class MainGui(Ui_MainGui, QMainWindow):
 
             self.proformas_purchases_model = \
                 models.PurchaseProformaModel(filters=filters, search_key=search_key, last=last)
-            self.proformas_purchases_view.setModel(
-                self.proformas_purchases_model
-            )
+            self.proformas_purchases_view.setModel(self.proformas_purchases_model)
 
             # Inmediately after setting model you need to put this code
             self.proformas_purchases_view.selectionModel(). \
@@ -571,11 +555,12 @@ class MainGui(Ui_MainGui, QMainWindow):
         print('print')
 
     def proformas_purchases_export_handler(self):
-        self.export_documents(
+        exported = self.export_documents(
             self.proformas_purchases_view,
             self.proformas_purchases_model
         )
-        QMessageBox.critical(self, 'Success', 'Document Exported successfully')
+        if exported:
+            QMessageBox.critical(self, 'Success', 'Document Exported successfully')
 
 
     def proformas_purchases_payments_handler(self, invoice=None):
@@ -636,23 +621,13 @@ class MainGui(Ui_MainGui, QMainWindow):
                     d = 'Invoice' if invoice else 'Proforma'
                     QMessageBox.critical(self, 'Update - Error', f'Warehouse reception for this {d} already exists')
 
-    def proformas_purchases_ship_handler(self, invoice=None):
-        if invoice:
-            proforma = invoice
-        else:
-            proforma = self.get_proforma_purchase()
+    def proformas_purchases_ship_handler(self):
+        proforma = self.get_proforma_purchase()
         if proforma:
-            try:
-                tracking, ok = getTracking(self, proforma)
-                if ok:
-                    self.proformas_purchases_model.ship(proforma, tracking)
-                    mss = 'Updated successfully'
-                    if invoice:
-                        mss = 'Invoice/Proforma ' + mss
-                    QMessageBox.information(self, 'Information', mss)
-            except:
-                QMessageBox.critical(self, 'Update - Error', 'Error updating proforma')
-                raise
+            tracking, ok = getTracking(self, proforma)
+            if ok:
+                self.proformas_purchases_model.ship(proforma, tracking)
+                QMessageBox.information(self, 'Information', 'Proforma updated')
 
     def get_proforma_purchase(self):
         rows = {index.row() for index in \
@@ -672,9 +647,11 @@ class MainGui(Ui_MainGui, QMainWindow):
         view_document(self.proformas_sales_view,self.proformas_sales_model)
 
     def proformas_sales_export_excel_handler(self):
-
         proforma = self.get_sale_proforma()
-        from models import export_sale_excel
+        if not proforma:
+            return
+
+        from models import export_proformas_sales_excel
         from utils import get_file_path
         save_file_path = get_file_path(self)
 
@@ -682,7 +659,7 @@ class MainGui(Ui_MainGui, QMainWindow):
             return
 
         try:
-            export_sale_excel(proforma, save_file_path)
+            export_proformas_sales_excel(proforma, save_file_path)
         except:
             QMessageBox.critical(self, 'Error', 'Error exporting data')
             raise
@@ -705,6 +682,7 @@ class MainGui(Ui_MainGui, QMainWindow):
             proforma = self.proformas_sales_model[row]
         except IndexError:
             return
+
         if not proforma.advanced_lines:
             return
 
@@ -730,7 +708,7 @@ class MainGui(Ui_MainGui, QMainWindow):
     def proformas_sales_double_click_handler(self, index):
         try:
             proforma = self.proformas_sales_model[index.row()]
-        except:
+        except IndexError:
             return
 
         if proforma.advanced_lines:
@@ -745,16 +723,10 @@ class MainGui(Ui_MainGui, QMainWindow):
                 self.proformas_sales_view,
                 proforma
             )
+
         elif proforma.credit_note_lines:
             from credit_note_form import Form
             self.sp = Form(self, proforma)
-
-        else:
-            self.sp = sale_proforma_form.get_form(
-                self,
-                self.proformas_sales_view,
-                proforma
-            )
 
         self.sp.show()
 
@@ -780,11 +752,17 @@ class MainGui(Ui_MainGui, QMainWindow):
         print('printing')
 
     def proformas_sales_export_handler(self):
-        self.export_documents(
+        # Dont need the object, but signals if one is selected
+        proforma = self.get_sale_proforma()
+        if not proforma:
+            return
+
+        exported = self.export_documents(
             self.proformas_sales_view,
             self.proformas_sales_model
         )
-        QMessageBox.critical(self, 'Success', 'Document Exported successfully')
+        if exported:
+            QMessageBox.information(self, 'Success', 'Document Exported successfully')
 
     def proformas_sales_mail_handler(self):
         proforma = self.get_sale_proforma()
@@ -798,7 +776,7 @@ class MainGui(Ui_MainGui, QMainWindow):
         from pdfbuilder import build_document
         temp_directory = os.path.abspath(os.path.join(os.curdir, 'temp'))
 
-        pdf_document = build_document(proforma, is_invoice=False)
+        pdf_document = build_document(proforma)
         abs_path = os.path.join(temp_directory, proforma.doc_repr + '.pdf')
 
         pdf_document.output(abs_path)
@@ -808,19 +786,13 @@ class MainGui(Ui_MainGui, QMainWindow):
         completed_subprocess = subprocess.run(['mailunch.exe', 'A', recipient, abs_path])
 
 
-    def proformas_sales_payments_handler(self, invoice=None):
-        if invoice:
-            proforma = invoice
-        else:
-            proforma = self.get_sale_proforma()
+    def proformas_sales_payments_handler(self):
+        proforma = self.get_sale_proforma()
         if proforma:
             payments_form.PaymentForm(self, proforma, sale=True).exec_()
 
     def proformas_sales_expenses_handler(self, invoice=None):
-        if invoice:
-            proforma = invoice
-        else:
-            proforma = self.get_sale_proforma()
+        proforma = self.get_sale_proforma()
         if proforma:
             expenses_form.ExpenseForm(self, proforma, sale=True).exec_()
 
@@ -851,10 +823,7 @@ class MainGui(Ui_MainGui, QMainWindow):
 
 
     def proformas_sales_towh_handler(self, invoice=None):
-        if invoice:
-            proforma = invoice
-        else:
-            proforma = self.get_sale_proforma()
+        proforma = self.get_sale_proforma()
         if not proforma:
             return
         try:
@@ -868,30 +837,22 @@ class MainGui(Ui_MainGui, QMainWindow):
         except IntegrityError as ex:
             if ex.orig.args[0] == 1048:
                 d = 'Invoice' if invoice else 'Proforma'
-                QMessageBox.critical(self, 'Update - Error', f'Warehouse expedition for this {d} already exists')
+                QMessageBox.critical(
+                    self, 'Update - Error',
+                    f'Warehouse expedition for this {d} already exists'
+                )
 
         except ValueError as ex:
             QMessageBox.critical(self, 'Error', str(ex))
 
-    def proformas_sales_ship_handler(self, invoice=None):
-        if invoice:
-            proforma = invoice
-        else:
-            proforma = self.get_sale_proforma()
+    def proformas_sales_ship_handler(self):
+        proforma = self.get_sale_proforma()
         if not proforma:
             return
-        try:
-            ok, tracking = getTracking(self, proforma)
-            if ok:
-                self.proformas_sales_model.ship(proforma, tracking)
-                mss = 'updated'
-                if invoice:
-                    mss = 'Invoice/Proforma ' + mss
-                else:
-                    mss = 'Proforma ' + mss
-                QMessageBox.information(self, 'Information', mss)
-        except:
-            raise
+        tracking, ok = getTracking(self, proforma)
+        if ok:
+            self.proformas_sales_model.ship(proforma, tracking)
+            QMessageBox.information(self, 'Information', 'Proforma Updated')
 
     def get_sale_proforma(self,):
         rows = {index.row() for index in self.proformas_sales_view.selectedIndexes()}
@@ -936,10 +897,13 @@ class MainGui(Ui_MainGui, QMainWindow):
 
         Form(self, invoice).exec_()
 
-
     def invoices_purchases_ship_handler(self):
         invoice = self.get_purchases_invoice()
-        self.proformas_purchases_ship_handler(invoice.proforma)
+        tracking, ok = getTracking(self, invoice)
+        if ok:
+            self.proformas_purchases_model.ship_several(invoice.proformas, tracking)
+            QMessageBox.information(self, 'Success', 'Dependant proformas updated')
+
 
     def invoices_purchases_towh_handler(self):
         invoice = self.get_purchases_invoice()
@@ -947,15 +911,11 @@ class MainGui(Ui_MainGui, QMainWindow):
 
     def invoices_purchases_docs_handler(self):
         pass
-        # invoice = self.get_purchases_invoice()
-        # documents_form.Form(self, invoice, is_invoice=True).exec_()
 
     def invoices_purchases_expenses_handler(self):
         rows = {i.row() for i in self.invoices_purchases_view.selectedIndexes()}
         if len(rows) != 1:
-            print('ee')
             return
-
         row = rows.pop()
         invoice = self.invoices_purchases_model[row]
         from invoices_expenses_form import Form
@@ -968,11 +928,12 @@ class MainGui(Ui_MainGui, QMainWindow):
         self.f.show()
 
     def invoices_purchases_export_handler(self):
-        self.export_documents(
+        exported = self.export_documents(
             self.invoices_purchases_view,
             self.invoices_purchases_model,
         )
-        QMessageBox.critical(self, 'Success', 'Document Exported successfully')
+        if exported:
+            QMessageBox.information(self, 'Success', 'Document Exported successfully')
 
     def invoices_purchases_print_handler(self):
         print('print ')
@@ -991,23 +952,18 @@ class MainGui(Ui_MainGui, QMainWindow):
         self.selection_changed_generic(self.invoices_sales_view)
 
     def invoices_sales_payments_handler(self):
-        rows = {i.row() for i in self.invoices_sales_view.selectedIndexes()}
-        if len(rows) != 1:
-            return
-
-        row = rows.pop()
-        invoice = self.invoices_sales_model[row]
+        invoice = self.get_sales_invoice()
         from invoice_payment_form import Form
-
         Form(self, invoice).exec_()
 
     def invoices_sales_ship_handler(self):
         invoice = self.get_sales_invoice()
-        self.proformas_sales_ship_handler(invoice)
-
-    def invoices_sales_towh_handler(self):
-        invoice = self.get_sales_invoice()
-        self.proformas_sales_towh_handler(invoice=invoice)
+        if not invoice:
+            return
+        tracking, ok = getTracking(self, invoice)
+        if ok:
+            self.proformas_sales_model.ship_several(invoice.proformas, tracking)
+            QMessageBox.information(self, 'Error', 'Invoice updated')
 
     def invoices_sales_docs_handler(self):
         # invoice = self.get_sales_invoice()
@@ -1015,58 +971,61 @@ class MainGui(Ui_MainGui, QMainWindow):
         pass
 
     def invoices_sales_expenses_handler(self):
-        rows = {i.row() for i in self.invoices_sales_view.selectedIndexes()}
-        if len(rows) != 1:
-            return
-
-        row = rows.pop()
-        invoice = self.invoices_sales_model[row]
-
-        from invoices_expenses_form import Form
-
-        Form(self, invoice).exec_()
-
+        invoice = self.get_sales_invoice()
+        if invoice:
+            from invoices_expenses_form import Form
+            Form(self, invoice).exec_()
 
     def invoices_sales_double_click_handler(self, index):
+        # TODO CREDIT NOTE LOGIC
+        invoice = self.get_sales_invoice()
 
-        from invoice_form import Form
+        if invoice:
 
-        rows = {i.row() for i in self.invoices_sales_view.selectedIndexes()}
-        if len(rows) != 1:
-            return
-        row = rows.pop()
+            # Credit note logic
+            if len(invoice.proformas) == 1 and invoice.proformas[0].credit_note_lines:
+                from credit_note_form import Form
+                proforma = invoice.proformas[0]
+                self.sip = Form(self, proforma, is_invoice=True)
 
-        invoice = self.invoices_sales_model[row]
+            # Everything else
+            else:
+                from invoice_form import Form
+                self.sip = Form(invoice)
 
-        self.sip = Form(invoice)
-
-        self.sip.show()
-
+            self.sip.show()
 
     def invoices_sales_ready_handler(self):
-        indexes = self.invoices_sales_view.selectedIndexes()
-        self.invoices_sales_model.ready(indexes)
+        invoice = self.get_sales_invoice()
+        if invoice:
+            self.proformas_sales_model.ready_several(invoice.proformas)
 
     def invoices_sales_export_handler(self):
-        self.export_documents(
+        exported = self.export_documents(
             self.invoices_sales_view,
             self.invoices_sales_model,
         )
-        QMessageBox.critical(self, 'Success', 'Document Exported successfully')
+        if exported:
+            QMessageBox.critical(self, 'Success', 'Document Exported successfully')
 
     def invoices_sales_export_excel_handler(self):
-
-        proforma = self.get_sales_invoice()
-
-        from models import export_sale_excel
+        invoice = self.get_sales_invoice()
+        from models import export_invoices_sales_excel
         from utils import get_file_path
-
         save_file_path = get_file_path(self)
         if not save_file_path:
             return
 
+        # Code like this allows for future modification
+        # The current flow is to raise the exception
+        # and inspect what caused it on the users
+        # powershell. If this were commercial ,
+        # exception handling would dump to a logging file
+        # Then you would inspect that file
+        # in order to control this exceptional situation and
+        # improve the application.
         try:
-            export_sale_excel(proforma, save_file_path)
+            export_invoices_sales_excel(invoice, save_file_path)
         except:
             QMessageBox.critical(self, 'Error', 'Error exporting data')
             raise
@@ -1087,34 +1046,35 @@ class MainGui(Ui_MainGui, QMainWindow):
                 from dhl_form import Form
                 Form(self, resolved, unresolved).exec_()
 
-
-    def invoices_sales_print_handler(self):
-        print('print to printer')
-
     def invoices_sales_mail_handler(self):
-        proforma = self.get_sales_invoice()
-        if not proforma:
+        pass
+        # TODO dont even know yet hahahah
+
+        invoice = self.get_sales_invoice()
+        print(f'invoice={invoice}')
+        if not invoice:
+            print('if not invoice')
             return
         from utils import get_email_recipient
-        recipient = get_email_recipient(proforma)
+        recipient = get_email_recipient(invoice)
         if not recipient:
             return
 
-        from models import export_sale_excel
+        from models import export_invoices_sales_excel
         from pdfbuilder import build_document
-        doc_repr = proforma.invoice.doc_repr
+        doc_repr = invoice.doc_repr
 
         temp_dir = os.path.abspath(os.path.join(os.curdir, 'temp'))
 
         path1 = os.path.join(temp_dir, doc_repr + '.pdf')
         path2 = os.path.join(temp_dir, 'series' + doc_repr + '.xlsx')
 
-        document = build_document(proforma, is_invoice=True)
+        document = build_document(invoice)
         document.output(path1)
 
 
         try:
-            export_sale_excel(proforma, path2)
+            export_invoices_sales_excel(invoice, path2)
             generated = True
 
         except AttributeError:
@@ -1126,13 +1086,12 @@ class MainGui(Ui_MainGui, QMainWindow):
         if generated:
             args.append(path2)
 
-        if proforma.credit_note_lines:
+        if invoice.proformas[0].credit_note_lines:
             args.insert(1, 'C')
         else:
             args.insert(1, 'B')
 
         completed_process = subprocess.run(args, shell=True)
-
 
     def get_sales_invoice(self):
         return self.get_invoice(
@@ -1143,7 +1102,7 @@ class MainGui(Ui_MainGui, QMainWindow):
     def get_invoice(self, model, view):
         rows = {index.row() for index in view.selectedIndexes()}
         if len(rows) == 1:
-            return model.invoices[rows.pop()]
+            return model[rows.pop()]
 
     # WAREHOUSE RECEPTION HANDLERS:
 
@@ -1232,7 +1191,7 @@ class MainGui(Ui_MainGui, QMainWindow):
             self.warehouse_expeditions_view,
             self.warehouse_expeditions_model
         )
-        from models import export_sale_excel
+        from models import export_proformas_sales_excel
         from utils import get_file_path
 
         save_file_path = get_file_path(self)
@@ -1241,7 +1200,7 @@ class MainGui(Ui_MainGui, QMainWindow):
             return
 
         try:
-            export_sale_excel(expedition.proforma, save_file_path)
+            export_proformas_sales_excel(expedition.proforma, save_file_path)
         except:
             QMessageBox.critical(self, 'Error', 'Error exporting data')
             raise
@@ -1423,7 +1382,7 @@ class MainGui(Ui_MainGui, QMainWindow):
         #     QMessageBox.information(self, 'Information', 'Process all sales first.')
         #     return
             # d = spec_change_form.SpecChange(self)
-        # d.exec_() 
+        # d.exec_()
 
         from change_form import ChangeForm
         d = ChangeForm(parent=self, hint='spec')

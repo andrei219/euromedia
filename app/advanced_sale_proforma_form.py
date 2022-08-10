@@ -345,17 +345,21 @@ class EditableForm(Form):
 
     def __init__(self, parent, view, proforma):
         reload_utils()
-        print(proforma)
         self.proforma = proforma
         super().__init__(parent, view)
         self.update_totals()
-
         self.proforma_to_form()
         self.warehouse.setEnabled(False)
         self.disable_if_cancelled()
 
-
-
+    def init_template(self):
+        # This method is empty but is part of the template pattern
+        # The behaviour in this specific class is to do nothing
+        # but if omitted, method in the superclass
+        # is executed causing the replacing of this already existing
+        # Proforma object with a new one populated with Nones
+        # and raising AttributeErrors
+        pass
 
 
     def save_template(self):

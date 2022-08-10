@@ -7,7 +7,7 @@ from ui_invoice_payment_form import Ui_Form
 
 from models import InvoicePaymentModel
 
-from utils import today_date
+from utils import today_date, parse_date
 
 
 
@@ -29,22 +29,25 @@ class Form(Ui_Form, QDialog):
             self.date.setText(today_date())
             self.rate.setReadOnly(all(p.eur_currency for p in invoice.proformas))
             self.amount.setText(str(sum(p.total_debt for p in invoice.proformas)))
-
             self.info.setFocus()
 
+        self.full.toggled.connect(self.full_toggled)
+        self.partial.toggled.connect(self.partial_toggled)
 
+    def partial_toggled(self, toggled):
+        self.full.setChecked(not toggled)
+
+    def full_toggled(self, toggled):
+        self.partial.setChecked(not toggled)
 
     def view_double_clicked(self, index):
         proforma = self.model[index.row()]
-
-        print(proforma.doc_repr)
-
         from payments_form import PaymentForm
-        PaymentForm(self, proforma, sale=isinstance(self.invoice, db.SaleInvoice)).exec_()
-
-
-    def reset_model(self):
-        pass
+        PaymentForm(
+            self,
+            proforma,
+            sale=isinstance(self.invoice, db.SaleInvoice)
+        ).exec_()
 
     def add_handler(self):
         try:
