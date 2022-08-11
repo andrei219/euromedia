@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>1159</width>
-    <height>875</height>
+    <height>874</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -863,24 +863,8 @@
   <widget class="QLabel" name="quantity">
    <property name="geometry">
     <rect>
-     <x>760</x>
-     <y>720</y>
-     <width>221</width>
-     <height>20</height>
-    </rect>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">font:bold; </string>
-   </property>
-   <property name="text">
-    <string/>
-   </property>
-  </widget>
-  <widget class="QLabel" name="selected_quantity">
-   <property name="geometry">
-    <rect>
-     <x>320</x>
-     <y>720</y>
+     <x>690</x>
+     <y>730</y>
      <width>221</width>
      <height>20</height>
     </rect>
@@ -910,21 +894,12 @@
     <rect>
      <x>206</x>
      <y>200</y>
-     <width>121</width>
+     <width>201</width>
      <height>22</height>
     </rect>
    </property>
-   <property name="minimumSize">
-    <size>
-     <width>121</width>
-     <height>22</height>
-    </size>
-   </property>
-   <property name="maximumSize">
-    <size>
-     <width>121</width>
-     <height>22</height>
-    </size>
+   <property name="readOnly">
+    <bool>true</bool>
    </property>
   </widget>
   <widget class="QPushButton" name="apply_cn">
@@ -1078,6 +1053,29 @@
      </widget>
     </item>
    </layout>
+  </widget>
+  <widget class="QLabel" name="label_7">
+   <property name="geometry">
+    <rect>
+     <x>450</x>
+     <y>202</y>
+     <width>61</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Tracking:</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="tracking">
+   <property name="geometry">
+    <rect>
+     <x>510</x>
+     <y>200</y>
+     <width>191</width>
+     <height>20</height>
+    </rect>
+   </property>
   </widget>
  </widget>
  <customwidgets>

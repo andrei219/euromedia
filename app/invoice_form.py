@@ -62,7 +62,7 @@ class Form(Ui_InvoiceForm, QWidget):
         self.eta.setText(self.invoice.eta.strftime('%d%m%Y'))
         self.note.setText(self.invoice.note)
         self.external.setText(self.invoice.external)
-
+        self.tracking.setText(self.invoice.external)
         self.agent.setCurrentText(p.agent.fiscal_name)
         self.warehouse.setCurrentText(p.warehouse.description)
         self.courier.setCurrentText(p.courier.description)
@@ -86,9 +86,11 @@ class Form(Ui_InvoiceForm, QWidget):
         self.invoice.type = int(self.type.currentText())
         self.invoice.number = int(self.number.text())
         self.invoice.note = self.note.toPlainText()
-        self.invoice.external_document = self.external.text()
 
         for p in self.invoice.proformas:
+
+            p.external = self.external.text()
+            p.tracking = self.tracking.text()
             p.partner_id = utils.partner_id_map[self.partner.text()]
             p.agent_id = utils.agent_id_map[self.agent.currentText()]
             p.warehouse_id = utils.warehouse_id_map[self.warehouse.currentText()]

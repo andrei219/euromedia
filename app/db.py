@@ -398,6 +398,7 @@ class PurchaseProforma(Base):
     reception = relationship('Reception', uselist=False, backref='proforma')
 
     tracking = Column(String(50))
+    external = Column(String(50))
 
     credit_amount = Column(Float(precision=32, decimal_return_scale=None), default=0.0)
     credit_days = Column(Integer, default=0, nullable=False)
@@ -608,7 +609,6 @@ class PurchaseInvoice(Base):
     number = Column(Integer, nullable=False)
     date = Column(Date, default=datetime.now)
     eta = Column(Date, default=datetime.now)
-    external_document = Column(String(50))
     note = Column(String(255))
 
     @property
@@ -729,7 +729,7 @@ class PurchaseInvoice(Base):
 
     @property
     def external(self):
-        return self.external_document or 'Unknown'
+        return 'externaal'
 
 
     @property
@@ -823,6 +823,7 @@ class SaleProforma(Base):
     credit_amount = Column(Float(precision=32, decimal_return_scale=None), default=0.0)
     credit_days = Column(Integer, default=0)
     tracking = Column(String(50))
+    external = Column(String(50))
 
     ready = Column(Boolean, nullable=False, default=False)
 
@@ -1015,7 +1016,6 @@ class SaleInvoice(Base):
     number = Column(Integer, nullable=False)
     date = Column(Date, default=datetime.now)
     eta = Column(Date, default=datetime.now)
-    external_document = Column(String(50))
     note = Column(String(255))
 
     parent_id = Column(Integer, ForeignKey('sale_invoices.id'))
@@ -1155,9 +1155,13 @@ class SaleInvoice(Base):
     def total(self):
         return str(self.total_debt) + self.currency
 
+
+
     @property
     def external(self):
-        return self.external_document or 'Unknown'
+       return 'externaaal'
+
+
 
     @property
     def inwh(self):

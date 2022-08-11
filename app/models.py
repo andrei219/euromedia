@@ -674,6 +674,7 @@ class PartnerContactModel(QtCore.QAbstractTableModel):
 
 
 class SaleInvoiceModel(BaseTable, QtCore.QAbstractTableModel):
+
     TYPENUM, DATE, ETA, PARTNER, AGENT, FINANCIAL, LOGISTIC, SENT, CANCELLED, OWING, \
     TOTAL, EXT, INWH, READY, PROFORMA = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14
 
@@ -695,10 +696,7 @@ class SaleInvoiceModel(BaseTable, QtCore.QAbstractTableModel):
         # TODO: search key, last, and filters
 
         if search_key:
-
-            print(f'search_key={search_key}')
             predicates = []
-
             predicates.extend(
                 [
                     db.Agent.fiscal_name.contains(search_key),
