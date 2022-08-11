@@ -106,9 +106,9 @@
    <widget class="QWidget" name="layoutWidget_2">
     <property name="geometry">
      <rect>
-      <x>300</x>
-      <y>130</y>
-      <width>200</width>
+      <x>50</x>
+      <y>150</y>
+      <width>246</width>
       <height>29</height>
      </rect>
     </property>
@@ -598,6 +598,29 @@
       <widget class="QComboBox" name="courier"/>
      </item>
     </layout>
+   </widget>
+   <widget class="QLineEdit" name="external">
+    <property name="geometry">
+     <rect>
+      <x>570</x>
+      <y>150</y>
+      <width>171</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>467</x>
+      <y>152</y>
+      <width>101</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>External Doc.:</string>
+    </property>
    </widget>
   </widget>
   <widget class="QWidget" name="layoutWidget">

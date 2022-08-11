@@ -202,6 +202,7 @@ class Form(Ui_PurchaseProformaForm, QWidget):
         proforma.incoterm = self.incoterms_combo_box.currentText()
         proforma.tracking = self.tracking_line_edit.text()
         proforma.note = self.note.toPlainText()[0:255]
+        proforma.external = self.external.text()
         return proforma
 
     def addHandler(self):
@@ -333,6 +334,7 @@ class EditableForm(Form):
         self.we_pay_they_ship_shipping_radio_button.setChecked(p.we_pay_they_ship)
         self.note.setText(p.note)
         self.partner_line_edit.setText(p.partner.fiscal_name)
+        self.external.setText(p.external)
 
     def saveHandler(self):
         if not self._validHeader():

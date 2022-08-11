@@ -77,6 +77,7 @@ class Form(Ui_Form, QWidget):
         self.they_pay_they_ship.setChecked(p.they_pay_they_ship)
         self.we_pay_we_ship.setChecked(p.we_pay_we_ship)
         self.note.setText(p.note)
+        self.external.setText(p.external)
 
         self.quantity.setText(f'Quantity: {self.model.quantity}')
         self.proforma_total.setText(str(self.model.total))
@@ -103,6 +104,7 @@ class Form(Ui_Form, QWidget):
         self.proforma.incoterm = self.incoterms.currentText()
         self.proforma.tracking = self.tracking.text()
         self.proforma.note = self.note.toPlainText()[0:255]
+        self.proforma.external = self.external.text()
 
 
 

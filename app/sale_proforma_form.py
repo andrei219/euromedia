@@ -363,7 +363,7 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.type.setCurrentText(str(p.type))
         self.number.setText(str(p.number))
         self.date.setText(str(p.date.strftime('%d%m%Y')))
-
+        self.external.setEnabled(p.external)
         self.partner.setText(p.partner.fiscal_name)
         self.agent.setCurrentText(p.agent.fiscal_name)
         self.warehouse.setCurrentText(p.warehouse.description)
@@ -386,7 +386,6 @@ class Form(Ui_SalesProformaForm, QWidget):
         price = self.lines_model.get_price(index.row())
 
         self.price.setValue(price)
-
 
 
 
@@ -607,7 +606,7 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.proforma.type = int(self.type.currentText())
         self.proforma.number = int(self.number.text())
         self.proforma.date = utils.parse_date(self.date.text())
-
+        self.proforma.external = self.external.text()
         self.proforma.warranty = self.warranty.value()
         self.proforma.they_pay_they_ship = self.they_pay_they_ship.isChecked()
         self.proforma.they_pay_we_ship = self.they_pay_we_ship.isChecked() 

@@ -281,7 +281,7 @@ class Ui_InvoiceForm(object):
         self.label_28.setObjectName("label_28")
         self.external = QtWidgets.QLineEdit(InvoiceForm)
         self.external.setGeometry(QtCore.QRect(206, 200, 201, 22))
-        self.external.setReadOnly(True)
+        self.external.setReadOnly(False)
         self.external.setObjectName("external")
         self.apply_cn = QtWidgets.QPushButton(InvoiceForm)
         self.apply_cn.setGeometry(QtCore.QRect(890, 200, 75, 23))

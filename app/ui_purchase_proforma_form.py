@@ -424,13 +424,19 @@ class Ui_PurchaseProformaForm(object):
         self.selected_quantity.setText("")
         self.selected_quantity.setObjectName("selected_quantity")
         self.tracking_line_edit = QtWidgets.QLineEdit(PurchaseProformaForm)
-        self.tracking_line_edit.setGeometry(QtCore.QRect(110, 197, 121, 22))
+        self.tracking_line_edit.setGeometry(QtCore.QRect(117, 197, 121, 22))
         self.tracking_line_edit.setMinimumSize(QtCore.QSize(121, 22))
         self.tracking_line_edit.setMaximumSize(QtCore.QSize(121, 22))
         self.tracking_line_edit.setObjectName("tracking_line_edit")
         self.label_29 = QtWidgets.QLabel(PurchaseProformaForm)
         self.label_29.setGeometry(QtCore.QRect(61, 197, 47, 16))
         self.label_29.setObjectName("label_29")
+        self.external = QtWidgets.QLineEdit(PurchaseProformaForm)
+        self.external.setGeometry(QtCore.QRect(480, 200, 191, 20))
+        self.external.setObjectName("external")
+        self.label_7 = QtWidgets.QLabel(PurchaseProformaForm)
+        self.label_7.setGeometry(QtCore.QRect(390, 200, 81, 20))
+        self.label_7.setObjectName("label_7")
 
         self.retranslateUi(PurchaseProformaForm)
         self.tax_combobox.setCurrentIndex(0)
@@ -526,5 +532,6 @@ class Ui_PurchaseProformaForm(object):
         self.label_31.setText(_translate("PurchaseProformaForm", "Tax:"))
         self.exit.setText(_translate("PurchaseProformaForm", "EXIT"))
         self.label_29.setText(_translate("PurchaseProformaForm", "Tracking: "))
+        self.label_7.setText(_translate("PurchaseProformaForm", "External Doc.:"))
 from clipview import ClipView
 import icons_rc

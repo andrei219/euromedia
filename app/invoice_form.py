@@ -62,7 +62,7 @@ class Form(Ui_InvoiceForm, QWidget):
         self.eta.setText(self.invoice.eta.strftime('%d%m%Y'))
         self.note.setText(self.invoice.note)
         self.external.setText(self.invoice.external)
-        self.tracking.setText(self.invoice.external)
+        self.tracking.setText(self.invoice.tracking)
         self.agent.setCurrentText(p.agent.fiscal_name)
         self.warehouse.setCurrentText(p.warehouse.description)
         self.courier.setCurrentText(p.courier.description)

@@ -729,8 +729,23 @@ class PurchaseInvoice(Base):
 
     @property
     def external(self):
-        return 'externaal'
+        values = set((p.external for p in self.proformas))
+        if len(values) == 1 and values != {None}:
+            return values.pop()
+        elif len(values) != 1:
+            return ', '.join(values)
+        elif values == {None}:
+            return ''
 
+    @property
+    def tracking(self):
+        values = set((p.tracking for p in self.proformas))
+        if len(values) == 1 and values != {None}:
+            return values.pop()
+        elif len(values) != 1:
+            return ', '.join(values)
+        elif values == {None}:
+            return ''
 
     @property
     def inwh(self):
@@ -752,6 +767,7 @@ class PurchaseInvoice(Base):
 
 
 class PurchasePayment(Base):
+
     __tablename__ = 'purchase_payments'
 
     id = Column(Integer, primary_key=True)
@@ -1155,12 +1171,25 @@ class SaleInvoice(Base):
     def total(self):
         return str(self.total_debt) + self.currency
 
-
-
     @property
     def external(self):
-       return 'externaaal'
+        values = set((p.external for p in self.proformas))
+        if len(values) == 1 and values != {None}:
+            return values.pop()
+        elif len(values) != 1:
+            return ', '.join(values)
+        elif values == {None}:
+            return ''
 
+    @property
+    def tracking(self):
+        values = set((p.tracking for p in self.proformas))
+        if len(values) == 1 and values != {None}:
+            return values.pop()
+        elif len(values) != 1:
+            return ', '.join(values)
+        elif values == {None}:
+            return ''
 
 
     @property

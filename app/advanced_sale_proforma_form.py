@@ -101,6 +101,7 @@ class Form(Ui_Form, QWidget):
         self.they_pay_they_ship.setChecked(p.they_pay_they_ship)
         self.we_pay_we_ship.setChecked(p.we_pay_we_ship)
         self.note.setText(p.note)
+        self.external.setText(p.external)
 
     def set_stock_mv(self):
         warehouse_id = utils.warehouse_id_map.get(
@@ -334,6 +335,7 @@ class Form(Ui_Form, QWidget):
         self.proforma.incoterm = self.incoterms.currentText()
         self.proforma.tracking = self.tracking.text()
         self.proforma.note = self.note.toPlainText()[0:255]
+        self.proforma.external = self.external.text()
 
     def clear_filters(self):
         self.description.clear()

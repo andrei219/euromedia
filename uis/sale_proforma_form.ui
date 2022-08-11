@@ -151,28 +151,6 @@
      </item>
     </layout>
    </widget>
-   <widget class="QWidget" name="layoutWidget_3">
-    <property name="geometry">
-     <rect>
-      <x>429</x>
-      <y>160</y>
-      <width>136</width>
-      <height>24</height>
-     </rect>
-    </property>
-    <layout class="QHBoxLayout" name="horizontalLayout_7">
-     <item>
-      <widget class="QLabel" name="label_17">
-       <property name="text">
-        <string>External Nº:</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="external"/>
-     </item>
-    </layout>
-   </widget>
    <widget class="QWidget" name="layoutWidget_4">
     <property name="geometry">
      <rect>
@@ -768,6 +746,29 @@
     </property>
     <property name="singleStep">
      <double>0.000000000000000</double>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="external">
+    <property name="geometry">
+     <rect>
+      <x>505</x>
+      <y>161</y>
+      <width>221</width>
+      <height>22</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_17">
+    <property name="geometry">
+     <rect>
+      <x>388</x>
+      <y>161</y>
+      <width>111</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>External Doc.:</string>
     </property>
    </widget>
   </widget>
