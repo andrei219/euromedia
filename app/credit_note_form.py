@@ -12,11 +12,6 @@ import utils
 from db import session
 
 
-def mouse_press_event(self, event):
-    if event.button() == Qt.LeftButton:
-        print('eee')
-
-
 class Form(Ui_Form, QWidget):
 
     def __init__(self, parent, proforma, is_invoice=False):
@@ -31,12 +26,8 @@ class Form(Ui_Form, QWidget):
         self.save.clicked.connect(self.save_handler)
         self.set_form()
 
-
     def set_handlers(self):
-
         self.save.clicked.connect(self.save_handler)
-
-
 
     def closeEvent(self, a0: QtGui.QCloseEvent) -> None:
         session.rollback()
@@ -76,17 +67,17 @@ class Form(Ui_Form, QWidget):
             self.number.setText(str(self.proforma.number))
             self.date.setText(self.proforma.date.strftime('%d%m%Y'))
 
-        self.partner.setText(p.partner.fiscal_name)
+        self.partner.setText(p.partner_name)
         self.agent.setCurrentText(p.agent.fiscal_name)
         self.courier.setCurrentText(p.courier.description)
         self.incoterms.setCurrentText(p.incoterm)
         self.eur.setChecked(p.eur_currency)
-        self.external.setText(p.external)
         self.tracking.setText(p.tracking)
         self.they_pay_we_ship.setChecked(p.they_pay_we_ship)
         self.they_pay_they_ship.setChecked(p.they_pay_they_ship)
         self.we_pay_we_ship.setChecked(p.we_pay_we_ship)
         self.note.setText(p.note)
+        self.external.setText(p.external)
 
         self.quantity.setText(f'Quantity: {self.model.quantity}')
         self.proforma_total.setText(str(self.model.total))
@@ -111,9 +102,9 @@ class Form(Ui_Form, QWidget):
         self.proforma.courier_id = utils.courier_id_map[self.courier.currentText()]
         self.proforma.eur_currency = self.eur.isChecked()
         self.proforma.incoterm = self.incoterms.currentText()
-        self.proforma.external = self.external.text()
         self.proforma.tracking = self.tracking.text()
         self.proforma.note = self.note.toPlainText()[0:255]
+        self.proforma.external = self.external.text()
 
 
 

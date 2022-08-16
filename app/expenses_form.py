@@ -80,17 +80,9 @@ class ExpenseForm(Ui_ExpenseForm, QDialog):
         self.info_lineedit.clear()
 
     def populate(self):
-        try:
-            type = self.proforma.invoice.type 
-            number = self.proforma.invoice.number
-        except AttributeError:
-            type = self.proforma.type
-            number = self.proforma.number
-        
-        doc_number = str(type) + '-' + str(number).zfill(6)
-        self.document_line_edit.setText(doc_number)
+        self.document_line_edit.setText(self.proforma.doc_repr)
         self.document_date_line_edit.setText(self.proforma.date.strftime('%d/%m/%Y'))
-        self.partner_line_edit.setText(self.proforma.partner.fiscal_name)
+        self.partner_line_edit.setText(self.proforma.partner_name)
         self.updateSpent() 
 
     def closeEvent(self, event):

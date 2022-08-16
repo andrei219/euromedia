@@ -38,13 +38,12 @@ def reload_utils():
 
 class Form(Ui_PurchaseProformaForm, QWidget):
 
-    def __init__(self, parent, view):
+    def __init__(self, view):
         reload_utils()
         super().__init__()
         self.setupUi(self)
-        self.parent = parent
         self.model = view.model()
-        self.view = view
+
         self.lines_model = models.PurchaseProformaLineModel(lines=[], form=self)
         self.lines_view.setModel(self.lines_model)
 
@@ -54,14 +53,12 @@ class Form(Ui_PurchaseProformaForm, QWidget):
         self.title = 'Line - Error'
         self.lines_view.setSelectionBehavior(QTableView.SelectRows)
         self.setUp()
-        self.is_invoice = False
 
     def setUp(self):
 
         self.partner_line_edit.setFocus()
-
         self.type_combo_box.setCurrentText('1')
-        self.number_line_edit.setText(str(self.model.nextNumberOfType(1)).zfill(6))
+        self.number_line_edit.setText(str(models.purchase_proforma_next_number(1)).zfill(6))
         self.date_line_edit.setText(date.today().strftime('%d%m%Y'))
 
         self.setCombos()
@@ -75,7 +72,7 @@ class Form(Ui_PurchaseProformaForm, QWidget):
                 self.subtotal_spinbox.value() * (1 + int(self.tax_combobox.currentText()) / 100))
 
         def typeChanged(type):
-            next_num = self.model.nextNumberOfType(int(type))
+            next_num = models.purchase_proforma_next_number(int(type))
             self.number_line_edit.setText(str(next_num).zfill(6))
 
         self.price_spinbox.valueChanged.connect(priceOrQuantityChanged)
@@ -185,17 +182,10 @@ class Form(Ui_PurchaseProformaForm, QWidget):
         else:
             proforma = input_proforma
 
-        if self.is_invoice:
-
-            proforma.invoice.type = int(self.type_combo_box.currentText())
-            proforma.invoice.number = int(self.number_line_edit.text())
-            proforma.invoice.date = self._dateFromString(self.date_line_edit.text())
-            proforma.invoice.eta = self._dateFromString(self.eta_line_edit.text())
-        else:
-            proforma.date = self._dateFromString(self.date_line_edit.text())
-            proforma.eta = self._dateFromString(self.date_line_edit.text())
-            proforma.type = int(self.type_combo_box.currentText())
-            proforma.number = int(self.number_line_edit.text())
+        proforma.date = self._dateFromString(self.date_line_edit.text())
+        proforma.eta = self._dateFromString(self.date_line_edit.text())
+        proforma.type = int(self.type_combo_box.currentText())
+        proforma.number = int(self.number_line_edit.text())
 
         proforma.warranty = self.warranty_spinbox.value()
         proforma.eta = self._dateFromString(self.eta_line_edit.text())
@@ -210,9 +200,9 @@ class Form(Ui_PurchaseProformaForm, QWidget):
         proforma.credit_amount = self.with_credit_spinbox.value()
         proforma.credit_days = self.days_credit_spinbox.value()
         proforma.incoterm = self.incoterms_combo_box.currentText()
-        proforma.external = self.external_line_edit.text()
         proforma.tracking = self.tracking_line_edit.text()
         proforma.note = self.note.toPlainText()[0:255]
+        proforma.external = self.external.text()
         return proforma
 
     def addHandler(self):
@@ -262,12 +252,7 @@ class Form(Ui_PurchaseProformaForm, QWidget):
             db.session.rollback()
         else:
             QMessageBox.information(self, 'Information', 'Purchase Saved')
-            self.adjust_view()
             self.close()
-
-    def adjust_view(self):
-        self.view.resizeColumnToContents(3)
-        self.view.resizeColumnToContents(4)
 
     def line_selection_changed(self):
         rows = {index.row() for index in self.lines_view.selectedIndexes()}
@@ -281,26 +266,17 @@ class Form(Ui_PurchaseProformaForm, QWidget):
 
 class EditableForm(Form):
 
-    def __init__(self, parent, view, proforma: db.PurchaseProforma, is_invoice=False):
+    def __init__(self, proforma: db.PurchaseProforma):
         reload_utils()
         super(QWidget, Form).__init__(self)
         self.setupUi(self)
-        self.parent = parent
         self.proforma = proforma
 
         self.old_type = proforma.type
         self.old_number = proforma.number
 
-        self.view = view
         self.lines_view.setSelectionBehavior(QTableView.SelectRows)
         self.title = 'Line - Error'
-        self.model = view.model()
-        self.is_invoice = is_invoice
-        if is_invoice:
-            self.setWindowTitle('Proforma / Invoice Edit')
-        else:
-            self.setWindowTitle('Proforma Edit ')
-
         self.disable_things()
 
         self.lines_model = models.PurchaseProformaLineModel(
@@ -337,17 +313,10 @@ class EditableForm(Form):
     def proforma_to_form(self):
         p = self.proforma
 
-        if self.is_invoice:
-
-            self.type_combo_box.setCurrentText(str(p.invoice.type))
-            self.number_line_edit.setText((str(p.invoice.number)))
-            self.date_line_edit.setText(str(p.invoice.date.strftime('%d%m%Y')))
-            self.eta_line_edit.setText(str(p.invoice.eta.strftime('%d%m%Y')))
-        else:
-            self.type_combo_box.setCurrentText(str(p.type))
-            self.number_line_edit.setText(str(p.number))
-            self.date_line_edit.setText(str(p.date.strftime('%d%m%Y')))
-            self.eta_line_edit.setText(str(p.eta.strftime('%d%m%Y')))
+        self.type_combo_box.setCurrentText(str(p.type))
+        self.number_line_edit.setText(str(p.number))
+        self.date_line_edit.setText(str(p.date.strftime('%d%m%Y')))
+        self.eta_line_edit.setText(str(p.eta.strftime('%d%m%Y')))
 
         self.agent_combobox.setCurrentText(p.agent.fiscal_name)
         self.warehouse_combobox.setCurrentText(p.warehouse.description)
@@ -359,14 +328,13 @@ class EditableForm(Form):
         self.usd_radio_button.setChecked(not p.eur_currency)
 
         self.with_credit_spinbox.setValue(p.credit_amount)
-        self.external_line_edit.setText(p.external)
         self.tracking_line_edit.setText(p.tracking)
         self.they_pay_they_ship_shipping_radio_button.setChecked(p.they_pay_they_ship)
         self.we_pay_we_ship_shipping_radio_button.setChecked(p.we_pay_we_ship)
         self.we_pay_they_ship_shipping_radio_button.setChecked(p.we_pay_they_ship)
         self.note.setText(p.note)
         self.partner_line_edit.setText(p.partner.fiscal_name)
-
+        self.external.setText(p.external)
 
     def saveHandler(self):
         if not self._validHeader():
@@ -374,7 +342,7 @@ class EditableForm(Form):
         self._formToProforma(input_proforma=self.proforma)
         try:
             db.session.commit()
-            wh_updated = self.model.updateWarehouse(self.proforma)
+            wh_updated = models.update_purchase_warehouse(self.proforma)
         except IntegrityError:
             db.session.rollback()
             QMessageBox.critical(self, 'Error', 'Document with that type/number already exists')

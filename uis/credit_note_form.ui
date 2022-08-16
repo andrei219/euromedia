@@ -93,8 +93,8 @@
     <rect>
      <x>110</x>
      <y>10</y>
-     <width>1131</width>
-     <height>221</height>
+     <width>1101</width>
+     <height>191</height>
     </rect>
    </property>
    <property name="title">
@@ -106,9 +106,9 @@
    <widget class="QWidget" name="layoutWidget_2">
     <property name="geometry">
      <rect>
-      <x>300</x>
-      <y>130</y>
-      <width>200</width>
+      <x>50</x>
+      <y>150</y>
+      <width>246</width>
       <height>29</height>
      </rect>
     </property>
@@ -122,28 +122,6 @@
      </item>
      <item>
       <widget class="QLineEdit" name="tracking"/>
-     </item>
-    </layout>
-   </widget>
-   <widget class="QWidget" name="layoutWidget_3">
-    <property name="geometry">
-     <rect>
-      <x>560</x>
-      <y>130</y>
-      <width>215</width>
-      <height>29</height>
-     </rect>
-    </property>
-    <layout class="QHBoxLayout" name="horizontalLayout_7">
-     <item>
-      <widget class="QLabel" name="label_17">
-       <property name="text">
-        <string>External Nº:</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="external"/>
      </item>
     </layout>
    </widget>
@@ -621,6 +599,29 @@
      </item>
     </layout>
    </widget>
+   <widget class="QLineEdit" name="external">
+    <property name="geometry">
+     <rect>
+      <x>570</x>
+      <y>150</y>
+      <width>171</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>467</x>
+      <y>152</y>
+      <width>101</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>External Doc.:</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
@@ -780,7 +781,6 @@
   <tabstop>eur</tabstop>
   <tabstop>usd</tabstop>
   <tabstop>tracking</tabstop>
-  <tabstop>external</tabstop>
   <tabstop>view</tabstop>
   <tabstop>proforma_total</tabstop>
   <tabstop>proforma_tax</tabstop>

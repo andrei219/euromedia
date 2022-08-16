@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>Edit Proforma</string>
   </property>
   <widget class="QGroupBox" name="header">
    <property name="geometry">
@@ -47,28 +47,6 @@
      </item>
      <item>
       <widget class="QLineEdit" name="tracking"/>
-     </item>
-    </layout>
-   </widget>
-   <widget class="QWidget" name="layoutWidget_3">
-    <property name="geometry">
-     <rect>
-      <x>429</x>
-      <y>160</y>
-      <width>215</width>
-      <height>29</height>
-     </rect>
-    </property>
-    <layout class="QHBoxLayout" name="horizontalLayout_7">
-     <item>
-      <widget class="QLabel" name="label_17">
-       <property name="text">
-        <string>External Nº:</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="external"/>
      </item>
     </layout>
    </widget>
@@ -704,20 +682,27 @@
      </item>
     </layout>
    </widget>
-   <widget class="QPushButton" name="applycn">
-    <property name="enabled">
-     <bool>false</bool>
-    </property>
+   <widget class="QLineEdit" name="external">
     <property name="geometry">
      <rect>
-      <x>980</x>
-      <y>140</y>
-      <width>101</width>
-      <height>41</height>
+      <x>530</x>
+      <y>172</y>
+      <width>181</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_4">
+    <property name="geometry">
+     <rect>
+      <x>410</x>
+      <y>173</y>
+      <width>91</width>
+      <height>20</height>
      </rect>
     </property>
     <property name="text">
-     <string>Apply C.N.</string>
+     <string>External Doc.:</string>
     </property>
    </widget>
   </widget>

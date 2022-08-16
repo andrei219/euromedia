@@ -1,3 +1,4 @@
+
 # Python standad library
 import os
 import re
@@ -316,19 +317,22 @@ def getPassword(parent):
         return text
 
 
-def getTracking(parent, proforma):
-    type_num = str(proforma.type) + '-' + str(proforma.number).zfill(6)
+def getTracking(parent, document):
     text, ok = QInputDialog.getText(
         parent,
-        'Tracking', f'Enter tracking number for {type_num}:'
+        'Tracking', f'Enter tracking number for {document.doc_repr}:'
     )
     return text, ok
 
 
-def getNote(parent, proforma):
-    type_num = str(proforma.type) + '-' + str(proforma.number).zfill(6)
-    text, ok = QInputDialog.getText(parent, 'Warehouse', 'Enter a warning for the warehouse order')
+def getNote(parent, obj):
+    text, ok = QInputDialog.getText(
+        parent,
+        'Warehouse',
+        f'Enter a warning for the warehouse order of {obj.doc_repr}'
+    )
     return ok, text
+
 
 
 def get_directory(parent):
@@ -468,15 +472,19 @@ def get_last_date(days):
     return datetime.today() - timedelta(days)
 
 
-def get_email_recipient(proforma):
+def get_email_recipient(obj):
+    if isinstance(obj, (db.SaleInvoice, db.PurchaseInvoice)):
+        contact_iter = iter(obj.proformas[0].partner.contacts)
+    else:
+        contact_iter = iter(obj.partner.contacts)
+
     PATTERN = r'([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+'
     recipient = None
-    for contact in proforma.partner.contacts:
+    for contact in contact_iter:
         if re.fullmatch(PATTERN, contact.email):
             recipient = contact.email
             break
     return recipient
-
 
 def match_doc_repr(doc_repr):
     DOC_PATTERN = '^[1-6]\-0*\d+\Z'

@@ -9,12 +9,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1308</width>
+    <width>1304</width>
     <height>878</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Purchase Proforma / Invoice</string>
+   <string>Proforma Form</string>
   </property>
   <property name="windowIcon">
    <iconset resource="../app/icons.qrc">
@@ -47,7 +47,7 @@
     <rect>
      <x>50</x>
      <y>40</y>
-     <width>1081</width>
+     <width>1181</width>
      <height>20</height>
     </rect>
    </property>
@@ -60,15 +60,18 @@
     <rect>
      <x>50</x>
      <y>380</y>
-     <width>1071</width>
+     <width>1201</width>
      <height>331</height>
     </rect>
+   </property>
+   <property name="selectionBehavior">
+    <enum>QAbstractItemView::SelectRows</enum>
    </property>
   </widget>
   <widget class="QToolButton" name="deleteButton">
    <property name="geometry">
     <rect>
-     <x>1060</x>
+     <x>1170</x>
      <y>710</y>
      <width>81</width>
      <height>31</height>
@@ -94,8 +97,8 @@
   <widget class="QToolButton" name="save_button">
    <property name="geometry">
     <rect>
-     <x>1110</x>
-     <y>780</y>
+     <x>1090</x>
+     <y>790</y>
      <width>81</width>
      <height>61</height>
     </rect>
@@ -123,65 +126,7 @@
     <bool>true</bool>
    </property>
   </widget>
-  <widget class="QWidget" name="layoutWidget">
-   <property name="geometry">
-    <rect>
-     <x>60</x>
-     <y>196</y>
-     <width>453</width>
-     <height>24</height>
-    </rect>
-   </property>
-   <layout class="QGridLayout" name="gridLayout_5">
-    <item row="0" column="0">
-     <widget class="QLabel" name="label_28">
-      <property name="text">
-       <string>External Document Nº:</string>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="1">
-     <widget class="QLineEdit" name="external_line_edit">
-      <property name="minimumSize">
-       <size>
-        <width>121</width>
-        <height>22</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>121</width>
-        <height>22</height>
-       </size>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="2">
-     <widget class="QLabel" name="label_29">
-      <property name="text">
-       <string>Tracking: </string>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="3">
-     <widget class="QLineEdit" name="tracking_line_edit">
-      <property name="minimumSize">
-       <size>
-        <width>121</width>
-        <height>22</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>121</width>
-        <height>22</height>
-       </size>
-      </property>
-     </widget>
-    </item>
-   </layout>
-  </widget>
-  <widget class="QGroupBox" name="groupBox">
+  <widget class="QGroupBox" name="create_line_group">
    <property name="geometry">
     <rect>
      <x>50</x>
@@ -597,8 +542,8 @@
   <widget class="QTextEdit" name="note">
    <property name="geometry">
     <rect>
-     <x>201</x>
-     <y>762</y>
+     <x>60</x>
+     <y>760</y>
      <width>331</width>
      <height>87</height>
     </rect>
@@ -1419,11 +1364,11 @@
     <bool>true</bool>
    </property>
   </widget>
-  <widget class="QToolButton" name="save_button_2">
+  <widget class="QToolButton" name="exit">
    <property name="geometry">
     <rect>
-     <x>1210</x>
-     <y>780</y>
+     <x>1190</x>
+     <y>790</y>
      <width>71</width>
      <height>61</height>
     </rect>
@@ -1483,6 +1428,64 @@
     <string/>
    </property>
   </widget>
+  <widget class="QLineEdit" name="tracking_line_edit">
+   <property name="geometry">
+    <rect>
+     <x>117</x>
+     <y>197</y>
+     <width>121</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>121</width>
+     <height>22</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>121</width>
+     <height>22</height>
+    </size>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_29">
+   <property name="geometry">
+    <rect>
+     <x>61</x>
+     <y>197</y>
+     <width>47</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Tracking: </string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="external">
+   <property name="geometry">
+    <rect>
+     <x>480</x>
+     <y>200</y>
+     <width>191</width>
+     <height>20</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_7">
+   <property name="geometry">
+    <rect>
+     <x>390</x>
+     <y>200</y>
+     <width>81</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>External Doc.:</string>
+   </property>
+  </widget>
  </widget>
  <customwidgets>
   <customwidget>
@@ -1514,7 +1517,6 @@
   <tabstop>with_credit_spinbox</tabstop>
   <tabstop>days_credit_spinbox</tabstop>
   <tabstop>incoterms_combo_box</tabstop>
-  <tabstop>external_line_edit</tabstop>
   <tabstop>tracking_line_edit</tabstop>
   <tabstop>subtotal_proforma_line_edit</tabstop>
   <tabstop>total_proforma_line_edit</tabstop>
@@ -1530,7 +1532,7 @@
  </resources>
  <connections>
   <connection>
-   <sender>save_button_2</sender>
+   <sender>exit</sender>
    <signal>clicked()</signal>
    <receiver>PurchaseProformaForm</receiver>
    <slot>close()</slot>

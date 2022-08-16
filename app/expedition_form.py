@@ -5,12 +5,6 @@ from PyQt5.QtCore import QItemSelectionModel
 
 from ui_expedition_form import Ui_ExpeditionForm
 
-from models import (
-    SerieModel, 
-    sale_total_quantity, 
-    sale_total_processed
-)
-
 import utils 
 from exceptions import LineCompletedError
 from exceptions import SeriePresentError
@@ -18,6 +12,7 @@ from exceptions import NotExistingStockInMask
 from sqlalchemy.exc import IntegrityError
 from exceptions import NotExistingStockOutput
 
+from models import SerieModel
 
 class Form(Ui_ExpeditionForm, QDialog):
 
@@ -181,10 +176,10 @@ class Form(Ui_ExpeditionForm, QDialog):
     def populateHeader(self):
         self.expedition_number.setText(str(self.expedition.id).zfill(6))
         self.date.setText(str(self.expedition.created_on.strftime('%d/%m/%Y')))
-        self.partner.setText(self.expedition.proforma.partner.fiscal_name)
+        self.partner.setText(self.expedition.proforma.partner_name)
         self.agent.setText(self.expedition.proforma.agent.fiscal_name)
         self.warehouse.setText(self.expedition.proforma.warehouse.description)
-        self.expedition_total.setText(str(sale_total_quantity(self.expedition)))
+        self.expedition_total.setText(str(self.expedition.total_quantity))
 
     def populateBody(self):
         self.description.setText(str((self.expedition.lines[self.current_index].item.clean_repr)))
@@ -195,7 +190,7 @@ class Form(Ui_ExpeditionForm, QDialog):
 
         self.processed_line.setText(str(self.processed_in_line))
         self.number.setText(str(self.current_index + 1) + '/' + str(self.total_lines))
-        self.expedition_total_processed.setText(str(sale_total_processed(self.expedition))) 
+        self.expedition_total_processed.setText(str(self.expedition.total_processed))
 
 
         has_serie = utils.has_serie(self.expedition.lines[self.current_index])

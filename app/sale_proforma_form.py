@@ -8,12 +8,23 @@ import db
 import decorators
 import models
 import utils
-from db import (Agent, Partner, SaleProforma, SaleProformaLine,
-                func)
-from models import ActualLinesFromMixedModel, SaleProformaLineModel, StockModel
+from db import (
+    Agent,
+    Partner,
+    SaleProforma,
+    SaleProformaLine,
+    func
+)
+from models import (
+    ActualLinesFromMixedModel,
+    SaleProformaLineModel,
+    StockModel,
+    sale_proforma_next_number
+)
 from ui_sale_proforma_form import Ui_SalesProformaForm
 
 from sqlalchemy.exc import IntegrityError
+
 
 class StockBase:
 
@@ -25,9 +36,9 @@ class StockBase:
 
     def update(self): 
         
-        description  = self.filters.description
-        condition    = self.filters.condition
-        spec         = self.filters.spec
+        description = self.filters.description
+        condition = self.filters.condition
+        spec = self.filters.spec
 
         self.stocks = StockModel.stocks(
             self.warehouse_id, 
@@ -140,11 +151,10 @@ class Form(Ui_SalesProformaForm, QWidget):
         global utils
         utils = reload(utils)
         super().__init__()
-        self.is_invoice = False
         self.setupUi(self)
         self.setCombos()
         
-        self.model = view.model() 
+        self.model = view.model()
         self.init_template() 
         self.parent = parent
         self.lines_model = SaleProformaLineModel(self.proforma, self)
@@ -175,7 +185,6 @@ class Form(Ui_SalesProformaForm, QWidget):
     def adjust_view(self):
         self.view.resizeColumnToContents(2)
         self.view.resizeColumnToContents(3)
-        
 
     def init_template(self):
         self.proforma = db.SaleProforma() 
@@ -187,7 +196,7 @@ class Form(Ui_SalesProformaForm, QWidget):
  
         self.date.setText(date.today().strftime('%d%m%Y'))
         self.type.setCurrentText('1')
-        self.number.setText(str(self.model.nextNumberOfType(1)).zfill(6))
+        self.number.setText(str(sale_proforma_next_number(1)).zfill(6))
 
         self.warehouse.currentTextChanged.connect(self.warehouse_changed)
         # Solo interesa en formulario nuevo
@@ -308,7 +317,7 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.search.setFocus(True)
 
     def typeChanged(self, type):
-        next_num = self.model.nextNumberOfType(int(type))
+        next_num = sale_proforma_next_number(int(type))
         self.number.setText(str(next_num).zfill(6))
 
     def setCombos(self):
@@ -357,15 +366,10 @@ class Form(Ui_SalesProformaForm, QWidget):
     def proforma_to_form(self):
         p = self.proforma
 
-        if self.is_invoice:
-            self.type.setCurrentText(str(p.invoice.type))
-            self.number.setText(str(p.invoice.number))
-            self.date.setText(str(p.invoice.date.strftime('%d%m%Y')))
-        else:
-            self.type.setCurrentText(str(p.type))
-            self.number.setText(str(p.number))
-            self.date.setText(str(p.date.strftime('%d%m%Y')))
-
+        self.type.setCurrentText(str(p.type))
+        self.number.setText(str(p.number))
+        self.date.setText(str(p.date.strftime('%d%m%Y')))
+        self.external.setEnabled(p.external)
         self.partner.setText(p.partner.fiscal_name)
         self.agent.setCurrentText(p.agent.fiscal_name)
         self.warehouse.setCurrentText(p.warehouse.description)
@@ -375,7 +379,6 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.days.setValue(p.credit_days)
         self.eur.setChecked(p.eur_currency)
         self.credit.setValue(p.credit_amount)
-        self.external.setText(p.external)
         self.tracking.setText(p.tracking)
         self.they_pay_we_ship.setChecked(p.they_pay_we_ship)
         self.they_pay_they_ship.setChecked(p.they_pay_they_ship)
@@ -389,8 +392,6 @@ class Form(Ui_SalesProformaForm, QWidget):
         price = self.lines_model.get_price(index.row())
 
         self.price.setValue(price)
-
-
 
 
     def set_selected_stock_mv(self):
@@ -567,7 +568,7 @@ class Form(Ui_SalesProformaForm, QWidget):
         try:
             self.save_template()
             db.session.commit()
-            # self.parent.set_mv('proformas_sales_')
+
         except IntegrityError:
             db.session.rollback()
             QMessageBox.critical(self, 'Error', 'Document with that type and number already exists')
@@ -582,9 +583,8 @@ class Form(Ui_SalesProformaForm, QWidget):
 
     def closeEvent(self, event):
         db.session.rollback()     
-        # self.parent.set_mv('proformas_sales_')
 
-    def update_totals(self, note=0.0):
+    def update_totals(self):
         self.total.setText(str(self.proforma.total_debt))
         self.ptax.setText(str(self.proforma.tax))
         self.cn.setText(str(self.proforma.cn_total))
@@ -607,15 +607,11 @@ class Form(Ui_SalesProformaForm, QWidget):
         return True
 
     def _form_to_proforma(self):
-        if self.is_invoice:
-            self.proforma.invoice.type = int(self.type.currentText())
-            self.proforma.invoice.number = int(self.number.text())
-            self.proforma.invoice.date = utils.parse_date(self.date.text())
-        else:
-            self.proforma.type = int(self.type.currentText())
-            self.proforma.number = int(self.number.text())
-            self.proforma.date = utils.parse_date(self.date.text())
 
+        self.proforma.type = int(self.type.currentText())
+        self.proforma.number = int(self.number.text())
+        self.proforma.date = utils.parse_date(self.date.text())
+        self.proforma.external = self.external.text()
         self.proforma.warranty = self.warranty.value()
         self.proforma.they_pay_they_ship = self.they_pay_they_ship.isChecked()
         self.proforma.they_pay_we_ship = self.they_pay_we_ship.isChecked() 
@@ -628,8 +624,7 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.proforma.credit_amount = self.credit.value()
         self.proforma.credit_days = self.days.value() 
         self.proforma.incoterm = self.incoterms.currentText() 
-        self.proforma.external = self.external.text() 
-        self.proforma.tracking = self.tracking.text() 
+        self.proforma.tracking = self.tracking.text()
         self.proforma.note = self.note.toPlainText()[0:255]
 
     def clear_filters(self):
@@ -638,43 +633,26 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.condition.clear()
 
 
-
 class EditableForm(Form):
     
-    def __init__(self, parent, view, proforma, is_invoice=False):
+    def __init__(self, parent, view, proforma):
         self.proforma = proforma
-        self.old_type = proforma.type
-        self.old_number = proforma.number
 
         super().__init__(parent, view)
-        self.is_invoice = is_invoice
         self.update_totals()
-
-        if self.is_invoice:
-            self.setWindowTitle('Proforma / Invoice Edit')
-            self.applycn.setEnabled(True)
-        else:
-            self.setWindowTitle('Proforma Edit')
-
         self.disable_warehouse()
         self.proforma_to_form()
 
     def init_template(self): 
-        self.applycn.clicked.connect(self.applycn_handler)
         self.filters = Filters(self.proforma.warehouse_id, self)
 
-    def applycn_handler(self):
-        from apply_credit_note_form import Form
-        Form(self, self.proforma).exec_()
-
     def save_template(self):
-        self.model.updateWarehouse(self.proforma)
+        self.model.update_purchase_warehouse(self.proforma)
 
 
     def disable_warehouse(self):
         self.warehouse.setEnabled(False)
 
 
-def get_form(parent, view, proforma=None, is_invoice=False):
-    return EditableForm(parent, view, proforma, is_invoice=is_invoice) \
-        if proforma else Form(parent, view)
+def get_form(parent, view, proforma=None):
+    return EditableForm(parent, view, proforma ) if proforma else Form(parent, view)

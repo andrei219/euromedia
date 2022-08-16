@@ -30,15 +30,10 @@ class PaymentForm(Ui_PaymentsForm, QDialog):
 
         self.date_line_edit.setText(today_date())
 
-        self.testgroup.toggled.connect(self.lineEdit.setEnabled)
-
-
         # enable rate:
 
         self.rate.setEnabled(not self.proforma.eur_currency)
         self.rate.setText('1.0')
-
-
 
     def addHandler(self):
         try:
@@ -108,17 +103,8 @@ class PaymentForm(Ui_PaymentsForm, QDialog):
             super().keyPressEvent(event) 
 
     def populate(self):
-        try:
-            type = str(self.proforma.invoice.type) 
-            number = str(self.proforma.invoice.number).zfill(6)
-        except AttributeError:
-            type = str(self.proforma.type)
-            number = str(self.proforma.number).zfill(6)
-
-        document_number = type + '-' + number
-        self.document_line_edit.setText(document_number)
-        
-        self.partner_line_edit.setText(self.proforma.partner.fiscal_name)
+        self.document_line_edit.setText(self.proforma.doc_repr)
+        self.partner_line_edit.setText(self.proforma.partner_name)
         self.document_date_line_edit.setText(self.proforma.date.strftime('%d/%m/%Y'))
 
         self.total_linedit.setText(str(self.proforma.total_debt))

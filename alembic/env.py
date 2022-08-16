@@ -5,9 +5,6 @@ from sqlalchemy import pool
 
 from alembic import context
 
-from app.db import  Base
-
-
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
@@ -21,8 +18,9 @@ fileConfig(config.config_file_name)
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 
+from app.db import Base
 
-target_metadata = Base.metadata
+target_metadata = Base.metadata 
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
@@ -48,7 +46,6 @@ def run_migrations_offline():
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
-        compare_type=True,
     )
 
     with context.begin_transaction():
@@ -70,8 +67,7 @@ def run_migrations_online():
 
     with connectable.connect() as connection:
         context.configure(
-            connection=connection, target_metadata=target_metadata,
-            compare_type=True
+            connection=connection, target_metadata=target_metadata
         )
 
         with context.begin_transaction():

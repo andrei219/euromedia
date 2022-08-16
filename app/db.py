@@ -26,7 +26,7 @@ from datetime import timedelta
 from sqlalchemy.sql.operators import exists
 
 engine = create_engine('mysql+mysqlconnector://andrei:hnq#4506@192.168.1.78:3306/appdb', echo=False)
-dev_engine = create_engine('mysql+mysqlconnector://root:hnq#4506@localhost:3306/appdb', echo=False)
+dev_engine = create_engine('mysql+mysqlconnector://root:hnq#4506@localhost:3306/prodb', echo=False)
 
 # from sale types:
 
@@ -54,6 +54,7 @@ Base = declarative_base()
 
 
 class Warehouse(Base):
+
     __tablename__ = 'warehouses'
 
     id = Column(Integer, primary_key=True)
@@ -71,6 +72,7 @@ class Warehouse(Base):
 
 
 class Courier(Base):
+
     __tablename__ = 'couriers'
 
     id = Column(Integer, primary_key=True)
@@ -82,6 +84,7 @@ class Courier(Base):
 
 
 class Spec(Base):
+
     __tablename__ = 'specs'
 
     id = Column(Integer, primary_key=True)
@@ -103,6 +106,7 @@ class Spec(Base):
 
 
 class Condition(Base):
+
     __tablename__ = 'conditions'
 
     id = Column(Integer, primary_key=True)
@@ -120,6 +124,7 @@ class Condition(Base):
 
 
 class Item(Base):
+
     __tablename__ = 'items'
 
     id = Column(Integer, primary_key=True)
@@ -385,7 +390,7 @@ class PurchaseProforma(Base):
     agent_id = Column(Integer, ForeignKey('agents.id'))
     invoice_id = Column(Integer, ForeignKey('purchase_invoices.id'))
 
-    invoice = relationship('PurchaseInvoice', uselist=False)
+    invoice = relationship('PurchaseInvoice', backref=backref('proformas'))
     partner = relationship('Partner', uselist=False)
     courier = relationship('Courier', uselist=False)
     warehouse = relationship('Warehouse', uselist=False)
@@ -517,6 +522,14 @@ class PurchaseProforma(Base):
         elif self.completed:
             return "Completed"
 
+    @property
+    def partner_name(self):
+        return self.partner.fiscal_name
+
+    @property
+    def partner_object(self):
+        return self.partner
+
 
 class PurchaseProformaLine(Base):
     __tablename__ = 'purchase_proforma_lines'
@@ -548,6 +561,14 @@ class PurchaseProformaLine(Base):
     # receptions when they are already created and user
     # wants the update proforma.
 
+    @property
+    def subtotal(self):
+        return round(self.quantity * self.price, 2)
+
+    @property
+    def total(self):
+        return round(self.quantity * self.price * ( 1 + self.tax/100), 2)
+
     def __eq__(self, other):
         return all((
             other.item_id == self.item_id,
@@ -571,6 +592,7 @@ class PurchaseProformaLine(Base):
 
 
 class PurchaseDocument(Base):
+
     __tablename__ = 'purchase_documents'
 
     id = Column(Integer, primary_key=True)
@@ -586,6 +608,7 @@ class PurchaseDocument(Base):
 
 
 class PurchaseInvoice(Base):
+
     __tablename__ = 'purchase_invoices'
 
     id = Column(Integer, primary_key=True)
@@ -593,22 +616,47 @@ class PurchaseInvoice(Base):
     number = Column(Integer, nullable=False)
     date = Column(Date, default=datetime.now)
     eta = Column(Date, default=datetime.now)
-
-
-    proforma = relationship('PurchaseProforma', uselist=False, back_populates='invoice')
+    note = Column(String(255))
 
     @property
     def payments(self):
-        return self.proforma.payments
+        return [payment for proforma in self.proformas for payment in proforma.payments]
 
     @property
     def doc_repr(self):
         return str(self.type) + '-' + str(self.number).zfill(6)
 
+    @property
+    def subtotal(self):
+        return round(sum(p.subtotal for p in self.proformas), 2)
+
+    @property
+    def tax(self):
+        return round(sum(p.tax for p in self.proformas), 2)
 
     @property
     def total_debt(self):
-        return self.proforma.total_debt
+        return sum(proforma.total_debt for proforma in self.proformas)
+
+    @property
+    def total_paid(self):
+        return sum(p.amount for p in self.payments)
+
+    @property
+    def not_paid(self):
+        return math.isclose(self.total_paid, 0)
+
+    @property
+    def partially_paid(self):
+        return 0 < self.total_paid < self.total_debt
+
+    @property
+    def fully_paid(self):
+        return math.isclose(self.total_debt, self.total_paid)
+
+    @property
+    def overpaid(self):
+        return 0 < self.total_debt < self.total_paid
 
     @property
     def device_count(self):
@@ -622,8 +670,115 @@ class PurchaseInvoice(Base):
         UniqueConstraint('type', 'number'),
     )
 
+    @property
+    def logistic_status_string(self):
+        if all(p.empty for p in self.proformas):
+            return 'Empty'
+        elif any(p.overflowed for p in self.proformas):
+            return 'Overflowed'
+        elif any(p.partially_processed for p in self.proformas):
+            return 'Partially received'
+        elif all(p.completed for p in self.proformas):
+            return 'Completed'
+        elif any(p.empty for p in self.proformas) \
+                and any(p.completed for p in self.proformas):
+            return 'Partially received'
+
+    @property
+    def financial_status_string(self):
+        if self.not_paid:
+            return 'Not Paid'
+        elif self.partially_paid:
+            return 'Partially Paid'
+        elif self.fully_paid:
+            return 'Paid'
+        elif self.overpaid:
+            return 'They Owe'
+
+    @property
+    def partner_name(self):
+        return self.proformas[0].partner_name  # Always at least one, by design
+
+    @property
+    def agent(self):
+        name = self.proformas[0].agent.fiscal_name
+        try:
+            return name.split()[0]
+        except IndexError:
+            return name
+
+    @property
+    def sent(self):
+        if all(p.sent for p in self.proformas):
+            return 'Yes'
+        elif all(not p.sent for p in self.proformas):
+            return 'No'
+        elif any(not p.sent for p in self.proformas):
+            return 'Partially'
+
+
+    @property
+    def cancelled(self):
+        if all(p.cancelled for p in self.proformas):
+            return 'Yes'
+        elif all(not p.cancelled for p in self.proformas):
+            return 'No'
+        elif any(not p.cancelled for p in self.proformas):
+            return 'Partially'
+
+    @property
+    def currency(self):
+        return ' EUR' if self.proformas[0].eur_currency else ' USD'
+
+    @property
+    def owing_string(self):
+        return str(self.total_debt - self.total_paid) + self.currency
+
+    @property
+    def total(self):
+        return str(self.total_debt) + self.currency
+
+    @property
+    def external(self):
+        values = set((p.external for p in self.proformas))
+        if len(values) == 1 and values != {None}:
+            return values.pop()
+        elif len(values) != 1:
+            return ', '.join(values)
+        elif values == {None}:
+            return ''
+
+    @property
+    def tracking(self):
+        values = set((p.tracking for p in self.proformas))
+        if len(values) == 1 and values != {None}:
+            return values.pop()
+        elif len(values) != 1:
+            return ', '.join(values)
+        elif values == {None}:
+            return ''
+
+    @property
+    def inwh(self):
+        if all(p.reception is not None for p in self.proformas):
+            return 'Yes'
+        elif all(p.reception is None for p in self.proformas):
+            return 'No'
+        elif any(p.reception is None for p in self.proformas):
+            return 'Partially'
+
+    @property
+    def origin_proformas(self):
+        return ', '.join(p.doc_repr for p in self.proformas)
+
+
+    @property
+    def partner_object(self):
+        return self.proformas[0].partner
+
 
 class PurchasePayment(Base):
+
     __tablename__ = 'purchase_payments'
 
     id = Column(Integer, primary_key=True)
@@ -664,6 +819,7 @@ class PurchaseExpense(Base):
 
 
 class SaleProforma(Base):
+
     __tablename__ = 'sale_proformas'
 
     id = Column(Integer, primary_key=True)
@@ -702,7 +858,9 @@ class SaleProforma(Base):
     courier = relationship('Courier', uselist=False)
     warehouse = relationship('Warehouse', uselist=False)
     agent = relationship('Agent', uselist=False)
-    invoice = relationship('SaleInvoice', uselist=False)
+
+    invoice = relationship('SaleInvoice', backref=backref('proformas'))
+
     expedition = relationship('Expedition', uselist=False, back_populates='proforma')
 
     warning = Column(String(50), nullable=True)
@@ -737,6 +895,10 @@ class SaleProforma(Base):
                sum(line.price * line.quantity * line.tax / 100 for line in self.credit_note_lines), 2)
 
     @property
+    def is_credit_note(self):
+        return self.warehouse_id is None
+
+    @property
     def cn_total(self):
         if self.invoice is not None:
             return self.invoice.cn_total
@@ -748,6 +910,9 @@ class SaleProforma(Base):
             return self.invoice.applied
         return False
 
+    # Posible fuente de error de precision en este método,
+    # Es el invonveniente de usar floats
+    # Deberias usar el modulo Decimal
     @property
     def total_debt(self):
         return round(self.subtotal + self.tax, 2)
@@ -775,7 +940,7 @@ class SaleProforma(Base):
     @property
     def total_quantity(self):
         return sum(line.quantity for line in self.lines if line.item_id) or \
-               sum(line.quantity for line in self.advanced_lines if line.item_id is not None or\
+               sum(line.quantity for line in self.advanced_lines if line.item_id is not None or \
                    line.mixed_description is not None)
 
     @property
@@ -808,6 +973,14 @@ class SaleProforma(Base):
         except AttributeError:
             return False
         return False
+
+    @property
+    def partner_name(self):
+        return self.partner.fiscal_name
+
+    @property
+    def partner_object(self):
+        return self.partner
 
     @property
     def device_count(self):
@@ -885,11 +1058,11 @@ class SaleInvoice(Base):
     number = Column(Integer, nullable=False)
     date = Column(Date, default=datetime.now)
     eta = Column(Date, default=datetime.now)
+    note = Column(String(255))
 
     parent_id = Column(Integer, ForeignKey('sale_invoices.id'))
-    wh_incoming_rma = relationship('WhIncomingRma', uselist=False, back_populates='sale_invoice')
 
-    proforma = relationship('SaleProforma', uselist=False, back_populates='invoice')
+    wh_incoming_rma = relationship('WhIncomingRma', uselist=False, back_populates='sale_invoice')
 
     def __repr__(self):
         clasname = self.__class__.__name__
@@ -898,6 +1071,14 @@ class SaleInvoice(Base):
     def __init__(self, type, number):
         self.type = type
         self.number = number
+
+    @property
+    def payments(self):
+        return [payment for proforma in self.proformas for payment in proforma.payments]
+
+    @property
+    def is_credit_note(self):
+        return self.proformas[0].warehouse_id is None
 
     @property
     def cn_total(self):
@@ -911,10 +1092,39 @@ class SaleInvoice(Base):
         return session.query(SaleInvoice.parent_id).\
             where(SaleInvoice.id == self.id).scalar() is not None
 
-
     @property
     def subtotal(self):
-        return self.proforma.subtotal
+        return round(sum(p.subtotal for p in self.proformas), 2)
+
+    @property
+    def total_debt(self):
+        return sum(proforma.total_debt for proforma in self.proformas)
+
+
+
+    @property
+    def tax(self):
+        return round(sum(p.tax for p in self.proformas), 2)
+
+    @property
+    def total_paid(self):
+        return round(sum(p.amount for p in self.payments), 2)
+
+    @property
+    def not_paid(self):
+        return math.isclose(self.total_paid, 0)
+
+    @property
+    def partially_paid(self):
+        return 0 < self.total_paid < self.total_debt
+
+    @property
+    def fully_paid(self):
+        return math.isclose(self.total_debt, self.total_paid)
+
+    @property
+    def overpaid(self):
+        return 0 < self.total_debt < self.total_paid
 
     @property
     def doc_repr(self):
@@ -927,6 +1137,126 @@ class SaleInvoice(Base):
     @property
     def device_count(self):
         return self.proforma.device_count
+
+    @property
+    def logistic_status_string(self):
+        if all(p.empty for p in self.proformas):
+            return 'Empty'
+        elif any(p.overflowed for p in self.proformas):
+            return 'Overflowed'
+        elif any(p.partially_processed for p in self.proformas):
+            return 'Partially Prepared'
+        elif all(p.completed for p in self.proformas):
+            return 'Completed'
+        elif any(p.completed for p in self.proformas) and \
+            any(p.empty for p in self.prformas):
+                return 'Partially Prepared'
+
+    @property
+    def financial_status_string(self):
+        if self.not_paid:
+            return 'Not Paid'
+        elif self.partially_paid:
+            return 'Partially Paid'
+        elif self.fully_paid:
+            return 'Paid'
+        elif self.overpaid:
+            return 'We Owe'
+
+    @property
+    def agent(self):
+        return self.proformas[0].agent.fiscal_name.split()[0]
+
+    @property
+    def partner_name(self):
+        return self.proformas[0].partner_name
+
+    @property
+    def partner_object(self):
+        return self.proformas[0].partner
+
+    @property
+    def sent(self):
+        if all(p.sent for p in self.proformas):
+            return 'Yes'
+        elif all(not p.sent for p in self.proformas):
+            return 'No'
+        elif any(not p.sent for p in self.proformas):
+            return 'Partially'
+
+    @property
+    def cancelled(self):
+        if all(p.cancelled for p in self.proformas):
+            return 'Yes'
+        elif all(not p.cancelled for p in self.proformas):
+            return 'No'
+        elif any(not p.cancelled for p in self.proformas):
+            return 'Partially'
+
+    @property
+    def currency(self):
+        return ' EUR' if self.proformas[0].eur_currency else ' USD'
+
+    @property
+    def owing_string(self):
+        return str(self.total_debt - self.total_paid) + self.currency
+
+    @property
+    def total(self):
+        return str(self.total_debt) + self.currency
+
+    @property
+    def external(self):
+        values = set((p.external for p in self.proformas))
+        if len(values) == 1 and values != {None}:
+            return values.pop()
+        elif len(values) != 1:
+            return ', '.join(values)
+        elif values == {None}:
+            return ''
+
+    @property
+    def tracking(self):
+        values = set((p.tracking for p in self.proformas))
+        if len(values) == 1 and values != {None}:
+            return values.pop()
+        elif len(values) != 1:
+            return ', '.join(values)
+        elif values == {None}:
+            return ''
+
+
+    @property
+    def inwh(self):
+        if all(p.expedition is not None for p in self.proformas):
+            return 'Yes'
+        elif all(p.expedition is None for p in self.proformas):
+            return 'No'
+        elif any(p.expedition is None for p in self.proformas):
+            return 'Partially'
+
+    @property
+    def origin_proformas(self):
+        return ', '.join(p.doc_repr for p in self.proformas)
+
+    @property
+    def partner_object(self):
+        return self.proformas[0].partner_object
+
+    @property
+    def ready(self):
+        if self.proformas[0].credit_note_lines:
+            return 'No'
+        elif all(p.ready for p in self.proformas):
+            return 'Yes'
+        elif any(p.ready for p in self.proformas):
+            return 'Partially'
+        elif all(not p.ready for p in self.proformas):
+            return 'No'
+
+    @property
+    def partner_id(self):
+        return self.proformas[0].partner.id
 
     __table_args__ = (
         UniqueConstraint('type', 'number', name='unique_sales_sale_invoices'),
@@ -965,6 +1295,14 @@ class SaleProformaLine(Base):
     __table_args__ = (
         UniqueConstraint('id', 'proforma_id'),
     )
+
+    @property
+    def subtotal(self):
+        return round(self.price * self.quantity, 2)
+
+    @property
+    def total(self):
+        return round(self.quantity * self.price * (1 + self.tax / 100), 2)
 
     @property
     def defined(self):
@@ -1021,6 +1359,14 @@ class AdvancedLine(Base):
     def __hash__(self):
         hashes = (hash(x) for x in (self.item_id, self.condition,self.spec))
         return functools.reduce(operator.xor, hashes, 0)
+
+    @property
+    def subtotal(self):
+        return round(self.price * self.quantity, 2)
+
+    @property
+    def total(self):
+        return round(self.quantity * self.price * (1 + self.tax / 100), 2)
 
     def __repr__(self):
         clsname = self.__class__.__name__
@@ -1105,6 +1451,41 @@ class Expedition(Base):
 
     proforma = relationship('SaleProforma', back_populates='expedition')
 
+    @property
+    def total_quantity(self):
+        return self.proforma.total_quantity
+
+    @property
+    def total_processed(self):
+        return self.proforma.total_processed
+
+    @property
+    def empty(self):
+        return self.proforma.empty
+
+    @property
+    def overflowed(self):
+        return self.proforma.overflowed
+
+    @property
+    def partially_processed(self):
+        return self.proforma.partially_processed
+
+    @property
+    def completed(self):
+        return self.proforma.completed
+
+    @property
+    def logistic_status_string(self):
+        if self.empty:
+            return 'Empty'
+        elif self.overflowed:
+            return 'Overflowed'
+        elif self.partially_processed:
+            return 'Partially Processed'
+        elif self.completed:
+            return 'Completed'
+
     __table_args__ = (
         UniqueConstraint('proforma_id', name='sale_expedition_from_onlyone_proforma'),
     )
@@ -1159,10 +1540,47 @@ class Reception(Base):
 
     auto = Column(Boolean, nullable=False, default=False)
 
+    @property
+    def total_quantity(self):
+        return self.proforma.total_quantity
+
+    @property
+    def total_processed(self):
+        return self.proforma.total_processed
+
+    @property
+    def empty(self):
+        return self.proforma.empty
+
+    @property
+    def overflowed(self):
+        return self.proforma.overflowed
+
+
     def __init__(self, proforma, note, auto=False):
         self.proforma = proforma
         self.note = note
         self.auto = auto
+
+    @property
+    def partially_processed(self):
+        return self.proforma.partially_processed
+
+    @property
+    def completed(self):
+        return self.proforma.completed
+
+    @property
+    def logistic_status_string(self):
+        if self.empty:
+            return 'Empty'
+        elif self.overflowed:
+            return 'Overflowed'
+        elif self.partially_processed:
+            return 'Partially Prepared'
+        elif self.completed:
+            return 'Completed'
+
 
     __table_args__ = (
         UniqueConstraint('proforma_id', name='purchase_reception_from_onlyone_proforma'),
@@ -1565,13 +1983,17 @@ class ConditionChange(Base):
 
 
 class WhIncomingRma(Base):
+
     __tablename__ = 'wh_incoming_rmas'
 
     id = Column(Integer, primary_key=True)
+
     incoming_rma_id = Column(Integer, ForeignKey('incoming_rmas.id'), nullable=False)
+
     sale_invoice_id = Column(Integer, ForeignKey('sale_invoices.id'))
 
     incoming_rma = relationship('IncomingRma', back_populates='wh_incoming_rma')
+
     sale_invoice = relationship('SaleInvoice', back_populates='wh_incoming_rma')
 
     __table_args__ = (
@@ -1762,7 +2184,7 @@ class IncomingRmaLine(Base):
 
         if reception_serie is not None:
             self.recpt = reception_serie.created_on.date()
-            self.supp = reception_serie.line.reception.proforma.partner.fiscal_name
+            self.supp = reception_serie.line.reception.proforma.partner_name
             self.wtyendsupp = self.recpt + timedelta(reception_serie.line.reception.proforma.warranty)
 
             line = reception_serie.line
@@ -1789,8 +2211,8 @@ class IncomingRmaLine(Base):
                     expedition_serie.line.spec
                 ))
                 self.public = expedition_serie.line.showing_condition
-                self.cust = expedition_serie.line.expedition.proforma.partner.fiscal_name
-                self.cust_id = expedition_serie.line.expedition.proforma.partner.id
+                self.cust = expedition_serie.line.expedition.proforma.partner_name
+                self.cust_id = expedition_serie.line.expedition.proforma.partner_name.id
                 self.agent_id = expedition_serie.line.expedition.proforma.agent.id
                 try:
                     self.saledate = expedition_serie.line.expedition.proforma.invoice.date
@@ -1799,7 +2221,7 @@ class IncomingRmaLine(Base):
                 self.exped = expedition_serie.created_on.date()
                 self.wtyendcust = self.exped + timedelta(expedition_serie.line.expedition.proforma.warranty)
 
-                self.sold_to = expedition_serie.line.expedition.proforma.partner
+                self.sold_to = expedition_serie.line.expedition.proforma.partner_name
 
                 self.problem = ''
                 self.why = ''

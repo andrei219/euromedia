@@ -9,7 +9,7 @@ from models import AvailableNoteModel
 
 class Form(Ui_Dialog, QDialog):
 
-    def __init__(self, parent, proforma):
+    def __init__(self, parent, invoice):
         super(Form, self).__init__(parent)
         self.parent = parent
         self.setupUi(self)
@@ -17,7 +17,7 @@ class Form(Ui_Dialog, QDialog):
         # it sure proforma.invoice != None
         self.applied_model = None
         self.available_model = None
-        self.invoice = proforma.invoice
+        self.invoice = invoice
 
         self.set_models()
 
@@ -35,9 +35,8 @@ class Form(Ui_Dialog, QDialog):
     def set_models(self):
         self.set_applied_model()
         self.set_available_model()
-        self.parent.update_totals(note=self.applied_model.credit_notes_subtotal)
-        self.parent.update_totals(note=self.applied_model.credit_notes_subtotal)
-
+        self.parent.update_totals()
+        self.parent.update_totals()
 
     def delete_handler(self):
         rows = {i.row() for i in self.applied.selectedIndexes()}
@@ -47,7 +46,7 @@ class Form(Ui_Dialog, QDialog):
             QMessageBox.critical(self, 'Error', str(ex))
         else:
             self.set_models()
-            self.parent.update_totals(note=self.applied_model.credit_notes_subtotal)
+            self.parent.update_totals()
 
     def add_handler(self):
         rows = {i.row() for i in self.available.selectedIndexes()}
@@ -57,6 +56,6 @@ class Form(Ui_Dialog, QDialog):
             QMessageBox.critical(self, 'Error', str(ex))
         else:
             self.set_models()
-            self.parent.update_totals(note=self.applied_model.credit_notes_subtotal)
+            self.parent.update_totals()
 
 

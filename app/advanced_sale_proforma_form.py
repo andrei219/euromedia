@@ -9,11 +9,14 @@ from db import Agent, Partner
 from models import (
     AdvancedLinesModel,
     IncomingStockModel,
-    computeCreditAvailable
+    computeCreditAvailable,
+    sale_proforma_next_number,
+    update_sale_warehouse
 )
 from sale_proforma_form import Form
 from ui_advanced_sale_proforma_form import Ui_Form
 from utils import setCommonViewConfig
+
 
 MESSAGE = "This presale is only for incoming stock \n {}. For others stocks create new presale"
 
@@ -44,7 +47,6 @@ class Form(Ui_Form, QWidget):
         self.type_filter = None
         self.number_filter = None
 
-        self.is_invoice = False
 
     def init_template(self):
         self.proforma = db.SaleProforma()
@@ -52,7 +54,7 @@ class Form(Ui_Form, QWidget):
         db.session.flush()
         self.date.setText(date.today().strftime('%d%m%Y'))
         self.type.setCurrentText('1')
-        self.number.setText(str(self.model.nextNumberOfType(1)).zfill(6))
+        self.number.setText(str(sale_proforma_next_number(1)).zfill(6))
 
     def set_handlers(self):
         self.partner.returnPressed.connect(self.partner_search)
@@ -81,19 +83,11 @@ class Form(Ui_Form, QWidget):
         ]: utils.setCompleter(field, data)
 
     def proforma_to_form(self):
-
         p = self.proforma
-
-        if self.is_invoice:
-            self.type.setCurrentText(str(p.invoice.type))
-            self.number.setText(str(p.invoice.number))
-            self.date.setText(str(p.invoice.date.strftime('%d%m%Y')))
-        else:
-            self.type.setCurrentText(str(p.type))
-            self.number.setText(str(p.number))
-            self.date.setText(str(p.date.strftime('%d%m%Y')))
-
-        self.partner.setText(p.partner.fiscal_name)
+        self.type.setCurrentText(str(p.type))
+        self.number.setText(str(p.number))
+        self.date.setText(str(p.date.strftime('%d%m%Y')))
+        self.partner.setText(p.partner_name)
         self.agent.setCurrentText(p.agent.fiscal_name)
         self.warehouse.setCurrentText(p.warehouse.description)
         self.courier.setCurrentText(p.courier.description)
@@ -102,12 +96,12 @@ class Form(Ui_Form, QWidget):
         self.days.setValue(p.credit_days)
         self.eur.setChecked(p.eur_currency)
         self.credit.setValue(p.credit_amount)
-        self.external.setText(p.external)
         self.tracking.setText(p.tracking)
         self.they_pay_we_ship.setChecked(p.they_pay_we_ship)
         self.they_pay_they_ship.setChecked(p.they_pay_they_ship)
         self.we_pay_we_ship.setChecked(p.we_pay_we_ship)
         self.note.setText(p.note)
+        self.external.setText(p.external)
 
     def set_stock_mv(self):
         warehouse_id = utils.warehouse_id_map.get(
@@ -272,7 +266,7 @@ class Form(Ui_Form, QWidget):
                 raise
 
     def type_changed(self, type):
-        next_num = self.model.nextNumberOfType(int(type))
+        next_num = sale_proforma_next_number(int(type))
         self.number.setText(str(next_num).zfill(6))
 
     def save_handler(self):
@@ -324,15 +318,9 @@ class Form(Ui_Form, QWidget):
 
     def _form_to_proforma(self):
 
-        if self.is_invoice:
-            self.proforma.invoice.type = int(self.type.currentText())
-            self.proforma.invoice.number = int(self.number.text())
-            self.proforma.invoice.date = utils.parse_date(self.date.text())
-        else:
-            self.proforma.type = int(self.type.currentText())
-            self.proforma.number = int(self.number.text())
-            self.proforma.date = utils.parse_date(self.date.text())
-
+        self.proforma.type = int(self.type.currentText())
+        self.proforma.number = int(self.number.text())
+        self.proforma.date = utils.parse_date(self.date.text())
         self.proforma.warranty = self.warranty.value()
         self.proforma.they_pay_they_ship = self.they_pay_they_ship.isChecked()
         self.proforma.they_pay_we_ship = self.they_pay_we_ship.isChecked()
@@ -345,9 +333,9 @@ class Form(Ui_Form, QWidget):
         self.proforma.credit_amount = self.credit.value()
         self.proforma.credit_days = self.days.value()
         self.proforma.incoterm = self.incoterms.currentText()
-        self.proforma.external = self.external.text()
         self.proforma.tracking = self.tracking.text()
         self.proforma.note = self.note.toPlainText()[0:255]
+        self.proforma.external = self.external.text()
 
     def clear_filters(self):
         self.description.clear()
@@ -357,39 +345,27 @@ class Form(Ui_Form, QWidget):
 
 class EditableForm(Form):
 
-    def __init__(self, parent, view, proforma, is_invoice=False):
+    def __init__(self, parent, view, proforma):
         reload_utils()
-        print(proforma)
         self.proforma = proforma
         super().__init__(parent, view)
         self.update_totals()
-
-        self.is_invoice = is_invoice
-
-        if is_invoice:
-            self.setWindowTitle('Proforma Invoice / Edit')
-            self.applycn.setEnabled(True)
-        else:
-            self.setWindowTitle('Proforma Edit')
-
         self.proforma_to_form()
         self.warehouse.setEnabled(False)
         self.disable_if_cancelled()
 
     def init_template(self):
-        self.applycn.clicked.connect(self.applycn_handler)
+        # This method is empty but is part of the template pattern
+        # The behaviour in this specific class is to do nothing
+        # but if omitted, method in the superclass
+        # is executed causing the replacing of this already existing
+        # Proforma object with a new one populated with Nones
+        # and raising AttributeErrors
+        pass
 
-    # Solo necsita commit en editable. Pero aun asi necesitamos
-    # este metodo por seguir el template pattern
-    # aunque este vacio.
-
-
-    def applycn_handler(self):
-        from apply_credit_note_form import Form
-        Form(self, self.proforma).exec_()
 
     def save_template(self):
-        self.model.updateWarehouse(self.proforma)
+        update_sale_warehouse(self.proforma)
 
     def disable_if_cancelled(self):
         if self.proforma.cancelled:
@@ -402,6 +378,5 @@ class EditableForm(Form):
             self.save.setEnabled(False)
 
 
-def get_form(parent, view, proforma=None, is_invoice=False):
-    return EditableForm(parent, view, proforma, is_invoice=is_invoice) if proforma \
-        else Form(parent, view)
+def get_form(parent, view, proforma=None,):
+    return EditableForm(parent, view, proforma) if proforma else Form(parent, view)
