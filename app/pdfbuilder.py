@@ -320,7 +320,7 @@ class TableData:
             proforma = document.proformas[0]
             self.Date = document.date.strftime('%d-%m-%Y')
             self.Document_No = document.doc_repr
-            self.External_Doc = document.external_document
+            self.External_Doc = document.external
         else:
             proforma = document
             self.Date = proforma.date.strftime('%d-%m-%Y')

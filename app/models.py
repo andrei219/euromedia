@@ -469,7 +469,6 @@ class InvoicesSalesDocumentModel(DocumentModel):
         self.invoice = obj.invoice
         super().__init__()
 
-        print(self.invoice.doc_repr)
 
     @property
     def path(self):
@@ -1815,7 +1814,7 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 
             elif col == self.FINANCIAL:
 
-                if proforma.warehouse_id is None and proforma.applied:
+                if proforma.is_credit_note and proforma.applied:
                     return 'Applied'
 
                 if proforma.not_paid:
@@ -1829,7 +1828,7 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 
             elif col == self.LOGISTIC:
 
-                if proforma.warehouse_id is None:
+                if proforma.is_credit_note:
                     return 'Completed'
 
                 if proforma.empty:
@@ -1865,7 +1864,7 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 
         elif role == Qt.DecorationRole:
             if col == self.FINANCIAL:
-                if proforma.warehouse_id is None and proforma.applied:
+                if proforma.is_credit_note and proforma.applied:
                     return QtGui.QColor(GREEN)
 
                 if proforma.not_paid:
@@ -1885,7 +1884,7 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
                 return QtGui.QIcon(':\\agents')
             elif col == self.LOGISTIC:
 
-                if proforma.warehouse_id is None:
+                if proforma.is_credit_note:
                     return QtGui.QColor(GREEN)
 
                 if proforma.empty:
@@ -5470,7 +5469,7 @@ def export_proformas_sales_excel(proforma, file_path):
 def generate_excel_rows(proforma):
     # Handle credit notes whose main property is that
     # warehouse_id is NULL on SQL side.
-    if proforma.warehouse_id is None:
+    if proforma.is_credit_note:
         for line in proforma.invoice.wh_incoming_rma.lines:
             if line.accepted:
                 yield line.sn, line.item.clean_repr, line.public_condition or line.condition, line.spec
@@ -5940,6 +5939,7 @@ class TraceEntry:
 
 
 class OperationModel(BaseTable, QtCore.QAbstractTableModel):
+
     OPERATION, DOC, DATE, PARTNER, PICKING = 0, 1, 2, 3, 4
 
     def __init__(self, imei):
@@ -6180,18 +6180,19 @@ class AppliedNoteModel(BaseTable, QtCore.QAbstractTableModel):
 
 class SIIInvoice:
 
+
     def __init__(self, invoice):
         self.invoice_number = invoice.doc_repr
-        self.partner_name = invoice.proforma.partner_name
-        self.partner_ident = invoice.proforma.partner_name
-        self.country_code = utils.get_country_code(invoice.proforma.partner_name.billing_country)
+        self.partner_name = invoice.partner_name
+        self.partner_ident = invoice.partner_name
+        self.country_code = utils.get_country_code(invoice.partner_object.billing_country)
         self.invoice_date = invoice.date.strftime('%d-%m-%Y')
 
         self.lines = []
 
-        lines = invoice.proforma.lines or \
-                invoice.proforma.advanced_lines or \
-                invoice.proforma.credit_note_lines
+        lines = []
+        for proforma in invoice.proformas:
+            lines.extend(proforma.lines or proforma.advanced_lines or proforma.credit_note_lines)
 
         for line in lines:
             self.lines.append(SIILine(line))
@@ -6334,9 +6335,6 @@ def get_avg_rate(proforma):
     for payment in proforma.payments:
         base += payment.amount
         base_with_rates += payment.amount / payment.rate
-
-    print(
-        f'base={base}, base_with_rates={base_with_rates}, total_debt={proforma.total_debt}, base/base_with_rate={base / base_with_rates}')
 
     if base == 0:
         return 'No payments yet'
@@ -6981,7 +6979,7 @@ class Fuck:
 class FuckExcel:
 
     def __init__(self, sale_invoice: db.SaleInvoice):
-        partner = sale_invoice.proforma.partner_name
+        partner = sale_invoice.partner_name
         self.serie = sale_invoice.type
         self.number = sale_invoice.number
         self.doc_repr = sale_invoice.doc_repr
@@ -6993,12 +6991,12 @@ class FuckExcel:
         self.postcode = partner.billing_postcode
         self.state = partner.billing_state
         self.payment = 'Transferencia'
-        self.total = sale_invoice.proforma.total_debt
-        self.tax = sale_invoice.proforma.tax
-        if sale_invoice.proforma.warehouse_id is None:
+        self.total = sale_invoice.total_debt
+        self.tax = sale_invoice.tax
+        if sale_invoice.is_credit_note:
             self.obs = sale_invoice.cn_repr
         else:
-            self.obs = sale_invoice.proforma.note
+            self.obs = sale_invoice.note
 
     def get_code(self, partner):
         from io import StringIO
@@ -7503,7 +7501,6 @@ class InvoiceExpensesModel(BaseTable, QtCore.QAbstractTableModel):
         self.invoice = invoice
         self._headerData = ['Date', 'Amount', 'Info', 'Proforma']
 
-
         self.name = 'expenses'
         self.expenses = [
             expense 
@@ -7539,6 +7536,7 @@ class InvoiceExpensesModel(BaseTable, QtCore.QAbstractTableModel):
 
     def __getitem__(self, item):
         return self.expenses[item]
+
 
 def caches_clear():
     get_avg_rate.cache_clear()

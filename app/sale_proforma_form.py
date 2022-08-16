@@ -8,8 +8,13 @@ import db
 import decorators
 import models
 import utils
-from db import (Agent, Partner, SaleProforma, SaleProformaLine,
-                func)
+from db import (
+    Agent,
+    Partner,
+    SaleProforma,
+    SaleProformaLine,
+    func
+)
 from models import (
     ActualLinesFromMixedModel,
     SaleProformaLineModel,
@@ -19,6 +24,7 @@ from models import (
 from ui_sale_proforma_form import Ui_SalesProformaForm
 
 from sqlalchemy.exc import IntegrityError
+
 
 class StockBase:
 
@@ -30,9 +36,9 @@ class StockBase:
 
     def update(self): 
         
-        description  = self.filters.description
-        condition    = self.filters.condition
-        spec         = self.filters.spec
+        description = self.filters.description
+        condition = self.filters.condition
+        spec = self.filters.spec
 
         self.stocks = StockModel.stocks(
             self.warehouse_id, 
@@ -386,7 +392,6 @@ class Form(Ui_SalesProformaForm, QWidget):
         price = self.lines_model.get_price(index.row())
 
         self.price.setValue(price)
-
 
 
     def set_selected_stock_mv(self):

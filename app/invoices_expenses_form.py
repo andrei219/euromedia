@@ -26,6 +26,8 @@ class Form(Ui_Form, QDialog):
         self.add.clicked.connect(self.add_handler)
         self.view.doubleClicked.connect(self.view_double_clicked)
 
+        self.date.setText(utils.today_date())
+
     def set_header(self):
         self.partner.setText(self.invoice.partner_name)
         self.invoice_repr.setText(self.invoice.doc_repr)
@@ -39,6 +41,10 @@ class Form(Ui_Form, QDialog):
             expense.proforma,
             sale=isinstance(self.invoice, db.SaleInvoice)
         ).exec_()
+
+    def clear_fields(self):
+        self.amount.clear()
+        self.info.clear()
 
     def add_handler(self):
 
@@ -61,3 +67,4 @@ class Form(Ui_Form, QDialog):
             return
 
         self.model.add(date, amount, self.info.text(), proforma)
+        self.clear_fields()

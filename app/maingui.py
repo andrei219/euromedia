@@ -338,7 +338,6 @@ class MainGui(Ui_MainGui, QMainWindow):
             self.warehouse_incoming_rmas_view.setSortingEnabled(True)
             self.warehouse_incoming_rmas_view.setAlternatingRowColors(True)
 
-
     def set_handlers(self):
         from itertools import product
         for prefix, action in product(PREFIXES, ACTIONS):
@@ -1148,6 +1147,7 @@ class MainGui(Ui_MainGui, QMainWindow):
             return
 
         save_file_path = get_file_path(self)
+
         if not save_file_path:
             return
         try:
@@ -1172,7 +1172,7 @@ class MainGui(Ui_MainGui, QMainWindow):
         except ValueError as ex:
             QMessageBox.information(self, 'Error', str(ex))
         else:
-            QMessageBox.information(self, 'Success', 'Data exported succ')
+            QMessageBox.information(self, 'Success', 'Data exported successfully')
 
     def get_reception_selected_row(self):
         rows = {index.row() for index in self.warehouse_receptions_view.selectedIndexes()}

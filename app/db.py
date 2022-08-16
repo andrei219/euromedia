@@ -884,6 +884,10 @@ class SaleProforma(Base):
                sum(line.price * line.quantity * line.tax / 100 for line in self.credit_note_lines), 2)
 
     @property
+    def is_credit_note(self):
+        return self.warehouse_id is None
+
+    @property
     def cn_total(self):
         if self.invoice is not None:
             return self.invoice.cn_total
@@ -1049,6 +1053,10 @@ class SaleInvoice(Base):
     @property
     def payments(self):
         return [payment for proforma in self.proformas for payment in proforma.payments]
+
+    @property
+    def is_credit_note(self):
+        return self.proformas[0].warehouse_id is None
 
     @property
     def cn_total(self):
