@@ -28,6 +28,7 @@ from sqlalchemy.sql.operators import exists
 engine = create_engine('mysql+mysqlconnector://andrei:hnq#4506@192.168.1.78:3306/appdb', echo=False)
 dev_engine = create_engine('mysql+mysqlconnector://root:hnq#4506@localhost:3306/prodb', echo=False)
 
+
 # from sale types:
 
 NORMAL, FAST, DEFINED = 0, 1, 2
@@ -994,6 +995,7 @@ class SaleProforma(Base):
 
 
 class SalePayment(Base):
+
     __tablename__ = 'sale_payments'
 
     id = Column(Integer, primary_key=True)

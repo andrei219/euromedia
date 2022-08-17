@@ -44,6 +44,8 @@ class Form(Ui_InvoiceForm, QWidget):
         self.apply_cn.clicked.connect(self.apply_cn_handler)
 
 
+        self.set_wildcard()
+
     def setCombos(self):
         for combo, data in [
             (self.agent, utils.agent_id_map.keys()),
@@ -96,9 +98,14 @@ class Form(Ui_InvoiceForm, QWidget):
             p.warehouse_id = utils.warehouse_id_map[self.warehouse.currentText()]
             p.courier_id = utils.courier_id_map[self.courier.currentText()]
             p.warranty = self.warranty.value()
+
             p.they_pay_they_ship = self.they_pay_they_ship.isChecked()
             p.we_pay_we_ship = self.we_pay_we_ship.isChecked()
 
+            if isinstance(self.invoice, SaleInvoice):
+                p.they_pay_we_ship = self.wildcard.isChecked()
+            else:
+                p.we_pay_they_ship = self.wildcard.isChecked()
             # TODO: think how to fix this
             # Different fields for purchase or sales
             # try:
@@ -109,6 +116,12 @@ class Form(Ui_InvoiceForm, QWidget):
             p.credit_amount = self.with_credit.value()
             p.credit_days = self.days_credit.value()
             p.incoterm = self.incoterms.currentText()
+
+    def set_wildcard(self):
+        if isinstance(self.invoice, SaleInvoice):
+            self.wildcard.setText('They Pay We Ship')
+        else:
+            self.wildcard.setText('We pay they ship')
 
     def valid_header(self):
         try:

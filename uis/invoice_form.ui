@@ -177,7 +177,7 @@
      <string>They Pay - They Ship</string>
     </property>
    </widget>
-   <widget class="QRadioButton" name="we_pay_they_ship">
+   <widget class="QRadioButton" name="wildcard">
     <property name="geometry">
      <rect>
       <x>20</x>
@@ -187,7 +187,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>We Pay- They Ship</string>
+     <string>wildcard</string>
     </property>
    </widget>
   </widget>
