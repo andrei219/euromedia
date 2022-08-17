@@ -27,7 +27,8 @@ import purchase_proforma_form
 import reception_order
 import sale_proforma_form
 import documents_form
-from db import PurchaseProforma, PurchaseDocument, SaleDocument, SaleProforma, correct_mask
+from db import PurchaseProforma, PurchaseDocument, \
+    SaleDocument, SaleProforma, correct_mask
 from models import SaleProformaModel, PurchaseProformaModel
 from pdfbuilder import build_document
 from ui_maingui import Ui_MainGui
