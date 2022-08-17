@@ -1987,8 +1987,9 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 
     def build_invoice_from_proforma(self, proforma):
         next_num = get_sale_invoice_next_number(proforma)
-        proforma = db.SaleInvoice(proforma.type, next_num)
-        db.session.commit() 
+        proforma.invoice = db.SaleInvoice(proforma.type, next_num)
+        db.session.commit()
+        return proforma.invoice
 
 
     def associateInvoice(self, rows: set):
