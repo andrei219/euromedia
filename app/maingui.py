@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import (
     QTableView,
     QMessageBox,
 )
-from pywin.scintilla import view
+
 from sqlalchemy.exc import IntegrityError
 
 from clipboard import ClipBoard
