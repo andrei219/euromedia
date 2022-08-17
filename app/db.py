@@ -2214,7 +2214,7 @@ class IncomingRmaLine(Base):
                 ))
                 self.public = expedition_serie.line.showing_condition
                 self.cust = expedition_serie.line.expedition.proforma.partner_name
-                self.cust_id = expedition_serie.line.expedition.proforma.partner_name.id
+                self.cust_id = expedition_serie.line.expedition.proforma.partner_object.id
                 self.agent_id = expedition_serie.line.expedition.proforma.agent.id
                 try:
                     self.saledate = expedition_serie.line.expedition.proforma.invoice.date
