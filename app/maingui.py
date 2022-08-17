@@ -192,7 +192,7 @@ class MainGui(Ui_MainGui, QMainWindow):
         getattr(self, prefix + 'total').setText('Total: ' + str(round(total, 2)))
         getattr(self, prefix + 'paid').setText('Paid: ' + str(round(paid, 2)))
         try:
-            getattr(self, prefix + 'device_count').setText('Dev. Count: ' + str(device_count))
+            getattr(self, prefix + 'device_count').setText('Processed Devices: ' + str(device_count))
         except AttributeError:
             pass
 

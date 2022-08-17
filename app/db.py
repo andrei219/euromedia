@@ -660,7 +660,7 @@ class PurchaseInvoice(Base):
 
     @property
     def device_count(self):
-        return self.proforma.device_count
+        return sum(p.device_count for p in self.proformas)
 
     def __init__(self, type, number):
         self.type = type
@@ -1136,7 +1136,7 @@ class SaleInvoice(Base):
 
     @property
     def device_count(self):
-        return self.proforma.device_count
+        return sum(p.device_count for p in self.proformas)
 
     @property
     def logistic_status_string(self):
