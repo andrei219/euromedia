@@ -1327,7 +1327,8 @@ class MainGui(Ui_MainGui, QMainWindow):
         from models import build_credit_note_and_commit
 
         proforma = build_credit_note_and_commit(partner_id, agent_id, wh_rma_order)
-        invoice = self.proformas_sales_model.associateInvoice(proforma)
+
+        invoice = self.proformas_sales_model.build_invoice_from_proforma(proforma)
 
         wh_rma_order.sale_invoice = invoice
 

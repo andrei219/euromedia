@@ -1681,6 +1681,15 @@ def sale_proforma_next_number(type):
         return 1 if current_num is None else current_num + 1
 
 
+def get_sale_invoice_next_number(proforma):
+    current_num = db.session.query(func.max(db.SaleInvoice.number)). \
+        where(db.SaleInvoice.type == proforma.type).scalar()
+    if current_num:
+        return current_num + 1
+    else:
+        return 1
+
+
 class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
     TYPE_NUM, DATE, PARTNER, AGENT, FINANCIAL, LOGISTIC, SENT, \
     CANCELLED, OWING, TOTAL, ADVANCED, DEFINED, READY, IN_WAREHOUSE, \
@@ -1976,6 +1985,12 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
             db.session.rollback()
             raise
 
+    def build_invoice_from_proforma(self, proforma):
+        next_num = get_sale_invoice_next_number(proforma)
+        proforma = db.SaleInvoice(proforma.type, next_num)
+        db.session.commit() 
+
+
     def associateInvoice(self, rows: set):
         if any(
             bool(self.proformas[row].credit_note_lines)
@@ -1996,13 +2011,7 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 
         any_proforma = self.proformas[row]
 
-        current_num = db.session.query(func.max(db.SaleInvoice.number)). \
-            where(db.SaleInvoice.type == any_proforma.type).scalar()
-
-        if current_num:
-            next_num = current_num + 1
-        else:
-            next_num = 1
+        next_num = get_sale_invoice_next_number(any_proforma)
 
         invoice = db.SaleInvoice(any_proforma.type, next_num)
 
