@@ -19,7 +19,8 @@ from models import (
     ActualLinesFromMixedModel,
     SaleProformaLineModel,
     StockModel,
-    sale_proforma_next_number
+    sale_proforma_next_number,
+    update_sale_warehouse
 )
 from ui_sale_proforma_form import Ui_SalesProformaForm
 
@@ -647,12 +648,10 @@ class EditableForm(Form):
         self.filters = Filters(self.proforma.warehouse_id, self)
 
     def save_template(self):
-        self.model.update_purchase_warehouse(self.proforma)
-
+        update_sale_warehouse(self.proforma)
 
     def disable_warehouse(self):
         self.warehouse.setEnabled(False)
-
 
 def get_form(parent, view, proforma=None):
     return EditableForm(parent, view, proforma ) if proforma else Form(parent, view)
