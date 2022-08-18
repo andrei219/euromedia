@@ -369,7 +369,7 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.type.setCurrentText(str(p.type))
         self.number.setText(str(p.number))
         self.date.setText(str(p.date.strftime('%d%m%Y')))
-        self.external.setEnabled(p.external)
+        self.external.setText(p.external)
         self.partner.setText(p.partner.fiscal_name)
         self.agent.setCurrentText(p.agent.fiscal_name)
         self.warehouse.setCurrentText(p.warehouse.description)

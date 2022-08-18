@@ -3650,7 +3650,7 @@ class ReceptionModel(BaseTable, QtCore.QAbstractTableModel):
                 ReceptionModel.ID: 'id',
                 ReceptionModel.WAREHOUSE: 'proforma.warehouse_id',
                 ReceptionModel.CANCELLED: 'proforma.cancelled',
-                ReceptionModel.PARTNER: 'proforma._name',
+                ReceptionModel.PARTNER: 'proforma.partner_name',
                 ReceptionModel.AGENT: 'proforma.agent.fiscal_name',
             }.get(section)
 
