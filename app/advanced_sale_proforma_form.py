@@ -353,6 +353,7 @@ class EditableForm(Form):
         self.proforma_to_form()
         self.warehouse.setEnabled(False)
         self.disable_if_cancelled()
+        self.set_stock_message(empty=not self.lines_model)
 
     def init_template(self):
         # This method is empty but is part of the template pattern

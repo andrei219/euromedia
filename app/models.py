@@ -4416,6 +4416,8 @@ class AdvancedLinesModel(BaseTable, QtCore.QAbstractTableModel):
                 except AttributeError:
                     return ''
             elif col == self.IGNORING_SPEC:
+                print('elif self.IGNORING_SPEC')
+                print(f'line.ignore_spec = {line.ignore_spec}')
                 return 'Yes' if line.ignore_spec else 'No'
             elif col == self.QUANTITY:
                 return str(line.quantity)
@@ -4486,12 +4488,11 @@ class AdvancedLinesModel(BaseTable, QtCore.QAbstractTableModel):
         )
 
     def add(self, quantity, price, ignore, tax, showing, vector):
-
         line = db.AdvancedLine()
         line.origin_id = vector.origin_id
         line.quantity = quantity
         line.price = price
-        line.ignore = ignore
+        line.ignore_spec = ignore
         line.tax = tax
         line.showing_condition = showing
         line.condition = vector.condition
