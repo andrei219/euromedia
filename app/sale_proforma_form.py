@@ -286,7 +286,7 @@ class Form(Ui_SalesProformaForm, QWidget):
         description, spec = self.description.text(), self.spec.text()
         
         if not description or description not in stock_base.descriptions:
-            description=None
+            description = None
         
         if not spec or spec == 'Mix' or spec not in stock_base.specs:
             spec = None
@@ -332,7 +332,6 @@ class Form(Ui_SalesProformaForm, QWidget):
     def set_partner_completer(self):
         utils.setCompleter(self.partner, utils.partner_id_map.keys())
 
-
     def partner_search(self):
 
         partner = self.partner.text()
@@ -348,8 +347,8 @@ class Form(Ui_SalesProformaForm, QWidget):
             except TypeError:
                 raise 
                 
-            result = db.session.query(Agent.fiscal_name, Partner.warranty, Partner.euro,\
-                Partner.they_pay_they_ship, Partner.they_pay_we_ship, Partner.we_pay_we_ship,\
+            result = db.session.query(Agent.fiscal_name, Partner.warranty, Partner.euro,
+                Partner.they_pay_they_ship, Partner.they_pay_we_ship, Partner.we_pay_we_ship,
                     Partner.days_credit_limit).join(Agent).where(Partner.id == partner_id).one() 
 
             agent, warranty, euro, they_pay_they_ship, they_pay_we_ship, we_pay_we_ship, days = \
@@ -542,7 +541,6 @@ class Form(Ui_SalesProformaForm, QWidget):
             self.set_stock_mv()
             self.filters.set(None, None, None)
 
-
         self.resize_lines_view()
         self.description.setFocus(True)
 
@@ -653,5 +651,7 @@ class EditableForm(Form):
     def disable_warehouse(self):
         self.warehouse.setEnabled(False)
 
+
 def get_form(parent, view, proforma=None):
-    return EditableForm(parent, view, proforma ) if proforma else Form(parent, view)
+    return EditableForm(parent, view, proforma ) \
+        if proforma else Form(parent, view)

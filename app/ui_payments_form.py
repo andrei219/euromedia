@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_PaymentsForm(object):
     def setupUi(self, PaymentsForm):
         PaymentsForm.setObjectName("PaymentsForm")
-        PaymentsForm.resize(904, 622)
+        PaymentsForm.resize(962, 622)
         PaymentsForm.setMinimumSize(QtCore.QSize(744, 514))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(":/add_payment"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -34,7 +34,7 @@ class Ui_PaymentsForm(object):
         self.delete_payment_tool_button.setAutoRaise(True)
         self.delete_payment_tool_button.setObjectName("delete_payment_tool_button")
         self.groupBox = QtWidgets.QGroupBox(PaymentsForm)
-        self.groupBox.setGeometry(QtCore.QRect(30, 160, 831, 73))
+        self.groupBox.setGeometry(QtCore.QRect(30, 160, 901, 73))
         self.groupBox.setObjectName("groupBox")
         self.layoutWidget = QtWidgets.QWidget(self.groupBox)
         self.layoutWidget.setGeometry(QtCore.QRect(13, 29, 869, 32))
