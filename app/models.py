@@ -7481,7 +7481,7 @@ class InvoicePaymentModel(BaseTable, QtCore.QAbstractTableModel):
             return
         row, col = index.row(), index.column()
         proforma = self.proformas[row]
-        paid = sum(p.amount for p in proforma.payments)
+        paid = sum(abs(p.amount) for p in proforma.payments)
         total_debt = proforma.total_debt
         if role == Qt.DisplayRole:
             return [
