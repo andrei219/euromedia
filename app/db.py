@@ -1110,7 +1110,7 @@ class SaleInvoice(Base):
 
     @property
     def total_paid(self):
-        return round(sum(p.amount for p in self.payments), 2)
+        return round(sum(abs(p.amount) for p in self.payments), 2)
 
     @property
     def not_paid(self):
