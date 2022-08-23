@@ -62,10 +62,12 @@ class Form(Ui_Form, QWidget):
             self.type.setCurrentText(str(self.proforma.invoice.type))
             self.number.setText(str(self.proforma.invoice.number))
             self.date.setText(self.proforma.invoice.date.strftime('%d%m%Y'))
+            self.note.setText(self.proforma.invoice.note)
         else:
             self.type.setCurrentText(str(self.proforma.type))
             self.number.setText(str(self.proforma.number))
             self.date.setText(self.proforma.date.strftime('%d%m%Y'))
+            self.note.setText(self.proforma.note)
 
         self.partner.setText(p.partner_name)
         self.agent.setCurrentText(p.agent.fiscal_name)
@@ -89,10 +91,12 @@ class Form(Ui_Form, QWidget):
             self.proforma.invoice.type = int(self.type.currentText())
             self.proforma.invoice.number = int(self.number.text())
             self.proforma.invoice.date = utils.parse_date(self.date.text())
+            self.proforma.invoice.note = self.note.toPlainText()
         else:
             self.proforma.type = int(self.type.currentText())
             self.proforma.number = int(self.number.text())
             self.proforma.date = utils.parse_date(self.date.text())
+            self.proforma.note = self.note.toPlainText()
 
         self.proforma.they_pay_they_ship = self.they_pay_they_ship.isChecked()
         self.proforma.they_pay_we_ship = self.they_pay_we_ship.isChecked()
@@ -103,7 +107,6 @@ class Form(Ui_Form, QWidget):
         self.proforma.eur_currency = self.eur.isChecked()
         self.proforma.incoterm = self.incoterms.currentText()
         self.proforma.tracking = self.tracking.text()
-        self.proforma.note = self.note.toPlainText()[0:255]
         self.proforma.external = self.external.text()
 
 

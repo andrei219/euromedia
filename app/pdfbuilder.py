@@ -327,6 +327,7 @@ class TableData:
             self.Document_No = proforma.doc_repr
             self.External_Doc = ''
 
+
         self.Agent = proforma.agent.fiscal_name.split()[0]
         self.Incoterms = proforma.incoterm
         self.Currency = 'EUR' if proforma.eur_currency else 'USD'
@@ -529,6 +530,7 @@ class PDF(FPDF):
         self.y += Y_INCREMENT
         self.set_font('Arial', size=8)
         self.cell(0, txt=self.document.note or '')
+        print(f'self.document.note={self.document.note}')
         self.y += ADDITIONAL_TEXT_TERM_INCREMENT
 
     def print_vertical_line(self):
@@ -786,6 +788,7 @@ class PDF(FPDF):
 
 
 def build_document(document):
+    print(f'document.note={document.note}')
     pdf = PDF(document)
     pdf.alias_nb_pages()
     pdf.set_auto_page_break(True, 10)
