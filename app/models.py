@@ -6199,7 +6199,6 @@ class AppliedNoteModel(BaseTable, QtCore.QAbstractTableModel):
 
 class SIIInvoice:
 
-
     def __init__(self, invoice):
         self.invoice_number = invoice.doc_repr
         self.partner_name = invoice.partner_name
