@@ -29,6 +29,7 @@ class ClipLineEdit(QLineEdit):
     def contextMenuEvent(self, a0: QtGui.QContextMenuEvent) -> None:
         pass
 
+
 class ClipListView(QListView):
 
     def mousePressEvent(self, e: QtGui.QMouseEvent) -> None:

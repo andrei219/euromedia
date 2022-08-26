@@ -106,13 +106,9 @@ class Form(Ui_InvoiceForm, QWidget):
                 p.they_pay_we_ship = self.wildcard.isChecked()
             else:
                 p.we_pay_they_ship = self.wildcard.isChecked()
-            # TODO: think how to fix this
-            # Different fields for purchase or sales
-            # try:
-            #     p.we_pay_they_ship = self.we_pay_they_ship.isChecked()
-            # except AttributeError:
-            #     pass
 
+            p.eur_currency = self.eur.isChecked()
+            
             p.credit_amount = self.with_credit.value()
             p.credit_days = self.days_credit.value()
             p.incoterm = self.incoterms.currentText()
