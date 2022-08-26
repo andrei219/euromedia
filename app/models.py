@@ -1294,13 +1294,13 @@ def ship_several(proformas, tracking=None):
 
 class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
     TYPE_NUM, DATE, ETA, PARTNER, AGENT, FINANCIAL, LOGISTIC, SENT, CANCELLED, \
-    OWING, TOTAL, INVOICED, IN_WAREHOUSE = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12
+    OWING, TOTAL, EXTERNAL, INVOICED, IN_WAREHOUSE = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13
 
     def __init__(self, filters=None, search_key=None, last=10):
         super().__init__()
         self._headerData = ['Type & Num', 'Date', 'ETA', 'Partner', 'Agent', \
                             'Financial', 'Logistic', 'Sent', 'Cancelled', 'Owing', 'Total',
-                            'Invoiced', 'In Warehouse']
+                            'External', 'Invoiced', 'In Warehouse']
         self.name = 'proformas'
 
         query = db.session.query(db.PurchaseProforma).select_from(db.Agent, db.Partner). \
@@ -1438,7 +1438,8 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
             elif col == PurchaseProformaModel.TOTAL:
                 sign = ' -€' if proforma.eur_currency else ' $'
                 return str(proforma.total_debt) + sign
-
+            elif col == self.EXTERNAL:
+                return proforma.external
 
         elif role == Qt.DecorationRole:
             if col == PurchaseProformaModel.FINANCIAL:
