@@ -5515,11 +5515,12 @@ def get_spec(eline: db.ExpeditionLine):
 
 
 class WhRmaIncomingModel(BaseTable, QtCore.QAbstractTableModel):
-    ID, PARTNER, DATE, QUANTITY, STATUS, INVOICED, INVOICE = 0, 1, 2, 3, 4, 5, 6
+    ID, PARTNER, DATE, QUANTITY, STATUS, INVOICED, INVOICE, DUMPED = 0, 1, 2, 3, 4, 5, 6, 7
 
     def __init__(self, search_key=None, filters=None, last=10):
         super().__init__()
-        self._headerData = ['ID', 'Partner', 'Date', 'Quantity', 'Status', 'Invoiced', 'Invoice Number']
+        self._headerData = ['ID', 'Partner', 'Date', 'Quantity', 'Status',
+                            'Invoiced', 'Invoice Number', 'Exported']
         self.name = 'orders'
 
         query = db.session.query(db.WhIncomingRma).join(db.IncomingRma)
@@ -5558,6 +5559,9 @@ class WhRmaIncomingModel(BaseTable, QtCore.QAbstractTableModel):
             elif column == self.QUANTITY:
                 return str(len(order.lines)) + ' pcs '
 
+            elif column == self.DUMPED:
+                return 'Yes' if order.dumped else 'No'
+
         elif role == Qt.DecorationRole:
             if column == self.STATUS:
                 if all((line.accepted for line in order.lines)):
@@ -5568,6 +5572,9 @@ class WhRmaIncomingModel(BaseTable, QtCore.QAbstractTableModel):
                     return QtGui.QColor(ORANGE)
             elif column == self.DATE:
                 return QtGui.QIcon(':\calendar')
+            elif column == self.DUMPED:
+                return QtGui.QColor(GREEN if order.dumped else RED)
+
 
 
 from utils import warehouse_id_map

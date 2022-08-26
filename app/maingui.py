@@ -91,6 +91,7 @@ ACTIONS = [
     'advnorm',
     'ready',
     'import',
+    'dump',
     'template',
     'create_courier',
     'export_excel',
@@ -1303,6 +1304,7 @@ class MainGui(Ui_MainGui, QMainWindow):
         self.whirma = Form(self, order)
         self.whirma.show()
 
+
     def warehouse_incoming_rmas_tocn_handler(self):
         wh_rma_order = self.get_wh_incoming_rma_order()
         if not wh_rma_order:
@@ -1343,7 +1345,42 @@ class MainGui(Ui_MainGui, QMainWindow):
             db.session.add(imei)
 
         db.session.commit()
-        QMessageBox.information(self, 'Success', f'Credit Note:{invoice.doc_repr} built successfully. Inventory Updated.')
+        QMessageBox.information(
+            self,
+            'Success',
+            f'Credit Note:{invoice.doc_repr} built successfully. Inventory Updated.'
+        )
+
+    def warehouse_incoming_rmas_dump_handler(self):
+
+        wh_order = self.get_wh_incoming_rma_order()
+        if not wh_order:
+            return
+
+        if wh_order.dumped:
+            QMessageBox.critical(self, 'Error', 'Data already exported')
+
+        from utils import get_open_file_path
+        from openpyxl import load_workbook
+        xlsx_file_path = get_open_file_path(self)
+        try:
+            workbook = load_workbook(xlsx_file_path)
+            ws = workbook.active
+            max_row = ws.max_row
+            accepted_lines = filter(lambda l: l.accepted, wh_order.lines)
+            for i, line in enumerate(accepted_lines, start=1):
+                for j, value in enumerate(line.as_excel_row, start=1):
+                    ws.cell(max_row + i, j, value=value)
+
+            workbook.save(xlsx_file_path)
+
+        except:
+            QMessageBox.critical(self, 'Error', 'Error exporting data to excel')
+            raise
+        else:
+            wh_order.dumped = True
+            db.session.commit()
+            self.warehouse_rma_incoming_model.layoutChanged.emit()
 
 
     def rmas_incoming_double_click_handler(self, index):

@@ -1636,6 +1636,7 @@ class ReceptionLine(Base):
 
 
 class ReceptionSerie(Base):
+
     __tablename__ = 'reception_series'
 
     id = Column(Integer, primary_key=True)
@@ -1990,6 +1991,8 @@ class WhIncomingRma(Base):
 
     id = Column(Integer, primary_key=True)
 
+    dumped = Column(Boolean, nullable=False, default=False)
+
     incoming_rma_id = Column(Integer, ForeignKey('incoming_rmas.id'), nullable=False)
 
     sale_invoice_id = Column(Integer, ForeignKey('sale_invoices.id'))
@@ -1997,6 +2000,7 @@ class WhIncomingRma(Base):
     incoming_rma = relationship('IncomingRma', back_populates='wh_incoming_rma')
 
     sale_invoice = relationship('SaleInvoice', back_populates='wh_incoming_rma')
+
 
     __table_args__ = (
         UniqueConstraint('incoming_rma_id', name='wh_order_from_onlyone_rma_order'),
@@ -2007,6 +2011,7 @@ class WhIncomingRma(Base):
 
 
 class WhIncomingRmaLine(Base):
+
     __tablename__ = 'wh_incoming_rma_lines'
 
     id = Column(Integer, primary_key=True)
@@ -2068,8 +2073,38 @@ class WhIncomingRmaLine(Base):
         except IndexError:
             raise ValueError('Cant find sale invoice associated')
 
+    @property
+    def as_excel_row(self):
+        # Circular import error not raised. When execution reaches this
+        # code, utils and db are fully loaded.
+        from utils import description_id_map, warehouse_id_map
+
+        try:
+            purchase_proforma = session.query(PurchaseProforma).\
+                join(Reception).join(ReceptionLine).join(ReceptionSerie).\
+                where(ReceptionSerie.serie == self.sn).all()[-1]
+        except IndexError:
+            doc_repr = 'Not found'
+        else:
+            try:
+                doc_repr = purchase_proforma.invoice.doc_repr
+            except AttributeError:
+                doc_repr = purchase_proforma.doc_repr
+
+        return (
+            description_id_map.inverse[self.item_id],
+            self.sn,
+            self.problem,
+            self.wh_incoming_rma.incoming_rma.lines[0].supp,
+            doc_repr,
+            self.wh_incoming_rma.incoming_rma.lines[0].cust,
+            warehouse_id_map.inverse[self.warehouse_id]
+        )
+
+
 
 class CreditNoteLine(Base):
+
     __tablename__ = 'credit_note_lines'
 
     id = Column(Integer, primary_key=True)
@@ -2108,16 +2143,23 @@ class CreditNoteLine(Base):
 
 
 class IncomingRma(Base):
+
     __tablename__ = 'incoming_rmas'
+
     id = Column(Integer, primary_key=True)
+
     date = Column(Date, nullable=True)
 
     wh_incoming_rma = relationship(
+
         'WhIncomingRma', uselist=False, back_populates='incoming_rma'
+
     )
 
 
+
 class IncomingRmaLine(Base):
+
     __tablename__ = 'incoming_rma_lines'
 
     id = Column(Integer, primary_key=True)
