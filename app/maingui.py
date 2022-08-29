@@ -1486,7 +1486,6 @@ class MainGui(Ui_MainGui, QMainWindow):
         from stock_valuation import Form
         Form(self).exec_()
 
-
     def tab_changed(self, index):
         # Clean up the filters also
         # And complete the rest of the models

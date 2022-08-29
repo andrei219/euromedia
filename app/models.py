@@ -6283,10 +6283,16 @@ def do_sii(_from=None, to=None, series=None):
     with open(jsonfeed, 'w') as fp:
         json.dump(siiinovices, default=lambda o: o.__dict__, fp=fp, indent=4)
 
-    completed_subprocess = subprocess.run(['sii.exe', jsonfeed, jsonresponse], shell=True)
+    
 
-    with open(jsonresponse, 'r') as fp:
-        return json.load(fp)
+    # completed_subprocess = subprocess.run(['sii.exe', jsonfeed, jsonresponse], shell=True)
+
+    # Inspect completed process object
+    # to control the response for the user.
+
+    #
+    # with open(jsonresponse, 'r') as fp:
+    #     return json.load(fp)
 
 
 class SIILogModel(BaseTable, QtCore.QAbstractTableModel):

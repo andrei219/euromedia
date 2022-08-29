@@ -1,149 +1,42 @@
 [
     {
-        "invoice_number": "2-000331",
-        "partner_name": "Backferpal, S.L.",
-        "partner_ident": "B90476722",
-        "country_code": "ES",
-        "invoice_date": "11-07-2022",
+        "invoice_number": "4-000499",
+        "partner_name": "UAB Vasu",
+        "partner_ident": "UAB Vasu",
+        "country_code": "LT",
+        "invoice_date": "22-08-2022",
         "lines": [
             {
-                "quantity": 1,
-                "price": -444.0,
-                "tax": 0,
-                "is_stock": true,
-                "line_type": 4
-            },
-            {
-                "quantity": 1,
-                "price": -465.0,
-                "tax": 0,
-                "is_stock": true,
-                "line_type": 4
-            },
-            {
-                "quantity": 1,
-                "price": -465.0,
-                "tax": 0,
-                "is_stock": true,
-                "line_type": 4
-            },
-            {
-                "quantity": 1,
-                "price": -465.0,
-                "tax": 0,
-                "is_stock": true,
-                "line_type": 4
-            },
-            {
-                "quantity": 1,
-                "price": -445.0,
-                "tax": 0,
-                "is_stock": true,
-                "line_type": 4
-            },
-            {
-                "quantity": 1,
-                "price": -585.0,
-                "tax": 0,
-                "is_stock": true,
-                "line_type": 4
-            }
-        ],
-        "ambos_tax": false
-    },
-    {
-        "invoice_number": "1-000041",
-        "partner_name": "Soupside, S.L.",
-        "partner_ident": "B98996820",
-        "country_code": "ES",
-        "invoice_date": "11-07-2022",
-        "lines": [
-            {
-                "quantity": 1,
-                "price": 2552.0,
-                "tax": 21,
-                "is_stock": false,
-                "line_type": 3
-            },
-            {
-                "quantity": 1,
-                "price": 2948.41,
-                "tax": 21,
-                "is_stock": false,
-                "line_type": 3
-            },
-            {
-                "quantity": 1,
-                "price": 3664.12,
-                "tax": 21,
-                "is_stock": false,
-                "line_type": 3
-            },
-            {
-                "quantity": 2,
-                "price": 29.54,
-                "tax": 21,
-                "is_stock": false,
-                "line_type": 3
-            }
-        ],
-        "ambos_tax": false
-    },
-    {
-        "invoice_number": "4-000421",
-        "partner_name": "AT Capital Ltd.",
-        "partner_ident": "BG205419545",
-        "country_code": "BG",
-        "invoice_date": "11-07-2022",
-        "lines": [
-            {
-                "quantity": 20,
-                "price": 480.0,
+                "quantity": 72,
+                "price": 64.0,
                 "tax": 0,
                 "is_stock": true,
                 "line_type": 5
             },
             {
-                "quantity": 60,
-                "price": 480.0,
+                "quantity": 25,
+                "price": 64.0,
                 "tax": 0,
                 "is_stock": true,
                 "line_type": 5
             },
             {
-                "quantity": 40,
-                "price": 480.0,
+                "quantity": 13,
+                "price": 64.0,
                 "tax": 0,
                 "is_stock": true,
                 "line_type": 5
             },
             {
-                "quantity": 60,
-                "price": 480.0,
+                "quantity": 23,
+                "price": 64.0,
                 "tax": 0,
                 "is_stock": true,
                 "line_type": 5
             },
             {
-                "quantity": 1,
-                "price": 230.0,
-                "tax": 0,
-                "is_stock": false,
-                "line_type": 1
-            }
-        ],
-        "ambos_tax": false
-    },
-    {
-        "invoice_number": "4-000422",
-        "partner_name": "Nutracom OU",
-        "partner_ident": "EE102338874",
-        "country_code": "EE",
-        "invoice_date": "11-07-2022",
-        "lines": [
-            {
-                "quantity": 80,
-                "price": 63.0,
+                "quantity": 65,
+                "price": 64.0,
                 "tax": 0,
                 "is_stock": true,
                 "line_type": 5
@@ -152,427 +45,39 @@
         "ambos_tax": false
     },
     {
-        "invoice_number": "3-000021",
-        "partner_name": "DATATRADE, SPA",
-        "partner_ident": "C.O.E. SM04046",
-        "country_code": "SM",
-        "invoice_date": "11-07-2022",
+        "invoice_number": "4-000500",
+        "partner_name": "UAB Vasu",
+        "partner_ident": "UAB Vasu",
+        "country_code": "LT",
+        "invoice_date": "22-08-2022",
         "lines": [
             {
-                "quantity": 20,
-                "price": 500.0,
+                "quantity": 84,
+                "price": 235.0,
                 "tax": 0,
                 "is_stock": true,
                 "line_type": 5
-            },
-            {
-                "quantity": 1,
-                "price": 35.0,
-                "tax": 0,
-                "is_stock": false,
-                "line_type": 1
             }
         ],
         "ambos_tax": false
     },
     {
-        "invoice_number": "3-000022",
-        "partner_name": "DATATRADE, SPA",
-        "partner_ident": "C.O.E. SM04046",
-        "country_code": "SM",
-        "invoice_date": "11-07-2022",
-        "lines": [
-            {
-                "quantity": 20,
-                "price": 500.0,
-                "tax": 0,
-                "is_stock": true,
-                "line_type": 5
-            },
-            {
-                "quantity": 1,
-                "price": 35.0,
-                "tax": 0,
-                "is_stock": false,
-                "line_type": 1
-            }
-        ],
-        "ambos_tax": false
-    },
-    {
-        "invoice_number": "4-000423",
-        "partner_name": "W.P.S. S.R.L.",
-        "partner_ident": "IT10925720962",
-        "country_code": "IT",
-        "invoice_date": "11-07-2022",
-        "lines": [
-            {
-                "quantity": 20,
-                "price": 495.0,
-                "tax": 0,
-                "is_stock": true,
-                "line_type": 5
-            },
-            {
-                "quantity": 20,
-                "price": 495.0,
-                "tax": 0,
-                "is_stock": true,
-                "line_type": 5
-            },
-            {
-                "quantity": 20,
-                "price": 495.0,
-                "tax": 0,
-                "is_stock": true,
-                "line_type": 5
-            },
-            {
-                "quantity": 20,
-                "price": 495.0,
-                "tax": 0,
-                "is_stock": true,
-                "line_type": 5
-            },
-            {
-                "quantity": 40,
-                "price": 495.0,
-                "tax": 0,
-                "is_stock": true,
-                "line_type": 5
-            },
-            {
-                "quantity": 1,
-                "price": 150.0,
-                "tax": 0,
-                "is_stock": false,
-                "line_type": 1
-            }
-        ],
-        "ambos_tax": false
-    },
-    {
-        "invoice_number": "1-000042",
-        "partner_name": "SHOPPING ONLINE MULTIMEDIA SL",
-        "partner_ident": "B98904113",
-        "country_code": "ES",
-        "invoice_date": "11-07-2022",
-        "lines": [
-            {
-                "quantity": 100,
-                "price": 1.3,
-                "tax": 21,
-                "is_stock": true,
-                "line_type": 7
-            },
-            {
-                "quantity": 100,
-                "price": 2.2,
-                "tax": 21,
-                "is_stock": true,
-                "line_type": 7
-            },
-            {
-                "quantity": 100,
-                "price": 1.7,
-                "tax": 21,
-                "is_stock": true,
-                "line_type": 7
-            },
-            {
-                "quantity": 100,
-                "price": 4.5,
-                "tax": 21,
-                "is_stock": true,
-                "line_type": 7
-            }
-        ],
-        "ambos_tax": false
-    },
-    {
-        "invoice_number": "2-000332",
-        "partner_name": "Velox Estudio, S.L.",
-        "partner_ident": "B93709202",
-        "country_code": "ES",
-        "invoice_date": "11-07-2022",
-        "lines": [
-            {
-                "quantity": 1,
-                "price": -430.0,
-                "tax": 0,
-                "is_stock": true,
-                "line_type": 4
-            }
-        ],
-        "ambos_tax": false
-    },
-    {
-        "invoice_number": "4-000424",
-        "partner_name": "CIRCULAR CONSULTING SPRL",
-        "partner_ident": "BE0631716755",
-        "country_code": "BE",
-        "invoice_date": "11-07-2022",
-        "lines": [
-            {
-                "quantity": 20,
-                "price": 445.0,
-                "tax": 0,
-                "is_stock": true,
-                "line_type": 5
-            },
-            {
-                "quantity": 20,
-                "price": 445.0,
-                "tax": 0,
-                "is_stock": true,
-                "line_type": 5
-            },
-            {
-                "quantity": 20,
-                "price": 445.0,
-                "tax": 0,
-                "is_stock": true,
-                "line_type": 5
-            },
-            {
-                "quantity": 40,
-                "price": 445.0,
-                "tax": 0,
-                "is_stock": true,
-                "line_type": 5
-            },
-            {
-                "quantity": 1,
-                "price": 130.0,
-                "tax": 0,
-                "is_stock": false,
-                "line_type": 1
-            }
-        ],
-        "ambos_tax": false
-    },
-    {
-        "invoice_number": "1-000043",
-        "partner_name": "Jefferson Mittnacht Mont",
-        "partner_ident": "24383791L",
-        "country_code": "ES",
-        "invoice_date": "11-07-2022",
-        "lines": [
-            {
-                "quantity": 1,
-                "price": 750.0,
-                "tax": 21,
-                "is_stock": true,
-                "line_type": 7
-            }
-        ],
-        "ambos_tax": false
-    },
-    {
-        "invoice_number": "2-000333",
-        "partner_name": "Comercial Tres Colegas, S.L.",
-        "partner_ident": "B93643708",
-        "country_code": "ES",
-        "invoice_date": "12-07-2022",
-        "lines": [
-            {
-                "quantity": 1,
-                "price": -590.0,
-                "tax": 0,
-                "is_stock": true,
-                "line_type": 4
-            },
-            {
-                "quantity": 1,
-                "price": -590.0,
-                "tax": 0,
-                "is_stock": true,
-                "line_type": 4
-            },
-            {
-                "quantity": 1,
-                "price": -439.0,
-                "tax": 0,
-                "is_stock": true,
-                "line_type": 4
-            },
-            {
-                "quantity": 1,
-                "price": -439.0,
-                "tax": 0,
-                "is_stock": true,
-                "line_type": 4
-            },
-            {
-                "quantity": 1,
-                "price": -439.0,
-                "tax": 0,
-                "is_stock": true,
-                "line_type": 4
-            },
-            {
-                "quantity": 1,
-                "price": -490.0,
-                "tax": 0,
-                "is_stock": true,
-                "line_type": 4
-            }
-        ],
-        "ambos_tax": false
-    },
-    {
-        "invoice_number": "4-000425",
-        "partner_name": "AT Capital Ltd.",
-        "partner_ident": "BG205419545",
-        "country_code": "BG",
-        "invoice_date": "12-07-2022",
-        "lines": [
-            {
-                "quantity": 20,
-                "price": 422.0,
-                "tax": 0,
-                "is_stock": true,
-                "line_type": 5
-            },
-            {
-                "quantity": 20,
-                "price": 422.0,
-                "tax": 0,
-                "is_stock": true,
-                "line_type": 5
-            },
-            {
-                "quantity": 40,
-                "price": 422.0,
-                "tax": 0,
-                "is_stock": true,
-                "line_type": 5
-            },
-            {
-                "quantity": 20,
-                "price": 422.0,
-                "tax": 0,
-                "is_stock": true,
-                "line_type": 5
-            },
-            {
-                "quantity": 20,
-                "price": 422.0,
-                "tax": 0,
-                "is_stock": true,
-                "line_type": 5
-            },
-            {
-                "quantity": 20,
-                "price": 422.0,
-                "tax": 0,
-                "is_stock": true,
-                "line_type": 5
-            },
-            {
-                "quantity": 20,
-                "price": 422.0,
-                "tax": 0,
-                "is_stock": true,
-                "line_type": 5
-            },
-            {
-                "quantity": 20,
-                "price": 422.0,
-                "tax": 0,
-                "is_stock": true,
-                "line_type": 5
-            },
-            {
-                "quantity": 20,
-                "price": 422.0,
-                "tax": 0,
-                "is_stock": true,
-                "line_type": 5
-            },
-            {
-                "quantity": 20,
-                "price": 480.0,
-                "tax": 0,
-                "is_stock": true,
-                "line_type": 5
-            },
-            {
-                "quantity": 20,
-                "price": 480.0,
-                "tax": 0,
-                "is_stock": true,
-                "line_type": 5
-            },
-            {
-                "quantity": 20,
-                "price": 480.0,
-                "tax": 0,
-                "is_stock": true,
-                "line_type": 5
-            },
-            {
-                "quantity": 1,
-                "price": 330.0,
-                "tax": 0,
-                "is_stock": false,
-                "line_type": 1
-            }
-        ],
-        "ambos_tax": false
-    },
-    {
-        "invoice_number": "2-000334",
+        "invoice_number": "2-000406",
         "partner_name": "Moviles House Outlet Store, S.L.",
-        "partner_ident": "B98982598",
+        "partner_ident": "Moviles House Outlet Store, S.L.",
         "country_code": "ES",
-        "invoice_date": "12-07-2022",
+        "invoice_date": "22-08-2022",
         "lines": [
             {
                 "quantity": 1,
-                "price": -490.0,
+                "price": -215.0,
                 "tax": 0,
                 "is_stock": true,
                 "line_type": 4
             },
             {
                 "quantity": 1,
-                "price": -590.0,
-                "tax": 0,
-                "is_stock": true,
-                "line_type": 4
-            },
-            {
-                "quantity": 1,
-                "price": -495.0,
-                "tax": 0,
-                "is_stock": true,
-                "line_type": 4
-            },
-            {
-                "quantity": 1,
-                "price": -495.0,
-                "tax": 0,
-                "is_stock": true,
-                "line_type": 4
-            },
-            {
-                "quantity": 1,
-                "price": -495.0,
-                "tax": 0,
-                "is_stock": true,
-                "line_type": 4
-            },
-            {
-                "quantity": 1,
-                "price": -495.0,
-                "tax": 0,
-                "is_stock": true,
-                "line_type": 4
-            },
-            {
-                "quantity": 1,
-                "price": -495.0,
+                "price": -330.0,
                 "tax": 0,
                 "is_stock": true,
                 "line_type": 4
@@ -581,91 +86,53 @@
         "ambos_tax": false
     },
     {
-        "invoice_number": "4-000426",
-        "partner_name": "AT Capital Ltd.",
-        "partner_ident": "BG205419545",
-        "country_code": "BG",
-        "invoice_date": "12-07-2022",
-        "lines": [
-            {
-                "quantity": 1,
-                "price": -400.0,
-                "tax": 0,
-                "is_stock": true,
-                "line_type": 4
-            },
-            {
-                "quantity": 1,
-                "price": -527.0,
-                "tax": 0,
-                "is_stock": true,
-                "line_type": 4
-            }
-        ],
-        "ambos_tax": false
-    },
-    {
-        "invoice_number": "2-000335",
+        "invoice_number": "2-000407",
         "partner_name": "FULLRENEW SL",
-        "partner_ident": "B67983932",
+        "partner_ident": "FULLRENEW SL",
         "country_code": "ES",
-        "invoice_date": "12-07-2022",
+        "invoice_date": "23-08-2022",
         "lines": [
             {
-                "quantity": 20,
-                "price": 465.0,
+                "quantity": 1,
+                "price": -465.0,
+                "tax": 0,
+                "is_stock": true,
+                "line_type": 4
+            }
+        ],
+        "ambos_tax": false
+    },
+    {
+        "invoice_number": "4-000501",
+        "partner_name": "AT Capital Ltd.",
+        "partner_ident": "AT Capital Ltd.",
+        "country_code": "BG",
+        "invoice_date": "23-08-2022",
+        "lines": [
+            {
+                "quantity": 21,
+                "price": 345.0,
                 "tax": 0,
                 "is_stock": true,
                 "line_type": 5
             },
             {
-                "quantity": 20,
-                "price": 515.0,
+                "quantity": 9,
+                "price": 345.0,
                 "tax": 0,
                 "is_stock": true,
                 "line_type": 5
-            },
-            {
-                "quantity": 40,
-                "price": 1.5,
-                "tax": 21,
-                "is_stock": false,
-                "line_type": 3
             },
             {
                 "quantity": 1,
-                "price": 15.0,
-                "tax": 21,
+                "price": 165.0,
+                "tax": 0,
                 "is_stock": false,
-                "line_type": 3
-            }
-        ],
-        "ambos_tax": true
-    },
-    {
-        "invoice_number": "4-000427",
-        "partner_name": "Erregame S.P.A.",
-        "partner_ident": "IT05618691215",
-        "country_code": "IT",
-        "invoice_date": "12-07-2022",
-        "lines": [
-            {
-                "quantity": 36,
-                "price": 767.0,
-                "tax": 0,
-                "is_stock": true,
-                "line_type": 5
+                "line_type": 1
             },
             {
-                "quantity": 52,
-                "price": 767.0,
-                "tax": 0,
-                "is_stock": true,
-                "line_type": 5
-            },
-            {
-                "quantity": 30,
-                "price": 767.0,
+                "quantity": 100,
+                "price": 345.0,
                 "tax": 0,
                 "is_stock": true,
                 "line_type": 5
@@ -674,56 +141,158 @@
         "ambos_tax": false
     },
     {
-        "invoice_number": "4-000428",
-        "partner_name": "Mobielwerkt, B.V.",
-        "partner_ident": "NL819148003B01",
-        "country_code": "NL",
-        "invoice_date": "12-07-2022",
-        "lines": [
-            {
-                "quantity": 10,
-                "price": 639.0,
-                "tax": 0,
-                "is_stock": true,
-                "line_type": 5
-            },
-            {
-                "quantity": 1,
-                "price": 0.0,
-                "tax": 0,
-                "is_stock": false,
-                "line_type": 0
-            }
-        ],
-        "ambos_tax": false
-    },
-    {
-        "invoice_number": "1-000044",
-        "partner_name": "Moviles House Outlet Store, S.L.",
-        "partner_ident": "B98982598",
+        "invoice_number": "2-000408",
+        "partner_name": "Comercial Tres Colegas, S.L.",
+        "partner_ident": "Comercial Tres Colegas, S.L.",
         "country_code": "ES",
-        "invoice_date": "12-07-2022",
+        "invoice_date": "25-08-2022",
         "lines": [
             {
                 "quantity": 1,
-                "price": 74.0,
-                "tax": 21,
+                "price": -325.0,
+                "tax": 0,
                 "is_stock": true,
-                "line_type": 7
+                "line_type": 4
+            },
+            {
+                "quantity": 1,
+                "price": -325.0,
+                "tax": 0,
+                "is_stock": true,
+                "line_type": 4
+            },
+            {
+                "quantity": 1,
+                "price": -325.0,
+                "tax": 0,
+                "is_stock": true,
+                "line_type": 4
+            },
+            {
+                "quantity": 1,
+                "price": -325.0,
+                "tax": 0,
+                "is_stock": true,
+                "line_type": 4
+            },
+            {
+                "quantity": 1,
+                "price": -325.0,
+                "tax": 0,
+                "is_stock": true,
+                "line_type": 4
+            },
+            {
+                "quantity": 1,
+                "price": -465.0,
+                "tax": 0,
+                "is_stock": true,
+                "line_type": 4
+            },
+            {
+                "quantity": 1,
+                "price": -515.0,
+                "tax": 0,
+                "is_stock": true,
+                "line_type": 4
+            },
+            {
+                "quantity": 1,
+                "price": -515.0,
+                "tax": 0,
+                "is_stock": true,
+                "line_type": 4
+            },
+            {
+                "quantity": 1,
+                "price": -515.0,
+                "tax": 0,
+                "is_stock": true,
+                "line_type": 4
+            },
+            {
+                "quantity": 1,
+                "price": -515.0,
+                "tax": 0,
+                "is_stock": true,
+                "line_type": 4
+            },
+            {
+                "quantity": 1,
+                "price": -515.0,
+                "tax": 0,
+                "is_stock": true,
+                "line_type": 4
+            },
+            {
+                "quantity": 1,
+                "price": -515.0,
+                "tax": 0,
+                "is_stock": true,
+                "line_type": 4
+            },
+            {
+                "quantity": 1,
+                "price": -515.0,
+                "tax": 0,
+                "is_stock": true,
+                "line_type": 4
+            },
+            {
+                "quantity": 1,
+                "price": -515.0,
+                "tax": 0,
+                "is_stock": true,
+                "line_type": 4
+            },
+            {
+                "quantity": 1,
+                "price": -515.0,
+                "tax": 0,
+                "is_stock": true,
+                "line_type": 4
+            },
+            {
+                "quantity": 1,
+                "price": -515.0,
+                "tax": 0,
+                "is_stock": true,
+                "line_type": 4
+            },
+            {
+                "quantity": 1,
+                "price": -515.0,
+                "tax": 0,
+                "is_stock": true,
+                "line_type": 4
+            },
+            {
+                "quantity": 1,
+                "price": -515.0,
+                "tax": 0,
+                "is_stock": true,
+                "line_type": 4
+            },
+            {
+                "quantity": 1,
+                "price": -515.0,
+                "tax": 0,
+                "is_stock": true,
+                "line_type": 4
             }
         ],
         "ambos_tax": false
     },
     {
-        "invoice_number": "4-000429",
-        "partner_name": "Nutracom OU",
-        "partner_ident": "EE102338874",
-        "country_code": "EE",
-        "invoice_date": "13-07-2022",
+        "invoice_number": "4-000502",
+        "partner_name": "PPA International AG",
+        "partner_ident": "PPA International AG",
+        "country_code": "DE",
+        "invoice_date": "25-08-2022",
         "lines": [
             {
-                "quantity": 93,
-                "price": 144.0,
+                "quantity": 144,
+                "price": 430.0,
                 "tax": 0,
                 "is_stock": true,
                 "line_type": 5
@@ -732,63 +301,144 @@
         "ambos_tax": false
     },
     {
-        "invoice_number": "3-000023",
-        "partner_name": "Adpress International FZCO",
-        "partner_ident": "100383676200003",
-        "country_code": "AE",
-        "invoice_date": "13-07-2022",
-        "lines": [
-            {
-                "quantity": 5,
-                "price": 768.0,
-                "tax": 0,
-                "is_stock": true,
-                "line_type": 5
-            },
-            {
-                "quantity": 32,
-                "price": 768.0,
-                "tax": 0,
-                "is_stock": true,
-                "line_type": 5
-            },
-            {
-                "quantity": 2,
-                "price": 768.0,
-                "tax": 0,
-                "is_stock": true,
-                "line_type": 5
-            },
-            {
-                "quantity": 44,
-                "price": 710.0,
-                "tax": 0,
-                "is_stock": true,
-                "line_type": 5
-            }
-        ],
-        "ambos_tax": false
-    },
-    {
-        "invoice_number": "1-000045",
-        "partner_name": "Microfix Labs, S.L.",
-        "partner_ident": "B01611508",
+        "invoice_number": "2-000409",
+        "partner_name": "Velox Estudio, S.L.",
+        "partner_ident": "Velox Estudio, S.L.",
         "country_code": "ES",
-        "invoice_date": "13-07-2022",
+        "invoice_date": "25-08-2022",
         "lines": [
             {
                 "quantity": 1,
-                "price": 28.65,
-                "tax": 21,
-                "is_stock": false,
-                "line_type": 3
+                "price": -325.0,
+                "tax": 0,
+                "is_stock": true,
+                "line_type": 4
             },
             {
                 "quantity": 1,
-                "price": 497.32,
-                "tax": 21,
-                "is_stock": false,
-                "line_type": 3
+                "price": -515.0,
+                "tax": 0,
+                "is_stock": true,
+                "line_type": 4
+            },
+            {
+                "quantity": 1,
+                "price": -515.0,
+                "tax": 0,
+                "is_stock": true,
+                "line_type": 4
+            },
+            {
+                "quantity": 1,
+                "price": -515.0,
+                "tax": 0,
+                "is_stock": true,
+                "line_type": 4
+            },
+            {
+                "quantity": 1,
+                "price": -325.0,
+                "tax": 0,
+                "is_stock": true,
+                "line_type": 4
+            },
+            {
+                "quantity": 1,
+                "price": -515.0,
+                "tax": 0,
+                "is_stock": true,
+                "line_type": 4
+            },
+            {
+                "quantity": 1,
+                "price": -515.0,
+                "tax": 0,
+                "is_stock": true,
+                "line_type": 4
+            },
+            {
+                "quantity": 1,
+                "price": -325.0,
+                "tax": 0,
+                "is_stock": true,
+                "line_type": 4
+            },
+            {
+                "quantity": 1,
+                "price": -515.0,
+                "tax": 0,
+                "is_stock": true,
+                "line_type": 4
+            },
+            {
+                "quantity": 1,
+                "price": -515.0,
+                "tax": 0,
+                "is_stock": true,
+                "line_type": 4
+            },
+            {
+                "quantity": 1,
+                "price": -515.0,
+                "tax": 0,
+                "is_stock": true,
+                "line_type": 4
+            },
+            {
+                "quantity": 1,
+                "price": -325.0,
+                "tax": 0,
+                "is_stock": true,
+                "line_type": 4
+            },
+            {
+                "quantity": 1,
+                "price": -515.0,
+                "tax": 0,
+                "is_stock": true,
+                "line_type": 4
+            },
+            {
+                "quantity": 1,
+                "price": -515.0,
+                "tax": 0,
+                "is_stock": true,
+                "line_type": 4
+            },
+            {
+                "quantity": 1,
+                "price": -515.0,
+                "tax": 0,
+                "is_stock": true,
+                "line_type": 4
+            },
+            {
+                "quantity": 1,
+                "price": -325.0,
+                "tax": 0,
+                "is_stock": true,
+                "line_type": 4
+            },
+            {
+                "quantity": 1,
+                "price": -325.0,
+                "tax": 0,
+                "is_stock": true,
+                "line_type": 4
+            },
+            {
+                "quantity": 1,
+                "price": -515.0,
+                "tax": 0,
+                "is_stock": true,
+                "line_type": 4
+            },
+            {
+                "quantity": 1,
+                "price": -515.0,
+                "tax": 0,
+                "is_stock": true,
+                "line_type": 4
             }
         ],
         "ambos_tax": false
