@@ -41,10 +41,11 @@ class Form(Ui_Dialog, QDialog):
 
         except ValueError as ex:
             QMessageBox.critical(self, 'Error', str(ex))
+            raise
         else:
-            from siilog import Form
-            Form(self, registers).exec_()
-
+            if registers:
+                from siilog import Form
+                Form(self, registers).exec_()
 
     def get_dates(self):
         try:

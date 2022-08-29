@@ -6210,7 +6210,7 @@ class SIIInvoice:
     def __init__(self, invoice):
         self.invoice_number = invoice.doc_repr
         self.partner_name = invoice.partner_name
-        self.partner_ident = invoice.partner_name
+        self.partner_ident = invoice.partner_object.fiscal_number
         self.country_code = utils.get_country_code(invoice.partner_object.billing_country)
         self.invoice_date = invoice.date.strftime('%d-%m-%Y')
 
@@ -6283,16 +6283,13 @@ def do_sii(_from=None, to=None, series=None):
     with open(jsonfeed, 'w') as fp:
         json.dump(siiinovices, default=lambda o: o.__dict__, fp=fp, indent=4)
 
-    
+    completed_subprocess = subprocess.run(['sii.exe', jsonfeed, jsonresponse], shell=True)
 
-    # completed_subprocess = subprocess.run(['sii.exe', jsonfeed, jsonresponse], shell=True)
-
-    # Inspect completed process object
-    # to control the response for the user.
-
-    #
-    # with open(jsonresponse, 'r') as fp:
-    #     return json.load(fp)
+    if completed_subprocess.returncode == 0:
+        with open(jsonresponse, 'r') as fp:
+            return json.load(fp)
+    else:
+        raise ValueError('Subprocess failed')
 
 
 class SIILogModel(BaseTable, QtCore.QAbstractTableModel):

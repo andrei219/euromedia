@@ -2,7 +2,7 @@
     {
         "invoice_number": "4-000499",
         "partner_name": "UAB Vasu",
-        "partner_ident": "UAB Vasu",
+        "partner_ident": "LT100014921211",
         "country_code": "LT",
         "invoice_date": "22-08-2022",
         "lines": [
@@ -47,7 +47,7 @@
     {
         "invoice_number": "4-000500",
         "partner_name": "UAB Vasu",
-        "partner_ident": "UAB Vasu",
+        "partner_ident": "LT100014921211",
         "country_code": "LT",
         "invoice_date": "22-08-2022",
         "lines": [
@@ -64,7 +64,7 @@
     {
         "invoice_number": "2-000406",
         "partner_name": "Moviles House Outlet Store, S.L.",
-        "partner_ident": "Moviles House Outlet Store, S.L.",
+        "partner_ident": "B98982598",
         "country_code": "ES",
         "invoice_date": "22-08-2022",
         "lines": [
@@ -88,7 +88,7 @@
     {
         "invoice_number": "2-000407",
         "partner_name": "FULLRENEW SL",
-        "partner_ident": "FULLRENEW SL",
+        "partner_ident": "B67983932",
         "country_code": "ES",
         "invoice_date": "23-08-2022",
         "lines": [
@@ -105,7 +105,7 @@
     {
         "invoice_number": "4-000501",
         "partner_name": "AT Capital Ltd.",
-        "partner_ident": "AT Capital Ltd.",
+        "partner_ident": "BG205419545",
         "country_code": "BG",
         "invoice_date": "23-08-2022",
         "lines": [
@@ -143,7 +143,7 @@
     {
         "invoice_number": "2-000408",
         "partner_name": "Comercial Tres Colegas, S.L.",
-        "partner_ident": "Comercial Tres Colegas, S.L.",
+        "partner_ident": "B93643708",
         "country_code": "ES",
         "invoice_date": "25-08-2022",
         "lines": [
@@ -286,7 +286,7 @@
     {
         "invoice_number": "4-000502",
         "partner_name": "PPA International AG",
-        "partner_ident": "PPA International AG",
+        "partner_ident": "DE291560557",
         "country_code": "DE",
         "invoice_date": "25-08-2022",
         "lines": [
@@ -303,7 +303,7 @@
     {
         "invoice_number": "2-000409",
         "partner_name": "Velox Estudio, S.L.",
-        "partner_ident": "Velox Estudio, S.L.",
+        "partner_ident": "B93709202",
         "country_code": "ES",
         "invoice_date": "25-08-2022",
         "lines": [
