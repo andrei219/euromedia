@@ -834,16 +834,17 @@ class SaleInvoiceModel(BaseTable, QtCore.QAbstractTableModel):
                 return QtGui.QIcon(':\calendar')
 
             elif col == self.FINANCIAL:
+
+
                 if financial_status_string == 'Not Paid':
                     return QtGui.QColor(YELLOW)
-                elif financial_status_string == 'Paid':
+                elif financial_status_string == 'Paid' or financial_status_string == 'Applied':
                     return QtGui.QColor(GREEN)
                 elif financial_status_string == 'Partially Paid':
                     return QtGui.QColor(ORANGE)
                 elif financial_status_string == 'We Owe':
                     return QtGui.QColor(RED)
 
-            # Not very fun but I don't feel good
             elif col == self.LOGISTIC:
                 if logistic_status_string == 'Empty':
                     return QtGui.QColor(YELLOW)

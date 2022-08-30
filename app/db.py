@@ -1160,6 +1160,11 @@ class SaleInvoice(Base):
 
     @property
     def financial_status_string(self):
+
+        if self.applied:
+            return 'Applied'
+
+
         if self.not_paid:
             return 'Not Paid'
         elif self.partially_paid:

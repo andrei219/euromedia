@@ -161,14 +161,17 @@ class SaleLinePDFRepr(LinePDFRepr):
             self.total = dot_comma_number_repr(self.total)
             self.price = dot_comma_number_repr(self.price)
 
+            if not lines[0].showing_condition:
+                diff_conditions = {line.condition for line in lines}
+                if len(diff_conditions) > 1:
+                    condition = 'Mix'
+                else:
+                    condition = lines[0].condition
+            else:
+                condition = lines[0].showing_condition
 
+            self.description += ', ' + condition + ' Condt.'
 
-            showing_condition = lines[0].showing_condition
-            condition = showing_condition or lines[0].condition
-            condition += ' Cond.'
-
-            # if len({line.condition for line in lines}) > 1:
-            #     condition = 'Mix Cond.'
 
             self.description += ', ' + condition
 
