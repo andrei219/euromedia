@@ -587,7 +587,7 @@ class PDF(FPDF):
             self.x = LEFT_MARGIN + 4
             self.y += Y_INCREMENT
 
-        if type(self.document) == SaleProforma:
+        if isinstance(self.document, (SaleProforma, SaleInvoice)):
             self.print_conditions()
 
     def print_line(self):
@@ -788,7 +788,6 @@ class PDF(FPDF):
 
 
 def build_document(document):
-    print(f'document.note={document.note}')
     pdf = PDF(document)
     pdf.alias_nb_pages()
     pdf.set_auto_page_break(True, 10)
