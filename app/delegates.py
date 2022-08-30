@@ -1,3 +1,4 @@
+from PyQt5 import QtCore
 from PyQt5.QtWidgets import QStyledItemDelegate, QWidget, QCompleter, QLineEdit, QItemDelegate
 from PyQt5.QtWidgets import QComboBox
 from PyQt5.QtCore import Qt
@@ -22,3 +23,19 @@ class WhDelegate(QItemDelegate):
             return super().createEditor(parent, option, index)
 
 
+class WarningEditDelegate(QItemDelegate):
+
+    def __init__(self, *, parent, column):
+        super().__init__(parent=parent)
+        self.column = column
+
+    def createEditor(self, parent, option, index):
+        if index.column() == self.column:
+            return QLineEdit(parent)
+        return super().createEditor(parent, option, index)
+
+    def setEditorData(self, editor: QWidget, index: QtCore.QModelIndex) -> None:
+        print(f'self.column={self.column}')
+        if index.column() == self.column:
+            print(f'index.data(Qt.DisplayRole) = {index.data(Qt.DisplayRole)}')
+            editor.setText(index.data(Qt.DisplayRole))

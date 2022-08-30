@@ -51,7 +51,7 @@
      <number>0</number>
     </property>
     <property name="currentIndex">
-     <number>5</number>
+     <number>3</number>
     </property>
     <property name="iconSize">
      <size>
@@ -2275,34 +2275,15 @@
         <widget class="QWidget" name="layoutWidget">
          <property name="geometry">
           <rect>
-           <x>10</x>
+           <x>0</x>
            <y>10</y>
            <width>1404</width>
-           <height>62</height>
+           <height>71</height>
           </rect>
          </property>
          <layout class="QGridLayout" name="gridLayout">
           <item row="0" column="4">
-           <widget class="Line" name="line">
-            <property name="minimumSize">
-             <size>
-              <width>16</width>
-              <height>60</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>16</width>
-              <height>60</height>
-             </size>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="5">
-           <widget class="QToolButton" name="proformas_sales_view_pdf">
+           <widget class="QToolButton" name="proformas_sales_cancel">
             <property name="minimumSize">
              <size>
               <width>70</width>
@@ -2314,48 +2295,19 @@
               <width>70</width>
               <height>60</height>
              </size>
+            </property>
+            <property name="toolTip">
+             <string/>
+            </property>
+            <property name="statusTip">
+             <string/>
             </property>
             <property name="text">
-             <string>View</string>
+             <string>Cancel</string>
             </property>
             <property name="icon">
              <iconset resource="../app/icons.qrc">
-              <normaloff>:/icons/view.png</normaloff>:/icons/view.png</iconset>
-            </property>
-            <property name="iconSize">
-             <size>
-              <width>40</width>
-              <height>40</height>
-             </size>
-            </property>
-            <property name="toolButtonStyle">
-             <enum>Qt::ToolButtonTextUnderIcon</enum>
-            </property>
-            <property name="autoRaise">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="6">
-           <widget class="QToolButton" name="proformas_sales_export">
-            <property name="minimumSize">
-             <size>
-              <width>70</width>
-              <height>60</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>70</width>
-              <height>60</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>Export</string>
-            </property>
-            <property name="icon">
-             <iconset resource="../app/icons.qrc">
-              <normaloff>:/export</normaloff>:/export</iconset>
+              <normaloff>:/cancel</normaloff>:/cancel</iconset>
             </property>
             <property name="iconSize">
              <size>
@@ -2372,76 +2324,6 @@
            </widget>
           </item>
           <item row="0" column="9">
-           <widget class="QToolButton" name="proformas_sales_mail">
-            <property name="minimumSize">
-             <size>
-              <width>70</width>
-              <height>60</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>70</width>
-              <height>60</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>E-Mail</string>
-            </property>
-            <property name="icon">
-             <iconset resource="../app/icons.qrc">
-              <normaloff>:/email</normaloff>:/email</iconset>
-            </property>
-            <property name="iconSize">
-             <size>
-              <width>40</width>
-              <height>40</height>
-             </size>
-            </property>
-            <property name="toolButtonStyle">
-             <enum>Qt::ToolButtonTextUnderIcon</enum>
-            </property>
-            <property name="autoRaise">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="7">
-           <widget class="QToolButton" name="proformas_sales_export_excel">
-            <property name="minimumSize">
-             <size>
-              <width>70</width>
-              <height>60</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>70</width>
-              <height>60</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>Export</string>
-            </property>
-            <property name="icon">
-             <iconset resource="../app/icons.qrc">
-              <normaloff>:/excel</normaloff>:/excel</iconset>
-            </property>
-            <property name="iconSize">
-             <size>
-              <width>40</width>
-              <height>40</height>
-             </size>
-            </property>
-            <property name="toolButtonStyle">
-             <enum>Qt::ToolButtonTextUnderIcon</enum>
-            </property>
-            <property name="autoRaise">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="8">
            <widget class="QToolButton" name="proformas_sales_whatsapp">
             <property name="minimumSize">
              <size>
@@ -2476,8 +2358,78 @@
             </property>
            </widget>
           </item>
+          <item row="0" column="8">
+           <widget class="QToolButton" name="proformas_sales_export_excel">
+            <property name="minimumSize">
+             <size>
+              <width>70</width>
+              <height>60</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>70</width>
+              <height>60</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Export</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../app/icons.qrc">
+              <normaloff>:/excel</normaloff>:/excel</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>40</width>
+              <height>40</height>
+             </size>
+            </property>
+            <property name="toolButtonStyle">
+             <enum>Qt::ToolButtonTextUnderIcon</enum>
+            </property>
+            <property name="autoRaise">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
           <item row="0" column="10">
-           <widget class="Line" name="line_2">
+           <widget class="QToolButton" name="proformas_sales_mail">
+            <property name="minimumSize">
+             <size>
+              <width>70</width>
+              <height>60</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>70</width>
+              <height>60</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>E-Mail</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../app/icons.qrc">
+              <normaloff>:/email</normaloff>:/email</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>40</width>
+              <height>40</height>
+             </size>
+            </property>
+            <property name="toolButtonStyle">
+             <enum>Qt::ToolButtonTextUnderIcon</enum>
+            </property>
+            <property name="autoRaise">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="5">
+           <widget class="Line" name="line">
             <property name="minimumSize">
              <size>
               <width>16</width>
@@ -2495,7 +2447,77 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="12">
+          <item row="0" column="7">
+           <widget class="QToolButton" name="proformas_sales_export">
+            <property name="minimumSize">
+             <size>
+              <width>70</width>
+              <height>60</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>70</width>
+              <height>60</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Export</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../app/icons.qrc">
+              <normaloff>:/export</normaloff>:/export</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>40</width>
+              <height>40</height>
+             </size>
+            </property>
+            <property name="toolButtonStyle">
+             <enum>Qt::ToolButtonTextUnderIcon</enum>
+            </property>
+            <property name="autoRaise">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="6">
+           <widget class="QToolButton" name="proformas_sales_view_pdf">
+            <property name="minimumSize">
+             <size>
+              <width>70</width>
+              <height>60</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>70</width>
+              <height>60</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>View</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../app/icons.qrc">
+              <normaloff>:/icons/view.png</normaloff>:/icons/view.png</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>40</width>
+              <height>40</height>
+             </size>
+            </property>
+            <property name="toolButtonStyle">
+             <enum>Qt::ToolButtonTextUnderIcon</enum>
+            </property>
+            <property name="autoRaise">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="13">
            <widget class="QToolButton" name="proformas_sales_expenses">
             <property name="minimumSize">
              <size>
@@ -2536,7 +2558,7 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="13">
+          <item row="0" column="14">
            <widget class="QToolButton" name="proformas_sales_docs">
             <property name="minimumSize">
              <size>
@@ -2578,6 +2600,25 @@
            </widget>
           </item>
           <item row="0" column="11">
+           <widget class="Line" name="line_2">
+            <property name="minimumSize">
+             <size>
+              <width>16</width>
+              <height>60</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>16</width>
+              <height>60</height>
+             </size>
+            </property>
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="12">
            <widget class="QToolButton" name="proformas_sales_payments">
             <property name="minimumSize">
              <size>
@@ -2618,67 +2659,7 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="14">
-           <widget class="Line" name="line_3">
-            <property name="minimumSize">
-             <size>
-              <width>16</width>
-              <height>60</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>16</width>
-              <height>60</height>
-             </size>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-           </widget>
-          </item>
           <item row="0" column="16">
-           <widget class="QToolButton" name="proformas_sales_towh">
-            <property name="minimumSize">
-             <size>
-              <width>70</width>
-              <height>60</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>70</width>
-              <height>60</height>
-             </size>
-            </property>
-            <property name="toolTip">
-             <string/>
-            </property>
-            <property name="statusTip">
-             <string/>
-            </property>
-            <property name="text">
-             <string>To WH</string>
-            </property>
-            <property name="icon">
-             <iconset resource="../app/icons.qrc">
-              <normaloff>:/warehouse</normaloff>:/warehouse</iconset>
-            </property>
-            <property name="iconSize">
-             <size>
-              <width>40</width>
-              <height>40</height>
-             </size>
-            </property>
-            <property name="toolButtonStyle">
-             <enum>Qt::ToolButtonTextUnderIcon</enum>
-            </property>
-            <property name="autoRaise">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="15">
            <widget class="QToolButton" name="proformas_sales_toinv">
             <property name="minimumSize">
              <size>
@@ -2720,6 +2701,47 @@
            </widget>
           </item>
           <item row="0" column="17">
+           <widget class="QToolButton" name="proformas_sales_towh">
+            <property name="minimumSize">
+             <size>
+              <width>70</width>
+              <height>60</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>70</width>
+              <height>60</height>
+             </size>
+            </property>
+            <property name="toolTip">
+             <string/>
+            </property>
+            <property name="statusTip">
+             <string/>
+            </property>
+            <property name="text">
+             <string>To WH</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../app/icons.qrc">
+              <normaloff>:/warehouse</normaloff>:/warehouse</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>40</width>
+              <height>40</height>
+             </size>
+            </property>
+            <property name="toolButtonStyle">
+             <enum>Qt::ToolButtonTextUnderIcon</enum>
+            </property>
+            <property name="autoRaise">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="18">
            <widget class="QToolButton" name="proformas_sales_ship">
             <property name="minimumSize">
              <size>
@@ -2760,7 +2782,61 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="18">
+          <item row="0" column="15">
+           <widget class="Line" name="line_3">
+            <property name="minimumSize">
+             <size>
+              <width>16</width>
+              <height>60</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>16</width>
+              <height>60</height>
+             </size>
+            </property>
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QToolButton" name="proformas_sales_new">
+            <property name="minimumSize">
+             <size>
+              <width>70</width>
+              <height>60</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>70</width>
+              <height>60</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>New</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../app/icons.qrc">
+              <normaloff>:/new</normaloff>:/new</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>40</width>
+              <height>40</height>
+             </size>
+            </property>
+            <property name="toolButtonStyle">
+             <enum>Qt::ToolButtonTextUnderIcon</enum>
+            </property>
+            <property name="autoRaise">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="19">
            <widget class="QToolButton" name="proformas_sales_ready">
             <property name="minimumSize">
              <size>
@@ -2801,8 +2877,8 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="0">
-           <widget class="QToolButton" name="proformas_sales_new">
+          <item row="0" column="2">
+           <widget class="QToolButton" name="proformas_sales_newadv">
             <property name="minimumSize">
              <size>
               <width>70</width>
@@ -2816,11 +2892,11 @@
              </size>
             </property>
             <property name="text">
-             <string>New</string>
+             <string>Preorder</string>
             </property>
             <property name="icon">
              <iconset resource="../app/icons.qrc">
-              <normaloff>:/new</normaloff>:/new</iconset>
+              <normaloff>:/preorder</normaloff>:/preorder</iconset>
             </property>
             <property name="iconSize">
              <size>
@@ -2837,47 +2913,6 @@
            </widget>
           </item>
           <item row="0" column="3">
-           <widget class="QToolButton" name="proformas_sales_cancel">
-            <property name="minimumSize">
-             <size>
-              <width>70</width>
-              <height>60</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>70</width>
-              <height>60</height>
-             </size>
-            </property>
-            <property name="toolTip">
-             <string/>
-            </property>
-            <property name="statusTip">
-             <string/>
-            </property>
-            <property name="text">
-             <string>Cancel</string>
-            </property>
-            <property name="icon">
-             <iconset resource="../app/icons.qrc">
-              <normaloff>:/cancel</normaloff>:/cancel</iconset>
-            </property>
-            <property name="iconSize">
-             <size>
-              <width>40</width>
-              <height>40</height>
-             </size>
-            </property>
-            <property name="toolButtonStyle">
-             <enum>Qt::ToolButtonTextUnderIcon</enum>
-            </property>
-            <property name="autoRaise">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="2">
            <widget class="QToolButton" name="proformas_sales_advnorm">
             <property name="minimumSize">
              <size>
@@ -2918,8 +2953,8 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="1">
-           <widget class="QToolButton" name="proformas_sales_newadv">
+          <item row="0" column="0">
+           <widget class="QToolButton" name="proformas_sales_edit">
             <property name="minimumSize">
              <size>
               <width>70</width>
@@ -2932,12 +2967,18 @@
               <height>60</height>
              </size>
             </property>
+            <property name="toolTip">
+             <string/>
+            </property>
+            <property name="statusTip">
+             <string/>
+            </property>
             <property name="text">
-             <string>Preorder</string>
+             <string>Edit</string>
             </property>
             <property name="icon">
              <iconset resource="../app/icons.qrc">
-              <normaloff>:/preorder</normaloff>:/preorder</iconset>
+              <normaloff>:/edit</normaloff>:/edit</iconset>
             </property>
             <property name="iconSize">
              <size>

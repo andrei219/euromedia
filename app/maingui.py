@@ -284,10 +284,18 @@ class MainGui(Ui_MainGui, QMainWindow):
 
         elif prefix == 'proformas_sales_':
 
+            from delegates import WarningEditDelegate
+
             self.proformas_sales_model = \
                 models.SaleProformaModel(filters=filters, search_key=search_key, last=last)
             self.proformas_sales_view.setModel(
                 self.proformas_sales_model
+            )
+            self.proformas_sales_view_delegate = WarningEditDelegate(
+                parent=self, column=self.proformas_sales_model.WARNING
+            )
+            self.proformas_sales_view.setItemDelegate(
+                self.proformas_sales_view_delegate
             )
 
             self.proformas_sales_view.selectionModel(). \
@@ -363,9 +371,13 @@ class MainGui(Ui_MainGui, QMainWindow):
                 widget = getattr(self, prefix + action)
                 widget.clicked.connect(handler)
             elif action == 'double_click':
-                handler = getattr(self, prefix + action + '_handler')
-                widget = getattr(self, prefix + 'view')
-                widget.doubleClicked.connect(handler)
+                if prefix == 'proformas_sales_':
+                    return
+                else:
+                    handler = getattr(self, prefix + action + '_handler')
+                    widget = getattr(self, prefix + 'view')
+                    widget.doubleClicked.connect(handler)
+
             elif action == 'search':
                 handler = getattr(self, action + '_handler')
                 widget = getattr(self, prefix + action)
@@ -712,11 +724,8 @@ class MainGui(Ui_MainGui, QMainWindow):
         )
         self.sp.show()
 
-    def proformas_sales_double_click_handler(self, index):
-        try:
-            proforma = self.proformas_sales_model[index.row()]
-        except IndexError:
-            return
+    def proformas_sales_edit_handler(self):
+        proforma = self.get_sale_proforma()
 
         if proforma.advanced_lines:
             self.sp = advanced_sale_proforma_form.get_form(

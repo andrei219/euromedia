@@ -1933,16 +1933,19 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
         if not index.isValid():
             return Qt.ItemIsEnabled
         if index.column() == self.WARNING:
-            return Qt.ItemFlags(super().flags(index) | Qt.ItemIsEditable)
+            # return Qt.ItemFlags(super().flags(index) | Qt.ItemIsEditable | Qt.ItemIsEnabled | Qt.ItemIsSelectable)
+            return Qt.ItemIsEnabled | Qt.ItemIsEditable | Qt.ItemIsSelectable
         else:
             return Qt.ItemFlags(~Qt.ItemIsEditable)
 
     def setData(self, index: QModelIndex, value: typing.Any, role: int = ...) -> bool:
         if not index.isValid():
             return
-        proforma = self.proformas[index.row()]
-        proforma.warning = value
-        return True
+        if role == Qt.EditRole:
+            proforma = self.proformas[index.row()]
+            proforma.warning = value
+            return True
+        return False
 
     def __getitem__(self, index):
         return self.proformas[index]
