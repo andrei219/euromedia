@@ -567,7 +567,7 @@ class MainGui(Ui_MainGui, QMainWindow):
             self.proformas_purchases_model
         )
         if exported:
-            QMessageBox.critical(self, 'Success', 'Document Exported successfully')
+            QMessageBox.information(self, 'Success', 'Document Exported successfully')
 
 
     def proformas_purchases_payments_handler(self, invoice=None):
@@ -1013,7 +1013,7 @@ class MainGui(Ui_MainGui, QMainWindow):
             self.invoices_sales_model,
         )
         if exported:
-            QMessageBox.critical(self, 'Success', 'Document Exported successfully')
+            QMessageBox.information(self, 'Success', 'Document Exported successfully')
 
     def invoices_sales_export_excel_handler(self):
         invoice = self.get_sales_invoice()

@@ -42,9 +42,20 @@ class Form(Ui_InvoiceForm, QWidget):
         self.save.clicked.connect(self.save_handler)
         self.delete_.clicked.connect(self.delete_handler)
         self.apply_cn.clicked.connect(self.apply_cn_handler)
-
-
+        self.view.selectionModel().selectionChanged.connect(self.selection_changed)
         self.set_wildcard()
+
+    def selection_changed(self):  # Código lanzado al seleccionar elementos
+        self.selected.setText(                                        # 5. Actualiza texto de la etiqueta llamada label
+            'Selected:' + str(                                        # 4. convierte a texto el resultado
+                sum(                                                  # 3. agrega todos estos numeros
+                    self.model[row].quantity for row in {             # 2. get quantity asociado
+                        i.row() for i in self.view.selectedIndexes()  # 1. get filas seleccionadas
+                    }
+                )
+            )
+        )
+
 
     def setCombos(self):
         for combo, data in [

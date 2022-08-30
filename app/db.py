@@ -7,6 +7,8 @@ import sys
 import os
 import math
 
+sum = math.fsum
+
 from datetime import datetime
 
 from sqlalchemy import (

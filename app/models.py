@@ -884,8 +884,25 @@ class SaleInvoiceModel(BaseTable, QtCore.QAbstractTableModel):
                 elif invoice.cancelled == 'No':
                     return QtGui.QColor(GREEN)
 
+    # TODO: move logic from main gui here for towh button
     def to_warehouse(self, invoice):
         pass
+
+    def sort(self, column: int, order: Qt.SortOrder = ...) -> None:
+        reverse = True if order == Qt.AscendingOrder else False
+        attrs = {
+            self.TYPENUM: ('type', 'number'),
+            self.DATE: ('date', ),
+            self.ETA: ('eta', ),
+            self.PARTNER: ('partner_name', ),
+            self.AGENT: ('agent',),
+        }.get(column)
+
+        if attrs:
+            self.layoutAboutToBeChanged.emit()
+            self.invoices.sort(key=operator.attrgetter(*attrs), reverse=reverse)
+            self.layoutChanged.emit()
+
 
     def __getitem__(self, item):
         return self.invoices[item]
@@ -937,6 +954,10 @@ class SaleInvoiceLineModel(BaseTable, QtCore.QAbstractTableModel):
                 return line.free_description or line.mixed_description or utils.description_id_map.inverse[line.item_id]
             elif isinstance(line, db.SaleProformaLine):
                 return line.description or utils.description_id_map.inverse[line.item_id]
+
+
+    def __getitem__(self, item):
+        return self.lines[item]
 
     def delete(self, rows):
         for row in rows:
@@ -1228,6 +1249,10 @@ class PurchaseInvoiceLineModel(BaseTable, QtCore.QAbstractTableModel):
         for row in reversed(list(rows)):
             del self.lines[row]
         self.layoutChanged.emit()
+
+    def __getitem__(self, item):
+        return self.lines[item]
+
 
     @property
     def quantity(self):
@@ -1697,7 +1722,7 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
     WARNING, INVOICED = \
         0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15
 
-    def __init__(self, search_key=None, filters=None, proxy=False, last=10):
+    def __init__(self, search_key=None, filters=None, last=10):
         super().__init__()
         self._headerData = ['Type & Num', 'Date', 'Partner', 'Agent',
                             'Financial', 'Logistic', 'Sent', 'Cancelled',
@@ -1711,14 +1736,9 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
             join(db.Agent, db.Agent.id == db.SaleProforma.agent_id). \
             join(db.Partner, db.Partner.id == db.SaleProforma.partner_id). \
             join(db.Warehouse, db.Warehouse.id == db.SaleProforma.warehouse_id, isouter=True). \
-            join(db.SaleInvoice, db.SaleInvoice.id == db.SaleProforma.sale_invoice_id, isouter=True)
+            join(db.SaleInvoice, db.SaleInvoice.id == db.SaleProforma.sale_invoice_id, isouter=True).\
+            where(db.SaleProforma.date >= utils.get_last_date(last))
 
-        if proxy:
-            self._headerData.append('From proforma')
-            query = query.where(db.SaleProforma.invoice != None)
-            query = query.where(db.SaleInvoice.date >= utils.get_last_date(last))
-        else:
-            query = query.where(db.SaleProforma.date >= utils.get_last_date(last))
 
         if search_key:
             predicates = []
@@ -1742,11 +1762,7 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
             except ValueError:
                 pass
             else:
-
-                if proxy:
-                    predicates.append(db.SaleInvoice.number == n)
-                else:
-                    predicates.append(db.SaleProforma.number == n)
+                predicates.append(db.SaleProforma.number == n)
 
             query = query.where(or_(*predicates))
 

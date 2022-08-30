@@ -860,22 +860,6 @@
     <bool>true</bool>
    </property>
   </widget>
-  <widget class="QLabel" name="quantity">
-   <property name="geometry">
-    <rect>
-     <x>690</x>
-     <y>730</y>
-     <width>221</width>
-     <height>20</height>
-    </rect>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">font:bold; </string>
-   </property>
-   <property name="text">
-    <string/>
-   </property>
-  </widget>
   <widget class="QLabel" name="label_28">
    <property name="geometry">
     <rect>
@@ -918,8 +902,8 @@
   <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
-     <x>469</x>
-     <y>730</y>
+     <x>400</x>
+     <y>720</y>
      <width>192</width>
      <height>132</height>
     </rect>
@@ -1076,6 +1060,38 @@
      <height>20</height>
     </rect>
    </property>
+  </widget>
+  <widget class="QWidget" name="">
+   <property name="geometry">
+    <rect>
+     <x>620</x>
+     <y>720</y>
+     <width>401</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout_3">
+    <item>
+     <widget class="QLabel" name="quantity">
+      <property name="styleSheet">
+       <string notr="true">font:bold; </string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLabel" name="selected">
+      <property name="styleSheet">
+       <string notr="true">font:bold; </string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+    </item>
+   </layout>
   </widget>
  </widget>
  <customwidgets>
