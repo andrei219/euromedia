@@ -675,14 +675,14 @@ class PartnerContactModel(QtCore.QAbstractTableModel):
 class SaleInvoiceModel(BaseTable, QtCore.QAbstractTableModel):
 
     TYPENUM, DATE, ETA, PARTNER, AGENT, FINANCIAL, LOGISTIC, SENT, CANCELLED, OWING, \
-    TOTAL, EXT, INWH, READY, PROFORMA = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14
+    TOTAL, EXT, INWH, READY, PROFORMA, WARNING = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15
 
     def __init__(self, filters=None, search_key=None, last=10):
         super().__init__()
         self._headerData = [
             'Type & Num', 'Date', 'ETA', 'Partner', 'Agent',
             'Financial', 'Logistic', 'Sent', 'Cancelled', 'Owing',
-            'Total', 'Ext. Doc.', 'In WH', 'Ready to go', 'Proforma'
+            'Total', 'Ext. Doc.', 'In WH', 'Ready to go', 'Proforma', 'Warning'
         ]
 
         self.name = 'invoices'
@@ -824,7 +824,8 @@ class SaleInvoiceModel(BaseTable, QtCore.QAbstractTableModel):
                 invoice.external,
                 invoice.inwh,
                 ready_status_string,
-                invoice.origin_proformas
+                invoice.origin_proformas,
+                invoice.warning
             ][col]
 
         elif role == Qt.DecorationRole:
@@ -902,6 +903,29 @@ class SaleInvoiceModel(BaseTable, QtCore.QAbstractTableModel):
             self.layoutAboutToBeChanged.emit()
             self.invoices.sort(key=operator.attrgetter(*attrs), reverse=reverse)
             self.layoutChanged.emit()
+
+    def flags(self, index: QModelIndex) -> Qt.ItemFlags:
+        if not index.isValid():
+            return Qt.ItemIsEnabled
+
+        if index.column() == self.WARNING:
+            return Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemIsEditable
+        else:
+            return super().flags(index)
+
+    def setData(self, index: QModelIndex, value: typing.Any, role: int = ...) -> bool:
+        if not index.isValid():
+            return 
+        if role == Qt.EditRole:
+            row, col = index.row(), index.column()
+            if col == self.WARNING:
+                for proforma in self.invoices[row].proformas:
+                    proforma.warning = value
+                db.session.commit()
+                self.layoutChanged.emit()
+                return True
+            return False
+        return False
 
 
     def __getitem__(self, item):

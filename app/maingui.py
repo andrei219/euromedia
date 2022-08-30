@@ -205,6 +205,8 @@ class MainGui(Ui_MainGui, QMainWindow):
 
     def set_mv(self, prefix, search_key=None, filters=None, last=10):
         from utils import setCommonViewConfig
+        from delegates import WarningEditDelegate
+
         try:
             last_field = getattr(self, prefix + 'last')
         except AttributeError:
@@ -275,6 +277,13 @@ class MainGui(Ui_MainGui, QMainWindow):
             self.invoices_sales_view.selectionModel(). \
                 selectionChanged.connect(self.invoices_sales_selection_changed)
 
+            self.invoices_sales_view.setItemDelegate(
+                WarningEditDelegate(
+                    parent=self,
+                    column=self.invoices_sales_model.WARNING
+                )
+            )
+
             self.invoices_sales_view.setSelectionBehavior(QTableView.SelectRows)
             self.invoices_sales_view.setSortingEnabled(True)
             self.invoices_sales_view.setAlternatingRowColors(True)
@@ -283,8 +292,6 @@ class MainGui(Ui_MainGui, QMainWindow):
 
 
         elif prefix == 'proformas_sales_':
-
-            from delegates import WarningEditDelegate
 
             self.proformas_sales_model = \
                 models.SaleProformaModel(filters=filters, search_key=search_key, last=last)
@@ -992,7 +999,9 @@ class MainGui(Ui_MainGui, QMainWindow):
             from invoices_expenses_form import Form
             Form(self, invoice).exec_()
 
-    def invoices_sales_double_click_handler(self, index):
+    # def invoices_sales_double_click_handler(self, index):
+
+    def invoices_sales_edit_handler(self):
         # TODO CREDIT NOTE LOGIC
         invoice = self.get_sales_invoice()
 

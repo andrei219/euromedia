@@ -743,7 +743,18 @@ class PurchaseInvoice(Base):
 
     @property
     def external(self):
-        values = set((p.external for p in self.proformas))
+        return self.helper('external')
+
+    @property
+    def warning(self):
+        return self.helper('warning')
+
+    @property
+    def tracking(self):
+        return self.helper('tracking')
+
+    def helper(self, attrname):
+        values = set(getattr(p, attrname) for p in self.proformas)
         if len(values) == 1 and values != {None}:
             return values.pop()
         elif len(values) != 1:
@@ -751,15 +762,6 @@ class PurchaseInvoice(Base):
         elif values == {None}:
             return ''
 
-    @property
-    def tracking(self):
-        values = set((p.tracking for p in self.proformas))
-        if len(values) == 1 and values != {None}:
-            return values.pop()
-        elif len(values) != 1:
-            return ', '.join(values)
-        elif values == {None}:
-            return ''
 
     @property
     def inwh(self):
@@ -1209,25 +1211,32 @@ class SaleInvoice(Base):
     def total(self):
         return str(self.total_debt) + self.currency
 
-    @property
-    def external(self):
-        values = set((p.external for p in self.proformas))
-        if len(values) == 1 and values != {None}:
-            return values.pop()
-        elif len(values) != 1:
-            return ', '.join(values)
-        elif values == {None}:
-            return ''
+    helper = PurchaseInvoice.helper
+    external = PurchaseInvoice.external
+    tracking = PurchaseInvoice.tracking
+    warning = PurchaseInvoice.warning
 
-    @property
-    def tracking(self):
-        values = set((p.tracking for p in self.proformas))
-        if len(values) == 1 and values != {None}:
-            return values.pop()
-        elif len(values) != 1:
-            return ', '.join(values)
-        elif values == {None}:
-            return ''
+
+    #
+    # @property
+    # def external(self):
+    #     values = set((p.external for p in self.proformas))
+    #     if len(values) == 1 and values != {None}:
+    #         return values.pop()
+    #     elif len(values) != 1:
+    #         return ', '.join(values)
+    #     elif values == {None}:
+    #         return ''
+    #
+    # @property
+    # def tracking(self):
+    #     values = set((p.tracking for p in self.proformas))
+    #     if len(values) == 1 and values != {None}:
+    #         return values.pop()
+    #     elif len(values) != 1:
+    #         return ', '.join(values)
+    #     elif values == {None}:
+    #         return ''
 
 
     @property
