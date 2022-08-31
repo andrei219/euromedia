@@ -835,7 +835,6 @@ class SaleInvoiceModel(BaseTable, QtCore.QAbstractTableModel):
 
             elif col == self.FINANCIAL:
 
-
                 if financial_status_string == 'Not Paid':
                     return QtGui.QColor(YELLOW)
                 elif financial_status_string == 'Paid' or financial_status_string == 'Applied':

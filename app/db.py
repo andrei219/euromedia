@@ -758,7 +758,7 @@ class PurchaseInvoice(Base):
         if len(values) == 1 and values != {None}:
             return values.pop()
         elif len(values) != 1:
-            return ', '.join(values)
+            return ', '.join((v or '' for v in values))
         elif values == {None}:
             return ''
 
