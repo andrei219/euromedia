@@ -6128,6 +6128,15 @@ def find_last_description(sn):
             )
 
 
+def where_was_it_sold(serie):
+    try:
+        obj = db.session.query(db.ExpeditionSerie).where(db.ExpeditionSerie.serie == serie).one()
+        return obj.line.expedition.proforma.invoice.doc_repr
+    except NoResultFound:
+        pass
+
+
+
 def build_credit_note_and_commit(partner_id, agent_id, order):
     # print('type=', type, 'wh=', warehouse_id, 'partn=', partner_id, 'lines=', wh_rma_lines)
     from datetime import datetime
@@ -6144,13 +6153,17 @@ def build_credit_note_and_commit(partner_id, agent_id, order):
     proforma.agent_id = agent_id
     proforma.courier_id = 1
 
+    text = ''
     for wh_line in order.lines:
         proforma.credit_note_lines.append(db.CreditNoteLine(wh_line))
+        doc_repr = where_was_it_sold(wh_line.sn)
+        if doc_repr:
+            text += 'CN ' + doc_repr + '/ '
 
+
+    proforma.note = text
     db.session.add(proforma)
-
     db.session.commit()
-
     return proforma
 
 
@@ -7624,4 +7637,4 @@ def caches_clear():
 if __name__ == '__main__':
 
     while True:
-        print(expedition_series_contains(input('Enter serie:')))
+        print(where_was_it_sold(input('Enter serie:')))
