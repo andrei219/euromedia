@@ -733,7 +733,8 @@ class MainGui(Ui_MainGui, QMainWindow):
 
     def proformas_sales_edit_handler(self):
         proforma = self.get_sale_proforma()
-
+        if not proforma:
+            return
         if proforma.advanced_lines:
             self.sp = advanced_sale_proforma_form.get_form(
                 self,

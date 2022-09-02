@@ -7,8 +7,6 @@ import sys
 import os
 import math
 
-sum = math.fsum
-
 from datetime import datetime
 
 from sqlalchemy import (
@@ -864,7 +862,7 @@ class SaleProforma(Base):
     warehouse = relationship('Warehouse', uselist=False)
     agent = relationship('Agent', uselist=False)
 
-    invoice = relationship('SaleInvoice', backref=backref('proformas'))
+    invoice = relationship('SaleInvoice', backref=backref('proformas'), lazy='joined')
 
     expedition = relationship('Expedition', uselist=False, back_populates='proforma')
 
