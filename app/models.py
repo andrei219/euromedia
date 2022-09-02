@@ -7110,6 +7110,7 @@ def month_key(sale):
 
 
 class FucksModel(BaseTable, QtCore.QAbstractTableModel):
+
     SERIE, FROM, TO = 0, 1, 2
 
     def __init__(self):
@@ -7144,7 +7145,6 @@ class FucksModel(BaseTable, QtCore.QAbstractTableModel):
     def setData(self, index: QModelIndex, value: typing.Any, role: int = ...) -> bool:
         if not index.isValid():
             return
-
         try:
             number = int(value)
         except ValueError:
@@ -7158,7 +7158,6 @@ class FucksModel(BaseTable, QtCore.QAbstractTableModel):
                 return True
             elif column == self.TO:
                 fuck.to = number
-
             return False
         return False
 
