@@ -865,7 +865,7 @@ class SaleProforma(Base):
     warehouse = relationship('Warehouse', uselist=False)
     agent = relationship('Agent', uselist=False)
 
-    invoice = relationship('SaleInvoice', backref=backref('proformas'), lazy='joined')
+    invoice = relationship('SaleInvoice', backref=backref('proformas'), lazy='noload')
 
     expedition = relationship('Expedition', uselist=False, back_populates='proforma')
 
@@ -1055,6 +1055,7 @@ class SaleDocument(Base):
 
     proforma = relationship('SaleProforma', backref=backref('documents'))
 
+import functools
 
 class SaleInvoice(Base):
 
@@ -1107,7 +1108,6 @@ class SaleInvoice(Base):
         return sum(proforma.total_debt for proforma in self.proformas)
 
 
-
     @property
     def tax(self):
         return round(sum(p.tax for p in self.proformas), 2)
@@ -1154,32 +1154,32 @@ class SaleInvoice(Base):
 
     @property
     def logistic_status_string(self):
-        if all(p.empty for p in self.proformas):
-            return 'Empty'
-        elif any(p.overflowed for p in self.proformas):
-            return 'Overflowed'
-        elif any(p.partially_processed for p in self.proformas):
-            return 'Partially Prepared'
-        elif all(p.completed for p in self.proformas):
+        proforma = self.proformas[0]
+        if proforma.is_credit_note:
             return 'Completed'
-        elif any(p.completed for p in self.proformas) and \
-            any(p.empty for p in self.prformas):
-                return 'Partially Prepared'
+
+        if proforma.empty:
+            return 'Empty'
+        elif proforma.overflowed:
+            return 'Overflowed'
+        elif proforma.partially_processed:
+            return 'Partially Prepared'
+        elif proforma.completed:
+            return 'Completed'
 
     @property
     def financial_status_string(self):
-
-        if self.applied:
+        proforma = self.proformas[0]
+        if proforma.is_credit_note and proforma.applied:
             return 'Applied'
 
-
-        if self.not_paid:
+        if proforma.not_paid:
             return 'Not Paid'
-        elif self.partially_paid:
-            return 'Partially Paid'
-        elif self.fully_paid:
+        elif proforma.fully_paid:
             return 'Paid'
-        elif self.overpaid:
+        elif proforma.partially_paid:
+            return 'Partially Paid'
+        elif proforma.overpaid:
             return 'We Owe'
 
     @property
@@ -1196,21 +1196,14 @@ class SaleInvoice(Base):
 
     @property
     def sent(self):
-        if all(p.sent for p in self.proformas):
-            return 'Yes'
-        elif all(not p.sent for p in self.proformas):
-            return 'No'
-        elif any(not p.sent for p in self.proformas):
-            return 'Partially'
+        p = self.proformas[0]
+        return 'Yes' if p.sent else 'No'
 
     @property
     def cancelled(self):
-        if all(p.cancelled for p in self.proformas):
-            return 'Yes'
-        elif all(not p.cancelled for p in self.proformas):
-            return 'No'
-        elif any(not p.cancelled for p in self.proformas):
-            return 'Partially'
+        p = self.proformas[0]
+        return 'Yes' if p.cancelled else 'No'
+
 
     @property
     def currency(self):
@@ -1234,12 +1227,11 @@ class SaleInvoice(Base):
 
     @property
     def inwh(self):
-        if all(p.expedition is not None for p in self.proformas):
+        proforma = self.proformas[0]
+        if proforma.expedition is not None:
             return 'Yes'
-        elif all(p.expedition is None for p in self.proformas):
-            return 'No'
-        elif any(p.expedition is None for p in self.proformas):
-            return 'Partially'
+        return 'No'
+
 
     @property
     def origin_proformas(self):
@@ -1251,14 +1243,8 @@ class SaleInvoice(Base):
 
     @property
     def ready(self):
-        if self.proformas[0].credit_note_lines:
-            return 'No'
-        elif all(p.ready for p in self.proformas):
-            return 'Yes'
-        elif any(p.ready for p in self.proformas):
-            return 'Partially'
-        elif all(not p.ready for p in self.proformas):
-            return 'No'
+        p = self.proformas[0]
+        return 'Yes' if p.ready else 'No'
 
     @property
     def partner_id(self):

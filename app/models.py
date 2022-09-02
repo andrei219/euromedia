@@ -855,12 +855,7 @@ class SaleInvoiceModel(BaseTable, QtCore.QAbstractTableModel):
                     return QtGui.QColor(GREEN)
 
             elif col == self.READY:
-                if ready_status_string == 'Yes':
-                    return QtGui.QColor(GREEN)
-                elif ready_status_string == 'Partially':
-                    return QtGui.QColor(ORANGE)
-                elif ready_status_string == 'No':
-                    return QtGui.QColor(RED)
+                return QtGui.QColor(GREEN if invoice.ready == 'Yes' else RED)
 
             elif col == self.AGENT:
                 return QtGui.QIcon(':\\agents')
@@ -869,21 +864,10 @@ class SaleInvoiceModel(BaseTable, QtCore.QAbstractTableModel):
                 return QtGui.QIcon(':\partners')
 
             elif col == self.SENT:
-                sent = invoice.sent
-                if sent == 'Yes':
-                    return QtGui.QColor(GREEN)
-                elif sent == 'Partially':
-                    return QtGui.QColor(ORANGE)
-                elif sent == 'No':
-                    return QtGui.QColor(RED)
+                return QtGui.QColor(GREEN if invoice.sent == 'Yes' else RED)
 
             elif col == self.CANCELLED:
-                if invoice.cancelled == 'Yes':
-                    return QtGui.QColor(RED)
-                elif invoice.cancelled == 'Partially':
-                    return QtGui.QColor(ORANGE)
-                elif invoice.cancelled == 'No':
-                    return QtGui.QColor(GREEN)
+               return QtGui.QColor(GREEN if not invoice.cancelled == 'Yes' else RED)
 
     # TODO: move logic from main gui here for towh button
     def to_warehouse(self, invoice):
