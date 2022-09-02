@@ -865,7 +865,7 @@ class SaleProforma(Base):
     warehouse = relationship('Warehouse', uselist=False)
     agent = relationship('Agent', uselist=False)
 
-    invoice = relationship('SaleInvoice', backref=backref('proformas'), lazy='noload')
+    invoice = relationship('SaleInvoice', backref=backref('proformas'), lazy='joined')
 
     expedition = relationship('Expedition', uselist=False, back_populates='proforma')
 
