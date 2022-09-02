@@ -98,7 +98,6 @@ class Form(Ui_InvoiceForm, QWidget):
         self.invoice.eta = utils.parse_date(self.eta.text())
         self.invoice.type = int(self.type.currentText())
         self.invoice.number = int(self.number.text())
-        self.invoice.note = self.note.toPlainText()
 
         for p in self.invoice.proformas:
 
@@ -109,6 +108,7 @@ class Form(Ui_InvoiceForm, QWidget):
             p.warehouse_id = utils.warehouse_id_map[self.warehouse.currentText()]
             p.courier_id = utils.courier_id_map[self.courier.currentText()]
             p.warranty = self.warranty.value()
+            p.note = self.note.toPlainText()
 
             p.they_pay_they_ship = self.they_pay_they_ship.isChecked()
             p.we_pay_we_ship = self.we_pay_we_ship.isChecked()

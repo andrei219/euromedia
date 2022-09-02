@@ -617,7 +617,6 @@ class PurchaseInvoice(Base):
     number = Column(Integer, nullable=False)
     date = Column(Date, default=datetime.now)
     eta = Column(Date, default=datetime.now)
-    note = Column(String(255))
 
     @property
     def payments(self):
@@ -750,6 +749,10 @@ class PurchaseInvoice(Base):
     @property
     def tracking(self):
         return self.helper('tracking')
+
+    @property
+    def note(self):
+        return self.helper('note')
 
     def helper(self, attrname):
         values = set(getattr(p, attrname) for p in self.proformas)
@@ -1062,7 +1065,6 @@ class SaleInvoice(Base):
     number = Column(Integer, nullable=False)
     date = Column(Date, default=datetime.now)
     eta = Column(Date, default=datetime.now)
-    note = Column(String(255))
 
     parent_id = Column(Integer, ForeignKey('sale_invoices.id'))
 
@@ -1143,6 +1145,14 @@ class SaleInvoice(Base):
         return sum(p.device_count for p in self.proformas)
 
     @property
+    def note(self):
+        r = ''
+        for proforma in self.proformas:
+            if proforma.note:
+                r += proforma.note + '/'
+        return r
+
+    @property
     def logistic_status_string(self):
         if all(p.empty for p in self.proformas):
             return 'Empty'
@@ -1218,28 +1228,8 @@ class SaleInvoice(Base):
     external = PurchaseInvoice.external
     tracking = PurchaseInvoice.tracking
     warning = PurchaseInvoice.warning
+    note = PurchaseInvoice.note
 
-
-    #
-    # @property
-    # def external(self):
-    #     values = set((p.external for p in self.proformas))
-    #     if len(values) == 1 and values != {None}:
-    #         return values.pop()
-    #     elif len(values) != 1:
-    #         return ', '.join(values)
-    #     elif values == {None}:
-    #         return ''
-    #
-    # @property
-    # def tracking(self):
-    #     values = set((p.tracking for p in self.proformas))
-    #     if len(values) == 1 and values != {None}:
-    #         return values.pop()
-    #     elif len(values) != 1:
-    #         return ', '.join(values)
-    #     elif values == {None}:
-    #         return ''
 
 
     @property

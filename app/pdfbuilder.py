@@ -533,7 +533,6 @@ class PDF(FPDF):
         self.y += Y_INCREMENT
         self.set_font('Arial', size=8)
         self.cell(0, txt=self.document.note or '')
-        print(f'self.document.note={self.document.note}')
         self.y += ADDITIONAL_TEXT_TERM_INCREMENT
 
     def print_vertical_line(self):
