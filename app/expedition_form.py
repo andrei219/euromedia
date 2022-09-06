@@ -121,6 +121,9 @@ class Form(Ui_ExpeditionForm, QDialog):
                 mss += f" stock from {doc}. "
                 QMessageBox.critical(self, 'Error', mss)
 
+            except ValueError as ex:
+                QMessageBox.critical(self, 'Error', str(ex))
+
             self.imei.clear()
 
 

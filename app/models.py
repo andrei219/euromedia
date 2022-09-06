@@ -851,6 +851,7 @@ class SaleInvoiceModel(BaseTable, QtCore.QAbstractTableModel):
                     return QtGui.QColor(RED)
                 elif logistic_status_string == 'Partially Prepared':
                     return QtGui.QColor(ORANGE)
+                    return QtGui.QColor(ORANGE)
                 elif logistic_status_string == 'Completed':
                     return QtGui.QColor(GREEN)
 

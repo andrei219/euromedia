@@ -23,7 +23,7 @@ import operator
 
 from datetime import timedelta
 
-from sqlalchemy.sql.operators import exists
+from sqlalchemy import exists
 
 engine = create_engine('mysql+mysqlconnector://andrei:hnq#4506@192.168.1.78:3306/appdb', echo=False)
 dev_engine = create_engine('mysql+mysqlconnector://root:hnq#4506@localhost:3306/appdb', echo=False)
@@ -1814,11 +1814,16 @@ def expedition_series_after_insert(mapper, connection, target):
     serie = target.serie
 
     if target.line.expedition.from_sale_type == FAST:
+
+        if session.query(exists().where(Imei.imei == serie)).scalar():
+            raise ValueError(f"Device {serie} already in inventory. This is a presale. Enter series from associated purchase.")
+
         try:
+
             proforma_id = get_linked_proforma_id(target)
 
             reception_line_id = session.query(ReceptionLine.id).join(Reception) \
-                .where(
+                          .where(
                 Reception.proforma_id == proforma_id
             ).where(
                 ReceptionLine.item_id == item_id,
