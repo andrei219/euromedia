@@ -7203,7 +7203,7 @@ class FucksModel(BaseTable, QtCore.QAbstractTableModel):
         return db.session.query(db.SaleInvoice).where(
             db.SaleInvoice.type == serie,
             db.SaleInvoice.date >= _from,
-            db.SaleInvoice <= to
+            db.SaleInvoice.date <= to
         )
 
     @property
