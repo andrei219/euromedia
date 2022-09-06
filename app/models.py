@@ -7049,13 +7049,13 @@ class Fuck:
 class FuckExcel:
 
     def __init__(self, sale_invoice: db.SaleInvoice):
-        partner = sale_invoice.partner_name
+        partner = sale_invoice.partner_object
         self.serie = sale_invoice.type
         self.number = sale_invoice.number
         self.doc_repr = sale_invoice.doc_repr
         self.date = sale_invoice.date.strftime('%d/%m/%Y')
         self.code = self.get_code(partner)
-        self.customer = partner.fiscal_name
+        self.customer = sale_invoice.partner_name
         self.nif = partner.fiscal_number
         self.address = ' '.join((partner.billing_line1, partner.billing_line2))
         self.postcode = partner.billing_postcode
@@ -7197,6 +7197,14 @@ class FucksModel(BaseTable, QtCore.QAbstractTableModel):
 
                 filename = ''.join(('serie', str(fuck.serie), '.xlsx'))
                 wb.save(os.path.join(target_dir, filename))
+
+
+    def get_query(self, serie, _from, to):
+        return db.session.query(db.SaleInvoice).where(
+            db.SaleInvoice.type == serie,
+            db.SaleInvoice.date >= _from,
+            db.SaleInvoice <= to
+        )
 
     @property
     def fucks(self):
