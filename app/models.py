@@ -7426,7 +7426,7 @@ class StockValuationModelWarehouse(Exportable, BaseTable, QtCore.QAbstractTableM
 
         registers = []
         for register in db.session.query(db.Imei.imei).where(db.Imei.warehouse_id == warehouse_id):
-            registers.append(StockValuationEntryWarehouse(do_cost_price(register.imei), external))
+            registers.append(StockValuationEntryWarehouse(do_cost_price(register.imei), 'Not found'))
 
         has_not_serie = lambda object: utils.valid_uuid(object.serial)
         has_serie = lambda object: not utils.valid_uuid(object.serial)
