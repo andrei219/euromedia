@@ -1381,7 +1381,12 @@ class MainGui(Ui_MainGui, QMainWindow):
 
         from utils import get_open_file_path
         from openpyxl import load_workbook
+
         xlsx_file_path = get_open_file_path(self)
+
+        if not xlsx_file_path:
+            return
+
         try:
             workbook = load_workbook(xlsx_file_path)
             ws = workbook.active

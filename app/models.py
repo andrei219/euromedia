@@ -6115,7 +6115,7 @@ def find_last_description(sn):
 
 def where_was_it_sold(serie):
     try:
-        obj = db.session.query(db.ExpeditionSerie).where(db.ExpeditionSerie.serie == serie).one()
+        obj = db.session.query(db.ExpeditionSerie).where(db.ExpeditionSerie.serie == serie).all()[-1]
         return obj.line.expedition.proforma.invoice.doc_repr
     except NoResultFound:
         pass
@@ -6139,11 +6139,12 @@ def build_credit_note_and_commit(partner_id, agent_id, order):
     proforma.courier_id = 1
 
     text = ''
+    credit_notes_where_sold = set(where_was_it_sold(line.sn) for line in order.lines)
+    for doc_repr in credit_notes_where_sold:
+        text += doc_repr + '/'
+
     for wh_line in order.lines:
         proforma.credit_note_lines.append(db.CreditNoteLine(wh_line))
-        doc_repr = where_was_it_sold(wh_line.sn)
-        if doc_repr:
-            text += 'CN ' + doc_repr + '/ '
 
 
     proforma.note = text
@@ -7200,10 +7201,13 @@ class FucksModel(BaseTable, QtCore.QAbstractTableModel):
 
 
     def get_query(self, serie, _from, to):
+
+        serie, _from, to = int(serie), int(_from), int(to)
+
         return db.session.query(db.SaleInvoice).where(
             db.SaleInvoice.type == serie,
-            db.SaleInvoice.date >= _from,
-            db.SaleInvoice.date <= to
+            db.SaleInvoice.number >= _from,
+            db.SaleInvoice.number <= to
         )
 
     @property
