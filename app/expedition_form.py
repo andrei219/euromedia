@@ -87,6 +87,7 @@ class Form(Ui_ExpeditionForm, QDialog):
             self.populateBody()
         else:
             line = self.expedition.lines[self.current_index]
+            print(f'line={line}')
             serie = self.imei.text() 
             if not serie:
                 return 
@@ -109,6 +110,7 @@ class Form(Ui_ExpeditionForm, QDialog):
 
             except IntegrityError as err:
                 print(err)
+                raise 
 
             except NotExistingStockOutput:
                 mss = 'This SN with this spec or condition is not in Stock.'

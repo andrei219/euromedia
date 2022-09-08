@@ -4,6 +4,8 @@ from ui_issued_invoices_form import Ui_Dialog
 from PyQt5.QtWidgets import QDialog
 
 
+from issued_invoices_pdf_builder import build_document
+
 class Filters:
 
     pass

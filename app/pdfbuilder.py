@@ -10,6 +10,7 @@ from db import SaleProforma
 from db import PurchaseProforma
 from db import PurchaseInvoice
 
+
 # CONSTANTS:
 
 LOGO_RELATIVE_PATH = r'.\app\icons\docus_logo.png'
