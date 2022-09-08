@@ -6146,7 +6146,6 @@ def build_credit_note_and_commit(partner_id, agent_id, order):
     for wh_line in order.lines:
         proforma.credit_note_lines.append(db.CreditNoteLine(wh_line))
 
-
     proforma.note = text
     db.session.add(proforma)
     db.session.commit()

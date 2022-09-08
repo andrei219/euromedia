@@ -2313,6 +2313,11 @@ class Ui_MainGui(object):
         self.tools_facks.setIconSize(QtCore.QSize(50, 50))
         self.tools_facks.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
         self.tools_facks.setObjectName("tools_facks")
+        self.tools_issued_invoices = QtWidgets.QPushButton(self.tools_tab)
+        self.tools_issued_invoices.setGeometry(QtCore.QRect(510, 500, 120, 60))
+        self.tools_issued_invoices.setLayoutDirection(QtCore.Qt.LeftToRight)
+        self.tools_issued_invoices.setStyleSheet("background:lightgray; ")
+        self.tools_issued_invoices.setObjectName("tools_issued_invoices")
         icon37 = QtGui.QIcon()
         icon37.addPixmap(QtGui.QPixmap(":/tools"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.main_tab.addTab(self.tools_tab, icon37, "")
@@ -2322,7 +2327,7 @@ class Ui_MainGui(object):
         MainGui.setStatusBar(self.statusBar)
 
         self.retranslateUi(MainGui)
-        self.main_tab.setCurrentIndex(4)
+        self.main_tab.setCurrentIndex(7)
         self.proformastab.setCurrentIndex(1)
         self.invoicestab.setCurrentIndex(1)
         self.warehouse.setCurrentIndex(2)
@@ -2622,6 +2627,7 @@ class Ui_MainGui(object):
         self.tools_harvest.setText(_translate("MainGui", "Harvest"))
         self.tools_change_description.setText(_translate("MainGui", "Change Description"))
         self.tools_facks.setText(_translate("MainGui", "Facks"))
+        self.tools_issued_invoices.setText(_translate("MainGui", "Issued Invoices"))
         self.main_tab.setTabText(self.main_tab.indexOf(self.tools_tab), _translate("MainGui", "Tools"))
         self.main_tab.setTabToolTip(self.main_tab.indexOf(self.tools_tab), _translate("MainGui", "Tools like grading, Changing warehouse, traceability, rebu, importing, etc"))
 from clipview import ClipView

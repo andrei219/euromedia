@@ -51,7 +51,7 @@
      <number>0</number>
     </property>
     <property name="currentIndex">
-     <number>4</number>
+     <number>7</number>
     </property>
     <property name="iconSize">
      <size>
@@ -7822,6 +7822,25 @@
       </property>
       <property name="toolButtonStyle">
        <enum>Qt::ToolButtonTextUnderIcon</enum>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="tools_issued_invoices">
+      <property name="geometry">
+       <rect>
+        <x>510</x>
+        <y>500</y>
+        <width>120</width>
+        <height>60</height>
+       </rect>
+      </property>
+      <property name="layoutDirection">
+       <enum>Qt::LeftToRight</enum>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background:lightgray; </string>
+      </property>
+      <property name="text">
+       <string>Issued Invoices</string>
       </property>
      </widget>
     </widget>

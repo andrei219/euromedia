@@ -101,7 +101,8 @@ ACTIONS = [
     'sii',
     'harvest',
     'facks',
-    'stock_valuation'
+    'stock_valuation',
+    'issued_invoices'
 ]
 
 
@@ -1510,9 +1511,15 @@ class MainGui(Ui_MainGui, QMainWindow):
         from stock_valuation import Form
         Form(self).exec_()
 
+    def tools_issued_invoices_handler(self):
+        from issued_invoices_form import Form
+        Form(self).exec_()
+
     def tab_changed(self, index):
         # Clean up the filters also
         # And complete the rest of the models
+
+
 
         db.session.commit()
 

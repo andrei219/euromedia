@@ -1996,7 +1996,6 @@ class WhIncomingRma(Base):
 
     sale_invoice = relationship('SaleInvoice', back_populates='wh_incoming_rma')
 
-
     __table_args__ = (
         UniqueConstraint('incoming_rma_id', name='wh_order_from_onlyone_rma_order'),
     )
