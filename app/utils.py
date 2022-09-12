@@ -289,10 +289,6 @@ def writeBase64Pdf(abspath, base64pdf):
         fd.write(base64.b64decode(base64pdf))
 
 
-def askSaveFile(parent, filename):
-    return QFileDialog.getSaveFileName(parent, "Save File", get_desktop(), filter=PDF_FILTER)
-
-
 def askFilePath(parent):
     return QFileDialog.getOpenFileName(parent, "Open File", get_desktop(), filter=PDF_FILTER)
 
@@ -337,7 +333,6 @@ def getNote(parent, obj):
 
 def get_directory(parent):
     return QFileDialog.getExistingDirectory(parent, 'Get directory', get_desktop())
-
 
 def get_file_path(parent, pdf_filter=False):
     _filter = PDF_FILTER if pdf_filter else EXCEL_FILTER

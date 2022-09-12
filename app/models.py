@@ -1953,6 +1953,7 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
         if role == Qt.EditRole:
             proforma = self.proformas[index.row()]
             proforma.warning = value
+            db.session.commit()
             return True
         return False
 

@@ -110,7 +110,7 @@ class Form(Ui_ExpeditionForm, QDialog):
 
             except IntegrityError as err:
                 print(err)
-                raise 
+                raise
 
             except NotExistingStockOutput:
                 mss = 'This SN with this spec or condition is not in Stock.'

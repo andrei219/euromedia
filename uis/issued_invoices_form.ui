@@ -46,7 +46,7 @@
     <string>Issued Invoices</string>
    </property>
   </widget>
-  <widget class="QLineEdit" name="from_date">
+  <widget class="QLineEdit" name="_from">
    <property name="geometry">
     <rect>
      <x>210</x>
@@ -56,7 +56,7 @@
     </rect>
    </property>
   </widget>
-  <widget class="QLineEdit" name="to_date">
+  <widget class="QLineEdit" name="to">
    <property name="geometry">
     <rect>
      <x>210</x>
@@ -197,7 +197,7 @@
    <property name="title">
     <string>Financial</string>
    </property>
-   <widget class="QRadioButton" name="financial_paid">
+   <widget class="QRadioButton" name="paid">
     <property name="geometry">
      <rect>
       <x>20</x>
@@ -216,7 +216,7 @@
      <string>Paid</string>
     </property>
    </widget>
-   <widget class="QRadioButton" name="financial_not_paid">
+   <widget class="QRadioButton" name="notpaid">
     <property name="geometry">
      <rect>
       <x>20</x>
@@ -318,6 +318,9 @@
     <property name="text">
      <string>1</string>
     </property>
+    <property name="checked">
+     <bool>true</bool>
+    </property>
    </widget>
    <widget class="QCheckBox" name="serie_2">
     <property name="geometry">
@@ -330,6 +333,9 @@
     </property>
     <property name="text">
      <string>2</string>
+    </property>
+    <property name="checked">
+     <bool>true</bool>
     </property>
    </widget>
    <widget class="QCheckBox" name="serie_3">
@@ -344,6 +350,9 @@
     <property name="text">
      <string>3</string>
     </property>
+    <property name="checked">
+     <bool>true</bool>
+    </property>
    </widget>
    <widget class="QCheckBox" name="serie_4">
     <property name="geometry">
@@ -356,6 +365,9 @@
     </property>
     <property name="text">
      <string>4</string>
+    </property>
+    <property name="checked">
+     <bool>true</bool>
     </property>
    </widget>
    <widget class="QCheckBox" name="serie_5">
@@ -370,6 +382,9 @@
     <property name="text">
      <string>5</string>
     </property>
+    <property name="checked">
+     <bool>true</bool>
+    </property>
    </widget>
    <widget class="QCheckBox" name="serie_6">
     <property name="geometry">
@@ -383,7 +398,36 @@
     <property name="text">
      <string>6</string>
     </property>
+    <property name="checked">
+     <bool>true</bool>
+    </property>
    </widget>
+  </widget>
+  <widget class="QPushButton" name="view">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>441</y>
+     <width>75</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>View</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="_export">
+   <property name="geometry">
+    <rect>
+     <x>120</x>
+     <y>441</y>
+     <width>75</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Export</string>
+   </property>
   </widget>
  </widget>
  <resources/>
