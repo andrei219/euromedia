@@ -917,7 +917,7 @@ class SaleProforma(Base):
         return False
 
     # Posible fuente de error de precision en este método,
-    # Es el invonveniente de usar floats
+    # Es el invonveniente de usar floats vx
     # Deberias usar el modulo Decimal
     @property
     def total_debt(self):
@@ -1069,7 +1069,10 @@ class SaleInvoice(Base):
 
     parent_id = Column(Integer, ForeignKey('sale_invoices.id'))
 
-    wh_incoming_rma = relationship('WhIncomingRma', uselist=False, back_populates='sale_invoice')
+    wh_incoming_rma_id = Column(Integer, ForeignKey('wh_incoming_rmas.id'), nullable=False)
+
+    wh_incoming_rma = relationship('WhIncomingRma', backref=backref('invoices'))
+
 
     def __repr__(self):
         clasname = self.__class__.__name__
@@ -1610,6 +1613,7 @@ class ReceptionLine(Base):
             other.spec == self.spec
         ))
 
+
     def __hash__(self):
         hashes = (hash(x) for x in ( self.item_id, self.description, self.spec, self.condition))
         return functools.reduce(operator.xor, hashes, 0)
@@ -1988,18 +1992,21 @@ class WhIncomingRma(Base):
     id = Column(Integer, primary_key=True)
 
     dumped = Column(Boolean, nullable=False, default=False)
-
     incoming_rma_id = Column(Integer, ForeignKey('incoming_rmas.id'), nullable=False)
-
-    sale_invoice_id = Column(Integer, ForeignKey('sale_invoices.id'))
 
     incoming_rma = relationship('IncomingRma', back_populates='wh_incoming_rma')
 
-    sale_invoice = relationship('SaleInvoice', back_populates='wh_incoming_rma')
+
+    def __repr__(self):
+        return f'{self.__class__.__name__}({self.id}, {self.incoming_rma.id})'
 
     __table_args__ = (
         UniqueConstraint('incoming_rma_id', name='wh_order_from_onlyone_rma_order'),
     )
+
+    @property
+    def invoice(self):
+        return ', '.join(invoice.doc_repr for invoice in self.invoices)
 
     def __init__(self, incoming_rma):
         self.incoming_rma = incoming_rma
@@ -2015,7 +2022,7 @@ class WhIncomingRmaLine(Base):
     item_id = Column(Integer, ForeignKey('items.id'), default=10)
     invoice_type = Column(Integer, nullable=False)
     sn = Column(String(50), nullable=False)
-    accepted = Column(Boolean, nullable=False, default=False)
+    accepted = Column(String(1), nullable=False, default=False)
     problem = Column(String(100), nullable=True)
     why = Column(String(50), nullable=True, default="")
     condition = Column(String(50), nullable=False)
@@ -2051,7 +2058,7 @@ class WhIncomingRmaLine(Base):
     def __init__(self, incoming_rma_line):
         self.sn = incoming_rma_line.sn
         self.problem = incoming_rma_line.problem
-        self.accepted = incoming_rma_line.accepted
+        self.accepted = 'y' # Por defeto entran solo las lineas aceptadas
         self.warehouse_id = 1  # General por defecto
         self.item_id = incoming_rma_line.item_id
         self.condition = incoming_rma_line.condition

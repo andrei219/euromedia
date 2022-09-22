@@ -4,10 +4,8 @@ from fpdf import FPDF
 
 class PDF(FPDF):
 
-
     def __init__(self, content):
         pass
-
 
 def build_document(content):
     pdf = PDF(content)

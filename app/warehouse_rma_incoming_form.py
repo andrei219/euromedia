@@ -26,9 +26,6 @@ class Form(Ui_Form, QWidget):
         self.set_view_config()
         self.save.clicked.connect(self.save_handler)
 
-        if order.sale_invoice is not None:
-            self.view.setEditTriggers(QTableView.NoEditTriggers)
-
 
     def set_view_config(self):
         self.view.setSelectionMode(QTableView.SingleSelection)

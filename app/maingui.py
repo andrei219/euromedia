@@ -1324,37 +1324,38 @@ class MainGui(Ui_MainGui, QMainWindow):
         self.whirma = Form(self, order)
         self.whirma.show()
 
-
     def warehouse_incoming_rmas_tocn_handler(self):
+
         wh_rma_order = self.get_wh_incoming_rma_order()
+
         if not wh_rma_order:
             return
 
-        if wh_rma_order.sale_invoice is not None:
-            QMessageBox.critical(
-                self,
-                'Error',
-                f'Credit Note: {wh_rma_order.sale_invoice.doc_repr} already exists '
-            )
+        candidates = [
+            line
+            for line in wh_rma_order.lines
+            if line.accepted == 'y' and not models.exists_credit_line(line.sn)
+        ]
+
+        if not candidates:
             return
 
-        # # Get partner:
-        # fiscal_name = wh_rma_order.incoming_rma.lines[0].cust
-        # partner_id = db.session.query(db.Partner.id).\
-        #     where(db.Partner.fiscal_name == fiscal_name).scalar()
 
         partner_id = wh_rma_order.incoming_rma.lines[0].cust_id
+
         agent_id = wh_rma_order.incoming_rma.lines[0].agent_id
 
         from models import build_credit_note_and_commit
 
-        proforma = build_credit_note_and_commit(partner_id, agent_id, wh_rma_order)
+        proforma = build_credit_note_and_commit(partner_id, agent_id, wh_rma_order, candidates)
 
-        invoice = self.proformas_sales_model.build_invoice_from_proforma(proforma)
+        # If None, no proforma was built because there was not candidates
+        if not proforma:
+            return
 
-        wh_rma_order.sale_invoice = invoice
+        invoice = self.proformas_sales_model.build_invoice_from_proforma(proforma, wh_rma_order)
 
-        for line in wh_rma_order.lines:
+        for line in candidates:
             imei = db.Imei()
             imei.imei = line.sn
             imei.item_id = line.item_id
@@ -1364,12 +1365,17 @@ class MainGui(Ui_MainGui, QMainWindow):
 
             db.session.add(imei)
 
-        db.session.commit()
-        QMessageBox.information(
-            self,
-            'Success',
-            f'Credit Note:{invoice.doc_repr} built successfully. Inventory Updated.'
-        )
+            try:
+                db.session.commit()
+            except IntegrityError:
+                QMessageBox.critical(self, 'Error', 'Some imeis are already in Inventory')
+                db.session.rollback()
+            else:
+                QMessageBox.information(
+                    self,
+                    'Success',
+                    f'Credit Note:{invoice.doc_repr} built successfully. Inventory Updated.'
+                )
 
     def warehouse_incoming_rmas_dump_handler(self):
 
@@ -1393,6 +1399,7 @@ class MainGui(Ui_MainGui, QMainWindow):
             ws = workbook.active
             max_row = ws.max_row
             accepted_lines = filter(lambda l: l.accepted, wh_order.lines)
+
             for i, line in enumerate(accepted_lines, start=1):
                 for j, value in enumerate(line.as_excel_row, start=1):
                     ws.cell(max_row + i, j, value=value)
