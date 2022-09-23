@@ -1069,7 +1069,7 @@ class SaleInvoice(Base):
 
     parent_id = Column(Integer, ForeignKey('sale_invoices.id'))
 
-    wh_incoming_rma_id = Column(Integer, ForeignKey('wh_incoming_rmas.id'), nullable=False)
+    wh_incoming_rma_id = Column(Integer, ForeignKey('wh_incoming_rmas.id'), nullable=True)
 
     wh_incoming_rma = relationship('WhIncomingRma', backref=backref('invoices'))
 
@@ -1991,7 +1991,10 @@ class WhIncomingRma(Base):
 
     id = Column(Integer, primary_key=True)
 
+    # sale_invoice_id = Column(Integer, ForeignKey('sale_invoices.id'))
+
     dumped = Column(Boolean, nullable=False, default=False)
+
     incoming_rma_id = Column(Integer, ForeignKey('incoming_rmas.id'), nullable=False)
 
     incoming_rma = relationship('IncomingRma', back_populates='wh_incoming_rma')

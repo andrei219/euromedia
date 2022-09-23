@@ -5613,6 +5613,10 @@ class WhRmaIncomingModel(BaseTable, QtCore.QAbstractTableModel):
                     color = YELLOW
 
                 return QtGui.QColor(color)
+            elif column == self.PARTNER:
+                return QtGui.QIcon(':\partners')
+            elif column == self.DATE:
+                return QtGui.QIcon(':\calendar')
 
 
 

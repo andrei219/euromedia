@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 34f949b90cc5
+Revision ID: 01774309a547
 Revises: 
-Create Date: 2022-09-22 12:06:08.225638
+Create Date: 2022-09-23 09:29:17.318246
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
-revision = '34f949b90cc5'
+revision = '01774309a547'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -66,7 +66,6 @@ def upgrade():
                existing_type=mysql.DOUBLE(asdecimal=True),
                type_=sa.Float(precision=32),
                existing_nullable=True)
-    op.drop_column('purchase_invoices', 'note')
     op.alter_column('purchase_payments', 'amount',
                existing_type=mysql.DOUBLE(asdecimal=True),
                type_=sa.Float(precision=32),
@@ -91,6 +90,10 @@ def upgrade():
                existing_type=mysql.DOUBLE(asdecimal=True),
                type_=sa.Float(precision=32),
                existing_nullable=False)
+    op.alter_column('sale_invoices', 'wh_incoming_rma_id',
+               existing_type=mysql.INTEGER(),
+               nullable=True)
+    op.create_foreign_key(None, 'sale_invoices', 'wh_incoming_rmas', ['wh_incoming_rma_id'], ['id'])
     op.drop_column('sale_invoices', 'note')
     op.alter_column('sale_payments', 'amount',
                existing_type=mysql.DOUBLE(asdecimal=True),
@@ -146,6 +149,10 @@ def downgrade():
                type_=mysql.DOUBLE(asdecimal=True),
                existing_nullable=False)
     op.add_column('sale_invoices', sa.Column('note', mysql.VARCHAR(length=255), nullable=True))
+    op.drop_constraint(None, 'sale_invoices', type_='foreignkey')
+    op.alter_column('sale_invoices', 'wh_incoming_rma_id',
+               existing_type=mysql.INTEGER(),
+               nullable=False)
     op.alter_column('sale_expenses', 'amount',
                existing_type=sa.Float(precision=32),
                type_=mysql.DOUBLE(asdecimal=True),
@@ -170,7 +177,6 @@ def downgrade():
                existing_type=sa.Float(precision=32),
                type_=mysql.DOUBLE(asdecimal=True),
                existing_nullable=True)
-    op.add_column('purchase_invoices', sa.Column('note', mysql.VARCHAR(length=255), nullable=True))
     op.alter_column('purchase_expenses', 'amount',
                existing_type=sa.Float(precision=32),
                type_=mysql.DOUBLE(asdecimal=True),
