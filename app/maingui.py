@@ -136,6 +136,27 @@ def view_document(view, model):
     subprocess.Popen((filename,), shell=True)
 
 
+def dump_rma(candidates, xlsx_file_path):
+    from openpyxl import load_workbook
+    try:
+        workbook = load_workbook(xlsx_file_path)
+        ws = workbook.active
+        max_row = ws.max_row
+        accepted_lines = filter(
+            lambda l: l.accepted != 'n' and not models.exists_credit_line(l.sn),
+            candidates
+        )
+
+        for i, line in enumerate(accepted_lines, start=1):
+            for j, value in enumerate(line.as_excel_row, start=1):
+                ws.cell(max_row + i, j, value=value)
+
+        workbook.save(xlsx_file_path)
+
+    except: # If does not work, ignore completely
+        pass
+
+
 class MainGui(Ui_MainGui, QMainWindow):
 
     def __init__(self, parent=None):
@@ -1338,7 +1359,14 @@ class MainGui(Ui_MainGui, QMainWindow):
         ]
 
         if not candidates:
+            QMessageBox.critical(self, 'Error', "I did not found candidates for a new Credit Note")
             return
+
+        # from utils import get_open_file_path
+        # file_path = get_open_file_path(self)
+        # if not file_path:
+        #     return
+
 
         partner_id = wh_rma_order.incoming_rma.lines[0].cust_id
 
@@ -1376,51 +1404,7 @@ class MainGui(Ui_MainGui, QMainWindow):
                 f'Credit Note:{invoice.doc_repr} built successfully. Inventory Updated.'
             )
 
-    def warehouse_incoming_rmas_dump_handler(self):
-
-        QMessageBox.critical(self, 'Error', 'This is not currently working')
-
-        # wh_order = self.get_wh_incoming_rma_order()
-        # if not wh_order:
-        #     return
-        #
-        # if wh_order.dumped:
-        #     QMessageBox.critical(self, 'Error', 'Data already exported')
-        #
-        # from utils import get_open_file_path
-        # from openpyxl import load_workbook
-        #
-        # xlsx_file_path = get_open_file_path(self)
-        #
-        # if not xlsx_file_path:
-        #     return
-        #
-        # try:
-        #     workbook = load_workbook(xlsx_file_path)
-        #     ws = workbook.active
-        #     max_row = ws.max_row
-        #     accepted_lines = filter(
-        #         lambda l: l.accepted != 'n' and not models.exists_credit_line(l.sn),
-        #         wh_order.lines
-        #     )
-        #
-        #     for i, line in enumerate(accepted_lines, start=1):
-        #         for j, value in enumerate(line.as_excel_row, start=1):
-        #             # ws.cell(max_row + i, j, value=value)
-        #             print(value, end='\t')
-        #         print()
-        #
-        #
-        #     workbook.save(xlsx_file_path)
-        #
-        # except:
-        #     QMessageBox.critical(self, 'Error', 'Error exporting data to excel')
-        #     raise
-        # else:
-        #     wh_order.dumped = True
-        #     db.session.commit()
-        #     self.warehouse_rma_incoming_model.layoutChanged.emit()
-
+        # dump_rma(candidates, file_path)
 
     def rmas_incoming_double_click_handler(self, index):
         rma_order = self.rmas_incoming_model[index.row()]

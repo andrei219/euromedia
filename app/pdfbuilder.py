@@ -173,9 +173,6 @@ class SaleLinePDFRepr(LinePDFRepr):
 
             self.description += ', ' + condition + ' Condt.'
 
-
-            self.description += ', ' + condition
-
             if not lines[0].ignore_spec:
                 diff_specs = {line.spec for line in lines}
                 if len(diff_specs) > 1:

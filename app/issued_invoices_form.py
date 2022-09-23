@@ -116,12 +116,11 @@ class Form(Ui_Dialog, QDialog):
         pdf_document = self._build_report()
 
 
-
     def export_handler(self):
 
         # Ask filename with pdf filters
 
-        file_path = utils.get_file_path(self, capdf_filter=True)
+        file_path = utils.get_file_path(self, pdf_filter=True)
 
         print(file_path)
 
