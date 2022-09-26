@@ -51,7 +51,7 @@
      <number>0</number>
     </property>
     <property name="currentIndex">
-     <number>7</number>
+     <number>5</number>
     </property>
     <property name="iconSize">
      <size>
@@ -6235,7 +6235,7 @@
        <attribute name="toolTip">
         <string>Physical Check Incoming RMAs. They return to us.</string>
        </attribute>
-       <widget class="QLineEdit" name="warehouse_incoming_search_edit">
+       <widget class="QLineEdit" name="warehouse_incoming_rmas_search">
         <property name="geometry">
          <rect>
           <x>1130</x>
@@ -6735,7 +6735,7 @@
        </rect>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <property name="iconSize">
        <size>

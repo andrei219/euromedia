@@ -11,6 +11,7 @@ from itertools import groupby, product, combinations
 from operator import attrgetter
 from datetime import datetime, timedelta
 from collections.abc import Iterable
+from re import search
 
 from openpyxl import Workbook
 
@@ -5555,9 +5556,12 @@ class WhRmaIncomingModel(BaseTable, QtCore.QAbstractTableModel):
         self._headerData = ['ID', 'Partner', 'Date', 'Quantity', 'Status','Invoice', 'Exported']
         self.name = 'orders'
 
-        query = db.session.query(db.WhIncomingRma).join(db.IncomingRma)
+        query = db.session.query(db.WhIncomingRma).join(db.IncomingRma).join(db.WhIncomingRmaLine)
 
         query = query.where(db.IncomingRma.date > utils.get_last_date(last))
+
+        if search_key:
+            query = query.where(db.WhIncomingRmaLine.sn.contains(search_key))
 
         self.orders = query.all()
 
@@ -5741,7 +5745,7 @@ class WhRmaIncomingLineModel(BaseTable, QtCore.QAbstractTableModel):
 
 class RmaIncomingModel(BaseTable, QtCore.QAbstractTableModel):
 
-    ID, PARTNER, DATE, QNT, STATUS, INWH = 0, 1, 2, 3, 4, 5
+    ID, PARTNER, DATE, QNT, ACCEPTED, INWH = 0, 1, 2, 3, 4, 5
 
     def __init__(self, search_key=None, filters=None, last=10):
 
@@ -5749,9 +5753,20 @@ class RmaIncomingModel(BaseTable, QtCore.QAbstractTableModel):
 
         self.name = 'orders'
 
-        self._headerData = ['ID', 'Partner', 'Date', 'Quantity', 'Status', 'In WH']
+        print('SearchKey=', search_key)
 
-        query = db.session.query(db.IncomingRma).where(db.IncomingRma.date > utils.get_last_date(last))
+        self._headerData = ['ID', 'Partner', 'Date', 'Total ', 'Accepted', 'In WH']
+
+        query = db.session.query(db.IncomingRma).join(db.IncomingRmaLine).\
+            where(db.IncomingRma.date > utils.get_last_date(last))
+
+        if search_key:
+            query = query.where(
+                or_(
+                    db.IncomingRmaLine.sn.contains(search_key),
+                    db.IncomingRmaLine.cust.contains(search_key)
+                )
+            )
 
         self.orders = query.all()
 
@@ -5773,26 +5788,27 @@ class RmaIncomingModel(BaseTable, QtCore.QAbstractTableModel):
                 except IndexError:
                     return 'Unknown'
 
-            elif column == self.STATUS:
-                if all((line.accepted for line in rma_order.lines)):
-                    return 'Accepted'
-                elif all((not line.accepted for line in rma_order.lines)):
-                    return 'Rejected'
-                elif len({line.accepted for line in rma_order.lines}) == 2:  # We found both
-                    return 'Partially Accepted'
+            elif column == self.ACCEPTED:
+                return str(sum(line.accepted for line in rma_order.lines)) + ' pcs'
+
             elif column == self.INWH:
                 return 'Yes' if rma_order.wh_incoming_rma is not None else 'No'
             elif column == self.QNT:
                 return str(len(rma_order.lines)) + ' pcs'
 
         elif role == Qt.DecorationRole:
+
             if column == self.DATE:
+
                 return QtGui.QIcon(':\calendar')
-            elif column == self.STATUS:
+
+            elif column == self.ACCEPTED:
                 if all((line.accepted for line in rma_order.lines)):
                     return QtGui.QColor(GREEN)
+
                 elif all((not line.accepted for line in rma_order.lines)):
                     return QtGui.QColor(RED)
+
                 elif len({line.accepted for line in rma_order.lines}) == 2:  # We found both
                     return QtGui.QColor(ORANGE)
 

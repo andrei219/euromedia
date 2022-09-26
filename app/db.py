@@ -2268,13 +2268,18 @@ class IncomingRmaLine(Base):
                 except AttributeError:
                     self.saledate = expedition_serie.line.expedition.proforma.date
                 self.exped = expedition_serie.created_on.date()
-                self.wtyendcust = self.exped + timedelta(expedition_serie.line.expedition.proforma.warranty)
+                self.wtyendcust = self.saledate + timedelta(expedition_serie.line.expedition.proforma.warranty)
 
                 self.sold_to = expedition_serie.line.expedition.proforma.partner_name
 
                 self.problem = ''
                 self.why = ''
-                self.accepted = False
+
+                from datetime import date
+                if date.today() <= self.saledate:
+                    self.accepted = True
+                else:
+                    self.accepted = False
 
                 for line in expedition_serie.line.expedition.proforma.lines or \
                             expedition_serie.line.expedition.proforma.advanced_lines:
