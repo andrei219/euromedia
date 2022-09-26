@@ -48,6 +48,9 @@ class Filters:
         return str(self.__dict__.values())
 
 
+from pdfbuilder import dot_comma_number_repr
+
+
 class Register:
 
     def __init__(self, invoice):
@@ -56,48 +59,107 @@ class Register:
         self.partner = invoice.partner_name
         self.agent = invoice.agent
         self.financial = invoice.financial_status_string
-        self.subtotal = str(invoice.subtotal)
-        self.tax = str(invoice.tax)
-        self.debt = str(invoice.total_debt)
+        self.subtotal = dot_comma_number_repr('{:,.2f}'.format(invoice.subtotal))
+        self.tax = dot_comma_number_repr('{:,.2f}'.format(invoice.tax))
+        self.debt = dot_comma_number_repr('{:,.2f}'.format(invoice.total_debt))
         self.currency = 'EUR' if invoice.proformas[0].eur_currency else 'USD'
 
     def __str__(self):
-        return f"{self.doc_repr:12}{self.date:14}{self.partner:40}{self.agent:14}{self.financial:16}{self.subtotal:10}{self.tax:10}{self.debt:10}{self.currency:10}"
+        return f"{self.doc_repr:12}{self.date:14}{self.partner:40}{self.agent:14}{self.financial:16}{self.subtotal:14}{self.tax:10}{self.debt:14}{self.currency:10}"
+
+
+class Totals:
+
+    __slots = ('eur_subtotal', 'eur_tax', 'eur_total', 'dollar_subtotal', 'dollar_tax', 'dollar_total')
+
+    def __init__(self):
+        self._eur_subtotal = 0
+        self._eur_tax = 0
+        self._eur_total = 0
+        self._dollar_subtotal = 0
+        self._dollar_tax = 0
+        self._dollar_total = 0
+
+    def format(self):
+        self._eur_subtotal = dot_comma_number_repr('{:,.2f}'.format(self._eur_subtotal))
+        self._eur_tax = dot_comma_number_repr('{:,.2f}'.format(self._eur_tax))
+        self._eur_total = dot_comma_number_repr('{:,.2f}'.format(self._eur_total))
+        self._dollar_subtotal = dot_comma_number_repr('{:,.2f}'.format(self._dollar_subtotal))
+        self._dollar_total = dot_comma_number_repr('{:,.2f}'.format(self._dollar_total))
+        self._dollar_tax = dot_comma_number_repr('{:,.2f}'.format(self._dollar_tax))
+
+    @property
+    def eur_subtotal(self):
+        return f'{"Total EUR(excl. VAT):":>30}{self._eur_subtotal:>20}'
+
+    @property
+    def eur_tax(self):
+        return f'{"Total EUR VAT:":>30}{self._eur_tax:>20}'
+
+    @property
+    def eur_total(self):
+        return f'{"Total EUR:":>30}{self._eur_total:>20}'
+
+    @property
+    def dollar_total(self):
+        return f'{"Total USD:":>30}{self._dollar_total:>20}'
+
+    @property
+    def dollar_tax(self):
+        return f'{"Total USD VAT:":>30}{self._dollar_tax:>20}'
+
+    @property
+    def dollar_subtotal(self):
+        return f'{"Total USD(excl. VAT):":>30}{self._dollar_subtotal:>20}'
+
+    def __iter__(self):
+        return iter((self.eur_subtotal, self.eur_tax, self.eur_total,
+                     self.dollar_subtotal, self.dollar_tax, self.dollar_total))
+
+
+def getquery(filters):
+    query = db.session.query(db.SaleInvoice).join(db.SaleProforma).\
+        join(db.Partner).join(db.Agent)\
+        .where(
+            db.SaleInvoice.date <= filters.to,
+            db.SaleInvoice.date >= filters.from_,
+    )
+
+    if filters.series:
+        query = query.where(db.SaleInvoice.type.in_(filters.series))
+
+    if filters.agent_id:
+        query = query.where(db.SaleProforma.agent_id == filters.agent_id)
+
+    if filters.partner_id:
+        query = query.where(db.SaleProforma.partner_id == filters.partner_id)
+
+    return query
 
 
 class PDFContent:
 
-    __slots__ = ('from_', 'to', 'registers', 'created_on')
+    __slots__ = ('from_', 'to', 'registers', 'created_on', 'totals')
 
     def __init__(self, filters: Filters):
         self.from_ = filters.from_
         self.to = filters.to
         self.created_on = datetime.now()
 
-        self.registers = [Register(invoice) for invoice in self._build_query(filters)]
+        self.registers = []
+        self.totals = Totals()
 
-        with open('test.txt', 'w') as f:
-            for r in self.registers:
-                f.write(str(r))
+        for invoice in getquery(filters):
+            self.registers.append(Register(invoice))
+            prefix = '_eur_' if invoice.proformas[0].eur_currency else '_dollar_'
+            setattr(self.totals, prefix + 'tax', getattr(self.totals, prefix + 'tax') + invoice.tax)
+            setattr(self.totals, prefix + 'total', getattr(self.totals, prefix + 'total') + invoice.total_debt)
+            setattr(self.totals, prefix + 'subtotal', getattr(self.totals, prefix + 'subtotal') + invoice.subtotal)
 
-    def _build_query(self, filters):
-        query = db.session.query(db.SaleInvoice).join(db.SaleProforma).\
-            join(db.Partner).join(db.Agent)\
-            .where(
-                db.SaleInvoice.date <= filters.to,
-                db.SaleInvoice.date >= filters.from_,
-        )
+        self.totals.format()
 
-        if filters.series:
-            query = query.where(db.SaleInvoice.type.in_(filters.series))
 
-        if filters.agent_id:
-            query = query.where(db.SaleProforma.agent_id == filters.agent_id)
 
-        if filters.partner_id:
-            query = query.where(db.SaleProforma.partner_id == filters.partner_id)
-
-        return query
 
 class Form(Ui_Dialog, QDialog):
 

@@ -1,26 +1,36 @@
-
 from fpdf import FPDF
 
 from datetime import datetime
 
-TITLE = 90, 10
+TITLE = 80, 10
 
-EUROMEDIA = 10, 40
-FROM = 10, 48
-TO = 10, 56
+EUROMEDIA = 10, 30
+FROM = 10, 38
+TO = 10, 46
 
-GENERATED = 120, 40
+GENERATED = 120, 30
 
-TABLE_X = 8
-TABLE_Y = 70
-DATE = 20
-PARTNER = 30
-AGENT = 80
-FINANCIAL = 90
+TABLE_X = 10
+TABLE_Y = 60
+DATE = 26
+PARTNER = 43
+AGENT = 93
+FINANCIAL = 112
+SUBTOTAL = 132
+TAX = 149
+TOTAL = 163
+CURRENCY = 178
 
-TABLE_INNER_START = 10, 80
+LINE = 10, 62, 200, 62
 
-ROW_INCREMENT = 5
+TABLE_INNER_START = 10, 67
+
+ROW_INCREMENT = 4
+
+MAX_LINES = 53
+
+X_TOTALS = 80
+
 
 class PDF(FPDF):
 
@@ -28,7 +38,7 @@ class PDF(FPDF):
         super().__init__()
         self.content = content
 
-    def print_header(self):
+    def header(self, print_lines_header=True):
         self.x, self.y = TITLE
         self.set_font('Arial',  'B', 18)
         self.cell(0, txt='Issued Invoices')
@@ -49,26 +59,51 @@ class PDF(FPDF):
 
         self.set_font('Arial', 'B', size=6)
 
+        self.text(TABLE_X, TABLE_Y, "Invoice")
+        self.text(DATE, TABLE_Y, "Date")
+        self.text(PARTNER, TABLE_Y, "Partner")
+        self.text(AGENT, TABLE_Y, "Agent")
+        self.text(FINANCIAL, TABLE_Y, "Financial")
+        self.text(SUBTOTAL, TABLE_Y, "excl. VAT")
+        self.text(TAX, TABLE_Y, "VAT")
+        self.text(TOTAL, TABLE_Y, "Total")
+        self.text(CURRENCY, TABLE_Y, "Currency")
 
-    def print_footer(self):
-        pass
+        self.line(*LINE)
 
     def print_body(self):
+
         self.set_font('Courier', '', size=6)
         x, y = TABLE_INNER_START
+        counter = 0
         for register in self.content.registers:
             self.text(x, y, str(register))
             y += ROW_INCREMENT
+            counter += 1
+            if counter % MAX_LINES == 0:
+                self.add_page()
+                x, y = TABLE_INNER_START
 
+        self.line(10, y, 200, y)
+
+        x = X_TOTALS
+        y += ROW_INCREMENT
+
+        self.set_font('Courier', 'B', size=9)
+        for i, txt in enumerate(self.content.totals):
+            self.text(x, y, txt=txt)
+
+            if i == 2:
+                y += 2 * ROW_INCREMENT
+            else:
+                y += ROW_INCREMENT
 
 
 
 def build_document(content):
     pdf = PDF(content)
+    pdf.set_auto_page_break(True)
     pdf.alias_nb_pages()
-    pdf.set_auto_page_break(True, 10)
     pdf.add_page()
-    pdf.print_header()
     pdf.print_body()
-    pdf.print_footer()
     return pdf
