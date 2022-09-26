@@ -116,7 +116,6 @@ class Totals:
         return iter((self.eur_subtotal, self.eur_tax, self.eur_total,
                      self.dollar_subtotal, self.dollar_tax, self.dollar_total))
 
-
 def getquery(filters):
     query = db.session.query(db.SaleInvoice).join(db.SaleProforma).\
         join(db.Partner).join(db.Agent)\
@@ -159,8 +158,6 @@ class PDFContent:
         self.totals.format()
 
 
-
-
 class Form(Ui_Dialog, QDialog):
 
     def __init__(self, parent):
@@ -179,23 +176,41 @@ class Form(Ui_Dialog, QDialog):
             getattr(self, 'serie_' + str(serie)).setChecked(checked)
 
     def view_handler(self):
-        pdf_document = self._build_report()
+        try:
+            pdf_document = self._build_report()
+        except ValueError as ex:
+            QMessageBox.critical(self, 'Error', 'Error building the report')
+        else:
+            filename = 'report.pdf'
+            pdf_document.output(filename)
+            import subprocess
+            subprocess.Popen((filename,), shell=True)
+
 
     def export_handler(self):
-        # file_path = utils.get_file_path(self, pdf_filter=True)
-        # if not file_path:
-        #     return
 
-        pdf_document = self._build_report()
+        from utils import get_file_path
 
-        pdf_document.output(r'C:\Users\Andrei\Desktop\test.pdf')
+        file_path = get_file_path(self, pdf_filter=True)
 
+        if not file_path:
+            return
+
+        try:
+            pdf_document = self._build_report()
+        except ValueError as ex:
+            QMessageBox.critical(self, 'Error', 'Error building the report')
+        else:
+            pdf_document.output(file_path)
+            QMessageBox.information(self, 'Information', 'Report built and reported successfully')
 
     def _build_report(self):
         try:
+
             return build_document(PDFContent(Filters(self)))
+
         except ValueError as ex:
-            QMessageBox.critical(self, 'Error', str(ex))
+            raise
 
 
 

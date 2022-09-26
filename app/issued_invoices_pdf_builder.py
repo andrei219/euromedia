@@ -99,7 +99,6 @@ class PDF(FPDF):
                 y += ROW_INCREMENT
 
 
-
 def build_document(content):
     pdf = PDF(content)
     pdf.set_auto_page_break(True)
