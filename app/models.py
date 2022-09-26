@@ -5753,8 +5753,6 @@ class RmaIncomingModel(BaseTable, QtCore.QAbstractTableModel):
 
         self.name = 'orders'
 
-        print('SearchKey=', search_key)
-
         self._headerData = ['ID', 'Partner', 'Date', 'Total ', 'Accepted', 'In WH']
 
         query = db.session.query(db.IncomingRma).join(db.IncomingRmaLine).\
@@ -5811,6 +5809,9 @@ class RmaIncomingModel(BaseTable, QtCore.QAbstractTableModel):
 
                 elif len({line.accepted for line in rma_order.lines}) == 2:  # We found both
                     return QtGui.QColor(ORANGE)
+
+            elif column == self.PARTNER:
+                return QtGui.QIcon(':\partners')
 
     def sort(self, column: int, order: Qt.SortOrder = ...) -> None:
         reverse = True if order == Qt.AscendingOrder else False
