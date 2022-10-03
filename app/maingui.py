@@ -1355,7 +1355,7 @@ class MainGui(Ui_MainGui, QMainWindow):
         candidates = [
             line
             for line in wh_rma_order.lines
-            if line.accepted == 'y' and not models.exists_credit_line(line.sn)
+            if line.accepted == 'y' and models.rma_credit_difference(line.sn)
         ]
 
         if not candidates:
@@ -1366,7 +1366,6 @@ class MainGui(Ui_MainGui, QMainWindow):
         # file_path = get_open_file_path(self)
         # if not file_path:
         #     return
-
 
         partner_id = wh_rma_order.incoming_rma.lines[0].cust_id
 

@@ -470,7 +470,6 @@ class InvoicesSalesDocumentModel(DocumentModel):
         self.invoice = obj.invoice
         super().__init__()
 
-
     @property
     def path(self):
         _type = self.invoice.type
@@ -674,7 +673,6 @@ class PartnerContactModel(QtCore.QAbstractTableModel):
 
 
 class SaleInvoiceModel(BaseTable, QtCore.QAbstractTableModel):
-
     TYPENUM, DATE, ETA, PARTNER, AGENT, FINANCIAL, LOGISTIC, SENT, CANCELLED, OWING, \
     TOTAL, EXT, INWH, READY, PROFORMA, WARNING = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15
 
@@ -690,7 +688,7 @@ class SaleInvoiceModel(BaseTable, QtCore.QAbstractTableModel):
 
         query = db.session.query(db.SaleInvoice).join(db.SaleProforma). \
             join(db.Agent, db.Agent.id == db.SaleProforma.agent_id). \
-            join(db.Partner, db.Partner.id == db.SaleProforma.partner_id).\
+            join(db.Partner, db.Partner.id == db.SaleProforma.partner_id). \
             where(db.SaleInvoice.date > utils.get_last_date(last))
 
         # TODO: search key, last, and filters
@@ -733,7 +731,7 @@ class SaleInvoiceModel(BaseTable, QtCore.QAbstractTableModel):
         if filters:
             if filters['financial']:
                 if 'notpaid' in filters['financial']:
-                    self.invoices = filter(lambda i:i.not_paid, self.invoices)
+                    self.invoices = filter(lambda i: i.not_paid, self.invoices)
 
                 if 'fullypaid' in filters['financial']:
                     self.invoices = filter(lambda i: i.fully_paid, self.invoices)
@@ -770,13 +768,13 @@ class SaleInvoiceModel(BaseTable, QtCore.QAbstractTableModel):
 
                 if 'sent' in filters['shipment']:
                     self.invoices = filter(
-                        lambda i: i.sent == 'Yes' ,
+                        lambda i: i.sent == 'Yes',
                         self.invoices
                     )
 
                 if 'notsent' in filters['shipment']:
                     self.invoices = filter(
-                        lambda i:i.sent == 'No',
+                        lambda i: i.sent == 'No',
                         self.invoices
                     )
 
@@ -796,7 +794,6 @@ class SaleInvoiceModel(BaseTable, QtCore.QAbstractTableModel):
 
             if isinstance(self.invoices, filter):
                 self.invoices = list(self.invoices)
-
 
     def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
         if not index.isValid():
@@ -869,7 +866,7 @@ class SaleInvoiceModel(BaseTable, QtCore.QAbstractTableModel):
                 return QtGui.QColor(GREEN if invoice.sent == 'Yes' else RED)
 
             elif col == self.CANCELLED:
-               return QtGui.QColor(GREEN if not invoice.cancelled == 'Yes' else RED)
+                return QtGui.QColor(GREEN if not invoice.cancelled == 'Yes' else RED)
 
     # TODO: move logic from main gui here for towh button
     def to_warehouse(self, invoice):
@@ -879,9 +876,9 @@ class SaleInvoiceModel(BaseTable, QtCore.QAbstractTableModel):
         reverse = True if order == Qt.AscendingOrder else False
         attrs = {
             self.TYPENUM: ('type', 'number'),
-            self.DATE: ('date', ),
-            self.ETA: ('eta', ),
-            self.PARTNER: ('partner_name', ),
+            self.DATE: ('date',),
+            self.ETA: ('eta',),
+            self.PARTNER: ('partner_name',),
             self.AGENT: ('agent',),
         }.get(column)
 
@@ -901,7 +898,7 @@ class SaleInvoiceModel(BaseTable, QtCore.QAbstractTableModel):
 
     def setData(self, index: QModelIndex, value: typing.Any, role: int = ...) -> bool:
         if not index.isValid():
-            return 
+            return
         if role == Qt.EditRole:
             row, col = index.row(), index.column()
             if col == self.WARNING:
@@ -913,13 +910,11 @@ class SaleInvoiceModel(BaseTable, QtCore.QAbstractTableModel):
             return False
         return False
 
-
     def __getitem__(self, item):
         return self.invoices[item]
 
 
 class SaleInvoiceLineModel(BaseTable, QtCore.QAbstractTableModel):
-
     DESCRIPTION, CONDITION, SPEC, PUBLIC_CONDITION, QUANTITY, \
     PRICE, SUBTOTAL, TAX, TOTAL = 0, 1, 2, 3, 4, 5, 6, 7, 8
 
@@ -938,7 +933,7 @@ class SaleInvoiceLineModel(BaseTable, QtCore.QAbstractTableModel):
             'Tax ',
             'Total'
         ]
-        
+
         # Credit notes are excluded
         self.lines = [line for proforma in invoice.proformas for line in proforma.advanced_lines or proforma.lines]
 
@@ -965,7 +960,6 @@ class SaleInvoiceLineModel(BaseTable, QtCore.QAbstractTableModel):
             elif isinstance(line, db.SaleProformaLine):
                 return line.description or utils.description_id_map.inverse[line.item_id]
 
-
     def __getitem__(self, item):
         return self.lines[item]
 
@@ -981,7 +975,6 @@ class SaleInvoiceLineModel(BaseTable, QtCore.QAbstractTableModel):
             del self.lines[row]
         self.layoutChanged.emit()
 
-
     def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
         if not index.isValid():
             return
@@ -994,8 +987,8 @@ class SaleInvoiceLineModel(BaseTable, QtCore.QAbstractTableModel):
     def quantity(self):
         return sum(line.quantity for line in self.lines)
 
-class PurchaseInvoiceModel(BaseTable, QtCore.QAbstractTableModel):
 
+class PurchaseInvoiceModel(BaseTable, QtCore.QAbstractTableModel):
     TYPENUM, DATE, ETA, PARTNER, AGENT, FINANCIAL, LOGISTIC, SENT, CANCELLED, OWING, \
     TOTAL, EXT, INWH, PROFORMA = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13
 
@@ -1048,7 +1041,7 @@ class PurchaseInvoiceModel(BaseTable, QtCore.QAbstractTableModel):
         if filters:
             if filters['financial']:
                 if 'notpaid' in filters['financial']:
-                    self.invoices = filter(lambda i:i.not_paid, self.invoices)
+                    self.invoices = filter(lambda i: i.not_paid, self.invoices)
 
                 if 'fullypaid' in filters['financial']:
                     self.invoices = filter(lambda i: i.fully_paid, self.invoices)
@@ -1085,13 +1078,13 @@ class PurchaseInvoiceModel(BaseTable, QtCore.QAbstractTableModel):
 
                 if 'sent' in filters['shipment']:
                     self.invoices = filter(
-                        lambda i: i.sent == 'Yes' ,
+                        lambda i: i.sent == 'Yes',
                         self.invoices
                     )
 
                 if 'notsent' in filters['shipment']:
                     self.invoices = filter(
-                        lambda i:i.sent == 'No',
+                        lambda i: i.sent == 'No',
                         self.invoices
                     )
 
@@ -1188,19 +1181,18 @@ class PurchaseInvoiceModel(BaseTable, QtCore.QAbstractTableModel):
                 elif invoice.cancelled == 'No':
                     return QtGui.QColor(GREEN)
 
-
     def sort(self, section: int, order: Qt.SortOrder = ...) -> None:
         reverse = True if order == Qt.AscendingOrder else False
         if section == self.TYPENUM:
             self.layoutAboutToBeChanged.emit()
-            self.invoices.sort(key=lambda i : (i.type, i.number), reverse=reverse)
+            self.invoices.sort(key=lambda i: (i.type, i.number), reverse=reverse)
             self.layoutChanged.emit()
         else:
             attr = {
                 self.DATE: 'date',
                 self.PARTNER: 'partner_name',
                 self.AGENT: 'agent',
-                self.ETA:'eta'
+                self.ETA: 'eta'
             }.get(section)
 
             if attr:
@@ -1263,10 +1255,10 @@ class PurchaseInvoiceLineModel(BaseTable, QtCore.QAbstractTableModel):
     def __getitem__(self, item):
         return self.lines[item]
 
-
     @property
     def quantity(self):
         return sum(line.quantity for line in self.lines)
+
 
 def buildReceptionLine(line, reception):
     reception_line = db.ReceptionLine()
@@ -1746,9 +1738,8 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
             join(db.Agent, db.Agent.id == db.SaleProforma.agent_id). \
             join(db.Partner, db.Partner.id == db.SaleProforma.partner_id). \
             join(db.Warehouse, db.Warehouse.id == db.SaleProforma.warehouse_id, isouter=True). \
-            join(db.SaleInvoice, db.SaleInvoice.id == db.SaleProforma.sale_invoice_id, isouter=True).\
+            join(db.SaleInvoice, db.SaleInvoice.id == db.SaleProforma.sale_invoice_id, isouter=True). \
             where(db.SaleProforma.date >= utils.get_last_date(last))
-
 
         if search_key:
             predicates = []
@@ -1778,7 +1769,6 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 
         if filters and filters['types']:
             query = query.where(db.SaleProforma.type.in_(filters['types']))
-
 
         if filters:
             self.proformas = query.all()
@@ -2024,11 +2014,10 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 
         return proforma.invoice
 
-
     def associateInvoice(self, rows: set):
         if any(
-            bool(self.proformas[row].credit_note_lines)
-            for row in rows
+                bool(self.proformas[row].credit_note_lines)
+                for row in rows
         ):
             raise ValueError('Credit Note already exists')
 
@@ -2064,7 +2053,7 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
         rows = {index.row() for index in indexes}
         for row in rows:
             p = self.proformas[row]
-            p.ready = not p.ready # Invert sense 
+            p.ready = not p.ready  # Invert sense
 
         self.layoutAboutToBeChanged.emit()
         db.session.commit()
@@ -2094,11 +2083,10 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
         self.layoutAboutToBeChanged.emit()
         db.session.commit()
         self.layoutChanged.emit()
-    
-    
+
     def to_warehouse_several(self, proformas, note):
         pass
-    
+
     def toWarehouse(self, proforma, note):
         fast = True
         expedition = db.Expedition(proforma)
@@ -2200,8 +2188,6 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
                     break
             else:
                 yield pline
-
-
 
 
 class OrganizedLines:
@@ -3269,7 +3255,7 @@ class ExpenseModel(BaseTable, QtCore.QAbstractTableModel):
 
     @property
     def spent(self):
-        return round(sum([expense.amount for expense in self.expenses]),2)
+        return round(sum([expense.amount for expense in self.expenses]), 2)
 
 
 from functools import wraps
@@ -3290,7 +3276,6 @@ def change_layout_and_commit(func):
 
 def expedition_series_contains(serie):
     return db.session.query(exists().where(db.ExpeditionSerie.serie == serie)).scalar()
-
 
 
 class SerieModel(QtCore.QAbstractListModel):
@@ -3573,7 +3558,7 @@ class ExpeditionModel(BaseTable, QtCore.QAbstractTableModel):
 
 class ReceptionModel(BaseTable, QtCore.QAbstractTableModel):
     ID, WAREHOUSE, TOTAL, PROCESSED, LOGISTIC, CANCELLED, PARTNER, \
-    AGENT, WARNING, FROM_PROFORMA= 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
+    AGENT, WARNING, FROM_PROFORMA = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
 
     def __init__(self, search_key=None, filters=None, last=10):
         super().__init__()
@@ -3797,6 +3782,7 @@ class ReceptionModel(BaseTable, QtCore.QAbstractTableModel):
 
 
 import operator, functools
+
 
 class StockEntry:
 
@@ -5480,9 +5466,7 @@ def export_invoices_sales_excel(invoice, file_path):
     book.save(file_path)
 
 
-
 def export_proformas_sales_excel(proforma, file_path):
-
     book = Workbook()
     sheet = book.active
 
@@ -5492,7 +5476,6 @@ def export_proformas_sales_excel(proforma, file_path):
     # Customer
     # Supplier
     # Agente primera parte
-
 
     sheet.append([
         'Document Date = ' + str(proforma.date),
@@ -5510,6 +5493,7 @@ def export_proformas_sales_excel(proforma, file_path):
         sheet.append(list(row))
 
     book.save(file_path)
+
 
 def generate_excel_rows(proforma):
     # Handle credit notes whose main property is that
@@ -5535,6 +5519,7 @@ def get_condition(eline: db.ExpeditionLine):
         if pline == eline:
             return pline.showing_condition or pline.condition
 
+
 def get_spec(eline: db.ExpeditionLine):
     for pline in eline.expedition.proforma.lines:
         if all((
@@ -5553,7 +5538,7 @@ class WhRmaIncomingModel(BaseTable, QtCore.QAbstractTableModel):
 
     def __init__(self, search_key=None, filters=None, last=10):
         super().__init__()
-        self._headerData = ['ID', 'Partner', 'Date', 'Quantity', 'Status','Invoice', 'Exported']
+        self._headerData = ['ID', 'Partner', 'Date', 'Quantity', 'Status', 'Invoice', 'Exported']
         self.name = 'orders'
 
         query = db.session.query(db.WhIncomingRma).join(db.IncomingRma).join(db.WhIncomingRmaLine)
@@ -5623,11 +5608,24 @@ class WhRmaIncomingModel(BaseTable, QtCore.QAbstractTableModel):
                 return QtGui.QIcon(':\calendar')
 
 
-
 from utils import warehouse_id_map
+
 
 def exists_credit_line(imei):
     return db.session.query(exists().where(db.CreditNoteLine.sn == imei)).scalar()
+
+
+def rma_credit_difference(imei):
+    credit_count = db.session.query(func.count(db.CreditNoteLine.id)).\
+        where(db.CreditNoteLine.sn == imei).scalar()
+
+    rma_count = db.session.query(func.count(db.WhIncomingRmaLine.id)).where(
+        db.WhIncomingRmaLine.accepted == 'y',
+        db.WhIncomingRmaLine.sn == imei
+    ).scalar()
+
+    return credit_count < rma_count
+
 
 class CreditNoteLineModel(BaseTable, QtCore.QAbstractTableModel):
     ITEM, CONDITION, SPEC, QUANTITY, PRICE, TAX, IMEI = 0, 1, 2, 3, 4, 5, 6
@@ -5744,7 +5742,6 @@ class WhRmaIncomingLineModel(BaseTable, QtCore.QAbstractTableModel):
 
 
 class RmaIncomingModel(BaseTable, QtCore.QAbstractTableModel):
-
     ID, PARTNER, DATE, QNT, ACCEPTED, INWH = 0, 1, 2, 3, 4, 5
 
     def __init__(self, search_key=None, filters=None, last=10):
@@ -5755,11 +5752,11 @@ class RmaIncomingModel(BaseTable, QtCore.QAbstractTableModel):
 
         self._headerData = ['ID', 'Partner', 'Date', 'Total ', 'Accepted', 'In WH']
 
-        query = db.session.query(db.IncomingRma).join(db.IncomingRmaLine).\
+        query = db.session.query(db.IncomingRma).join(db.IncomingRmaLine). \
             where(db.IncomingRma.date > utils.get_last_date(last))
 
         if search_key:
-            query = query.where(
+            query = query.filter(
                 or_(
                     db.IncomingRmaLine.sn.contains(search_key),
                     db.IncomingRmaLine.cust.contains(search_key)
@@ -6032,7 +6029,6 @@ class TraceEntry:
 
 
 class OperationModel(BaseTable, QtCore.QAbstractTableModel):
-
     OPERATION, DOC, DATE, PARTNER, PICKING = 0, 1, 2, 3, 4
 
     def __init__(self, imei):
@@ -6187,7 +6183,7 @@ def build_credit_note_and_commit(partner_id, agent_id, order, candidates):
         text += doc_repr + '/'
 
     for wh_line in candidates:
-            proforma.credit_note_lines.append(db.CreditNoteLine(wh_line))
+        proforma.credit_note_lines.append(db.CreditNoteLine(wh_line))
 
     proforma.note = text
     db.session.add(proforma)
@@ -6196,7 +6192,6 @@ def build_credit_note_and_commit(partner_id, agent_id, order, candidates):
 
 
 class AvailableNoteModel(BaseTable, QtCore.QAbstractTableModel):
-
     DOCUMENT, SUBTOTAL = 0, 1
 
     def __init__(self, invoice):
@@ -6209,10 +6204,10 @@ class AvailableNoteModel(BaseTable, QtCore.QAbstractTableModel):
         # Since relationship is 1 - n it would return i proformas for each
         # invoice, but ( business logic), relationship between proforma without warehouse
         # relates 1 - 1, then, desired results obtained.
-        self.invoices = db.session.query(db.SaleInvoice).join(db.SaleProforma).\
+        self.invoices = db.session.query(db.SaleInvoice).join(db.SaleProforma). \
             join(db.Partner). \
-            where(db.Partner.id == invoice.partner_id).\
-            where(db.SaleProforma.warehouse_id == None).\
+            where(db.Partner.id == invoice.partner_id). \
+            where(db.SaleProforma.warehouse_id == None). \
             where(db.SaleInvoice.parent_id == None).all()
 
     def add(self, rows):
@@ -7154,7 +7149,6 @@ def month_key(sale):
 
 
 class FucksModel(BaseTable, QtCore.QAbstractTableModel):
-
     SERIE, FROM, TO = 0, 1, 2
 
     def __init__(self):
@@ -7241,7 +7235,6 @@ class FucksModel(BaseTable, QtCore.QAbstractTableModel):
                 filename = ''.join(('serie', str(fuck.serie), '.xlsx'))
                 wb.save(os.path.join(target_dir, filename))
 
-
     def get_query(self, serie, _from, to):
 
         serie, _from, to = int(serie), int(_from), int(to)
@@ -7266,6 +7259,7 @@ class FucksModel(BaseTable, QtCore.QAbstractTableModel):
         else:
             os.mkdir(path)
             return path
+
 
 class Tupable:
 
@@ -7570,7 +7564,6 @@ class StockValuationModelImei(Exportable, BaseTable, QtCore.QAbstractTableModel)
 
 
 class InvoicePaymentModel(BaseTable, QtCore.QAbstractTableModel):
-
     PROFORMA, TOTAL, PAID, PENDING = 0, 1, 2, 3
 
     def __init__(self, invoice):
@@ -7579,7 +7572,7 @@ class InvoicePaymentModel(BaseTable, QtCore.QAbstractTableModel):
         self._headerData = ['Proforma', 'Total', 'Paid', 'Pending']
         self.proformas = invoice.proformas
         self.name = 'proformas'
-    
+
     def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
         if not index.isValid():
             return
@@ -7589,14 +7582,14 @@ class InvoicePaymentModel(BaseTable, QtCore.QAbstractTableModel):
         total_debt = proforma.total_debt
         if role == Qt.DisplayRole:
             return [
-                proforma.doc_repr, 
+                proforma.doc_repr,
                 total_debt,
                 paid,
                 total_debt - paid
             ][col]
 
     def complete_payments(self, rate, note):
-        orm_class = db.SalePayment if isinstance(self.invoice, db.SaleInvoice)\
+        orm_class = db.SalePayment if isinstance(self.invoice, db.SaleInvoice) \
             else db.PurchasePayment
         for p in self.invoice.proformas:
             db.session.add(
@@ -7616,7 +7609,6 @@ class InvoicePaymentModel(BaseTable, QtCore.QAbstractTableModel):
 
 
 class InvoiceExpensesModel(BaseTable, QtCore.QAbstractTableModel):
-
     DATE = 0
 
     def __init__(self, invoice):
@@ -7626,7 +7618,7 @@ class InvoiceExpensesModel(BaseTable, QtCore.QAbstractTableModel):
 
         self.name = 'expenses'
         self.expenses = [
-            expense 
+            expense
             for proforma in self.invoice.proformas
             for expense in proforma.expenses
         ]
