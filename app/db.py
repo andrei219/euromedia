@@ -1112,7 +1112,6 @@ class SaleInvoice(Base):
     def total_debt(self):
         return sum(proforma.total_debt for proforma in self.proformas)
 
-
     @property
     def tax(self):
         return round(sum(p.tax for p in self.proformas), 2)
