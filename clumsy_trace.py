@@ -31,6 +31,13 @@ def build_and_print_tables(sale_invoices):
     print(f'Total : ', total)
 
 
+# TODO:
+# Put credit lines
+# Put stocks
+# That should make the balance
+# Put that in a QWidget
+
+
 if __name__ == '__main__':
 
     sales = dict()
@@ -41,7 +48,6 @@ if __name__ == '__main__':
 
 
     doc_number = input('Enter purchase invoice number: ')
-
 
     splitted = extract_doc_repr(doc_number).split('-')
 

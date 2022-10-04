@@ -6085,7 +6085,8 @@ class OperationModel(BaseTable, QtCore.QAbstractTableModel):
             self.entries.append(te)
 
         query = db.session.query(db.WhIncomingRmaLine).join(db.WhIncomingRma).join(db.SaleInvoice) \
-            .where(db.WhIncomingRmaLine.sn == imei)
+            .where(db.WhIncomingRmaLine.sn == imei)\
+            .where(db.WhIncomingRmaLine.accepted == 'y')
 
         for r in query:
             te = TraceEntry()
