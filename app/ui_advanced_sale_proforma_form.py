@@ -98,6 +98,7 @@ class Ui_Form(object):
         self.days = QtWidgets.QSpinBox(self.header)
         self.days.setGeometry(QtCore.QRect(670, 121, 47, 22))
         self.days.setMaximum(999)
+        self.days.setProperty("value", 30)
         self.days.setObjectName("days")
         self.incoterms = QtWidgets.QComboBox(self.header)
         self.incoterms.setGeometry(QtCore.QRect(950, 40, 51, 22))

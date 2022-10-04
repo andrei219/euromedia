@@ -6431,7 +6431,6 @@ candidates.extend([c.description for c in db.session.query(db.Courier)])
 @functools.cache
 def get_avg_rate(proforma):
     if proforma.eur_currency:
-        print('proforma.eur_currency')
         return 1
 
     if all(payment.rate == 1 for payment in proforma.payments):
@@ -6730,7 +6729,6 @@ def do_sale_price(imei):
             doc_type = 'Invoice'
             date = proforma.invoice.date.strftime('%d/%m/%Y')
         except AttributeError:
-            print('attr error raised')
             doc_number = proforma.doc_repr
             doc_type = 'Proforma'
             date = proforma.date.strftime('%d/%m/%Y')
@@ -7609,8 +7607,8 @@ class InvoicePaymentModel(BaseTable, QtCore.QAbstractTableModel):
 
 
 class InvoiceExpensesModel(BaseTable, QtCore.QAbstractTableModel):
-    DATE = 0
 
+    DATE = 0
     def __init__(self, invoice):
         super().__init__()
         self.invoice = invoice
@@ -7653,6 +7651,18 @@ class InvoiceExpensesModel(BaseTable, QtCore.QAbstractTableModel):
         return self.expenses[item]
 
 
+class SwitchModel(QtCore.QAbstractListModel):
+
+     def __init__(self):
+        pass
+
+
+     def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
+         pass
+
+
+
+
 def caches_clear():
     get_avg_rate.cache_clear()
     get_purchase_expenses_breakdown.cache_clear()
@@ -7663,8 +7673,3 @@ def caches_clear():
     get_sale_breakdown.cache_clear()
     get_sale_proforma_stock_value.cache_clear()
 
-
-if __name__ == '__main__':
-
-    while True:
-        print(where_was_it_sold(input('Enter serie:')))

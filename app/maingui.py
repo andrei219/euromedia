@@ -102,7 +102,8 @@ ACTIONS = [
     'harvest',
     'facks',
     'stock_valuation',
-    'issued_invoices'
+    'issued_invoices',
+    'switch'
 ]
 
 
@@ -192,10 +193,13 @@ class MainGui(Ui_MainGui, QMainWindow):
             doc = model[row]
             if isinstance(doc, (db.SaleInvoice, db.PurchaseInvoice)):
                 name = 'INV ' + doc.doc_repr + '.pdf'
+            elif isinstance(doc, db.PurchaseProforma):
+                name = 'PO ' + doc.doc_repr + '.pdf'
             else:
                 name = 'PI ' + doc.doc_repr + '.pdf'
 
             pdf = build_document(doc)
+
             pdf.output(os.path.join(directory, name))
 
         return True
@@ -1512,12 +1516,15 @@ class MainGui(Ui_MainGui, QMainWindow):
         from issued_invoices_form import Form
         Form(self).exec_()
 
+    counter = 0
+
+    def tools_switch_handler(self):
+        # from switch_form import Form
+        # Form(self).exec_()
+
+        QMessageBox.information(self, 'Info', 'Under Development')
+
     def tab_changed(self, index):
-        # Clean up the filters also
-        # And complete the rest of the models
-
-
-
         db.session.commit()
 
         if index == 1:

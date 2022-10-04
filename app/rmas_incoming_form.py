@@ -57,7 +57,6 @@ class Form(Ui_Form, QWidget):
         self.save.clicked.connect(self.save_handler)
         self.delete_.clicked.connect(self.delete_handler)
 
-
     def search_sn(self):
         sn = self.sn.text().strip()
         if not sn:

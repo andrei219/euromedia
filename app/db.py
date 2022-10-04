@@ -25,7 +25,9 @@ from datetime import timedelta
 
 from sqlalchemy import exists
 
+
 engine = create_engine('mysql+mysqlconnector://andrei:hnq#4506@192.168.1.78:3306/appdb', echo=False)
+
 dev_engine = create_engine('mysql+mysqlconnector://root:hnq#4506@localhost:3306/appdb', echo=False)
 
 
@@ -2276,7 +2278,7 @@ class IncomingRmaLine(Base):
                 self.why = ''
 
                 from datetime import date
-                if date.today() <= self.saledate:
+                if date.today() <= self.wtyendcust:
                     self.accepted = True
                 else:
                     self.accepted = False
@@ -2325,9 +2327,24 @@ def correct_mask():
         raise
 
 
+def switch(company):
+    global Session, session
+    engine = create_engine(f'mysql+mysqlconnector://root:hnq#4506@localhost:3306/{company}')
+    Session = scoped_session(sessionmaker(bind=engine, autoflush=False))
+    session = Session()
+
+
 def company_name():
     return 'Euromedia Investment Group'
 
 
 def year():
     return '2022'
+
+#
+# if __name__ == '__main__':
+#
+#     engine = create_engine(f'mysql+mysqlconnector://root:hnq#4506@localhost:3306/atcapital')
+#     Session = scoped_session(sessionmaker(bind=engine, autoflush=False))
+#     session = Session()
+#     Base.metadata.create_all(engine)

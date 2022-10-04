@@ -9,7 +9,8 @@ from db import SaleInvoice
 from db import SaleProforma
 from db import PurchaseProforma
 from db import PurchaseInvoice
-
+import utils
+from importlib import reload
 
 # CONSTANTS:
 
@@ -61,14 +62,12 @@ BANK2_TEXT_X_POSITION = 153
 RMA_START_X_POSITION = 125
 BANK_TEXT_Y_CONDITION_RELATIVE_INCREMENT = 9
 
-import utils
-from importlib import reload
-
 utils = reload(utils)
 
 pdf = FPDF()
 pdf.set_font('Arial', size=9)
 
+import db
 
 def text_exceeds(text, length=95):
     return pdf.get_string_width(text) > length
@@ -457,13 +456,13 @@ class PDF(FPDF):
             lines = [line for proforma in document.proformas for line in proforma.lines]
             self.lines = PurchaseLinesPDFRepr(lines)
 
-
     def header(self, print_lines_header=True):
         self.set_xy(18.75, 13.53)
         self.image(LOGO_RELATIVE_PATH, w=70, h=18.2)
         self.set_font('Arial', 'B', 18)
         self.set_xy(127.5, 13.35)
         self.cell(74, 17, self.doc_header, 1, 0, 'C')
+
 
         self.print_buyer()
         self.print_supplier()
