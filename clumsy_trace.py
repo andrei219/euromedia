@@ -7,8 +7,11 @@ from app.db import (
     SaleProforma,
     session,
     ExpeditionSerie,
+    ReceptionSerie,
     ExpeditionLine,
-    Expedition
+    Expedition,
+    exists,
+    Imei
 )
 
 
@@ -18,45 +21,52 @@ def extract_doc_repr(invoice_text):
 
 
 def build_and_print_tables(sale_invoices):
-
+    total = 0
     print(f"{'Date':25} {'NºDoc':25}{'Partner':50}{'Qty':25}{'Agent':25}")
     print('_' * 140)
-    for sale in sale_invoices:
-        print(f"{sale.date.strftime('%d/%m/%Y'):25}{sale.doc_repr:25}{sale.partner_name:50}{str(sale.device_count):25}{sale.agent:25}")
+    for sale, count in sale_invoices.items():
+        total += count
+        print(f"{sale.date.strftime('%d/%m/%Y'):25}{sale.doc_repr:25}{sale.partner_name:50}{str(count):25}{sale.agent:25}")
 
+    print(f'Total : ', total)
 
 
 if __name__ == '__main__':
 
-    sales = set()
+    sales = dict()
 
     print('*' * 50)
-    print(' ' * 20, 'CLUMSY TRACE')
+    print(' ' * 18, 'CLUMSY TRACE')
     print('*' * 50)
 
-    while True:
 
-        doc_number = input('Enter purchase invoice number: ')
-
-        try:
-            splitted = extract_doc_repr(doc_number).split('-')
-            type, number = splitted[0], splitted[1]
-
-            for proforma in session.query(PurchaseProforma).join(PurchaseInvoice).where(
-                PurchaseInvoice.type == type,
-                PurchaseInvoice.number == number
-            ):
-                for line in proforma.reception.lines:
-                    for serie in line.series:
-                        sale_invoice = session.query(SaleInvoice).join(SaleProforma).\
-                            join(Expedition).join(ExpeditionLine).join(ExpeditionSerie).where(ExpeditionSerie.serie == serie.serie).first()
-
-                    sales.add(sale_invoice)
-
-            build_and_print_tables(sales)
+    doc_number = input('Enter purchase invoice number: ')
 
 
-        except AttributeError:
-            print("I couldn't understand that doc number. Try Again.")
-            raise
+    splitted = extract_doc_repr(doc_number).split('-')
+
+    type, number = splitted[0], splitted[1]
+
+    sales = dict()
+
+    for proforma in session.query(PurchaseProforma).join(PurchaseInvoice).where(
+        PurchaseInvoice.type == type,
+        PurchaseInvoice.number == number
+    ):
+        series = set(serie.serie for line in proforma.reception.lines for serie in line.series)
+
+        print(f"Total purchased: ", len(series))
+
+        for line in proforma.reception.lines:
+            for serie in line.series:
+                exp_series = session.query(ExpeditionSerie).where(ExpeditionSerie.serie == serie.serie).all()
+                for e in exp_series:
+                    sale_invoice = e.line.expedition.proforma.invoice
+                    if sale_invoice not in sales:
+                        sales[sale_invoice] = sale_invoice.get_device_count(series)
+
+        build_and_print_tables(sales)
+
+    query = session.query(ExpeditionSerie).join(ReceptionSerie, ReceptionSerie.serie == ExpeditionSerie.serie)
+
 

@@ -1075,6 +1075,14 @@ class SaleInvoice(Base):
 
     wh_incoming_rma = relationship('WhIncomingRma', backref=backref('invoices'))
 
+    def get_device_count(self, series):
+        count = 0
+        for proforma in self.proformas:
+            for line in proforma.expedition.lines:
+                for serie in line.series:
+                    if serie.serie in series:
+                        count += 1
+        return count
 
     def __repr__(self):
         clasname = self.__class__.__name__
@@ -1221,12 +1229,15 @@ class SaleInvoice(Base):
     def total(self):
         return str(self.total_debt) + self.currency
 
+    def __hash__(self):
+        hashes = (hash(x) for x in (self.type, self.number))
+        return functools.reduce(operator.xor, hashes, 0)
+
     helper = PurchaseInvoice.helper
     external = PurchaseInvoice.external
     tracking = PurchaseInvoice.tracking
     warning = PurchaseInvoice.warning
     note = PurchaseInvoice.note
-
 
 
     @property
