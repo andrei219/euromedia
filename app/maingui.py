@@ -103,7 +103,8 @@ ACTIONS = [
     'facks',
     'stock_valuation',
     'issued_invoices',
-    'switch'
+    'switch',
+    'top_partners'
 ]
 
 
@@ -1523,6 +1524,12 @@ class MainGui(Ui_MainGui, QMainWindow):
         # Form(self).exec_()
 
         QMessageBox.information(self, 'Info', 'Under Development')
+
+    def tools_top_partners_handler(self):
+
+        from top_partners_form import Form
+
+        Form(self).exec_()
 
     def tab_changed(self, index):
         db.session.commit()

@@ -68,11 +68,11 @@ if __name__ == '__main__':
                 exp_series = session.query(ExpeditionSerie).where(ExpeditionSerie.serie == serie.serie).all()
                 for e in exp_series:
                     sale_invoice = e.line.expedition.proforma.invoice
-                    if sale_invoice not in sales:
+                    if sale_invoice not in sales and sale_invoice is not None:
                         sales[sale_invoice] = sale_invoice.get_device_count(series)
 
         build_and_print_tables(sales)
 
-    query = session.query(ExpeditionSerie).join(ReceptionSerie, ReceptionSerie.serie == ExpeditionSerie.serie)
+    # query = session.query(ExpeditionSerie).join(ReceptionSerie, ReceptionSerie.serie == ExpeditionSerie.serie)
 
 

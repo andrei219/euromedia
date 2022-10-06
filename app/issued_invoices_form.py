@@ -186,7 +186,6 @@ class Form(Ui_Dialog, QDialog):
             import subprocess
             subprocess.Popen((filename,), shell=True)
 
-
     def export_handler(self):
 
         from utils import get_file_path

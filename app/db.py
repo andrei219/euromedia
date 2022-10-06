@@ -1829,7 +1829,6 @@ def expedition_series_after_insert(mapper, connection, target):
     item_id = target.line.item_id
     serie = target.serie
 
-
     if target.line.expedition.from_sale_type == FAST:
 
         if session.query(exists().where(Imei.imei == serie)).scalar():
