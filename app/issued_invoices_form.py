@@ -201,7 +201,7 @@ class Form(Ui_Dialog, QDialog):
             QMessageBox.critical(self, 'Error', 'Error building the report')
         else:
             pdf_document.output(file_path)
-            QMessageBox.information(self, 'Information', 'Report built and reported successfully')
+            QMessageBox.information(self, 'Information', 'Report built and exported successfully')
 
     def _build_report(self):
         try:

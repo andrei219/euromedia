@@ -1003,7 +1003,8 @@ class PurchaseInvoiceModel(BaseTable, QtCore.QAbstractTableModel):
         self.name = 'invoices'
         query = db.session.query(db.PurchaseInvoice).join(db.PurchaseProforma). \
             join(db.Agent, db.Agent.id == db.PurchaseProforma.agent_id). \
-            join(db.Partner, db.Partner.id == db.PurchaseProforma.partner_id)
+            join(db.Partner, db.Partner.id == db.PurchaseProforma.partner_id).\
+            where(db.PurchaseInvoice.date > utils.get_last_date(last))
 
         if search_key:
             predicates = []

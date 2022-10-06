@@ -46,7 +46,6 @@ if __name__ == '__main__':
     print(' ' * 18, 'CLUMSY TRACE')
     print('*' * 50)
 
-
     doc_number = input('Enter purchase invoice number: ')
 
     splitted = extract_doc_repr(doc_number).split('-')

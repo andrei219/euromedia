@@ -55,6 +55,9 @@
      <height>20</height>
     </rect>
    </property>
+   <property name="text">
+    <string>01102022</string>
+   </property>
   </widget>
   <widget class="QLineEdit" name="to">
    <property name="geometry">
@@ -64,6 +67,9 @@
      <width>113</width>
      <height>20</height>
     </rect>
+   </property>
+   <property name="text">
+    <string>30102022</string>
    </property>
   </widget>
   <widget class="QLabel" name="label_2">
@@ -203,7 +209,7 @@
   <widget class="QRadioButton" name="purchases">
    <property name="geometry">
     <rect>
-     <x>270</x>
+     <x>190</x>
      <y>280</y>
      <width>82</width>
      <height>17</height>
@@ -211,6 +217,22 @@
    </property>
    <property name="text">
     <string>Purchases</string>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="exclude_rma">
+   <property name="geometry">
+    <rect>
+     <x>320</x>
+     <y>280</y>
+     <width>111</width>
+     <height>17</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Exclude RMA</string>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
    </property>
   </widget>
  </widget>

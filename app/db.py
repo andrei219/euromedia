@@ -1059,6 +1059,7 @@ class SaleDocument(Base):
 
 import functools
 
+
 class SaleInvoice(Base):
 
     __tablename__ = 'sale_invoices'
