@@ -6085,26 +6085,43 @@ class OperationModel(BaseTable, QtCore.QAbstractTableModel):
 
             self.entries.append(te)
 
-        query = db.session.query(db.WhIncomingRmaLine).join(db.WhIncomingRma).join(db.SaleInvoice) \
-            .where(db.WhIncomingRmaLine.sn == imei)\
-            .where(db.WhIncomingRmaLine.accepted == 'y')
+        # query = db.session.query(db.WhIncomingRmaLine).join(db.WhIncomingRma).join(db.SaleInvoice) \
+        #     .where(db.WhIncomingRmaLine.sn == imei)\
+        #     .where(db.WhIncomingRmaLine.accepted == 'y')
+        # 
+        # for r in query:
+        #     te = TraceEntry()
+        #     te.operation = 'Incoming Rma'
+        # 
+        #     # Find concrete sale
+        #     for sale in r.wh_incoming_rma.invoices:
+        #         for line in sale.proformas[0].credit_note_lines:
+        #             if line.sn == imei:
+        #                 break
+        # 
+        #     te.doc = 'FR ' + sale.doc_repr
+        #     te.date = sale.date
+        #     te.partner = r.wh_incoming_rma.incoming_rma.lines[0].cust
+        #     te.picking = 'Not Registered'
+        # 
+        #     self.entries.append(te)
 
+        query = db.session.query(db.CreditNoteLine).join(db.SaleProforma).join(db.SaleInvoice).\
+            where(db.CreditNoteLine.sn == imei)
+        
         for r in query:
             te = TraceEntry()
             te.operation = 'Incoming Rma'
-
-            # Find concrete sale
-            for sale in r.wh_incoming_rma.invoices:
-                for line in sale.proformas[0].credit_note_lines:
-                    if line.sn == imei:
-                        break
-
-            te.doc = 'FR ' + sale.doc_repr
-            te.date = sale.date
-            te.partner = r.wh_incoming_rma.incoming_rma.lines[0].cust
-            te.picking = 'Not Registered'
-
+            
+            invoice = r.proforma.invoice
+            
+            te.doc = 'FR ' + invoice.doc_repr 
+            te.date = invoice.date 
+            te.partner = invoice.partner_name
+            te.picking = 'Not registered'
+            
             self.entries.append(te)
+            
 
         self.entries.sort(key=lambda te: te.date)
 
