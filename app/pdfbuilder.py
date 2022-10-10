@@ -290,6 +290,7 @@ class MixedUPLinesPDFRepr(LinesPDFRepr):
         self.add_counter()
 
 class We:
+
     def __init__(self):
         self.fiscal_name = 'Euromedia Investment Group, S.L.'
         self.billing_line1 = 'Calle Camino Real Nº22'
