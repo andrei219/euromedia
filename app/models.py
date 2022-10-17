@@ -4611,11 +4611,20 @@ class InventoryModel(BaseTable, QtCore.QAbstractTableModel):
         query = db.session.query(db.Imei).join(db.Item).join(db.Warehouse)
 
         if description:
-            ids = utils.get_items_ids_by_keyword(description.lower())
-            if ids:
-                query = query.where(db.Imei.item_id.in_(ids))
+
+            if 'Mixed' in description:
+                ids = utils.get_itemids_from_mixed_description(description)
+                if ids:
+                    print('mixed in description.ids =', ids)
+                    query = query.where(db.Imei.item_id.in_(ids))
+
             else:
-                query = query.where(db.Imei.imei.contains(description))
+                ids = utils.get_items_ids_by_keyword(description.lower())
+                if ids:
+                    query = query.where(db.Imei.item_id.in_(ids))
+                else:
+                    query = query.where(db.Imei.imei.contains(description))
+
 
         if condition:
             query = query.where(db.Imei.condition.contains(condition))

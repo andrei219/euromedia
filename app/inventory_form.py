@@ -24,7 +24,7 @@ class InventoryForm(Ui_InventoryForm, QDialog):
 
     def set_completers(self):
         for field, data in [
-            (self.description, utils.description_id_map.keys()), 
+            (self.description, utils.descriptions),
             (self.condition, utils.conditions), 
             (self.spec, utils.specs), 
             (self.warehouse, utils.warehouse_id_map.keys())
@@ -51,7 +51,6 @@ class InventoryForm(Ui_InventoryForm, QDialog):
         else:
             QMessageBox.information(self, 'Information', 'Data exported successfully')
 
-
     def apply_handler(self):
         filters = self.build_filters()
         self.model = InventoryModel(**filters)
@@ -59,9 +58,10 @@ class InventoryForm(Ui_InventoryForm, QDialog):
         self.view.resizeColumnToContents(1)
     
     def build_filters(self):
-        filters = {}
-        filters['description'] = self.description.text().strip()
-        filters['spec'] = self.spec.text().strip()
-        filters['condition'] = self.condition.text().strip()
-        filters['warehouse'] = self.warehouse.text().strip()
+        return {
+            'description': self.description.text().strip(),
+            'spec': self.spec.text().strip(),
+            'condition': self.condition.text().strip(),
+            'warehouse': self.warehouse.text().strip()
+        }
         return filters
