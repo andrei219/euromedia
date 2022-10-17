@@ -1512,7 +1512,6 @@ class MainGui(Ui_MainGui, QMainWindow):
         from issued_invoices_form import Form
         Form(self).exec_()
 
-    counter = 0
 
     def tools_switch_handler(self):
         # from switch_form import Form
@@ -1547,7 +1546,6 @@ class MainGui(Ui_MainGui, QMainWindow):
             self.set_mv('warehouse_outgoing_rmas_')
         elif index == 6:
             self.set_mv('rmas_incoming_')
-
 
     def closeEvent(self, event):
         for w in self.opened_windows_instances:

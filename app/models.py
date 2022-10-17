@@ -4625,9 +4625,9 @@ class InventoryModel(BaseTable, QtCore.QAbstractTableModel):
                 else:
                     query = query.where(db.Imei.imei.contains(description))
 
-
         if condition:
             query = query.where(db.Imei.condition.contains(condition))
+
 
         if spec:
             query = query.where(db.Imei.spec.contains(spec))
@@ -5550,7 +5550,8 @@ class WhRmaIncomingModel(BaseTable, QtCore.QAbstractTableModel):
         self._headerData = ['ID', 'Partner', 'Date', 'Quantity', 'Status', 'Invoice', 'Exported']
         self.name = 'orders'
 
-        query = db.session.query(db.WhIncomingRma).join(db.IncomingRma).join(db.WhIncomingRmaLine)
+        query = db.session.query(db.WhIncomingRma).join(db.IncomingRma)\
+            .join(db.WhIncomingRmaLine)
 
         query = query.where(db.IncomingRma.date > utils.get_last_date(last))
 

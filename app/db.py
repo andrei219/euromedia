@@ -2119,7 +2119,6 @@ class WhIncomingRmaLine(Base):
         )
 
 
-
 class CreditNoteLine(Base):
 
     __tablename__ = 'credit_note_lines'
