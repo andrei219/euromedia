@@ -5509,11 +5509,10 @@ def generate_excel_rows(proforma):
     # Handle credit notes whose main property is that
     # warehouse_id is NULL on SQL side.
     if proforma.is_credit_note:
-        for line in proforma.invoice.wh_incoming_rma.lines:
-            if line.accepted:
-                yield line.sn, line.item.clean_repr, line.public_condition or line.condition, line.spec
-    else:
+        for line in proforma.credit_note_lines:
+            yield line.sn, line.item.clean_repr, line.public_condition or line.condition, line.spec
 
+    else:
         for eline in proforma.expedition.lines:
             condition = get_condition(eline)
             spec = get_spec(eline)

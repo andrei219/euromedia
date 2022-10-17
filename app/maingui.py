@@ -1100,13 +1100,8 @@ class MainGui(Ui_MainGui, QMainWindow):
                 Form(self, resolved, unresolved).exec_()
 
     def invoices_sales_mail_handler(self):
-        pass
-        # TODO dont even know yet hahahah
-
         invoice = self.get_sales_invoice()
-        print(f'invoice={invoice}')
         if not invoice:
-            print('if not invoice')
             return
         from utils import get_email_recipient
         recipient = get_email_recipient(invoice)
