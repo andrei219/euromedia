@@ -3840,7 +3840,7 @@ class StockEntry:
         self._request = request
 
     def __iter__(self):
-        return (i for i in (self.item_id, self.condition, \
+        return (i for i in (self.item_id, self.condition,\
                             self.spec, self.quantity, self.request))
 
     def __repr__(self):
@@ -6197,7 +6197,9 @@ def build_credit_note_and_commit(partner_id, agent_id, order, candidates):
     proforma.courier_id = 1
 
     text = ''
-    credit_notes_where_sold = set(where_was_it_sold(line.sn) for line in order.lines)
+
+    credit_notes_where_sold = set(where_was_it_sold(line.sn) for line in candidates)
+
     for doc_repr in credit_notes_where_sold:
         text += doc_repr + '/'
 
