@@ -2292,17 +2292,49 @@ class IncomingRmaLine(Base):
                 else:
                     self.accepted = False
 
-                for line in expedition_serie.line.expedition.proforma.lines or \
-                            expedition_serie.line.expedition.proforma.advanced_lines:
-                    if all((
-                            line.item_id == expedition_serie.line.item_id,
-                            line.condition == expedition_serie.line.condition,
-                            line.spec == expedition_serie.line.spec
-                    )):
-                        self.price = line.price
-                        break
-                else:
-                    self.price = -1332.0
+                # for line in expedition_serie.line.expedition.proforma.lines or \
+                #             expedition_serie.line.expedition.proforma.advanced_lines:
+                #
+                #
+                #     if all((
+                #             line.item_id == expedition_serie.line.item_id,
+                #             line.condition == expedition_serie.line.condition,
+                #             line.spec == expedition_serie.line.spec
+                #     )):
+                #         self.price = line.price
+                #         break
+                # else:
+                #     self.price = -1332.0
+
+                proforma = expedition_serie.line.expedition.proforma
+
+                if proforma.lines:
+                    for line in proforma.lines:
+                        if all((
+                                line.item_id == expedition_serie.line.item_id,
+                                line.condition == expedition_serie.line.condition,
+                                line.spec == expedition_serie.line.spec
+                        )):
+                            self.price = line.price
+
+                elif proforma.advanced_lines:
+                    for line in proforma.advanced_lines:
+                        if line.definitions:
+                            for definition in line.definitions:
+                                if all((
+                                    definition.item_id == expedition_serie.line.item_id,
+                                    definition.condition == expedition_serie.line.condition,
+                                    definition.spec == expedition_serie.line.spec
+                                )):
+                                    self.price = line.price
+                                    break
+                        else:
+                            if all((
+                                line.item_id == expedition_serie.line.item_id,
+                                line.condition == expedition_serie.line.condition,
+                                line.spec == expedition_serie.line.condition
+                            )):
+                                self.price = line.price
 
         return self
 

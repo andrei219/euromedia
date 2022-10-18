@@ -3923,19 +3923,13 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
                 query = query.where(db.Imei.item_id.in_(item_ids))
 
         if condition:
-            query = query.where(
-                db.Imei.condition == condition
-            )
+            query = query.where(db.Imei.condition == condition)
 
         if spec:
-            query = query.where(
-                db.Imei.spec == spec
-            )
+            query = query.where(db.Imei.spec == spec)
 
-        imeis = {
-            StockEntry(r.item_id, r.condition, r.spec, r.quantity)
-            for r in query
-        }
+        imeis = {StockEntry(r.item_id, r.condition, r.spec, r.quantity) for r in query}
+
 
         query = session.query(
             db.ImeiMask.item_id, db.ImeiMask.condition,
@@ -3948,19 +3942,13 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
         )
 
         if condition:
-            query = query.where(
-                db.ImeiMask.condition == condition
-            )
+            query = query.where(db.ImeiMask.condition == condition)
 
         if spec:
-            query = query.where(
-                db.ImeiMask.spec == spec
-            )
+            query = query.where(db.ImeiMask.spec == spec)
 
-        imeis_mask = {
-            StockEntry(r.item_id, r.condition, r.spec, r.quantity)
-            for r in query
-        }
+        imeis_mask = {StockEntry(r.item_id, r.condition, r.spec, r.quantity) for r in query}
+
 
         query = session.query(
             db.SaleProformaLine.item_id,
@@ -3979,6 +3967,7 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
         )
 
         sales = {StockEntry(r.item_id, r.condition, r.spec, r.quantity) for r in query}
+
 
         query = session.query(
             db.AdvancedLine.item_id,
@@ -4033,6 +4022,8 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
 
         outputs = {StockEntry(r.item_id, r.condition, r.spec, r.quantity) for r in query}
 
+
+
         query = session.query(
             db.AdvancedLineDefinition.item_id,
             db.AdvancedLineDefinition.condition,
@@ -4078,8 +4069,6 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
         return list(filter(lambda stock: stock.quantity != 0, stocks))
 
     def lines_against_stock(self, warehouse_id, lines):
-        # Session = db.sessionmaker(bind=db.dev_engine)
-        # session = db.Session()
 
         Session = db.sessionmaker(bind=db.get_engine())
         with Session.begin() as session:
@@ -4124,15 +4113,15 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
         stock = self.stocks[row]
 
         if role == Qt.DisplayRole:
-            if column == self.__class__.DESCRIPTION:
+            if column == self.DESCRIPTION:
                 return utils.description_id_map.inverse[stock.item_id]
-            elif column == self.__class__.CONDITION:
+            elif column == self.CONDITION:
                 return stock.condition
-            elif column == self.__class__.SPEC:
+            elif column == self.SPEC:
                 return stock.spec
-            elif column == self.__class__.QUANTITY:
+            elif column == self.QUANTITY:
                 return str(stock.quantity) + ' pcs'
-            elif column == self.__class__.REQUEST:
+            elif column == self.REQUEST:
                 return str(stock.request)
 
     def setData(self, index, value, role=Qt.EditRole):
