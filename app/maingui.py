@@ -768,16 +768,18 @@ class MainGui(Ui_MainGui, QMainWindow):
                 self.proformas_sales_view,
                 proforma
             )
-        elif proforma.lines:
+
+        elif proforma.credit_note_lines:
+            from credit_note_form import Form
+            self.sp = Form(self, proforma)
+
+        else:
             self.sp = sale_proforma_form.get_form(
                 self,
                 self.proformas_sales_view,
                 proforma
             )
 
-        elif proforma.credit_note_lines:
-            from credit_note_form import Form
-            self.sp = Form(self, proforma)
 
         self.sp.show()
 
