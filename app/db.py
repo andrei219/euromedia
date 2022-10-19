@@ -2173,7 +2173,6 @@ class IncomingRma(Base):
     )
 
 
-
 class IncomingRmaLine(Base):
 
     __tablename__ = 'incoming_rma_lines'
