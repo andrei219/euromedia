@@ -1557,7 +1557,7 @@ class MainGui(Ui_MainGui, QMainWindow):
 
         elif index == 6:
             prefix = 'rmas_incoming_'
-            self.set_mv(prefix, search_key=getattr(self, 'search').text(),
+            self.set_mv(prefix, search_key=getattr(self, prefix + 'search').text(),
                         filters=self.get_filters(prefix=prefix))
 
     def closeEvent(self, event):
