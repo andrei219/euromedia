@@ -2292,22 +2292,7 @@ class IncomingRmaLine(Base):
                 else:
                     self.accepted = False
 
-                # for line in expedition_serie.line.expedition.proforma.lines or \
-                #             expedition_serie.line.expedition.proforma.advanced_lines:
-                #
-                #
-                #     if all((
-                #             line.item_id == expedition_serie.line.item_id,
-                #             line.condition == expedition_serie.line.condition,
-                #             line.spec == expedition_serie.line.spec
-                #     )):
-                #         self.price = line.price
-                #         break
-                # else:
-                #     self.price = -1332.0
-
                 proforma = expedition_serie.line.expedition.proforma
-
                 if proforma.lines:
                     for line in proforma.lines:
                         if all((
@@ -2332,7 +2317,7 @@ class IncomingRmaLine(Base):
                             if all((
                                 line.item_id == expedition_serie.line.item_id,
                                 line.condition == expedition_serie.line.condition,
-                                line.spec == expedition_serie.line.condition
+                                line.spec == expedition_serie.line.spec
                             )):
                                 self.price = line.price
 
