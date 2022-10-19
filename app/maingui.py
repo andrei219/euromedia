@@ -1529,13 +1529,6 @@ class MainGui(Ui_MainGui, QMainWindow):
     def tab_changed(self, index):
         db.session.commit()
 
-        for prefix in PREFIXES:
-            try:
-                widget = getattr(self, prefix + 'last')
-                widget.setText('10')
-            except AttributeError:
-                pass
-
         if index == 1:
             prefix = 'agents_'
             self.set_mv(prefix, search_key=getattr(self, prefix + 'search').text())
