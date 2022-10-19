@@ -1,5 +1,6 @@
 import os
 import subprocess
+from builtins import getattr
 
 from PyQt5.QtWidgets import (
     QMainWindow,
@@ -478,13 +479,11 @@ class MainGui(Ui_MainGui, QMainWindow):
             ) if getattr(self, prefix + name).isChecked()
         ]
 
-
     def apply_handler(self):
-
         object_name = self.sender().objectName()
         prefix = object_name[0:object_name.rfind('_') + 1]
         filters = self.get_filters(prefix=prefix)
-        search_key = self.proformas_sales_search.text()
+        search_key = getattr(self, prefix + 'search').text()
         self.set_mv(prefix, search_key=search_key, filters=filters)
 
     def search_handler(self):
@@ -1530,24 +1529,43 @@ class MainGui(Ui_MainGui, QMainWindow):
     def tab_changed(self, index):
         db.session.commit()
 
+        for prefix in PREFIXES:
+            try:
+                widget = getattr(self, prefix + 'last')
+                widget.setText('10')
+            except AttributeError:
+                pass
+
         if index == 1:
-            self.set_mv('agents_')
+            prefix = 'agents_'
+            self.set_mv(prefix, search_key=getattr(self, prefix + 'search').text())
+
         elif index == 2:
-            self.set_mv('partners_')
+            prefix = 'partners_'
+            self.set_mv(prefix, search_key=getattr(self, prefix + 'search').text())
         elif index == 3:
-            self.set_mv('proformas_purchases_')
-            self.set_mv('proformas_sales_')
+            for prefix in ['proformas_purchases_', 'proformas_sales_']:
+                self.set_mv(prefix, search_key=getattr(self, prefix + 'search').text(),
+                            filters=self.get_filters(prefix=prefix))
 
         elif index == 4:
-            self.set_mv('invoices_purchases_')
-            self.set_mv('invoices_sales_')
+            for prefix in ['invoices_purchases_', 'invoices_sales_']:
+                self.set_mv(
+                    prefix, search_key=getattr(self, prefix + 'search').text(),
+                    filters=self.get_filters(prefix=prefix)
+                )
+
         elif index == 5:
-            self.set_mv('warehouse_expeditions_')
-            self.set_mv('warehouse_receptions_')
-            self.set_mv('warehouse_incoming_rmas_')
-            self.set_mv('warehouse_outgoing_rmas_')
+
+            for prefix in ['warehouse_expeditions_', 'warehouse_receptions_',
+                           'warehouse_incoming_rmas_','warehouse_outgoing_rmas_']:
+                self.set_mv(prefix, search_key=getattr(self, prefix + 'search').text(),
+                            filters=self.get_filters(prefix=prefix))
+
         elif index == 6:
-            self.set_mv('rmas_incoming_')
+            prefix = 'rmas_incoming_'
+            self.set_mv(prefix, search_key=getattr(self, 'search').text(),
+                        filters=self.get_filters(prefix=prefix))
 
     def closeEvent(self, event):
         for w in self.opened_windows_instances:

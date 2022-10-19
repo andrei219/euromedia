@@ -51,7 +51,7 @@
      <number>0</number>
     </property>
     <property name="currentIndex">
-     <number>7</number>
+     <number>5</number>
     </property>
     <property name="iconSize">
      <size>
@@ -3078,7 +3078,7 @@
        </font>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <property name="iconSize">
        <size>
@@ -3097,7 +3097,7 @@
        <attribute name="title">
         <string>Purchases</string>
        </attribute>
-       <widget class="QLineEdit" name="invoice_purchase_search_edit">
+       <widget class="QLineEdit" name="invoices_purchases_search">
         <property name="geometry">
          <rect>
           <x>1130</x>
@@ -3786,8 +3786,8 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="3">
-           <widget class="QToolButton" name="invoices_purchases_payments">
+          <item row="0" column="8">
+           <widget class="QToolButton" name="invoices_purchases_ship">
             <property name="minimumSize">
              <size>
               <width>70</width>
@@ -3803,18 +3803,15 @@
             <property name="toolTip">
              <string/>
             </property>
-            <property name="toolTipDuration">
-             <number>-1</number>
-            </property>
             <property name="statusTip">
              <string/>
             </property>
             <property name="text">
-             <string>Payment</string>
+             <string>Ship</string>
             </property>
             <property name="icon">
              <iconset resource="../app/icons.qrc">
-              <normaloff>:/add_payment</normaloff>:/add_payment</iconset>
+              <normaloff>:/courier</normaloff>:/courier</iconset>
             </property>
             <property name="iconSize">
              <size>
@@ -3849,8 +3846,8 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="8">
-           <widget class="QToolButton" name="invoices_purchases_ship">
+          <item row="0" column="3">
+           <widget class="QToolButton" name="invoices_purchases_payments">
             <property name="minimumSize">
              <size>
               <width>70</width>
@@ -3866,15 +3863,18 @@
             <property name="toolTip">
              <string/>
             </property>
+            <property name="toolTipDuration">
+             <number>-1</number>
+            </property>
             <property name="statusTip">
              <string/>
             </property>
             <property name="text">
-             <string>Ship</string>
+             <string>Payment</string>
             </property>
             <property name="icon">
              <iconset resource="../app/icons.qrc">
-              <normaloff>:/courier</normaloff>:/courier</iconset>
+              <normaloff>:/add_payment</normaloff>:/add_payment</iconset>
             </property>
             <property name="iconSize">
              <size>
@@ -3931,25 +3931,6 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="2">
-           <widget class="Line" name="line_7">
-            <property name="minimumSize">
-             <size>
-              <width>3</width>
-              <height>61</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>3</width>
-              <height>61</height>
-             </size>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-           </widget>
-          </item>
           <item row="0" column="4">
            <widget class="QToolButton" name="invoices_purchases_expenses">
             <property name="minimumSize">
@@ -3976,6 +3957,66 @@
             <property name="icon">
              <iconset resource="../app/icons.qrc">
               <normaloff>:/expense</normaloff>:/expense</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>40</width>
+              <height>40</height>
+             </size>
+            </property>
+            <property name="toolButtonStyle">
+             <enum>Qt::ToolButtonTextUnderIcon</enum>
+            </property>
+            <property name="autoRaise">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="Line" name="line_7">
+            <property name="minimumSize">
+             <size>
+              <width>3</width>
+              <height>61</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>3</width>
+              <height>61</height>
+             </size>
+            </property>
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="9">
+           <widget class="QToolButton" name="invoices_purchases_sync">
+            <property name="minimumSize">
+             <size>
+              <width>70</width>
+              <height>60</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>70</width>
+              <height>60</height>
+             </size>
+            </property>
+            <property name="toolTip">
+             <string/>
+            </property>
+            <property name="statusTip">
+             <string/>
+            </property>
+            <property name="text">
+             <string>Sync</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../app/icons.qrc">
+              <normaloff>:/sync</normaloff>:/sync</iconset>
             </property>
             <property name="iconSize">
              <size>
@@ -5169,6 +5210,53 @@
          <property name="icon">
           <iconset resource="../app/icons.qrc">
            <normaloff>:/excel</normaloff>:/excel</iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>40</width>
+           <height>40</height>
+          </size>
+         </property>
+         <property name="toolButtonStyle">
+          <enum>Qt::ToolButtonTextUnderIcon</enum>
+         </property>
+         <property name="autoRaise">
+          <bool>true</bool>
+         </property>
+        </widget>
+        <widget class="QToolButton" name="invoices_sales_sync">
+         <property name="geometry">
+          <rect>
+           <x>1113</x>
+           <y>7</y>
+           <width>70</width>
+           <height>60</height>
+          </rect>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>70</width>
+           <height>60</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>70</width>
+           <height>60</height>
+          </size>
+         </property>
+         <property name="toolTip">
+          <string/>
+         </property>
+         <property name="statusTip">
+          <string/>
+         </property>
+         <property name="text">
+          <string>Sync</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../app/icons.qrc">
+           <normaloff>:/sync</normaloff>:/sync</iconset>
          </property>
          <property name="iconSize">
           <size>
@@ -6508,7 +6596,7 @@
        <attribute name="toolTip">
         <string>Physical Check Outgoing RMAs . We return to them. </string>
        </attribute>
-       <widget class="QLineEdit" name="warehouse_outgoing_search_edit">
+       <widget class="QLineEdit" name="warehouse_outgoing_rmas_search">
         <property name="geometry">
          <rect>
           <x>1130</x>
@@ -6735,7 +6823,7 @@
        </rect>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <property name="iconSize">
        <size>
@@ -7037,7 +7125,7 @@
        <attribute name="toolTip">
         <string>We are returning to them.</string>
        </attribute>
-       <widget class="QLineEdit" name="rma_outgoing_search_edit">
+       <widget class="QLineEdit" name="rma_outgoing_search">
         <property name="geometry">
          <rect>
           <x>1130</x>
