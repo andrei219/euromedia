@@ -2,7 +2,7 @@ from PyQt5 import QtGui
 
 from ui_warehouse_rma_incoming_form import Ui_Form
 
-from PyQt5.QtWidgets import QWidget, QTableView, QMessageBox
+from PyQt5.QtWidgets import QWidget, QTableView, QMessageBox, QAbstractItemView
 
 from models import WhRmaIncomingLineModel
 
@@ -25,6 +25,9 @@ class Form(Ui_Form, QWidget):
         self.populate_form()
         self.set_view_config()
         self.save.clicked.connect(self.save_handler)
+
+        if self.order.invoices:
+            self.view.setEditTriggers(QAbstractItemView.NoEditTriggers)
 
 
     def set_view_config(self):

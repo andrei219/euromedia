@@ -18,8 +18,9 @@ import utils
 
 class Form(Ui_Form, QWidget):
 
-    def __init__(self, parent, order=None):
 
+    def __init__(self, parent, order=None):
+        order: IncomingRma
         from importlib import  reload
         global utils
         utils = reload(utils)
@@ -38,6 +39,14 @@ class Form(Ui_Form, QWidget):
             self.order = IncomingRma()
             session.add(self.order)
             session.flush()
+
+        try:
+            if order.wh_incoming_rma.invoices:
+                self.check.setEnabled(False)
+                self.sn.setEnabled(False)
+        except AttributeError:
+            pass
+
 
         self.set_model()
         self.set_view_config()
