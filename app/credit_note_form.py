@@ -1,3 +1,4 @@
+import sqlalchemy.exc
 from PyQt5 import QtGui
 
 import db
@@ -27,13 +28,11 @@ class Form(Ui_Form, QWidget):
         self.save.clicked.connect(self.save_handler)
         self.set_form()
 
-        parent = session.query(SaleInvoice).where(SaleInvoice.id == proforma.invoice.parent_id).one()
-
         try:
-            print('Where is Applied:', parent.doc_repr)
-        except AttributeError:
-            raise
-
+            parent = session.query(SaleInvoice).where(SaleInvoice.id == proforma.invoice.parent_id).one()
+            self.where_applied.setText(parent.doc_repr)
+        except (AttributeError, sqlalchemy.exc.NoResultFound):
+            self.where_applied.setText('Not yet applied')
 
     def set_handlers(self):
         self.save.clicked.connect(self.save_handler)
