@@ -25,8 +25,8 @@ class Form(Ui_Form, QWidget):
         self.set_view_config()
         self.save.clicked.connect(self.save_handler)
 
-        if self.order.invoices:
-            self.view.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        # if self.order.invoices:
+        #     self.view.setEditTriggers(QAbstractItemView.NoEditTriggers)
 
     def set_view_config(self):
         self.view.setSelectionMode(QTableView.SingleSelection)

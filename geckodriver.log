@@ -1,0 +1,137 @@
+1666351380975	geckodriver	INFO	Listening on 127.0.0.1:58861
+1666351467510	geckodriver	INFO	Listening on 127.0.0.1:58896
+1666351606618	geckodriver	INFO	Listening on 127.0.0.1:59049
+1666351889137	geckodriver	INFO	Listening on 127.0.0.1:59150
+1666351892203	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "59151" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofileOo2sSR"
+1666351892572	Marionette	INFO	Marionette enabled
+1666351892576	Marionette	INFO	Listening on port 59160
+Read port: 59160
+WebDriver BiDi listening on ws://127.0.0.1:59151
+1666351892715	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofileOo2sSR\\search.json.mozlz4", (void 0)))
+DevTools listening on ws://127.0.0.1:59151/devtools/browser/8bb1ffde-a612-4ad7-9265-352ec8bfcf5c
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/notification_2a485d84012c106acef03b527bb54635.mp3
+1666351901149	Marionette	INFO	Stopped listening on port 59160
+console.warn: TopSitesFeed: Failed to fetch data from Contile server: NetworkError when attempting to fetch resource.
+1666351925221	geckodriver	INFO	Listening on 127.0.0.1:59214
+1666351928301	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "59215" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofilenRA609"
+1666351928623	Marionette	INFO	Marionette enabled
+1666351928626	Marionette	INFO	Listening on port 59224
+Read port: 59224
+WebDriver BiDi listening on ws://127.0.0.1:59215
+1666351928752	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofilenRA609\\search.json.mozlz4", (void 0)))
+DevTools listening on ws://127.0.0.1:59215/devtools/browser/34b5e545-ee6f-4695-a176-ba51c05b48b8
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/notification_2a485d84012c106acef03b527bb54635.mp3
+1666351939676	Marionette	INFO	Stopped listening on port 59224
+console.warn: TopSitesFeed: Failed to fetch data from Contile server: NetworkError when attempting to fetch resource.
+1666352019761	geckodriver	INFO	Listening on 127.0.0.1:59300
+1666352022836	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "59301" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofile3zZ26k"
+1666352023164	Marionette	INFO	Marionette enabled
+1666352023167	Marionette	INFO	Listening on port 59310
+Read port: 59310
+WebDriver BiDi listening on ws://127.0.0.1:59301
+1666352023291	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofile3zZ26k\\search.json.mozlz4", (void 0)))
+DevTools listening on ws://127.0.0.1:59301/devtools/browser/652dd482-c797-4bde-9b9c-5d1aebab4cc4
+1666352033323	Marionette	INFO	Stopped listening on port 59310
+console.warn: TopSitesFeed: Failed to fetch data from Contile server: NetworkError when attempting to fetch resource.
+1666352214888	geckodriver	INFO	Listening on 127.0.0.1:59363
+1666352217971	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "-user-data-dir=C:\\Users\\Andrei\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles" "--remote-debugging-port" "59364" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofilekksshz"
+1666352218331	Marionette	INFO	Marionette enabled
+1666352218334	Marionette	INFO	Listening on port 59373
+Read port: 59373
+WebDriver BiDi listening on ws://127.0.0.1:59364
+1666352218458	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofilekksshz\\search.json.mozlz4", (void 0)))
+DevTools listening on ws://127.0.0.1:59364/devtools/browser/938c26be-1ca0-4e38-85b1-ab71aff1c5e3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/notification_2a485d84012c106acef03b527bb54635.mp3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-end_62ed28be622237546fd39f9468a76a49.mp3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-middle_7fa161964e93db72b8d00ae22189d75f.mp3
+1666352244841	Marionette	INFO	Stopped listening on port 59373
+console.warn: TopSitesFeed: Failed to fetch data from Contile server: NetworkError when attempting to fetch resource.
+JavaScript error: resource://gre/modules/AsyncShutdown.jsm, line 719: Error: Phase "Sqlite.jsm: wait until all connections are closed" is finished, it is too late to register completion condition "protections.sqlite#0: waiting for shutdown"
+1666352246197	geckodriver	INFO	Listening on 127.0.0.1:59433
+1666352249260	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "-user-data-dir=C:\\Users\\Andrei\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles" "--remote-debugging-port" "59434" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofile0txjKx"
+1666352249588	Marionette	INFO	Marionette enabled
+1666352249591	Marionette	INFO	Listening on port 59443
+Read port: 59443
+WebDriver BiDi listening on ws://127.0.0.1:59434
+1666352249715	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofile0txjKx\\search.json.mozlz4", (void 0)))
+DevTools listening on ws://127.0.0.1:59434/devtools/browser/f36ae253-d31f-4ad8-8395-5c537f1cc0f8
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/notification_2a485d84012c106acef03b527bb54635.mp3
+1666352254955	Marionette	INFO	Stopped listening on port 59443
+console.warn: TopSitesFeed: Failed to fetch data from Contile server: NetworkError when attempting to fetch resource.
+1666352377267	geckodriver	INFO	Listening on 127.0.0.1:59517
+1666352380319	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "-user-data-dir=C:\\Users\\Andrei\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles\\ad46gjms.default-release" "--remote-debugging-port" "59518" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofiletXeauk"
+1666352380652	Marionette	INFO	Marionette enabled
+1666352380655	Marionette	INFO	Listening on port 59527
+Read port: 59527
+WebDriver BiDi listening on ws://127.0.0.1:59518
+1666352380779	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofiletXeauk\\search.json.mozlz4", (void 0)))
+DevTools listening on ws://127.0.0.1:59518/devtools/browser/dfe4e6c1-64c8-479e-b5ab-bb0686f0a2ba
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/notification_2a485d84012c106acef03b527bb54635.mp3
+1666352508440	Marionette	INFO	Stopped listening on port 59527
+console.warn: TopSitesFeed: Failed to fetch data from Contile server: NetworkError when attempting to fetch resource.
+1666352557943	geckodriver	INFO	Listening on 127.0.0.1:59612
+1666352561025	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "-user-data-dir=C:\\Users\\Andrei\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles" "--remote-debugging-port" "59613" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofilefc1Os5"
+1666352561379	Marionette	INFO	Marionette enabled
+1666352561383	Marionette	INFO	Listening on port 59622
+Read port: 59622
+WebDriver BiDi listening on ws://127.0.0.1:59613
+1666352561509	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofilefc1Os5\\search.json.mozlz4", (void 0)))
+DevTools listening on ws://127.0.0.1:59613/devtools/browser/a9de2dc3-047a-4499-b6f0-a9492e803104
+1666352566623	Marionette	INFO	Stopped listening on port 59622
+console.warn: TopSitesFeed: Failed to fetch data from Contile server: NetworkError when attempting to fetch resource.
+1666352619575	geckodriver	INFO	Listening on 127.0.0.1:59728
+1666352622657	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "-user-data-dir=C:\\Users\\Andrei\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles" "--remote-debugging-port" "59729" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofile31VXts"
+1666352622996	Marionette	INFO	Marionette enabled
+1666352623000	Marionette	INFO	Listening on port 59738
+WebDriver BiDi listening on ws://127.0.0.1:59729
+Read port: 59738
+1666352623198	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofile31VXts\\search.json.mozlz4", (void 0)))
+DevTools listening on ws://127.0.0.1:59729/devtools/browser/b7913247-d32e-49a1-b475-bcae247a8b57
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/notification_2a485d84012c106acef03b527bb54635.mp3
+1666352632853	Marionette	INFO	Stopped listening on port 59738
+console.warn: TopSitesFeed: Failed to fetch data from Contile server: NetworkError when attempting to fetch resource.
+1666352867587	geckodriver	INFO	Listening on 127.0.0.1:59862
+1666352870658	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "-user-data-dir=C:\\Users\\Andrei\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles" "--remote-debugging-port" "59863" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofilepk1eyj"
+1666352871017	Marionette	INFO	Marionette enabled
+1666352871020	Marionette	INFO	Listening on port 59872
+Read port: 59872
+WebDriver BiDi listening on ws://127.0.0.1:59863
+1666352871158	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofilepk1eyj\\search.json.mozlz4", (void 0)))
+DevTools listening on ws://127.0.0.1:59863/devtools/browser/7a8d0941-7a43-4933-9902-9ca12ee304d6
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/notification_2a485d84012c106acef03b527bb54635.mp3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-end_62ed28be622237546fd39f9468a76a49.mp3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-middle_7fa161964e93db72b8d00ae22189d75f.mp3
+1666352913328	Marionette	INFO	Stopped listening on port 59872
+console.warn: TopSitesFeed: Failed to fetch data from Contile server: NetworkError when attempting to fetch resource.
+ser-data-dir=C:\\Users\\Andrei\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles" "--remote-debugging-port" "59926" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofilekG2Bpa"
+1666352905718	Marionette	INFO	Marionette enabled
+1666352905721	Marionette	INFO	Listening on port 59935
+Read port: 59935
+WebDriver BiDi listening on ws://127.0.0.1:59926
+1666352905845	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofilekG2Bpa\\search.json.mozlz4", (void 0)))
+DevTools listening on ws://127.0.0.1:59926/devtools/browser/d81f14c4-531a-492b-b08e-bb0de6769742
+1666352912526	Marionette	INFO	Stopped listening on port 59935
+console.warn: TopSitesFeed: Failed to fetch data from Contile server: NetworkError when attempting to fetch resource.
+1666353457794	geckodriver	INFO	Listening on 127.0.0.1:60043
+1666353463832	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "-user-data-dir=C:\\Users\\Andrei\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles" "--remote-debugging-port" "60044" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofileZNOA4k"
+1666353464191	Marionette	INFO	Marionette enabled
+1666353464194	Marionette	INFO	Listening on port 60053
+Read port: 60053
+WebDriver BiDi listening on ws://127.0.0.1:60044
+1666353464318	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofileZNOA4k\\search.json.mozlz4", (void 0)))
+DevTools listening on ws://127.0.0.1:60044/devtools/browser/4221f103-4de9-4e51-9133-87cb962a164a
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/notification_2a485d84012c106acef03b527bb54635.mp3
+1666353469532	Marionette	INFO	Stopped listening on port 60053
+console.warn: TopSitesFeed: Failed to fetch data from Contile server: NetworkError when attempting to fetch resource.
+1666354620517	geckodriver	INFO	Listening on 127.0.0.1:60399

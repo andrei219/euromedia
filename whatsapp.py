@@ -21,10 +21,10 @@ options.add_argument(
 
 )
 
-options.add_experimental_option('detach', True)
 browser = webdriver.Chrome(options=options)
 
 browser.maximize_window()
 
-browser.get('https://web.whatsapp.com/')
+browser.switch_to('WhatsApp')
+
 

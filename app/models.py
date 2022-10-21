@@ -5741,6 +5741,7 @@ class WhRmaIncomingLineModel(BaseTable, QtCore.QAbstractTableModel):
 
 
 class RmaIncomingModel(BaseTable, QtCore.QAbstractTableModel):
+
     ID, PARTNER, DATE, QNT, ACCEPTED, INWH = 0, 1, 2, 3, 4, 5
 
     def __init__(self, search_key=None, filters=None, last=10):
