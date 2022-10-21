@@ -1,5 +1,6 @@
 from PyQt5 import QtGui
 
+import db
 from ui_credit_note_form import Ui_Form
 
 from PyQt5.QtWidgets import QWidget, QTableView
@@ -9,7 +10,7 @@ from PyQt5.QtCore import Qt
 from models import CreditNoteLineModel
 
 import utils
-from db import session
+from db import session, SaleInvoice
 
 
 class Form(Ui_Form, QWidget):
@@ -25,6 +26,14 @@ class Form(Ui_Form, QWidget):
         self.setCombos()
         self.save.clicked.connect(self.save_handler)
         self.set_form()
+
+        parent = session.query(SaleInvoice).where(SaleInvoice.id == proforma.invoice.parent_id).one()
+
+        try:
+            print('Where is Applied:', parent.doc_repr)
+        except AttributeError:
+            raise
+
 
     def set_handlers(self):
         self.save.clicked.connect(self.save_handler)

@@ -1076,6 +1076,7 @@ class SaleInvoice(Base):
 
     wh_incoming_rma = relationship('WhIncomingRma', backref=backref('invoices'))
 
+
     def get_device_count(self, series):
         count = 0
         for proforma in self.proformas:

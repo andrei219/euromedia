@@ -7,6 +7,7 @@ from ui_apply_credit_note_form import Ui_Dialog
 from models import AppliedNoteModel
 from models import AvailableNoteModel
 
+
 class Form(Ui_Dialog, QDialog):
 
     def __init__(self, parent, invoice):
