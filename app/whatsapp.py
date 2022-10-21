@@ -6,7 +6,7 @@ if __name__ == '__main__':
     url = "https://api.messengerpeople.dev/messages"
 
     channel_uuid = "e6a8ccbd-ed27-48cd-b787-e281174f2626"
-    recipient = "34673567274"
+    recipient = "34604178304"
     headers = {
         "Content-Type": "application/vnd.messengerpeople.v1+json",
         "Accept": "application/vnd.messengerpeople.v1+json",

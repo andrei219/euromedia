@@ -73,6 +73,7 @@ class StockBase:
     def descriptions(self):
         return self._descriptions
 
+
 class Filters:
 
     def __init__(self, warehouse_id, form):
@@ -388,11 +389,8 @@ class Form(Ui_SalesProformaForm, QWidget):
     def lines_view_clicked_handler(self, index):
         self.set_selected_stock_mv() 
         self.selected_stock_view.resizeColumnToContents(0)
-
         price = self.lines_model.get_price(index.row())
-
         self.price.setValue(price)
-
 
     def set_selected_stock_mv(self):
         try:

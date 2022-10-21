@@ -8,7 +8,6 @@ from models import WhRmaIncomingLineModel
 
 from db import session
 
-
 from delegates import WhDelegate
 
 class Form(Ui_Form, QWidget):
@@ -28,7 +27,6 @@ class Form(Ui_Form, QWidget):
 
         if self.order.invoices:
             self.view.setEditTriggers(QAbstractItemView.NoEditTriggers)
-
 
     def set_view_config(self):
         self.view.setSelectionMode(QTableView.SingleSelection)

@@ -113,12 +113,10 @@ class Form(Ui_Form, QWidget):
 
         QMessageBox.information(self, 'Success', 'Rma order saved successfully')
         self.close()
-        self.parent.set_mv('rmas_incoming_')
 
 
     def closeEvent(self, event) -> None:
         session.rollback()
-        self.parent.set_mv('rmas_incoming_')
 
     def exit_handler(self):
         session.rollback()

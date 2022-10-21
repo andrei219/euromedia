@@ -276,14 +276,6 @@ class Form(Ui_Form, QWidget):
             QMessageBox.critical(self, 'Error', "Can't process empty proforma")
             return
 
-        # warehouse_id = utils.warehouse_id_map.get(self.warehouse.currentText())
-        # warehouse_id = self.proforma.warehouse_id
-        # lines = self.lines_model.lines
-        # if self.stock_model is not None:
-        #     if self.stock_model.lines_against_stock(warehouse_id, lines):
-        #         QMessageBox.critical(self, 'Error', 'Someone took those incoming stocks. Start again.')
-        #         self.close()
-
         self._form_to_proforma()
         try:
             self.save_template()

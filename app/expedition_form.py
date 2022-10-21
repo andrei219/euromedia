@@ -228,7 +228,6 @@ class Form(Ui_ExpeditionForm, QDialog):
         self.model = SerieModel(line, self.expedition) 
         self.view.setModel(self.model) 
 
-    
     def closeEvent(self, event):
         import db
         for line in self.expedition.lines:
@@ -240,5 +239,5 @@ class Form(Ui_ExpeditionForm, QDialog):
             db.session.rollback()
             raise 
     
-        self.parent.set_mv('warehouse_expeditions_')
+        # self.parent.set_mv('warehouse_expeditions_')
         super().closeEvent(event)

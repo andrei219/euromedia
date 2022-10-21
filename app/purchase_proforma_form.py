@@ -211,7 +211,8 @@ class Form(Ui_PurchaseProformaForm, QWidget):
         condition = self.condition_line_edit.text()
         spec = self.spec_line_edit.text()
 
-        if not description: return
+        if not description:
+            return
 
         if description in utils.descriptions:
             if condition not in utils.conditions or spec not in utils.specs:
