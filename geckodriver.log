@@ -135,3 +135,10 @@ JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: 
 1666353469532	Marionette	INFO	Stopped listening on port 60053
 console.warn: TopSitesFeed: Failed to fetch data from Contile server: NetworkError when attempting to fetch resource.
 1666354620517	geckodriver	INFO	Listening on 127.0.0.1:60399
+1666359675316	geckodriver	INFO	Listening on 127.0.0.1:60697
+1666359678399	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "-user-data-dir=C:\\Users\\Andrei\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles" "--remote-debugging-port" "60698" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofile9xzTfW"
+1666359678767	Marionette	INFO	Marionette enabled
+1666359678771	Marionette	INFO	Listening on port 60707
+Read port: 60707
+WebDriver BiDi listening on ws://127.0.0.1:60698
+1666359678895	RemoteAgent	WARN	TLS certificate errors will be ignored for this session

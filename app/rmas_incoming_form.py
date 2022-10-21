@@ -8,7 +8,7 @@ from utils import partner_id_map
 from utils import today_date
 
 from utils import parse_date
-from db import IncomingRma
+from db import IncomingRma, IncomingRmaLine
 from db import session
 
 from models import RmaIncomingLineModel
@@ -68,6 +68,16 @@ class Form(Ui_Form, QWidget):
 
     def search_sn(self):
         sn = self.sn.text().strip()
+
+        try:
+            line = session.query(IncomingRmaLine).where(IncomingRmaLine.sn == sn).all()[-1]
+        except IndexError:
+            pass
+        else:
+            message = f'This sn is already processed in order {line.incoming_rma.id} for {line.cust}. Continue?'
+            if QMessageBox.question(self, 'Question', message, QMessageBox.Yes | QMessageBox.No) == QMessageBox.No:
+                return
+
         if not sn:
             return
         try:
