@@ -74,7 +74,7 @@ class Form(Ui_Form, QWidget):
         except IndexError:
             pass
         else:
-            message = f'This sn is already processed in order {line.incoming_rma.id} for {line.cust}. Continue?'
+            message = f'This Serial Number is already processed in RMA Order {line.incoming_rma.id} for {line.cust}. Continue?'
             if QMessageBox.question(self, 'Question', message, QMessageBox.Yes | QMessageBox.No) == QMessageBox.No:
                 return
 
