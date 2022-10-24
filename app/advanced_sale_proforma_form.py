@@ -65,6 +65,15 @@ class Form(Ui_Form, QWidget):
         self.type.currentTextChanged.connect(self.type_changed)
         self.search.clicked.connect(self.search_handler)
         self.warehouse.currentTextChanged.connect(self.warehouse_handler)
+        self.lines_view.selectionModel().selectionChanged.connect(self.line_selection_changed)
+
+    def line_selection_changed(self, indexes):
+        rows = {i.row() for i in self.lines_view.selectedIndexes()}
+        try:
+            self.selected.setText(f'Sel.: {sum(self.lines_model[r].quantity for r in rows)}')
+        except IndexError:
+            pass
+
 
     def set_combos(self):
         for combo, data in [

@@ -737,7 +737,7 @@
      </rect>
     </property>
     <property name="selectionMode">
-     <enum>QAbstractItemView::SingleSelection</enum>
+     <enum>QAbstractItemView::ExtendedSelection</enum>
     </property>
     <property name="selectionBehavior">
      <enum>QAbstractItemView::SelectRows</enum>
@@ -1234,21 +1234,34 @@
     </item>
    </layout>
   </widget>
-  <widget class="QLabel" name="quantity_label">
+  <widget class="QSplitter" name="splitter">
    <property name="geometry">
     <rect>
-     <x>700</x>
+     <x>460</x>
      <y>540</y>
-     <width>121</width>
+     <width>431</width>
      <height>16</height>
     </rect>
    </property>
-   <property name="styleSheet">
-    <string notr="true">font-weight:bold;</string>
+   <property name="orientation">
+    <enum>Qt::Horizontal</enum>
    </property>
-   <property name="text">
-    <string/>
-   </property>
+   <widget class="QLabel" name="quantity_label">
+    <property name="styleSheet">
+     <string notr="true">font-weight:bold;</string>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QLabel" name="selected">
+    <property name="styleSheet">
+     <string notr="true">font-weight:bold;</string>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
   </widget>
  </widget>
  <customwidgets>

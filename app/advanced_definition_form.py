@@ -27,8 +27,6 @@ class Form(Ui_Form, QWidget):
         super().__init__()
         self.setupUi(self)
         self.proforma = proforma
-        utils.setCommonViewConfig(self.lines_view)
-        utils.setCommonViewConfig(self.defined_view)
 
         self.lines_model = AdvancedLinesModel(proforma, show_free=False)
         self.lines_view.setModel(self.lines_model)
@@ -42,12 +40,9 @@ class Form(Ui_Form, QWidget):
             self.warehouse.text()
         )
 
-        self.stock_view.setSelectionBehavior(QTableView.SelectRows)
-        self.stock_view.setSelectionMode(QTableView.MultiSelection)
         self.stock_view.setAlternatingRowColors(True)
 
         self.saved = False
-
 
     def init_template(self):
         self.init_lines_stock_defined()
@@ -64,6 +59,15 @@ class Form(Ui_Form, QWidget):
         self.delete_.clicked.connect(self.delete_handler)
         self.update.clicked.connect(self.update_handler)
         self.save.clicked.connect(self.save_handler)
+        print(self.defined_view.selectionModel())
+
+    def defined_view_selection_changed(self):
+        try:
+            self.selected.setText(
+                f'Sel.: {sum(self.defined_model[i].quantity for i in {index.row() for index in self.defined_view.selectedIndexes()})}'
+            )
+        except IndexError:
+            pass
 
     def set_header(self):
         self.partner.setText(self.proforma.partner_name)
@@ -81,6 +85,8 @@ class Form(Ui_Form, QWidget):
     def update_handler(self):
         line = self.get_selected_line()
 
+        # Porque ????
+
         if sum(stock.request for stock in self.stock_model.requested_stocks) > line.quantity:
             QMessageBox.critical(self, 'Error', 'sum(requested) must be equal to line quantity')
         else:
@@ -90,6 +96,9 @@ class Form(Ui_Form, QWidget):
     def set_defined_mv(self, line):
         self.defined_model = DefinedStockModel(line)
         self.defined_view.setModel(self.defined_model)
+        self.total.setText(f'Total: {sum(d.quantity for d in self.defined_model)}')
+        self.defined_view.selectionModel().selectionChanged.connect(self.defined_view_selection_changed)
+
 
     def save_handler(self):
 

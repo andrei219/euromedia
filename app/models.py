@@ -1091,7 +1091,6 @@ class PurchaseInvoiceModel(BaseTable, QtCore.QAbstractTableModel):
 
             if filters['cancelled']:
 
-                print(filters['cancelled'])
 
                 if 'cancelled' in filters:
                     self.invoices = filter(
@@ -2234,10 +2233,6 @@ class OrganizedLines:
     def append(self, price, ignore_spec, tax, showing, *stocks, row=None):
         if len(stocks) == 0:
             raise ValueError("Provide stocks")
-
-        print('OrganizedLines.append:')
-        for stock in stocks:
-            print(stock)
 
         # Update quantity
         hit = False
@@ -4320,11 +4315,6 @@ class IncomingStockModel(BaseTable, QtCore.QAbstractTableModel):
         Session = db.sessionmaker(bind=db.get_engine())
         session = Session()
 
-        print('Lines:')
-        for line in lines:
-            print('\t', line)
-
-        print('Stocks:')
 
         for stock in self.computeIncomingStock(
                 warehouse_id, description=None,
@@ -4426,8 +4416,6 @@ class AdvancedLinesModel(BaseTable, QtCore.QAbstractTableModel):
                 except AttributeError:
                     return ''
             elif col == self.IGNORING_SPEC:
-                print('elif self.IGNORING_SPEC')
-                print(f'line.ignore_spec = {line.ignore_spec}')
                 return 'Yes' if line.ignore_spec else 'No'
             elif col == self.QUANTITY:
                 return str(line.quantity)
@@ -4604,7 +4592,6 @@ class InventoryModel(BaseTable, QtCore.QAbstractTableModel):
             if 'Mixed' in description:
                 ids = utils.get_itemids_from_mixed_description(description)
                 if ids:
-                    print('mixed in description.ids =', ids)
                     query = query.where(db.Imei.item_id.in_(ids))
 
             else:
@@ -5262,6 +5249,12 @@ class DefinedStockModel(BaseTable, QtCore.QAbstractTableModel):
             )
 
         db.session.flush()
+
+    def __iter__(self):
+        return iter(self.definitions)
+
+    def __getitem__(self, item):
+        return self.definitions[item]
 
     def reset(self):
         self.layoutAboutToBeChanged.emit()

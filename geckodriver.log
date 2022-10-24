@@ -142,3 +142,903 @@ console.warn: TopSitesFeed: Failed to fetch data from Contile server: NetworkErr
 Read port: 60707
 WebDriver BiDi listening on ws://127.0.0.1:60698
 1666359678895	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+1666362992791	geckodriver	INFO	Listening on 127.0.0.1:60970
+1666362995878	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "-user-data-dir=C:\\Users\\Andrei\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles" "--remote-debugging-port" "60971" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofile57PQoJ"
+1666362996189	Marionette	INFO	Marionette enabled
+1666362996193	Marionette	INFO	Listening on port 60980
+Read port: 60980
+WebDriver BiDi listening on ws://127.0.0.1:60971
+1666362996296	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofile57PQoJ\\search.json.mozlz4", (void 0)))
+DevTools listening on ws://127.0.0.1:60971/devtools/browser/0e79ce67-62a6-413a-a1af-dead9b773c30
+1666362999645	Marionette	INFO	Stopped listening on port 60980
+[Parent 6284, IPC I/O Parent] WARNING: file /builds/worker/checkouts/gecko/ipc/chromium/src/base/process_util_win.cc:167
+1666363013106	geckodriver	INFO	Listening on 127.0.0.1:61026
+1666363016191	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "-user-data-dir=C:\\Users\\Andrei\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles" "--remote-debugging-port" "61027" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofilerc7qN8"
+1666363016465	Marionette	INFO	Marionette enabled
+1666363016469	Marionette	INFO	Listening on port 61036
+Read port: 61036
+WebDriver BiDi listening on ws://127.0.0.1:61027
+1666363016583	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofilerc7qN8\\search.json.mozlz4", (void 0)))
+DevTools listening on ws://127.0.0.1:61027/devtools/browser/69c10238-3149-4425-9382-4860d8daa72e
+1666363022299	Marionette	INFO	Stopped listening on port 61036
+console.warn: TopSitesFeed: Failed to fetch data from Contile server: NetworkError when attempting to fetch resource.
+1666363186252	geckodriver	INFO	Listening on 127.0.0.1:61090
+1666363189333	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "-user-data-dir=C:\\Users\\Andrei\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles" "--remote-debugging-port" "61091" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofileHzr5uB"
+1666363189611	Marionette	INFO	Marionette enabled
+1666363189615	Marionette	INFO	Listening on port 61100
+Read port: 61100
+WebDriver BiDi listening on ws://127.0.0.1:61091
+1666363189717	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofileHzr5uB\\search.json.mozlz4", (void 0)))
+DevTools listening on ws://127.0.0.1:61091/devtools/browser/6fa292f1-1382-4354-b211-a986fbe3e530
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-middle_7fa161964e93db72b8d00ae22189d75f.mp3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-end_62ed28be622237546fd39f9468a76a49.mp3
+1666363225199	Marionette	INFO	Stopped listening on port 61100
+console.warn: TopSitesFeed: Failed to fetch data from Contile server: NetworkError when attempting to fetch resource.
+[Parent 22116, IPC I/O Parent] WARNING: file /builds/worker/checkouts/gecko/ipc/chromium/src/base/process_util_win.cc:167
+1666363309259	geckodriver	INFO	Listening on 127.0.0.1:61298
+1666363312340	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "-user-data-dir=C:\\Users\\Andrei\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles" "--remote-debugging-port" "61299" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofileTNTS4w"
+1666363312676	Marionette	INFO	Marionette enabled
+1666363312679	Marionette	INFO	Listening on port 61308
+WebDriver BiDi listening on ws://127.0.0.1:61299
+Read port: 61308
+1666363312948	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofileTNTS4w\\search.json.mozlz4", (void 0)))
+DevTools listening on ws://127.0.0.1:61299/devtools/browser/a30a3697-e1da-4edd-b114-f8ea4b6d4cbe
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/notification_2a485d84012c106acef03b527bb54635.mp3
+1666363318202	Marionette	INFO	Stopped listening on port 61308
+console.warn: TopSitesFeed: Failed to fetch data from Contile server: NetworkError when attempting to fetch resource.
+1666364693212	geckodriver	INFO	Listening on 127.0.0.1:61952
+1666364712005	geckodriver	INFO	Listening on 127.0.0.1:61961
+1666364733586	geckodriver	INFO	Listening on 127.0.0.1:61970
+1666364741591	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "-user-data-dir=C:\\Users\\Andrei\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles" "--remote-debugging-port" "61971" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofilenC4Nv4"
+1666364741919	Marionette	INFO	Marionette enabled
+1666364741922	Marionette	INFO	Listening on port 61981
+Read port: 61981
+WebDriver BiDi listening on ws://127.0.0.1:61971
+1666364742027	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofilenC4Nv4\\search.json.mozlz4", (void 0)))
+DevTools listening on ws://127.0.0.1:61971/devtools/browser/082752df-7ae3-4fb6-b93d-4d9c75e753ec
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-end_62ed28be622237546fd39f9468a76a49.mp3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-middle_7fa161964e93db72b8d00ae22189d75f.mp3
+1666364770481	Marionette	INFO	Stopped listening on port 61981
+console.warn: TopSitesFeed: Failed to fetch data from Contile server: NetworkError when attempting to fetch resource.
+[Parent 2972, IPC I/O Parent] WARNING: file /builds/worker/checkouts/gecko/ipc/chromium/src/base/process_util_win.cc:167
+1666364772900	geckodriver	INFO	Listening on 127.0.0.1:62027
+1666364780937	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "-user-data-dir=C:\\Users\\Andrei\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles" "--remote-debugging-port" "62028" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofileHEvWrQ"
+1666364781260	Marionette	INFO	Marionette enabled
+1666364781263	Marionette	INFO	Listening on port 62037
+Read port: 62037
+WebDriver BiDi listening on ws://127.0.0.1:62028
+1666364781369	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofileHEvWrQ\\search.json.mozlz4", (void 0)))
+DevTools listening on ws://127.0.0.1:62028/devtools/browser/eaeb602b-423a-4767-8298-0d6b289fcc6e
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/notification_2a485d84012c106acef03b527bb54635.mp3
+1666364996031	Marionette	INFO	Stopped listening on port 62037
+console.warn: TopSitesFeed: Failed to fetch data from Contile server: NetworkError when attempting to fetch resource.
+1666365302349	geckodriver	INFO	Listening on 127.0.0.1:62256
+1666365381695	geckodriver	INFO	Listening on 127.0.0.1:62277
+1666365391899	geckodriver	INFO	Listening on 127.0.0.1:62284
+1666365401031	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "62285" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofileBRrNJJ"
+1666365401321	Marionette	INFO	Marionette enabled
+1666365401328	Marionette	INFO	Listening on port 62319
+WebDriver BiDi listening on ws://127.0.0.1:62285
+Read port: 62319
+1666365401468	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+DevTools listening on ws://127.0.0.1:62285/devtools/browser/c7de0014-aee3-4cc5-84a4-6f6027ba6bee
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/notification_2a485d84012c106acef03b527bb54635.mp3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-middle_7fa161964e93db72b8d00ae22189d75f.mp3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-end_62ed28be622237546fd39f9468a76a49.mp3
+console.error: services.settings: 
+  main/partitioning-exempt-urls Signature failed  InvalidSignatureError: Invalid content signature (main/partitioning-exempt-urls)
+console.error: services.settings: 
+  main/partitioning-exempt-urls local data was corrupted
+console.warn: services.settings: main/partitioning-exempt-urls Signature verified failed. Retry from scratch
+console.error: services.settings: 
+  main/partitioning-exempt-urls Signature failed again InvalidSignatureError: Invalid content signature (main/partitioning-exempt-urls)
+1666365493418	Marionette	INFO	Stopped listening on port 62319
+console.warn: TopSitesFeed: Failed to fetch data from Contile server: NetworkError when attempting to fetch resource.
+[Parent 5712, IPC I/O Parent] WARNING: file /builds/worker/checkouts/gecko/ipc/chromium/src/base/process_util_win.cc:167
+1666365516462	geckodriver	INFO	Listening on 127.0.0.1:62341
+1666365525362	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "62342" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofileq9Iqvc"
+1666365525664	Marionette	INFO	Marionette enabled
+1666365525668	Marionette	INFO	Listening on port 62374
+Read port: 62374
+WebDriver BiDi listening on ws://127.0.0.1:62342
+1666365525736	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+DevTools listening on ws://127.0.0.1:62342/devtools/browser/36071909-0a7e-4079-8b53-319828ba92b6
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/notification_2a485d84012c106acef03b527bb54635.mp3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-middle_7fa161964e93db72b8d00ae22189d75f.mp3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-end_62ed28be622237546fd39f9468a76a49.mp3
+console.error: services.settings: 
+  main/partitioning-exem1666365580476	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "62391" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofileiaAFYu"
+1666365580768	Marionette	INFO	Marionette enabled
+1666365580772	Marionette	INFO	Listening on port 62429
+WebDriver BiDi listening on ws://127.0.0.1:62391
+Read port: 62429
+1666365580920	RemoteAgent	WARN	TLS cJavaScript error: , line 0: NotFoundError: No such JSWindowActor 'DevToolsFrame'
+JavaScript error: , line 0: NotFoundError: No such JSWindowActor 'DevToolsFrame'
+1666366753397	Marionette	INFO	Stopped listening on port 62374
+console.warn: TopSitesFeed: Failed to fetch data from Contile server: NetworkError when attempting to fetch resource.
+ation_2a485d84012c106acef03b527bb54635.mp3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-middle_7fa161964e93db72b8d00ae22189d75f.mp3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-end_62ed28be622237546fd39f9468a76a49.mp3
+console.error: services.settings: 
+  main/partitioning-exem1666365594567	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "62440" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofilepks24n"
+1666365594860	Marionette	INFO	Marionette enabled
+1666365594863	Marionette	INFO	Listening on port 62455
+Read port: 62455
+WebDriver BiDi listening on ws://127.0.0.1:62440
+1666365594955	RemoteAgent	WARN	TLS cJavaScript error: resource://gre/modules/PromiseWorker.jsm, line 108: Error: Could not get children of file(C:\Users\Andrei\AppData\Local\Temp\rust_mozprofileiaAFYu\thumbnails) because it does not exist
+1666366245369	Marionette	INFO	Stopped listening on port 62429
+console.warn: TopSitesFeed: Failed to fetch data from Contile server: NetworkError when attempting to fetch resource.
+p3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-end_62ed28be622237546fd39f9468a76a49.mp3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-middle_7fa161964e93db72b8d00ae22189d75f.mp3
+JavaScript error: resource://gre/modules/PromiseWorker.jsm, 1666365627796	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port"1666366241067	Marionette	INFO	Stopped listening on port 62455
+console.warn: TopSitesFeed: Failed to fetch data from Contile server: NetworkError when attempting to fetch resource.
+
+1666365628103	Marionette	INFO	Listening on port 62502
+Read port: 62502
+WebDriver BiDi listening on ws://127.0.0.1:62471
+1666365628171	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+DevTools listening on ws://127.0.0.1:62471/devtools/browser/2e7e72b8-dae1-49c1-8bf3-34b0e2748903
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/notification_2a485d84012c106acef03b527bb54635.mp3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-middle_7fa161964e93db72b8d00ae22189d75f.mp3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-end_62ed28be622237546fd39f9468a76a49.mp3
+JavaScript error: resource://gre/modules/PromiseWorker.jsm, line 108: Error: Could not get children of file(C:\Users\Andrei\AppData\Local\Temp\rust_mozprofile7LBVe0\thumbnails) because it does not exist
+1666366636764	Marionette	INFO	Stopped listening on port 62502
+console.warn: TopSitesFeed: Failed to fetch data from Contile server: NetworkError when attempting to fetch resource.
+1666600434427	geckodriver	INFO	Listening on 127.0.0.1:51088
+1666600442318	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "51089" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofilewfdk9q"
+1666600442635	Marionette	INFO	Marionette enabled
+1666600442639	Marionette	INFO	Listening on port 51124
+Read port: 51124
+WebDriver BiDi listening on ws://127.0.0.1:51089
+1666600442714	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+DevTools listening on ws://127.0.0.1:51089/devtools/browser/5b7255d8-4062-4e83-a98b-5bc77da2b78a
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/notification_2a485d84012c106acef03b527bb54635.mp3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-middle_7fa161964e93db72b8d00ae22189d75f.mp3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-end_62ed28be622237546fd39f9468a76a49.mp3
+JavaScript error: resource://gre/modules/PromiseWorker.jsm, line 108: Error: Could not get children of file(C:\Users\Andrei\AppData\Local\Temp\rust_mozprofilewfdk9q\thumbnails) because it does not exist
+1666600491735	Marionette	INFO	Stopped listening on port 51124
+console.warn: TopSitesFeed: Failed to fetch data from Contile server: NetworkError when attempting to fetch resource.
+1666600494776	geckodriver	INFO	Listening on 127.0.0.1:51165
+1666600502319	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "51166" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofileB2UOyV"
+1666600502624	Marionette	INFO	Marionette enabled
+1666600502629	Marionette	INFO	Listening on port 51195
+Read port: 51195
+WebDriver BiDi listening on ws://127.0.0.1:51166
+1666600502691	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+DevTools listening on ws://127.0.0.1:51166/devtools/browser/9e4d588a-e2ea-444e-bbf3-3af9dab55672
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/notification_2a485d84012c106acef03b527bb54635.mp3
+1666600506058	Marionette	INFO	Stopped listening on port 51195
+console.warn: TopSitesFeed: Failed to fetch data from Contile server: NetworkError when attempting to fetch resource.
+1666600534209	geckodriver	INFO	Listening on 127.0.0.1:51220
+1666600541381	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "51221" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofilexepYw4"
+1666600541681	Marionette	INFO	Marionette enabled
+1666600541685	Marionette	INFO	Listening on port 51250
+Read port: 51250
+WebDriver BiDi listening on ws://127.0.0.1:51221
+1666600541745	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+DevTools listening on ws://127.0.0.1:51221/devtools/browser/ba8c7cf8-7d64-47fe-a785-608ca64d676d
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/notification_2a485d84012c106acef03b527bb54635.mp3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-end_62ed28be622237546fd39f9468a76a49.mp3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-middle_7fa161964e93db72b8d00ae22189d75f.mp3
+1666600577630	Marionette	INFO	Stopped listening on port 51250
+console.warn: TopSitesFeed: Failed to fetch data from Contile server: NetworkError when attempting to fetch resource.
+1666600581865	geckodriver	INFO	Listening on 127.0.0.1:51294
+1666600589401	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "51295" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofileUj0A14"
+1666600589692	Marionette	INFO	Marionette enabled
+1666600589696	Marionette	INFO	Listening on port 51324
+WebDriver BiDi listening on ws://127.0.0.1:51295
+Read port: 51324
+1666600589897	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+DevTools listening on ws://127.0.0.1:51295/devtools/browser/55211f74-aba9-43ce-a7a5-f808d6718efd
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/notification_2a485d84012c106acef03b527bb54635.mp3
+1666600601488	Marionette	INFO	Stopped listening on port 51324
+console.warn: TopSitesFeed: Failed to fetch data from Contile server: NetworkError when attempting to fetch resource.
+1666600605575	geckodriver	INFO	Listening on 127.0.0.1:51349
+1666600614521	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "51350" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofileR8uXxJ"
+1666600614807	Marionette	INFO	Marionette enabled
+1666600614810	Marionette	INFO	Listening on port 51388
+WebDriver BiDi listening on ws://127.0.0.1:51350
+Read port: 51388
+1666600614997	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+DevTools listening on ws://127.0.0.1:51350/devtools/browser/c6179d4d-ba57-43df-980e-40fbeee6ba5f
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/notification_2a485d84012c106acef03b527bb54635.mp3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-middle_7fa161964e93db72b8d00ae22189d75f.mp3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-end_62ed28be622237546fd39f9468a76a49.mp3
+1666600622109	Marionette	INFO	Stopped listening on port 51388
+1666600622402	geckodriver	INFO	Listening on 127.0.0.1:51399
+1666600630753	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "51400" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofilelh3tWp"
+1666600631041	Marionette	INFO	Marionette enabled
+1666600631044	Marionette	INFO	Listening on port 51434
+WebDriver BiDi listening on ws://127.0.0.1:51400
+Read port: 51434
+1666600631247	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+DevTools listening on ws://127.0.0.1:51400/devtools/browser/581f0429-ad0f-43ea-8a01-2626649db15e
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/notification_2a485d84012c106acef03b527bb54635.mp3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-middle_7fa161964e93db72b8d00ae22189d75f.mp3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-end_62ed28be622237546fd39f9468a76a49.mp3
+[2022-10-24T08:37:17Z ERROR mp4parse] Found 2 nul bytes in "\0\0"
+[2022-10-24T08:37:17Z ERROR mp4parse] Found 2 nul bytes in "\0\0"
+1666600638505	Marionette	INFO	Stopped listening on port 51434
+console.warn: TopSitesFeed: Failed to fetch data from Contile server: NetworkError when attempting to fetch resource.
+1666600648437	geckodriver	INFO	Listening on 127.0.0.1:51472
+1666600656680	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "51473" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofilezrUZSJ"
+1666600656977	Marionette	INFO	Marionette enabled
+1666600656980	Marionette	INFO	Listening on port 51509
+Read port: 51509
+WebDriver BiDi listening on ws://127.0.0.1:51473
+1666600657044	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+DevTools listening on ws://127.0.0.1:51473/devtools/browser/67919f18-0e2a-421e-9096-08f7147d07bf
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/notification_2a485d84012c106acef03b527bb54635.mp3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-middle_7fa161964e93db72b8d00ae22189d75f.mp3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-end_62ed28be622237546fd39f9468a76a49.mp3
+1666600676870	Marionette	INFO	Stopped listening on port 51509
+console.warn: TopSitesFeed: Failed to fetch data from Contile server: NetworkError when attempting to fetch resource.
+1666600682544	geckodriver	INFO	Listening on 127.0.0.1:51537
+1666600691872	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "51538" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofileu8gGCm"
+1666600692175	Marionette	INFO	Marionette enabled
+1666600692178	Marionette	INFO	Listening on port 51571
+WebDriver BiDi listening on ws://127.0.0.1:51538
+Read port: 51571
+1666600692309	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+DevTools listening on ws://127.0.0.1:51538/devtools/browser/49f5e2ff-cf39-4d59-8be7-1fb754e4d1be
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/notification_2a485d84012c106acef03b527bb54635.mp3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-middle_7fa161964e93db72b8d00ae22189d75f.mp3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-end_62ed28be622237546fd39f9468a76a49.mp3
+1666600697842	Marionette	INFO	Stopped listening on port 51571
+console.warn: services.settings: main/partitioning-exempt-urls sync interrupted by shutdown
+console.warn: TopSitesFeed: Failed to fetch data from Contile server: NetworkError when attempting to fetch resource.
+1666600850454	geckodriver	INFO	Listening on 127.0.0.1:51622
+1666600858426	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "51623" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofiledxUjbi"
+1666600858724	Marionette	INFO	Marionette enabled
+1666600858728	Marionette	INFO	Listening on port 51634
+Read port: 51634
+WebDriver BiDi listening on ws://127.0.0.1:51623
+1666600858809	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+DevTools listening on ws://127.0.0.1:51623/devtools/browser/5aa16ab9-23ac-4bc9-aac5-9c8a0b8887b6
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/notification_2a485d84012c106acef03b527bb54635.mp3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-middle_7fa161964e93db72b8d00ae22189d75f.mp3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-end_62ed28be622237546fd39f9468a76a49.mp3
+1666600868185	Marionette	INFO	Stopped listening on port 51634
+console.warn: TopSitesFeed: Failed to fetch data from Contile server: NetworkError when attempting to fetch resource.
+1666601023032	geckodriver	INFO	Listening on 127.0.0.1:51657
+1666601032284	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "51658" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofileNPsHnk"
+1666601032566	Marionette	INFO	Marionette enabled
+1666601032569	Marionette	INFO	Listening on port 51691
+Read port: 51691
+WebDriver BiDi listening on ws://127.0.0.1:51658
+1666601032654	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+DevTools listening on ws://127.0.0.1:51658/devtools/browser/81dece92-31b3-4179-9365-2c04ef73405c
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/notification_2a485d84012c106acef03b527bb54635.mp3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-middle_7fa161964e93db72b8d00ae22189d75f.mp3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-end_62ed28be622237546fd39f9468a76a49.mp3
+1666601053797	Marionette	INFO	Stopped listening on port 51691
+console.warn: TopSitesFeed: Failed to fetch data from Contile server: NetworkError when attempting to fetch resource.
+remote-debugging-port" "51704" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofileYcklJJ"
+1666601050050	Marionette	INFO	Marionette enabled
+1666601050053	Marionette	INFO	Listening on port 51718
+Read port: 51718
+WebDriver BiDi listening on ws://127.0.0.1:51704
+1666601050133	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+DevTools listening on ws://127.0.0.1:51704/devtools/browser/ce5c84ba-8bed-4a86-b7ea-eaabac3dcb3b
+1666601057334	Marionette	INFO	Stopped listening on port 51718
+console.warn: TopSitesFeed: Failed to fetch data from Contile server: NetworkError when attempting to fetch resource.
+[Parent 19184, IPC I/O Parent] WARNING: file /builds/worker/checkouts/gecko/ipc/chromium/src/base/process_util_win.cc:167
+1666601063079	geckodriver	INFO	Listening on 127.0.0.1:51734
+1666601072052	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "51735" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofileN7hR5O"
+1666601072347	Marionette	INFO	Marionette enabled
+1666601072350	Marionette	INFO	Listening on port 51770
+WebDriver BiDi listening on ws://127.0.0.1:51735
+Read port: 51770
+1666601072542	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+DevTools listening on ws://127.0.0.1:51735/devtools/browser/d23999eb-40c4-40bf-8814-47e34be850ba
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/notification_2a485d84012c106acef03b527bb54635.mp3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-middle_7fa161964e93db72b8d00ae22189d75f.mp3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-end_62ed28be622237546fd39f9468a76a49.mp3
+1666601077938	Marionette	INFO	Stopped listening on port 51770
+console.warn: TopSitesFeed: Failed to fetch data from Contile server: NetworkError when attempting to fetch resource.
+1666601325185	geckodriver	INFO	Listening on 127.0.0.1:51971
+1666601333325	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "51972" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofile88siem"
+1666601333616	Marionette	INFO	Marionette enabled
+1666601333620	Marionette	INFO	Listening on port 52007
+WebDriver BiDi listening on ws://127.0.0.1:51972
+Read port: 52007
+1666601333760	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+DevTools listening on ws://127.0.0.1:51972/devtools/browser/2f147b48-2c62-4130-ab99-533ad937b033
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/notification_2a485d84012c106acef03b527bb54635.mp3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-middle_7fa161964e93db72b8d00ae22189d75f.mp3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-end_62ed28be622237546fd39f9468a76a49.mp3
+1666601336284	Marionette	INFO	Stopped listening on port 52007
+1666601342154	geckodriver	INFO	Listening on 127.0.0.1:52020
+1666601351231	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "52021" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofileBEGfTn"
+1666601351520	Marionette	INFO	Marionette enabled
+1666601351525	Marionette	INFO	Listening on port 52061
+WebDriver BiDi listening on ws://127.0.0.1:52021
+Read port: 52061
+1666601351725	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+DevTools listening on ws://127.0.0.1:52021/devtools/browser/17f58fa7-8e77-4fb4-8267-d42239c5921d
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/notification_2a485d84012c106acef03b527bb54635.mp3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-middle_7fa161964e93db72b8d00ae22189d75f.mp3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-end_62ed28be622237546fd39f9468a76a49.mp3
+1666601357044	Marionette	INFO	Stopped listening on port 52061
+JavaScript error: resource://gre/actors/ContentMetaChild.jsm, line 183: InvalidStateError: JSWindowActorChild.sendAsyncMessage: JSWindowActorChild cannot send at the moment
+1666601455181	geckodriver	INFO	Listening on 127.0.0.1:52093
+1666601463181	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "52094" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofile2hZplH"
+1666601463467	Marionette	INFO	Marionette enabled
+1666601463471	Marionette	INFO	Listening on port 52103
+Read port: 52103
+WebDriver BiDi listening on ws://127.0.0.1:52094
+1666601463549	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+DevTools listening on ws://127.0.0.1:52094/devtools/browser/1ba06137-b24f-4234-87cd-d057e5430a9d
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/notification_2a485d84012c106acef03b527bb54635.mp3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-middle_7fa161964e93db72b8d00ae22189d75f.mp3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-end_62ed28be622237546fd39f9468a76a49.mp3
+1666601466185	Marionette	INFO	Stopped listening on port 52103
+1666601483295	geckodriver	INFO	Listening on 127.0.0.1:52112
+1666601491254	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "52113" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofileIEFIMM"
+1666601491541	Marionette	INFO	Marionette enabled
+1666601491544	Marionette	INFO	Listening on port 52122
+WebDriver BiDi listening on ws://127.0.0.1:52113
+Read port: 52122
+1666601491726	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+DevTools listening on ws://127.0.0.1:52113/devtools/browser/9166a149-00ac-4703-8a1a-3d3fdaec4f6e
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/notification_2a485d84012c106acef03b527bb54635.mp3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-middle_7fa161964e93db72b8d00ae22189d75f.mp3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-end_62ed28be622237546fd39f9468a76a49.mp3
+1666601500777	Marionette	INFO	Stopped listening on port 52122
+console.warn: TopSitesFeed: Failed to fetch data from Contile server: NetworkError when attempting to fetch resource.
+1666601510880	geckodriver	INFO	Listening on 127.0.0.1:52133
+1666601518864	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "52134" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofileVrfyWF"
+1666601519156	Marionette	INFO	Marionette enabled
+1666601519160	Marionette	INFO	Listening on port 52143
+Read port: 52143
+WebDriver BiDi listening on ws://127.0.0.1:52134
+1666601519246	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+DevTools listening on ws://127.0.0.1:52134/devtools/browser/bae12da5-6d9b-4c7f-9985-e1b573a69e29
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/notification_2a485d84012c106acef03b527bb54635.mp3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-middle_7fa161964e93db72b8d00ae22189d75f.mp3
+1666601520980	Marionette	INFO	Stopped listening on port 52143
+[2022-10-24T08:52:01Z ERROR viaduct::backend::ffi] Missing HTTP status
+JavaScript error: , line 0: NetworkError: FetchEvent.respondWith() Promise rejected
+[2022-10-24T08:52:01Z ERROR viaduct::backend::ffi] Missing HTTP status
+1666602114851	geckodriver	INFO	Listening on 127.0.0.1:55165
+1666602123959	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "55166" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofile61cPzY"
+1666602124262	Marionette	INFO	Marionette enabled
+1666602124267	Marionette	INFO	Listening on port 55211
+WebDriver BiDi listening on ws://127.0.0.1:55166
+Read port: 55211
+1666602124414	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+DevTools listening on ws://127.0.0.1:55166/devtools/browser/4bd0e34e-4adb-4036-be09-50f3701e4da3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/notification_2a485d84012c106acef03b527bb54635.mp3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-middle_7fa161964e93db72b8d00ae22189d75f.mp3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-end_62ed28be622237546fd39f9468a76a49.mp3
+1666602167130	geckodriver	INFO	Listening on 127.0.0.1:55232
+1666602174395	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "55233" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofilegS6eci"
+1666602174680	Marionette	INFO	Marionette enabled
+1666602174685	Marionette	INFO	Listening on port 55265
+WebDriver BiDi listening on ws://127.0.0.1:55233
+Read port: 55265
+1666602174882	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+DevTools listening on ws://127.0.0.1:55233/devtools/browser/341801e9-31b1-462c-8a3b-834e46a269b0
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/notification_2a485d84012c106acef03b527bb54635.mp3
+1666602215357	Marionette	INFO	Stopped listening on port 55265
+console.warn: TopSitesFeed: Failed to fetch data from Contile server: NetworkError when attempting to fetch resource.
+ning on port 55294
+Read port: 55294
+WebDriver BiDi listening on ws://127.0.0.1:55280
+1666602186364	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+DevTools listening on ws://127.0.0.1:55280/devtools/browser/b0fdd66d-99d2-42e1-8e24-c5859c369ae6
+JavaScript error: https://web.whatsapp.com/serviceworker.js,1666602200936	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "55312" "--remote-allow-hosts" "loc1666602214849	Marionette	INFO	Stopped listening on port 55294
+console.warn: TopSitesFeed: Failed to fetch data from Contile server: NetworkError when attempting to fetch resource.
+ning on port 55331
+Read port: 55331
+WebDriver BiDi listening on ws://127.0.0.1:55312
+1666602201311	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+DevTools listening on ws://127.0.0.1:55312/devtools/browser/dcf89c75-4b3c-4833-b993-55474dc1e789
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/notification_2a485d84012c106acef03b527bb54635.mp3
+1666602215882	Marionette	INFO	Stopped listening on port 55331
+console.warn: TopSitesFeed: Failed to fetch data from Contile server: NetworkError when attempting to fetch resource.
+1666602245057	geckodriver	INFO	Listening on 127.0.0.1:55354
+1666602250179	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "55355" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofileVY3lY9"
+1666602250463	Marionette	INFO	Marionette enabled
+1666602250466	Marionette	INFO	Listening on port 55364
+WebDriver BiDi listening on ws://127.0.0.1:55355
+Read port: 55364
+1666602250652	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+DevTools listening on ws://127.0.0.1:55355/devtools/browser/99deb85b-51c6-427c-8b7b-d6a8f2232174
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/notification_2a485d84012c106acef03b527bb54635.mp3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-middle_7fa161964e93db72b8d00ae22189d75f.mp3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-end_62ed28be622237546fd39f9468a76a49.mp3
+[2022-10-24T09:05:44Z ERROR mp4parse] Found 2 nul bytes in "\0\0"
+[2022-10-24T09:05:44Z ERROR mp4parse] Found 2 nul bytes in "\0\0"
+1666602346047	Marionette	INFO	Stopped listening on port 55364
+console.warn: TopSitesFeed: Failed to fetch data from Contile server: NetworkError when attempting to fetch resource.
+1666602347709	geckodriver	INFO	Listening on 127.0.0.1:55376
+1666602352847	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "55377" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofile0obAay"
+1666602353129	Marionette	INFO	Marionette enabled
+1666602353132	Marionette	INFO	Listening on port 55386
+WebDriver BiDi listening on ws://127.0.0.1:55377
+Read port: 55386
+1666602353319	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+DevTools listening on ws://127.0.0.1:55377/devtools/browser/fec4d945-8e45-4376-b5aa-c1d6285f2a95
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/notification_2a485d84012c106acef03b527bb54635.mp3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-middle_7fa161964e93db72b8d00ae22189d75f.mp3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-end_62ed28be622237546fd39f9468a76a49.mp3
+1666602403671	Marionette	INFO	Stopped listening on port 55386
+console.warn: TopSitesFeed: Failed to fetch data from Contile server: NetworkError when attempting to fetch resource.
+remote-debugging-port" "55401" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofileRK7bwz"
+1666602395551	Marionette	INFO	Marionette enabled
+1666602395555	Marionette	INFO	Listening on port 55410
+Read port: 55410
+WebDriver BiDi listening on ws://127.0.0.1:55401
+1666602395638	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+DevTools listening on ws://127.0.0.1:55401/devtools/browser/229f6e11-a74d-4896-8378-9bb403dc47e9
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/notification_2a485d84012c106acef03b527bb54635.mp3
+1666602401996	Marionette	INFO	Stopped listening on port 55410
+console.warn: TopSitesFeed: Failed to fetch data from Contile server: NetworkError when attempting to fetch resource.
+1666602425452	geckodriver	INFO	Listening on 127.0.0.1:55423
+1666602431361	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "55424" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofileHKhrDd"
+1666602431635	Marionette	INFO	Marionette enabled
+1666602431638	Marionette	INFO	Listening on port 55456
+WebDriver BiDi listening on ws://127.0.0.1:55424
+Read port: 55456
+1666602431828	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+DevTools listening on ws://127.0.0.1:55424/devtools/browser/b33e1321-6dde-42aa-92c4-18accdddbeaf
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/notification_2a485d84012c106acef03b527bb54635.mp3
+1666602437984	Marionette	INFO	Stopped listening on port 55451666602442019	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "55468" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofile9dAuE4"
+1666602442331	Marionette	INFO	Marionette enabled
+1666602442334	Marionette	INFO	Listening on port 55510
+Read port: 55510
+WebDriver BiDi listening on ws://127.0.0.1:55468
+1666602442404	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+DevTools listening on ws://127.0.0.1:55468/devtools/browser/d8769d7c-18cd-4358-bbdc-e7c182db86cb
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/notification_2a485d84012c106acef03b527bb54635.mp3
+1666602465367	Marionette	INFO	Stopped listening on port 55510
+console.warn: TopSitesFeed: Failed to fetch data from Contile server: NetworkError when attempting to fetch resource.
+JavaScript error: chrome://remote/content/marionette/cert.js, line 57: NS_ERROR_NOT_AVAILABLE: Component returned failure code: 0x80040111 (NS_ERROR_NOT_AVAILABLE) [nsICertOverrideService.setDisableAllSecurityChecksAndLetAttackersInterceptMyData]
+!!! error running onStopped callback: TypeError: callback is not a function
+JavaScript error: resource://gre/actors/ContentMetaChild.jsm, line 183: InvalidStateError: JSWindowActorChild.sendAsyncMessage: JSWindowActorChild cannot send at the moment
+[Parent 13848, IPC I/O Parent] WARNING: file /builds/worker/checkouts/gecko/ipc/chromium/src/base/process_util_win.cc:167
+[Parent 13848, IPC I/O Parent] WARNING: file /builds/worker/checkouts/gecko/ipc/chromium/src/base/process_util_win.cc:167
+1666602465724	RemoteAgent	ERROR	unable to stop listener: [Exception... "Component returned failure code: 0x80040111 (NS_ERROR_NOT_AVAILABLE) [nsICertOverrideService.setDisableAllSecurityChecksAndLetAttackersInterceptMyData]"  nsresult: "0x80040111 (NS_ERROR_NOT_AVAILABLE)"  location: "JS frame :: chrome://remote/content/marionette/cert.js :: allowAllCerts.disable :: line 57"  data: no] Stack trace: allowAllCerts.disable()@cert.js:57
+destroy()@Session.jsm:206
+deleteSession()@WebDriverBiDi.jsm:148
+stop()@WebDriverBiDi.jsm:227
+1666602467913	geckodriver	INFO	Listening on 127.0.0.1:55547
+1666602475092	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "55548" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofileRysj9j"
+1666602475397	Marionette	INFO	Marionette enabled
+1666602475401	Marionette	INFO	Listening on port 55590
+Read port: 55590
+WebDriver BiDi listening on ws://127.0.0.1:55548
+1666602475494	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+DevTools listening on ws://127.0.0.1:55548/devtools/browser/3b843cd7-640c-4487-96f8-49c9ae8c52ec
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/notification_2a485d84012c106acef03b527bb54635.mp3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-middle_7fa161964e93db72b8d00ae22189d75f.mp3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-end_62ed28be622237546fd39f9468a76a49.mp3
+1666602498466	Marionette	INFO	Stopped listening on port 55590
+console.warn: TopSitesFeed: Failed to fetch data from Contile server: NetworkError when attempting to fetch resource.
+1666602501356	geckodriver	INFO	Listening on 127.0.0.1:55623
+1666602508445	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "55624" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofilepizc2i"
+1666602508729	Marionette	INFO	Marionette enabled
+1666602508732	Marionette	INFO	Listening on port 55662
+WebDriver BiDi listening on ws://127.0.0.1:55624
+Read port: 55662
+1666602508920	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+DevTools listening on ws://127.0.0.1:55624/devtools/browser/a4bc14d5-5af4-4a9f-a30f-19b3478127f2
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-middle_7fa161964e93db72b8d00ae22189d75f.mp3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-end_62ed28be622237546fd39f9468a76a49.mp3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/notification_2a485d84012c106acef03b527bb54635.mp3
+1666602514282	Marionette	INFO	Stopped listening on port 55662
+console.warn: TopSitesFeed: Failed to fetch data from Contile server: NetworkError when attempting to fetch resource.
+1666609067316	geckodriver	INFO	Listening on 127.0.0.1:56515
+1666609073550	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "56516" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofileAm0Duh"
+1666609073845	Marionette	INFO	Marionette enabled
+1666609073850	Marionette	INFO	Listening on port 56546
+WebDriver BiDi listening on ws://127.0.0.1:56516
+Read port: 56546
+1666609073991	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+DevTools listening on ws://127.0.0.1:56516/devtools/browser/1c2c9d25-0419-426e-881a-32c901be8350
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/notification_2a485d84012c106acef03b527bb54635.mp3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-middle_7fa161964e93db72b8d00ae22189d75f.mp3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-end_62ed28be622237546fd39f9468a76a49.mp3
+1666609092243	Marionette	INFO	Stopped listening on port 56546
+console.warn: TopSitesFeed: Failed to fetch data from Contile server: NetworkError when attempting to fetch resource.
+1666609100970	geckodriver	INFO	Listening on 127.0.0.1:56568
+1666609106996	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "56569" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofileUDXv9H"
+1666609107285	Marionette	INFO	Marionette enabled
+1666609107290	Marionette	INFO	Listening on port 56597
+WebDriver BiDi listening on ws://127.0.0.1:56569
+Read port: 56597
+1666609107479	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+DevTools listening on ws://127.0.0.1:56569/devtools/browser/67c43090-e1e4-45c3-bbea-1b6b3b9431f1
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/notification_2a485d84012c106acef03b527bb54635.mp3
+1666609127525	Marionette	INFO	Stopped listening on port 56597
+console.warn: TopSitesFeed: Failed to fetch data from Contile server: NetworkError when attempting to fetch resource.
+1666609175836	geckodriver	INFO	Listening on 127.0.0.1:56701
+1666609181983	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "56702" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofile05jhSM"
+1666609182285	Marionette	INFO	Marionette enabled
+1666609182290	Marionette	INFO	Listening on port 56736
+WebDriver BiDi listening on ws://127.0.0.1:56702
+Read port: 56736
+1666609182432	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+DevTools listening on ws://127.0.0.1:56702/devtools/browser/5e3c7e97-bb87-4e4c-a759-14c0e1fa4783
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/notification_2a485d84012c106acef03b527bb54635.mp3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-middle_7fa161964e93db72b8d00ae22189d75f.mp3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-end_62ed28be622237546fd39f9468a76a49.mp3
+1666609188292	Marionette	INFO	Stopped listening on port 56736
+console.warn: TopSitesFeed: Failed to fetch data from Contile server: NetworkError when attempting to fetch resource.
+1666609269643	geckodriver	INFO	Listening on 127.0.0.1:56755
+1666609276976	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "56756" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofileY9epkc"
+1666609277272	Marionette	INFO	Marionette enabled
+1666609277276	Marionette	INFO	Listening on port 56793
+WebDriver BiDi listening on ws://127.0.0.1:56756
+Read port: 56793
+1666609277417	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+DevTools listening on ws://127.0.0.1:56756/devtools/browser/675739c3-52f0-4f5e-ad01-c27e32f4c207
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/notification_2a485d84012c106acef03b527bb54635.mp3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-middle_7fa161964e93db72b8d00ae22189d75f.mp3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-end_62ed28be622237546fd39f9468a76a49.mp3
+1666609304528	Marionette	INFO	Stopped listening on port 56793
+console.warn: TopSitesFeed: Failed to fetch data from Contile server: NetworkError when attempting to fetch resource.
+1666609352631	geckodriver	INFO	Listening on 127.0.0.1:56811
+1666609360022	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "56812" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofile2MD0Pu"
+1666609360326	Marionette	INFO	Marionette enabled
+1666609360329	Marionette	INFO	Listening on port 56846
+Read port: 56846
+WebDriver BiDi listening on ws://127.0.0.1:56812
+1666609360391	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+DevTools listening on ws://127.0.0.1:56812/devtools/browser/12af9ae9-cfc8-43f1-91b4-137ce2d837dc
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/notification_2a485d84012c106acef03b527bb54635.mp3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-middle_7fa161964e93db72b8d00ae22189d75f.mp3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-end_62ed28be622237546fd39f9468a76a49.mp3
+console.error: (new TypeError("container.editor is undefined", "resource://devtools/client/inspector/markup/markup.js", 1646))
+console.error: "[COMPATIBILITY_UPDATE_NODES_FAILURE] this.parentFront is null"
+console.error: "get inspectorFront@resource://devtools/client/fronts/node.js:480:5\n_getNodeIssues@resource://devtools/client/inspector/compatibility/actions/compatibility.js:250:25\n_updateNode@resource://devtools/client/inspector/compatibility/actions/compatibility.js:301:24\nupdateNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:236:13\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:193:28\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_UPDATE_NODES_FAILURE] this.parentFront is null"
+console.error: "get inspectorFront@resource://devtools/client/fronts/node.js:480:5\n_getNodeIssues@resource://devtools/client/inspector/compatibility/actions/compatibility.js:250:25\n_updateNode@resource://devtools/client/inspector/compatibility/actions/compatibility.js:301:24\nupdateNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:236:13\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:193:28\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_UPDATE_NODES_FAILURE] this.parentFront is null"
+console.error: "get inspectorFront@resource://devtools/client/fronts/node.js:480:5\n_getNodeIssues@resource://devtools/client/inspector/compatibility/actions/compatibility.js:250:25\n_updateNode@resource://devtools/client/inspector/compatibility/actions/compatibility.js:301:24\nupdateNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:236:13\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:193:28\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_UPDATE_TOP_LEVEL_TARGET_FAILURE] this.parentFront is null"
+console.error: "get inspectorFront@resource://devtools/client/fronts/node.js:480:5\n_getNodeIssues@resource://devtools/client/inspector/compatibility/actions/compatibility.js:250:25\n_inspectNode@resource://devtools/client/inspector/compatibility/actions/compatibility.js:264:24\n_inspectNode@resource://devtools/client/inspector/compatibility/actions/compatibility.js:276:11\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: (new TypeError("parent is null", "resource://devtools/client/inspector/shared/style-change-tracker.js", 67))
+TypeError: parent is null: canMutationImpactCurrentStyles@resource://devtools/client/inspector/shared/style-change-tracker.js:67:24
+onMutations@resource://devtools/client/inspector/shared/style-change-tracker.js:84:41
+_emit@resource://devtools/shared/event-emitter.js:242:32
+emit@resource://devtools/shared/event-emitter.js:186:18
+emit@resource://devtools/shared/event-emitter.js:330:18
+getMutations@resource://devtools/client/fronts/walker.js:311:10
+
+console.error: (new TypeError("container.node.targetFront is null", "resource://devtools/client/inspector/markup/markup.js", 2351))
+console.error: (new TypeError("container.node.targetFront is null", "resource://devtools/client/inspector/markup/markup.js", 2351))
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_APPEND_NODE_FAILURE] topLevelTarget is null"
+console.error: "appendNode/<@resource://devtools/client/inspector/compatibility/actions/compatibility.js:58:26\nthunk/</</<@resource://devtools/client/shared/redux/middleware/thunk.js:17:11\n_onMarkupMutation@resource://devtools/client/inspector/compatibility/CompatibilityView.js:201:30\n_emit@resource://devtools/shared/event-emitter.js:242:32\nemit@resource://devtools/shared/event-emitter.js:186:18\nemit@resource://devtools/shared/event-emitter.js:330:18\n_onWalkerMutations/<@resource://devtools/client/inspector/markup/markup.js:1548:22\n"
+console.error: "[COMPATIBILITY_UPDATE_TOP_LEVEL_TARGET_FAILURE] Connection closed, pending request to server0.conn0.windowGlobal4294967299/compatibility37, type getNodeCssIssues failed\n\nRequest stack:\nrequest@resource://devtools/shared/protocol/Front.js:300:14\ngenerateRequestMethods/</frontProto[name]@resource://devtools/shared/protocol/Front/FrontClassWithSpec.js:48:19\n_getNodeIssues@resource://devtools/client/inspector/compatibility/actions/compatibility.js:251:55\npermitUnload@chrome://global/content/elements/browser-custom-element.js:1685:21\nCanCloseWindow@chrome://browser/content/browser.js:7999:36\nWindowIsClosing@chrome://browser/content/browser.js:8028:7\nBrowserTryToCloseWindow@chrome://browser/content/browser.js:3070:22\noncommand@chrome://browser/content/browser.xhtml:1:24\n"
+console.error: "baseFrontClassDestroy@resource://devtools/shared/protocol/Front.js:106:23\ndestroy@resource://devtools/shared/protocol/Front.js:74:10\ndestroy@resource://devtools/shared/protocol/Pool.js:211:17\nbaseFrontClassDestroy@resource://devtools/shared/protocol/Front.js:110:13\ndestroy@resource://devtools/shared/protocol/Front.js:74:10\ndestroy@resource://devtools/client/fronts/inspector.js:136:11\n_destroyTarget@resource://devtools/client/fronts/targets/target-mixin.js:615:17\n"
+JavaScript error: resource://gre/modules/AsyncShutdown.jsm, line 576: NotFoundError: No such JSWindowActor 'DevToolsFrame'
+JavaScript error: resource://gre/modules/AsyncShutdown.jsm, line 576: NotFoundError: No such JSWindowActor 'DevToolsFrame'
+1666614483649	Marionette	INFO	Stopped listening on port 56846
+1666619468728	geckodriver	INFO	Listening on 127.0.0.1:58455
+1666619473781	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "58456" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofileytlb16"
+1666619474066	Marionette	INFO	Marionette enabled
+1666619474070	Marionette	INFO	Listening on port 58465
+Read port: 58465
+WebDriver BiDi listening on ws://127.0.0.1:58456
+1666619474155	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+DevTools listening on ws://127.0.0.1:58456/devtools/browser/35c951b6-3954-411c-bdbd-c7cf3581fc35
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/notification_2a485d84012c106acef03b527bb54635.mp3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-middle_7fa161964e93db72b8d00ae22189d75f.mp3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-end_62ed28be622237546fd39f9468a76a49.mp3
+1666619559644	Marionette	INFO	Stopped listening on port 58465
+console.warn: TopSitesFeed: Failed to fetch data from Contile server: NetworkError when attempting to fetch resource.
+1666619562166	geckodriver	INFO	Listening on 127.0.0.1:58499
+1666619567127	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "58500" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofileaoICbV"
+1666619567427	Marionette	INFO	Marionette enabled
+1666619567430	Marionette	INFO	Listening on port 58509
+Read port: 58509
+WebDriver BiDi listening on ws://127.0.0.1:58500
+1666619567497	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+DevTools listening on ws://127.0.0.1:58500/devtools/browser/b127d71d-ec15-4938-bf24-cecc4b6a32e8
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/notification_2a485d84012c106acef03b527bb54635.mp3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-middle_7fa161964e93db72b8d00ae22189d75f.mp3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-end_62ed28be622237546fd39f9468a76a49.mp3
+1666619601743	Marionette	INFO	Stopped listening on port 58509
+console.warn: TopSitesFeed: Failed to fetch data from Contile server: NetworkError when attempting to fetch resource.
+1666619604576	geckodriver	INFO	Listening on 127.0.0.1:58520
+1666619609490	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "58521" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofileVyXHw4"
+1666619609794	Marionette	INFO	Marionette enabled
+1666619609797	Marionette	INFO	Listening on port 58530
+Read port: 58530
+WebDriver BiDi listening on ws://127.0.0.1:58521
+1666619609861	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+DevTools listening on ws://127.0.0.1:58521/devtools/browser/d2ede7c9-7701-4f57-af3a-62a35994cf0a
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/notification_2a485d84012c106acef03b527bb54635.mp3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-middle_7fa161964e93db72b8d00ae22189d75f.mp3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-end_62ed28be622237546fd39f9468a76a49.mp3
+1666619840919	Marionette	INFO	Stopped listening on port 58530
+console.warn: TopSitesFeed: Failed to fetch data from Contile server: NetworkError when attempting to fetch resource.
+remote-debugging-port" "58563" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofileu8wcSk"
+1666619731208	Marionette	INFO	Marionette enabled
+1666619731212	Marionette	INFO	Listening on port 58572
+WebDriver BiDi listening on ws://127.0.0.1:58563
+Read port: 58572
+1666619731357	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+DevTools listening on ws://127.0.0.1:58563/devtools/browser/dd0c1711-b60b-462e-9211-a8622f59cea7
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/notification_2a485d84012c106acef03b527bb54635.mp3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-middle_7fa161964e93db72b8d00ae22189d75f.mp3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-end_62ed28be622237546fd39f9468a76a49.mp3
+1666619841852	Marionette	INFO	Stopped listening on port 58572
+console.warn: TopSitesFeed: Failed to fetch data from Contile server: NetworkError when attempting to fetch resource.
+remote-debugging-port" "58590" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\Andrei\\AppData\\Local\\Temp\\rust_mozprofile7KQBCr"
+1666619792590	Marionette	INFO	Marionette enabled
+1666619792594	Marionette	INFO	Listening on port 58599
+Read port: 58599
+WebDriver BiDi listening on ws://127.0.0.1:58590
+1666619792661	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+DevTools listening on ws://127.0.0.1:58590/devtools/browser/7e33597a-363c-47dd-9567-d1bdce79af99
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/notification_2a485d84012c106acef03b527bb54635.mp3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-middle_7fa161964e93db72b8d00ae22189d75f.mp3
+JavaScript error: https://web.whatsapp.com/serviceworker.js, line 1: TypeError: Cache.put: Cache got basic response with bad status 206 while trying to add request https://web.whatsapp.com/sequential-ptt-end_62ed28be622237546fd39f9468a76a49.mp3
+1666619834249	Marionette	INFO	Stopped listening on port 58599
+console.warn: TopSitesFeed: Failed to fetch data from Contile server: NetworkError when attempting to fetch resource.
