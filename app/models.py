@@ -5419,15 +5419,18 @@ class ChangeModel(BaseTable, QtCore.QAbstractTableModel):
             for imei_object in self.sns:
                 before = imei_object.warehouse.description
                 after = name
-                db.session.add(db.WarehouseChange(imei_object.imei, before, after, comment))
-                imei_object.warehouse_id = utils.warehouse_id_map.get(name)
+
+                if after != before:
+                    db.session.add(db.WarehouseChange(imei_object.imei, before, after, comment))
+                    imei_object.warehouse_id = utils.warehouse_id_map.get(name)
         else:
 
             for imei_object in self.sns:
                 before = getattr(imei_object, self.attrname)
                 after = name
-                db.session.add(self.orm_change_class(imei_object.imei, before, after, comment))
-                setattr(imei_object, self.attrname, name)
+                if after != before:
+                    db.session.add(self.orm_change_class(imei_object.imei, before, after, comment))
+                    setattr(imei_object, self.attrname, name)
 
         try:
             db.session.commit()
