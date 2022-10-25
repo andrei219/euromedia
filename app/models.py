@@ -5399,7 +5399,7 @@ class ChangeModel(BaseTable, QtCore.QAbstractTableModel):
             return
 
         imeis = db.session.query(db.Imei).where(db.Imei.imei == sn).all()
-        mask = db.session.query(db.ImeiMask).alasdva
+        mask = db.session.query(db.ImeiMask).all()
 
         aux = []
         for imei in imeis:
