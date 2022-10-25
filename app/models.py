@@ -5398,8 +5398,18 @@ class ChangeModel(BaseTable, QtCore.QAbstractTableModel):
         if sn in self:
             return
 
-        imei_objects = db.session.query(db.Imei).where(db.Imei.imei == sn).all()
-        self.sns.extend(imei_objects)
+        imeis = db.session.query(db.Imei).where(db.Imei.imei == sn).all()
+        mask = db.session.query(db.ImeiMask).alasdva
+
+        aux = []
+        for imei in imeis:
+            for imei_mask in mask:
+                if imei.imei == imei_mask.imei:
+                    break
+            else:
+                aux.append(imei)
+
+        self.sns.extend(aux)
         self.layoutChanged.emit()
 
     def apply(self, name, comment):

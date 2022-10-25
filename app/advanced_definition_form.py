@@ -85,9 +85,8 @@ class Form(Ui_Form, QWidget):
     def update_handler(self):
         line = self.get_selected_line()
 
-        # Porque ????
 
-        if sum(stock.request for stock in self.stock_model.requested_stocks) > line.quantity:
+        if sum(stock.request for stock in self.stock_model.requested_stocks) != line.quantity:
             QMessageBox.critical(self, 'Error', 'sum(requested) must be equal to line quantity')
         else:
             self.defined_model.add(*self.stock_model.requested_stocks, showing_condition=line.showing_condition)
