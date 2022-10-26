@@ -51,7 +51,7 @@
      <number>0</number>
     </property>
     <property name="currentIndex">
-     <number>4</number>
+     <number>3</number>
     </property>
     <property name="iconSize">
      <size>
@@ -1651,6 +1651,26 @@
           </widget>
          </item>
          <item>
+          <widget class="QLabel" name="proformas_purchases_owing">
+           <property name="font">
+            <font>
+             <family>MS Shell Dlg 2</family>
+             <pointsize>10</pointsize>
+             <weight>75</weight>
+             <italic>false</italic>
+             <bold>true</bold>
+             <strikeout>false</strikeout>
+            </font>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">font-weight:bold; </string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QLabel" name="proformas_purchases_paid">
            <property name="styleSheet">
             <string notr="true">font-weight:bold</string>
@@ -3038,6 +3058,26 @@
           </widget>
          </item>
          <item>
+          <widget class="QLabel" name="proformas_sales_owing">
+           <property name="font">
+            <font>
+             <family>MS Shell Dlg 2</family>
+             <pointsize>10</pointsize>
+             <weight>75</weight>
+             <italic>false</italic>
+             <bold>true</bold>
+             <strikeout>false</strikeout>
+            </font>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">font-weight:bold; </string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QLabel" name="proformas_sales_paid">
            <property name="styleSheet">
             <string notr="true">font-weight:bold; </string>
@@ -3078,7 +3118,7 @@
        </font>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <property name="iconSize">
        <size>
@@ -4026,6 +4066,16 @@
          </item>
          <item>
           <widget class="QLabel" name="invoices_purchases_total">
+           <property name="styleSheet">
+            <string notr="true">font-weight:bold; </string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="invoices_purchases_owing">
            <property name="styleSheet">
             <string notr="true">font-weight:bold; </string>
            </property>
@@ -5200,7 +5250,7 @@
           <x>908</x>
           <y>616</y>
           <width>911</width>
-          <height>20</height>
+          <height>18</height>
          </rect>
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout_4">
@@ -5216,6 +5266,16 @@
          </item>
          <item>
           <widget class="QLabel" name="invoices_sales_total">
+           <property name="styleSheet">
+            <string notr="true">font-weight:bold</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="invoices_sales_owing">
            <property name="styleSheet">
             <string notr="true">font-weight:bold</string>
            </property>
