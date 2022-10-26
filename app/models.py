@@ -1871,9 +1871,18 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
             elif col == self.CANCELLED:
                 return 'Yes' if proforma.cancelled else 'No'
             elif col == self.OWING:
+
                 sign = ' -€' if proforma.eur_currency else ' $'
+
+
                 owes = round(proforma.total_debt - proforma.total_paid, 2)
+
+
                 return str(owes) + sign
+
+
+
+
             elif col == self.TOTAL:
                 sign = ' -€' if proforma.eur_currency else ' $'
                 return str(proforma.total_debt) + sign

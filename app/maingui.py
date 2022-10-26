@@ -225,7 +225,10 @@ class MainGui(Ui_MainGui, QMainWindow):
         getattr(self, prefix + 'paid').setText('Paid: ' + str(round(paid, 2)))
 
         try:
-            getattr(self, prefix + 'owing').setText('Owing: ' + str(owing))
+            label = getattr(self, prefix + 'owing')
+            text = 'Owes: ' if prefix in ('invoices_sales_', 'proformas_sales_') else 'Owing: '
+            label.setText(text + str(owing))
+
             getattr(self, prefix + 'device_count').\
                 setText('Processed Devices: ' + str(device_count))
         except AttributeError:
