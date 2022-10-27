@@ -40,7 +40,6 @@ if __name__ == '__main__':
         cost = find_cost(imei)
         doc_repr, partner = find_doc_repr_and_partner(imei)
 
-
         sheet.cell(i, 10).value = cost
         sheet.cell(i, 11).value = doc_repr
         sheet.cell(i, 12).value = partner
