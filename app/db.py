@@ -921,13 +921,14 @@ class SaleProforma(Base):
     # Posible fuente de error de precision en este método,
     # Es el invonveniente de usar floats vx
     # Deberias usar el modulo Decimal
+
     @property
     def total_debt(self):
         return round(self.subtotal + self.tax, 2)
 
     @property
     def total_paid(self):
-        return round(sum(abs(p.amount) for p in self.payments), 2)
+        return round(sum(p.amount for p in self.payments), 2)
 
     @property
     def not_paid(self):
@@ -1076,7 +1077,6 @@ class SaleInvoice(Base):
 
     wh_incoming_rma = relationship('WhIncomingRma', backref=backref('invoices'))
 
-
     def get_device_count(self, series):
         count = 0
         for proforma in self.proformas:
@@ -1114,6 +1114,7 @@ class SaleInvoice(Base):
         return session.query(SaleInvoice.parent_id).\
             where(SaleInvoice.id == self.id).scalar() is not None
 
+
     @property
     def subtotal(self):
         return round(sum(p.subtotal for p in self.proformas), 2)
@@ -1128,7 +1129,7 @@ class SaleInvoice(Base):
 
     @property
     def total_paid(self):
-        return round(sum(abs(p.amount) for p in self.payments), 2)
+        return round(sum(p.amount for p in self.payments), 2)
 
     @property
     def not_paid(self):
@@ -1184,17 +1185,29 @@ class SaleInvoice(Base):
     @property
     def financial_status_string(self):
         proforma = self.proformas[0]
-        if proforma.is_credit_note and proforma.applied:
-            return 'Applied'
+        if proforma.is_credit_note:
+            applied = self.applied
+            payments = self.payments
+            if applied and not payments:
+                return 'Applied'
+            elif not applied and not payments:
+                return 'New'
+            elif not applied and self.total_debt < self.total_paid < 0:
+                return 'Partially Paid'
+            elif applied and payments:
+                return 'Paid/Applied'
+            elif math.isclose(self.total_paid, self.total_debt):
+                return 'Paid'
+        else:
+            if proforma.not_paid:
+                return 'Not Paid'
+            elif proforma.fully_paid:
+                return 'Paid'
+            elif proforma.partially_paid:
+                return 'Partially Paid'
+            elif proforma.overpaid:
+                return 'We Owe'
 
-        if proforma.not_paid:
-            return 'Not Paid'
-        elif proforma.fully_paid:
-            return 'Paid'
-        elif proforma.partially_paid:
-            return 'Partially Paid'
-        elif proforma.overpaid:
-            return 'We Owe'
 
     @property
     def agent(self):

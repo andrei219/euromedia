@@ -19,6 +19,8 @@ class PaymentForm(Ui_PaymentsForm, QDialog):
         self.proforma = proforma
         self.model = PaymentModel(proforma, sale, self) 
         self.view.setModel(self.model) 
+        self.is_credit_note = self.proforma.warehouse_id is None
+
 
         self.add_payment_tool_button.clicked.connect(self.addHandler) 
         self.delete_payment_tool_button.clicked.connect(self.deleteHandler)
@@ -34,6 +36,10 @@ class PaymentForm(Ui_PaymentsForm, QDialog):
 
         self.rate.setEnabled(not self.proforma.eur_currency)
         self.rate.setText('1.0')
+
+    def all_clicked(self):
+        pass
+
 
     def addHandler(self):
         try:
