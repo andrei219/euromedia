@@ -106,7 +106,8 @@ ACTIONS = [
     'issued_invoices',
     'switch',
     'top_partners',
-    'owing'
+    'owing',
+    'whatsapp'
 ]
 
 
@@ -183,14 +184,20 @@ class MainGui(Ui_MainGui, QMainWindow):
 
         self.main_tab.currentChanged.connect(self.tab_changed)
 
-    def export_documents(self, view, model):
+    def export_documents(self, view, model, ask_directory=True):
         rows = {i.row() for i in view.selectedIndexes()}
         if not rows:
             return
-        directory = get_directory(self)
+
+        if not ask_directory:
+            from utils import get_desktop
+            directory = get_desktop()
+
+        else:
+            directory = get_directory(self)
 
         if not directory:
-            return False
+            return
 
         for row in rows:
             doc = model[row]
@@ -202,10 +209,9 @@ class MainGui(Ui_MainGui, QMainWindow):
                 name = 'PI ' + doc.doc_repr + '.pdf'
 
             pdf = build_document(doc)
-
-            pdf.output(os.path.join(directory, name))
-
-        return True
+            path = os.path.join(directory, name)
+            pdf.output(path)
+        return path
 
     def selection_changed_generic(self, view):
         rows = {i.row() for i in view.selectedIndexes()}
@@ -614,11 +620,12 @@ class MainGui(Ui_MainGui, QMainWindow):
         print('print')
 
     def proformas_purchases_export_handler(self):
-        exported = self.export_documents(
+        exported_path = self.export_documents(
             self.proformas_purchases_view,
             self.proformas_purchases_model
         )
-        if exported:
+        if exported_path:
+
             QMessageBox.information(self, 'Success', 'Document Exported successfully')
 
 
@@ -806,21 +813,33 @@ class MainGui(Ui_MainGui, QMainWindow):
             QMessageBox.critical(self, 'Update Error', 'Error updating proformas')
             raise
 
+    def proformas_sales_whatsapp_handler(self):
+        proforma = self.get_sale_proforma()
+        if not proforma:
+            return
+        from utils import get_whatsapp_phone
+        from partner_or_agent_form import Dialog
+        dialog = Dialog(self, proforma)
 
-    def proformas_sales_print_handler(self):
-        print('printing')
+        if dialog.exec_():
+            try:
+                phone_numbers = get_whatsapp_phone(proforma, partner=dialog.partner.isChecked())
+
+            except ValueError as ex:
+                QMessageBox.critical(self, 'Error', str(ex))
+
 
     def proformas_sales_export_handler(self):
-        # Dont need the object, but signals if one is selected
+        # Don't need the object, but signals if one is selected
         proforma = self.get_sale_proforma()
         if not proforma:
             return
 
-        exported = self.export_documents(
+        exported_path = self.export_documents(
             self.proformas_sales_view,
             self.proformas_sales_model
         )
-        if exported:
+        if exported_path:
             QMessageBox.information(self, 'Success', 'Document Exported successfully')
 
     def proformas_sales_mail_handler(self):
@@ -987,12 +1006,13 @@ class MainGui(Ui_MainGui, QMainWindow):
         self.f.show()
 
     def invoices_purchases_export_handler(self):
-        exported = self.export_documents(
+        exported_path = self.export_documents(
             self.invoices_purchases_view,
             self.invoices_purchases_model,
         )
-        if exported:
+        if exported_path:
             QMessageBox.information(self, 'Success', 'Document Exported successfully')
+
 
     def invoices_purchases_print_handler(self):
         print('print ')
@@ -1056,17 +1076,21 @@ class MainGui(Ui_MainGui, QMainWindow):
 
             self.sip.show()
 
+    def invoices_sales_whatsapp_handler(self):
+        print('whaatsapp')
+
     def invoices_sales_ready_handler(self):
         invoice = self.get_sales_invoice()
         if invoice:
             self.proformas_sales_model.ready_several(invoice.proformas)
 
     def invoices_sales_export_handler(self):
-        exported = self.export_documents(
+        exported_path = self.export_documents(
             self.invoices_sales_view,
             self.invoices_sales_model,
         )
-        if exported:
+        if exported_path:
+
             QMessageBox.information(self, 'Success', 'Document Exported successfully')
 
     def invoices_sales_export_excel_handler(self):

@@ -5546,13 +5546,19 @@ class WhRmaIncomingModel(BaseTable, QtCore.QAbstractTableModel):
         self._headerData = ['ID', 'Partner', 'Date', 'Quantity', 'Status', 'Invoice', 'Exported']
         self.name = 'orders'
 
-        query = db.session.query(db.WhIncomingRma).join(db.IncomingRma)\
-            .join(db.WhIncomingRmaLine)
+        query = db.session.query(db.WhIncomingRma).join(db.IncomingRma).join(
+            db.IncomingRmaLine).join(db.WhIncomingRmaLine)
 
         query = query.where(db.IncomingRma.date > utils.get_last_date(last))
 
         if search_key:
-            query = query.where(db.WhIncomingRmaLine.sn.contains(search_key))
+            query = query.where(
+                or_(
+                    db.WhIncomingRmaLine.sn.contains(search_key),
+                    db.IncomingRmaLine.cust.contains(search_key)
+                )
+            )
+
 
         self.orders = query.all()
 

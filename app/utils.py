@@ -234,6 +234,16 @@ def compute_available_descriptions(available_item_ids):
     return complete_descriptions(cmap, dmap)
 
 
+def get_whatsapp_phone(proforma, *, partner=False):
+
+    if isinstance(proforma, db.SaleProforma):
+        pass
+    elif isinstance(proforma, db.SaleInvoice):
+        pass
+
+    return '+34673567274'
+
+
 def has_serie(line):
     try:
         id = description_id_map[line.item.clean_repr]
