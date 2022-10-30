@@ -5559,7 +5559,6 @@ class WhRmaIncomingModel(BaseTable, QtCore.QAbstractTableModel):
                 )
             )
 
-
         self.orders = query.all()
 
     def data(self, index: QModelIndex, role: int = ...) -> typing.Any:

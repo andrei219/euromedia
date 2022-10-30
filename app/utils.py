@@ -8,6 +8,8 @@ from datetime import datetime, timedelta
 import functools
 
 # QtFramework stuff:
+from operator import is_
+
 import pycountry
 from PyQt5.QtWidgets import QInputDialog
 from PyQt5.QtWidgets import QAbstractItemView
@@ -24,6 +26,7 @@ import db
 from bidict import bidict
 
 import os
+
 
 EXCEL_FILTER = 'Archivos excel (*.xlsx)'
 PDF_FILTER = "Pdf Files (*.pdf)"
@@ -234,14 +237,32 @@ def compute_available_descriptions(available_item_ids):
     return complete_descriptions(cmap, dmap)
 
 
-def get_whatsapp_phone(proforma, *, partner=False):
+NO_PARTNER_PHONE_ERROR = 'Partner must have at least one contact with phone number'
+NO_AGENT_PHONE_ERROR = 'Agent must have a phone number'
 
-    if isinstance(proforma, db.SaleProforma):
-        pass
-    elif isinstance(proforma, db.SaleInvoice):
-        pass
 
-    return '+34673567274'
+def get_whatsapp_phone_number(proforma_or_invoice, *, partner=False):
+    from phonenumbers import parse, is_possible_number, phonenumberutil
+
+    if isinstance(proforma_or_invoice, db.SaleProforma):
+        proforma = proforma_or_invoice
+    else:
+        proforma = proforma_or_invoice.proformas[0]
+
+    if partner:
+        try:
+            phone = proforma.partner_object.contacts[0].phone
+        except IndexError:
+            raise ValueError(NO_PARTNER_PHONE_ERROR)
+    else:
+        phone = proforma.agent.phone
+
+    try:
+        parse(phone)
+    except phonenumberutil.NumberParseException as ex:
+        raise ValueError("I can't find a phone number")
+    else:
+        return phone
 
 
 def has_serie(line):

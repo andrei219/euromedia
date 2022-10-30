@@ -1,12 +1,14 @@
 import os
 import subprocess
 from builtins import getattr
+from lib2to3.fixes.fix_operator import invocation
 
 from PyQt5.QtWidgets import (
     QMainWindow,
     QTableView,
     QMessageBox,
 )
+from pipe import index
 
 from sqlalchemy.exc import IntegrityError
 
@@ -817,20 +819,12 @@ class MainGui(Ui_MainGui, QMainWindow):
         proforma = self.get_sale_proforma()
         if not proforma:
             return
-        from utils import get_whatsapp_phone
         from partner_or_agent_form import Dialog
-        dialog = Dialog(self, proforma)
-
-        if dialog.exec_():
-            try:
-                phone_numbers = get_whatsapp_phone(proforma, partner=dialog.partner.isChecked())
-
-            except ValueError as ex:
-                QMessageBox.critical(self, 'Error', str(ex))
+        Dialog(self, proforma).exec_()
 
 
     def proformas_sales_export_handler(self):
-        # Don't need the object, but signals if one is selected
+        # Don't need the object, but signals if one is   selected
         proforma = self.get_sale_proforma()
         if not proforma:
             return
@@ -1077,7 +1071,11 @@ class MainGui(Ui_MainGui, QMainWindow):
             self.sip.show()
 
     def invoices_sales_whatsapp_handler(self):
-        print('whaatsapp')
+        invoice = self.get_sales_invoice()
+        if not invoice:
+            return
+        from partner_or_agent_form import Dialog
+        Dialog(self, invoice).exec_()
 
     def invoices_sales_ready_handler(self):
         invoice = self.get_sales_invoice()
@@ -1131,6 +1129,8 @@ class MainGui(Ui_MainGui, QMainWindow):
                 from dhl_form import Form
                 Form(self, resolved, unresolved).exec_()
 
+
+
     def invoices_sales_mail_handler(self):
         invoice = self.get_sales_invoice()
         if not invoice:
@@ -1151,7 +1151,6 @@ class MainGui(Ui_MainGui, QMainWindow):
 
         document = build_document(invoice)
         document.output(path1)
-
 
         try:
             export_invoices_sales_excel(invoice, path2)
