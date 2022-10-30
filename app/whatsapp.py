@@ -5,18 +5,11 @@ from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support import expected_conditions as ec
 from selenium.common.exceptions import ElementClickInterceptedException
-
-FILEPATH = r'C:\Users\Andrei\Desktop\learning.xlsx'
-PDF_PATH = r'C:\Users\Andrei\Desktop\JustificantePagoDGT.pdf'
 
 
 def send_whatsapp(pdf, phone, excel=None):
-    print('send_wahtsapp')
-    print('pdf=', pdf)
-    print('excel=', excel)
-
     if excel:
         paths = (pdf, excel)
     else:
@@ -36,7 +29,7 @@ def send_whatsapp(pdf, phone, excel=None):
 
     try:
         clip = WebDriverWait(driver, 20).until(
-            EC.presence_of_element_located((By.XPATH, clip_xpath))
+            ec.presence_of_element_located((By.XPATH, clip_xpath))
         )
 
         try:
@@ -48,10 +41,9 @@ def send_whatsapp(pdf, phone, excel=None):
 
         for file in paths:
             image_box = WebDriverWait(driver, 20).until(
-                EC.presence_of_element_located((By.XPATH, accept_xpath))
+                ec.presence_of_element_located((By.XPATH, accept_xpath))
             )
 
-            print(f'for: file: {file}')
             image_box.send_keys(file)
 
     except:
