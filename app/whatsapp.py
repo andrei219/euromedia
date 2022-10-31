@@ -1,3 +1,4 @@
+import os
 import time
 
 from selenium.webdriver.firefox.options import Options
@@ -10,6 +11,13 @@ from selenium.common.exceptions import ElementClickInterceptedException
 
 driver = None
 
+try:
+    profile_path = os.environ['FIREFOX_PROFILE_PATH']
+except KeyError:
+    raise
+
+# C:\Users\Andrei\AppData\Roaming\Mozilla\Firefox\Profiles\ad46gjms.default-release
+
 
 def send_whatsapp(pdf, phone, excel=None):
     global driver
@@ -19,7 +27,7 @@ def send_whatsapp(pdf, phone, excel=None):
     except AttributeError:
         pass
     except:
-        raise 
+        raise
 
     if excel:
         paths = (pdf, excel)
@@ -27,7 +35,7 @@ def send_whatsapp(pdf, phone, excel=None):
         paths = (pdf, )
 
     url = 'https://web.whatsapp.com/send?phone={phone}'
-    profile = FirefoxProfile(r'C:\Users\Andrei\AppData\Roaming\Mozilla\Firefox\Profiles\ad46gjms.default-release')
+    profile = FirefoxProfile(profile_path)
 
     options = Options()
     options.binary_location = r'C:\Program Files\Mozilla Firefox\firefox.exe'
