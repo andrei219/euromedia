@@ -16,8 +16,6 @@ try:
 except KeyError:
     raise
 
-# C:\Users\Andrei\AppData\Roaming\Mozilla\Firefox\Profiles\ad46gjms.default-release
-
 
 def send_whatsapp(pdf, phone, excel=None):
     global driver
@@ -44,7 +42,6 @@ def send_whatsapp(pdf, phone, excel=None):
     driver.maximize_window()
 
     clip_xpath = '//div[@title="Adjuntar"]'
-    # attach_document_xpath = '//span[@data-testid="attach-document"]'
 
     try:
         clip = WebDriverWait(driver, 20).until(
