@@ -1000,6 +1000,29 @@ class SaleProforma(Base):
         except AttributeError:
             return 0
 
+    def is_paid_with_debt(self, debt):
+        return math.isclose(debt + self.total_paid, self.total_debt)
+
+    def is_partially_paid_with_debt(self, debt):
+        return 0 < (debt + self.total_paid) < self.total_debt
+
+    def is_overpaid_with_debt(self, debt):
+        return self.total_debt < (debt + self.total_paid)
+
+    @property
+    def financial_status_string(self):
+        if self.is_credit_note:
+            return self.invoice.financial_status_string
+        else:
+            if self.not_paid:
+                return 'Not Paid'
+            elif self.fully_paid:
+                return 'Paid'
+            elif self.partially_paid:
+                return 'Partially Paid'
+            elif self.overpaid:
+                return 'Overpaid'
+
 
 
 class SalePayment(Base):
@@ -1057,6 +1080,7 @@ class SaleDocument(Base):
     )
 
     proforma = relationship('SaleProforma', backref=backref('documents'))
+
 
 import functools
 
@@ -1182,8 +1206,27 @@ class SaleInvoice(Base):
         elif proforma.completed:
             return 'Completed'
 
+    def has_children(self):
+        return session.query(exists().where(SaleInvoice.parent_id == self.id)).scalar()
+
+    def get_children_debt(self):
+        """ For each invoice applied to this invoice
+            diff = distance(total, sum(payments))
+            This represents the value that the customer has right to.
+        """
+        return abs(
+            sum(
+                invoice.total_debt - invoice.total_paid
+                for invoice in session.query(SaleInvoice).where(
+                    SaleInvoice.parent_id == self.id
+                )
+            )
+        )
+
+
     @property
     def financial_status_string(self):
+        proforma: SaleProforma
         proforma = self.proformas[0]
         if proforma.is_credit_note:
             applied = self.applied
@@ -1199,14 +1242,23 @@ class SaleInvoice(Base):
             elif math.isclose(self.total_paid, self.total_debt):
                 return 'Paid'
         else:
-            if proforma.not_paid:
-                return 'Not Paid'
-            elif proforma.fully_paid:
-                return 'Paid'
-            elif proforma.partially_paid:
-                return 'Partially Paid'
-            elif proforma.overpaid:
-                return 'We Owe'
+            if self.has_children():
+                debt = self.get_children_debt()
+                if proforma.is_paid_with_debt(debt):
+                    return 'Paid'
+                elif proforma.is_partially_paid_with_debt(debt):
+                    return 'Partially Paid'
+                elif proforma.is_overpaid_with_debt(debt):
+                    return 'We Owe'
+            else:
+                if proforma.not_paid:
+                    return 'Not Paid'
+                elif proforma.fully_paid:
+                    return 'Paid'
+                elif proforma.partially_paid:
+                    return 'Partially Paid'
+                elif proforma.overpaid:
+                    return 'We Owe'
 
 
     @property

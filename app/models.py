@@ -833,9 +833,9 @@ class SaleInvoiceModel(BaseTable, QtCore.QAbstractTableModel):
 
             elif col == self.FINANCIAL:
 
-                if financial_status_string == 'Not Paid':
+                if financial_status_string in ('Not Paid', 'New'):
                     return QtGui.QColor(YELLOW)
-                elif financial_status_string == 'Paid' or financial_status_string == 'Applied':
+                elif financial_status_string in ('Paid', 'Applied', 'Paid/Applied'):
                     return QtGui.QColor(GREEN)
                 elif financial_status_string == 'Partially Paid':
                     return QtGui.QColor(ORANGE)
@@ -1815,6 +1815,8 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
         row, col = index.row(), index.column()
         proforma = self.proformas[row]
 
+
+        financial_status_string = proforma.financial_status_string
         if role == Qt.DisplayRole:
             if col == self.TYPE_NUM:
                 s = str(proforma.type) + '-' + str(proforma.number).zfill(6)
@@ -1839,18 +1841,7 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
                 return 'Yes' if proforma.expedition is not None else 'No'
 
             elif col == self.FINANCIAL:
-
-                if proforma.is_credit_note and proforma.applied:
-                    return 'Applied'
-
-                if proforma.not_paid:
-                    return 'Not Paid'
-                elif proforma.fully_paid:
-                    return 'Paid'
-                elif proforma.partially_paid:
-                    return 'Partially Paid'
-                elif proforma.overpaid:
-                    return 'We Owe'
+                return financial_status_string
 
             elif col == self.LOGISTIC:
 
@@ -1891,17 +1882,14 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 
         elif role == Qt.DecorationRole:
             if col == self.FINANCIAL:
-                if proforma.is_credit_note and proforma.applied:
-                    return QtGui.QColor(GREEN)
-
-                if proforma.not_paid:
+                if financial_status_string in('Not Paid', 'New'):
                     return QtGui.QColor(YELLOW)
-                elif proforma.fully_paid:
+                elif financial_status_string in ('Paid', 'Applied', 'Paid/Applied'):
                     return QtGui.QColor(GREEN)
-                elif proforma.partially_paid:
+                elif financial_status_string == 'Partially Paid':
                     return QtGui.QColor(ORANGE)
-                elif proforma.overpaid:
-                    return QtGui.QColor(YELLOW)
+                elif financial_status_string == 'We Owe':
+                    return QtGui.QColor(RED)
 
             elif col == self.DATE:
                 return QtGui.QIcon(':\calendar')
@@ -6242,15 +6230,15 @@ class AvailableNoteModel(BaseTable, QtCore.QAbstractTableModel):
         for row in rows:
             invoice = self.invoices[row]
             invoice.parent_id = self.parent_invoice.id
-            self.parent_invoice.proformas[0].payments.append(
-                db.SalePayment(
-                    date=invoice.date,
-                    amount=invoice.subtotal,
-                    rate=1.0,
-                    note=invoice.cn_repr,
-                    proforma=self.parent_invoice.proformas[0]
-                )
-            )
+            # self.parent_invoice.proformas[0].payments.append(
+            #     db.SalePayment(
+            #         date=invoice.date,
+            #         amount=invoice.subtotal,
+            #         rate=1.0,
+            #         note=invoice.cn_repr,
+            #         proforma=self.parent_invoice.proformas[0]
+            #     )
+            # )
 
         try:
             db.session.commit()
@@ -6288,8 +6276,8 @@ class AppliedNoteModel(BaseTable, QtCore.QAbstractTableModel):
         for row in rows:
             invoice = self.invoices[row]
             invoice.parent_id = None
-            stmt = delete(db.SalePayment).where(db.SalePayment.note == invoice.cn_repr)
-            db.session.execute(stmt)
+            # stmt = delete(db.SalePayment).where(db.SalePayment.note == invoice.cn_repr)
+            # db.session.execute(stmt)
             try:
                 db.session.commit()
             except Exception as ex:
