@@ -14,6 +14,7 @@ from models import export_invoices_sales_excel
 
 import os
 
+
 class Dialog(Ui_Dialog, QDialog):
 
     def __init__(self, parent, proforma_or_invoice):
@@ -47,15 +48,10 @@ class Dialog(Ui_Dialog, QDialog):
             return
 
         temp_dir = os.path.abspath(os.path.join(os.curdir, 'temp'))
-        print(f'temp_dir={temp_dir}')
         pdf_document = build_document(self.proforma_or_invoice)
-        print('pdf_document', pdf_document)
 
         doc_repr = self.proforma_or_invoice.doc_repr
-        print('doc-repr=', doc_repr)
         pdf_path = os.path.join(temp_dir, doc_repr + '.pdf')
-
-        print(f'pdf_path={pdf_path}')
 
         pdf_document.output(pdf_path)
 
@@ -63,7 +59,6 @@ class Dialog(Ui_Dialog, QDialog):
             excel_path = os.path.join(temp_dir, 'series ' + doc_repr + '.xlsx')
             export_invoices_sales_excel(self.proforma_or_invoice, excel_path)
 
-            print('excel_path', excel_path)
         try:
             send_whatsapp(pdf_path, phone, excel=excel_path)
 

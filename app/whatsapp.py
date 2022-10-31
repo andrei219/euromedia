@@ -8,8 +8,19 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.common.exceptions import ElementClickInterceptedException
 
+driver = None
+
 
 def send_whatsapp(pdf, phone, excel=None):
+    global driver
+
+    try:
+        driver.quit()
+    except AttributeError:
+        pass
+    except:
+        raise 
+
     if excel:
         paths = (pdf, excel)
     else:
