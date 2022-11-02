@@ -216,7 +216,10 @@ class MainGui(Ui_MainGui, QMainWindow):
             paid += sum(p.amount for p in doc.payments)
             total += doc.total_debt
             device_count += doc.device_count
-            owing = total - paid
+            try:
+                owing += doc.financial_status_dependant_debt
+            except AttributeError:
+                owing += total - paid
 
         name = view.objectName()
         prefix = name[0:name.rfind('_') + 1]

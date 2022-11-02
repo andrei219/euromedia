@@ -887,19 +887,31 @@ class SaleProforma(Base):
         return functools.reduce(operator.xor, (hash(x) for x in (self.type, self.number)), 0)
 
     @property
+    def financial_status_independent_debt(self):
+        return round(self.total_debt - self.total_paid, 2)
+
+
+    @property
+    def financial_status_dependant_debt(self):
+        try:
+            return self.invoice.financial_status_dependant_debt
+        except AttributeError:
+            return self.financial_status_independent_debt
+
+    @property
     def doc_repr(self):
         return str(self.type) + '-' + str(self.number).zfill(6)
 
     @property
     def subtotal(self):
-        return round(sum(line.price * line.quantity for line in self.lines) or \
-               sum(line.price * line.quantity for line in self.advanced_lines) or \
+        return round(sum(line.price * line.quantity for line in self.lines) or
+               sum(line.price * line.quantity for line in self.advanced_lines) or
                sum(line.price * line.quantity for line in self.credit_note_lines), 2)
 
     @property
     def tax(self):
-        return round(sum(line.price * line.quantity * line.tax / 100 for line in self.lines) or \
-               sum(line.price * line.quantity * line.tax / 100 for line in self.advanced_lines) or \
+        return round(sum(line.price * line.quantity * line.tax / 100 for line in self.lines) or
+               sum(line.price * line.quantity * line.tax / 100 for line in self.advanced_lines) or
                sum(line.price * line.quantity * line.tax / 100 for line in self.credit_note_lines), 2)
 
     @property
@@ -1011,9 +1023,13 @@ class SaleProforma(Base):
 
     @property
     def financial_status_string(self):
-        if self.is_credit_note:
+        # En la factura existe más lógica que cubre
+        # Los estados relaciondos con las devolcuciones
+        # y notas de crédito. Si existe, vamos a delegar en
+        # ella los calculos y no repetirnos aqui .
+        try:
             return self.invoice.financial_status_string
-        else:
+        except AttributeError:
             if self.not_paid:
                 return 'Not Paid'
             elif self.fully_paid:
@@ -1118,6 +1134,17 @@ class SaleInvoice(Base):
         self.number = number
 
     @property
+    def financial_status_independent_debt(self):
+        return round(sum(p.financial_status_independent_debt for p in self.proformas),2)
+
+    @property
+    def financial_status_dependant_debt(self):
+        status = self.financial_status_string
+        if status in ('Paid', 'Applied', 'Returned/Applied'):
+            return 0.0
+        return self.financial_status_independent_debt
+
+    @property
     def payments(self):
         return [payment for proforma in self.proformas for payment in proforma.payments]
 
@@ -1128,14 +1155,17 @@ class SaleInvoice(Base):
     @property
     def cn_total(self):
         return round(sum(
-            invoice.subtotal for invoice in session.query(SaleInvoice).
+            invoice.financial_status_dependant_debt
+            for invoice in session.query(SaleInvoice).
             where(SaleInvoice.parent_id == self.id)
         ), 2)
 
     @property
     def applied(self):
-        return session.query(SaleInvoice.parent_id).\
-            where(SaleInvoice.id == self.id).scalar() is not None
+        return self.parent_id is not None
+
+       # return session.query(SaleInvoice.parent_id).\
+        #    where(SaleInvoice.id == self.id).scalar() is not None
 
 
     @property
@@ -1215,7 +1245,7 @@ class SaleInvoice(Base):
         """
         return abs(
             sum(
-                invoice.total_debt - invoice.total_paid
+                invoice.financial_status_independent_debt
                 for invoice in session.query(SaleInvoice).where(
                     SaleInvoice.parent_id == self.id
                 )
@@ -1238,7 +1268,7 @@ class SaleInvoice(Base):
             elif applied and payments:
                 return 'Returned/Applied'
             elif math.isclose(self.total_paid, self.total_debt):
-                return 'Paid'
+                return 'Returned'
         else:
             if self.has_children():
                 debt = self.get_children_debt()
@@ -1288,7 +1318,7 @@ class SaleInvoice(Base):
 
     @property
     def owing_string(self):
-        return str(self.total_debt - self.total_paid) + self.currency
+        return str(self.financial_status_dependant_debt) + self.currency
 
     @property
     def total(self):

@@ -803,7 +803,7 @@ class SaleInvoiceModel(BaseTable, QtCore.QAbstractTableModel):
 
                 if financial_status_string in ('Not Paid', 'New'):
                     return QtGui.QColor(YELLOW)
-                elif financial_status_string in ('Paid', 'Applied', 'Returned/Applied'):
+                elif financial_status_string in ('Paid', 'Applied', 'Returned/Applied', 'Returned'):
                     return QtGui.QColor(GREEN)
                 elif financial_status_string in ('Partially Paid', 'Partially Returned'):
                     return QtGui.QColor(ORANGE)
@@ -1830,7 +1830,9 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
                 return 'Yes' if proforma.cancelled else 'No'
             elif col == self.OWING:
                 sign = ' -€' if proforma.eur_currency else ' $'
-                owes = round(proforma.total_debt - proforma.total_paid, 2)
+
+                owes = proforma.financial_status_dependant_debt
+                owes = round(owes)
                 return str(owes) + sign
 
             elif col == self.TOTAL:
@@ -1851,7 +1853,7 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
             if col == self.FINANCIAL:
                 if financial_status_string in ('Not Paid', 'New'):
                     return QtGui.QColor(YELLOW)
-                elif financial_status_string in ('Paid', 'Applied', 'Returned/Applied'):
+                elif financial_status_string in ('Paid', 'Applied', 'Returned/Applied', 'Returned'):
                     return QtGui.QColor(GREEN)
                 elif financial_status_string in ('Partially Paid', 'Partially Returned'):
                     return QtGui.QColor(ORANGE)
@@ -5793,9 +5795,7 @@ class RmaIncomingModel(BaseTable, QtCore.QAbstractTableModel):
         # Raises value error if invoice type not found
         lines = []
         for line in rma_order.lines:
-            print('for loop')
             if line.accepted:
-                print('if line.accepted')
                 wh_rma_order.lines.append(db.WhIncomingRmaLine(line))
 
         for line in rma_order.lines:
