@@ -184,38 +184,6 @@ class AgentModel(QtCore.QAbstractTableModel):
             db.session.rollback()
             raise
 
-    def update(self, agent):
-        # for old_agent in self.agents:
-        # 	if old_agent.id == agent.id:
-        # 		break
-        # old_agent.fiscal_name = agent.fiscal_name
-        # old_agent.fiscal_number = agent.fiscal_number
-        # old_agent.email = agent.email
-        # old_agent.phone = agent.phone
-        # old_agent.active = agent.active
-        # old_agent.country = agent.country
-        # old_agent.fixed_salary = agent.fixed_salary
-        # old_agent.from_profit = agent.from_profit
-        # old_agent.from_turnover = agent.from_turnover
-        # old_agent.fixed_perpiece = agent.fixed_perpiece
-        # old_agent.bank_name = agent.bank_name
-        # old_agent.iban = agent.iban
-        # old_agent.swift = agent.swift
-        # old_agent.bank_address = agent.bank_address
-        # old_agent.bank_postcode = agent.bank_postcode
-        # old_agent.bank_city = agent.bank_city
-        # old_agent.bank_state = agent.bank_state
-        # old_agent.bank_country = agent.bank_country
-        # old_agent.bank_routing = agent.bank_routing
-
-        # try:
-        # 	db.session.commit()
-        # 	print('commit executed')
-        # except:
-        # 	db.session.rollback()
-        # 	raise
-        # self.dataChanged.emit(QModelIndex(), QModelIndex())
-
         try:
             self.layoutAboutToBeChanged.emit()
             db.session.commit()
@@ -835,9 +803,9 @@ class SaleInvoiceModel(BaseTable, QtCore.QAbstractTableModel):
 
                 if financial_status_string in ('Not Paid', 'New'):
                     return QtGui.QColor(YELLOW)
-                elif financial_status_string in ('Paid', 'Applied', 'Paid/Applied'):
+                elif financial_status_string in ('Paid', 'Applied', 'Returned/Applied'):
                     return QtGui.QColor(GREEN)
-                elif financial_status_string == 'Partially Paid':
+                elif financial_status_string in ('Partially Paid', 'Partially Returned'):
                     return QtGui.QColor(ORANGE)
                 elif financial_status_string == 'We Owe':
                     return QtGui.QColor(RED)
@@ -1815,7 +1783,6 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
         row, col = index.row(), index.column()
         proforma = self.proformas[row]
 
-
         financial_status_string = proforma.financial_status_string
         if role == Qt.DisplayRole:
             if col == self.TYPE_NUM:
@@ -1882,11 +1849,11 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 
         elif role == Qt.DecorationRole:
             if col == self.FINANCIAL:
-                if financial_status_string in('Not Paid', 'New'):
+                if financial_status_string in ('Not Paid', 'New'):
                     return QtGui.QColor(YELLOW)
-                elif financial_status_string in ('Paid', 'Applied', 'Paid/Applied'):
+                elif financial_status_string in ('Paid', 'Applied', 'Returned/Applied'):
                     return QtGui.QColor(GREEN)
-                elif financial_status_string == 'Partially Paid':
+                elif financial_status_string in ('Partially Paid', 'Partially Returned'):
                     return QtGui.QColor(ORANGE)
                 elif financial_status_string == 'We Owe':
                     return QtGui.QColor(RED)
@@ -5816,7 +5783,7 @@ class RmaIncomingModel(BaseTable, QtCore.QAbstractTableModel):
             self.orders.sort(key=operator.attrgetter(attr), reverse=reverse)
             self.layoutChanged.emit()
 
-    def to_warehouse(self, row):
+    def to_warehouse_old(self, row):
         rma_order: db.IncomingRma = self.orders[row]
         wh_rma_order = db.WhIncomingRma(rma_order)
 
@@ -5824,14 +5791,38 @@ class RmaIncomingModel(BaseTable, QtCore.QAbstractTableModel):
             raise ValueError('Rma not accepted. I will not send to WH')
 
         # Raises value error if invoice type not found
+        lines = []
         for line in rma_order.lines:
+            print('for loop')
             if line.accepted:
+                print('if line.accepted')
                 wh_rma_order.lines.append(db.WhIncomingRmaLine(line))
+
+        for line in rma_order.lines:
+            if line.accpeted:
+                lines.append(db.WhIncomingRmaLine(line))
+
+
         try:
             db.session.commit()
         except IntegrityError as ex:
             db.session.rollback()
             raise ValueError('Wh order already exists')
+
+    def to_warehouse(self, row):
+        rma_order = self.orders[row]
+
+        if all(not line.accepted for line in rma_order.lines):
+            raise ValueError('Rma not accepted. I will not send to WH')
+
+        lines = []
+        for line in rma_order.lines:
+            if line.accepted:
+                lines.append(db.WhIncomingRmaLine(line))
+
+        wh_order = db.WhIncomingRma(rma_order)
+        wh_order.lines.extend(lines)
+        db.session.commit() # No posible error raising
 
     def __getitem__(self, item):
         return self.orders[item]

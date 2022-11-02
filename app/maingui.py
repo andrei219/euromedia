@@ -1327,6 +1327,8 @@ class MainGui(Ui_MainGui, QMainWindow):
         try:
             self.rmas_incoming_model.to_warehouse(row)
         except ValueError as ex:
+            print('catched value error')
+            print(str(ex))
             QMessageBox.critical(self, 'Error', str(ex))
         else:
             QMessageBox.information(self, 'Error', 'RMA WH order created')

@@ -87,8 +87,7 @@ class Form(Ui_ExpeditionForm, QDialog):
             self.populateBody()
         else:
             line = self.expedition.lines[self.current_index]
-            print(f'line={line}')
-            serie = self.imei.text() 
+            serie = self.imei.text()
             if not serie:
                 return 
             try:

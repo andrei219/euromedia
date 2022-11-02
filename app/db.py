@@ -1024,7 +1024,6 @@ class SaleProforma(Base):
                 return 'Overpaid'
 
 
-
 class SalePayment(Base):
 
     __tablename__ = 'sale_payments'
@@ -1223,7 +1222,6 @@ class SaleInvoice(Base):
             )
         )
 
-
     @property
     def financial_status_string(self):
         proforma: SaleProforma
@@ -1236,9 +1234,9 @@ class SaleInvoice(Base):
             elif not applied and not payments:
                 return 'New'
             elif not applied and self.total_debt < self.total_paid < 0:
-                return 'Partially Paid'
+                return 'Partially Returned'
             elif applied and payments:
-                return 'Paid/Applied'
+                return 'Returned/Applied'
             elif math.isclose(self.total_paid, self.total_debt):
                 return 'Paid'
         else:

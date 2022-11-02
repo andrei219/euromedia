@@ -470,7 +470,7 @@ class Form(Ui_SalesProformaForm, QWidget):
                 self.lines_model.insert_free(
                     description,
                     dialog.quantity.value(),
-                    dialog.price.value() ,
+                    dialog.price.value(),
                     int(dialog.tax.currentText())
                 )
             
@@ -505,9 +505,6 @@ class Form(Ui_SalesProformaForm, QWidget):
             return
 
         requested_stocks = self.stock_model.requested_stocks
-
-        for stock in requested_stocks:
-            print(stock)
 
         price = self.price.value()
         ignore = self.ignore.isChecked()
