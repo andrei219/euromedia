@@ -1678,7 +1678,11 @@ def update_sale_warehouse(proforma):
         return
 
     wh_lines = set(proforma.expedition.lines)
-    pr_lines = set(proforma.lines or proforma.advanced_lines)
+    pr_lines = set(
+        [d for line in proforma.advanced_lines for d in line.definitions]
+        or proforma.lines
+        or proforma.advanced_lines
+    )
 
     for line in wh_lines.difference(pr_lines):
         line.quantity = 0
