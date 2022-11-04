@@ -1396,6 +1396,7 @@ class AdvancedLine(Base):
     definitions = relationship('AdvancedLineDefinition', backref='line',
                                cascade='delete-orphan, save-update, delete')
 
+
 class AdvancedLineDefinition(Base):
 
     __tablename__ = 'advanced_lines_definition'
@@ -1414,7 +1415,6 @@ class AdvancedLineDefinition(Base):
 
     item = relationship('Item', uselist=False)
 
-
     def __eq__(self, other):
         return all((
             other.item_id == self.item_id,
@@ -1425,7 +1425,6 @@ class AdvancedLineDefinition(Base):
     def __hash__(self):
         hashes = (hash(x) for x in (self.item_id, self.spec, self.condition))
         return functools.reduce(operator.xor, hashes, 0)
-
 
     def __init__(self, item_id, condition, spec, quantity, showing_condition):
         self.item_id = item_id

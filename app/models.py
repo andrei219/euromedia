@@ -2428,6 +2428,7 @@ class OrganizedLines:
         lines = self.organized_lines[row]
         if isinstance(lines, Iterable):
             for line in lines:
+                print(f'line={line}, condition={condition}')
                 line.showing_condition = condition
         else:
             lines.showing_condition = condition
@@ -2604,9 +2605,13 @@ class SaleProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
                 else:
                     updated = self.organized_lines.update_price(row, price)
 
+            db.session.commit()
+
             if updated:
                 self.form.update_totals()
                 return True
+
+
             return False
         return False
 
@@ -6664,10 +6669,10 @@ def get_sale_breakdown(proforma):
     for expense in proforma.expenses:
         for candidate in candidates:
             if expense.note.lower().find(candidate.lower()) != -1:
-                shipping_cost -= expense.amount
+                shipping_cost += expense.amount
                 break
         else:
-            remaining_cost -= expense.amount
+            remaining_cost += expense.amount
 
     return remaining_cost, shipping_cost, terms
 
@@ -6727,7 +6732,7 @@ def do_sale_price(imei):
         # We need several process for each type of lines sale contains hence the swich
         if proforma.credit_note_lines:  # Rma check, Provisional, We need to define how to process rma
             return SaleRow()
-        # We need several process for each type of lines sale contains hence the switch
+        # We need several processes for each type of lines sale contains hence the switch
         elif proforma.lines:
             for aux in proforma.lines:
                 if aux == exp_line:
@@ -6750,10 +6755,13 @@ def do_sale_price(imei):
             raise ValueError('Fatal error could not match warehouse with sale proforma')
 
         avg_rate = get_avg_rate(proforma)
-
         base_price = proforma_line.price
 
         remaining_expense, shipping_expense, terms = get_sale_breakdown(proforma)
+        if remaining_expense < 0:
+            print(proforma.doc_repr, f'remaining_expense={remaining_expense}')
+
+
 
         # Compute deltas:
         shipping_delta = shipping_expense / proforma.total_quantity
