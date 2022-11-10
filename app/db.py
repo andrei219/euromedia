@@ -1519,7 +1519,6 @@ class AdvancedLineDefinition(Base):
         hashes = (hash(x) for x in (self.item_id, self.spec, self.condition))
         return functools.reduce(operator.xor, hashes, 0)
 
-
     def __init__(self, item_id, condition, spec, quantity, showing_condition):
         self.item_id = item_id
         self.condition = condition
@@ -2415,6 +2414,16 @@ class IncomingRmaLine(Base):
                                 self.price = line.price
 
         return self
+
+
+class ManyManySales(Base):
+
+    sale_id = Column(ForeignKey('sale_invoices.id'), nullable=False, primary_key=True)
+    credit_id = Column(ForeignKey('sale_invoices.id'), nullable=False, primary_key=True)
+
+    fraction = Column(Float, nullable=False)
+
+
 
 
 def create_init_data():
