@@ -4892,6 +4892,8 @@ class ReceptionSeriesModel:
             where(db.Reception.id == reception.id).all()
 
     def add(self, line, serie, description, condition, spec):
+
+
         if serie.lower() in [o.serie.lower() for o in self.reception_series]:
             raise ValueError('Serie already processed in this reception order')
 

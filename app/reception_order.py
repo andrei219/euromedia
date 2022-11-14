@@ -195,7 +195,7 @@ class Form(QDialog, Ui_Form):
         try:
             index = self.view.model().index(0, 0)
             self.view.setCurrentIndex(index)
-        except: pass 
+        except: pass
 
         self.update_overflow_condition()
         self.set_actual_item_completer()
@@ -224,6 +224,10 @@ class Form(QDialog, Ui_Form):
         self.populate_body()
 
     def commit_handler(self):
+
+        if self.reception.auto:
+            QMessageBox.critical(self, 'Error', "Can't update here. Go to associated expedition.")
+            return
 
         if self.imei_check.isChecked():
             from pyvalidator import is_imei
