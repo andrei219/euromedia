@@ -2418,12 +2418,12 @@ class IncomingRmaLine(Base):
 
 class ManyManySales(Base):
 
+    __tablename__ = 'many_manies'
+
     sale_id = Column(ForeignKey('sale_invoices.id'), nullable=False, primary_key=True)
     credit_id = Column(ForeignKey('sale_invoices.id'), nullable=False, primary_key=True)
 
     fraction = Column(Float, nullable=False)
-
-
 
 
 def create_init_data():

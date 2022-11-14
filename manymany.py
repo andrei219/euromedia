@@ -25,6 +25,10 @@ class User(Base):
     name = Column(String(255), nullable=False)
     age = Column(String, nullable=False)
 
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+
 
 class ManyMany(Base):
 
@@ -37,8 +41,13 @@ class ManyMany(Base):
 
 
 if __name__ == '__main__':
-    Base.metadata.create_all(engine)
 
+    session.add_all([
+        User('Andrei', 27),
+        User('Manuel', 22),
+        User('Juan', 11)
 
+    ])
 
+    session.commit()
 
