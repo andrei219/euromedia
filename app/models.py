@@ -6197,7 +6197,7 @@ def build_credit_note_and_commit(partner_id, agent_id, order, candidates):
     return proforma
 
 
-class AvailableNoteModel(BaseTable, QtCore.QAbstractTableModel):
+class AvailableNoteModel_old(BaseTable, QtCore.QAbstractTableModel):
     DOCUMENT, SUBTOTAL = 0, 1
 
     def __init__(self, invoice):
@@ -6250,7 +6250,7 @@ class AvailableNoteModel(BaseTable, QtCore.QAbstractTableModel):
                 return invoice.subtotal
 
 
-class AppliedNoteModel(BaseTable, QtCore.QAbstractTableModel):
+class AppliedNoteModel_old(BaseTable, QtCore.QAbstractTableModel):
     DOCUMENT, SUBTOTAL = 0, 1
 
     def __init__(self, invoice):
@@ -6288,6 +6288,33 @@ class AppliedNoteModel(BaseTable, QtCore.QAbstractTableModel):
     @property
     def credit_notes_subtotal(self):
         return sum(i.subtotal for i in self.invoices)
+
+# On invoice
+class AvailableCreditNotesModel:
+    def __init__(self, invoice):
+        self.invoice = invoice
+        
+
+
+#On sale invoice form, Show which invoices applied and how much
+class AppliedCreditNotesModel:
+
+    def __init__(self, invoice):
+        self.invoice = invoice
+        query = db.session.query(db.SaleInvoice).\
+            join(db.ManyManySales, db.ManyManySales.credit_id == db.SaleInvoice.id).\
+            where(db.ManyManySales.sale_id == self.invoice.id)
+
+
+# on credit note form, show where applied and how much
+class WhereCreditNotesModel:
+
+    def __init__(self, credit_note):
+        self.credit_note = credit_note
+
+        query = db.session.query(db.SaleInvoice).\
+            join(db.ManyManySales, db.ManyManySales.sale_id == db.SaleInvoice.id).\
+            where(db.ManyManySales.credit_id == self.invoice.id)
 
 
 class SIIInvoice:
@@ -7665,8 +7692,6 @@ class SwitchModel(QtCore.QAbstractListModel):
 
      def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
          pass
-
-
 
 
 def caches_clear():
