@@ -11,6 +11,8 @@ SELECT AUX.ID, MANY_MANIES.CREDIT_ID
              AND SALE_PROFORMAS.WAREHOUSE_ID IS NULL) AS AUX
      LEFT OUTER JOIN MANY_MANIES ON AUX.ID = MANY_MANIES.CREDIT_ID;
 
+     
+
 Apartado B):
 
 	1. calcular los totales en sql tal que obtenemos un resultado:

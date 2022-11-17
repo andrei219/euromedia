@@ -6289,6 +6289,7 @@ class AppliedNoteModel_old(BaseTable, QtCore.QAbstractTableModel):
     def credit_notes_subtotal(self):
         return sum(i.subtotal for i in self.invoices)
 
+
 # On invoice
 class AvailableCreditNotesModel:
     def __init__(self, invoice):
