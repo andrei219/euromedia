@@ -59,6 +59,9 @@ class Register:
         self.partner = invoice.partner_name
         self.agent = invoice.agent
         self.financial = invoice.financial_status_string
+
+        if self.financial is None:
+            self.financial = 'Not Found'
         self.subtotal = dot_comma_number_repr('{:,.2f}'.format(invoice.subtotal))
         self.tax = dot_comma_number_repr('{:,.2f}'.format(invoice.tax))
         self.debt = dot_comma_number_repr('{:,.2f}'.format(invoice.total_debt))
