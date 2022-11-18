@@ -17,3 +17,4 @@ if __name__ == '__main__':
         where(SaleInvoice.id == 199).one()
 
     model = WhereCreditNotesModel(credit)
+

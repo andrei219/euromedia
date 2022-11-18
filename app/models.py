@@ -6306,6 +6306,9 @@ class AppliedCreditNotesModel:
             join(db.ManyManySales, db.ManyManySales.credit_id == db.SaleInvoice.id).\
             where(db.ManyManySales.sale_id == self.invoice.id)
 
+        for elm in query:
+            print(elm, elm.id)
+
 
 # on credit note form, show where applied and how much
 class WhereCreditNotesModel:
@@ -6315,7 +6318,10 @@ class WhereCreditNotesModel:
 
         query = db.session.query(db.SaleInvoice).\
             join(db.ManyManySales, db.ManyManySales.sale_id == db.SaleInvoice.id).\
-            where(db.ManyManySales.credit_id == self.invoice.id)
+            where(db.ManyManySales.credit_id == self.credit_note.id)
+
+        for elm in query:
+            print(elm, elm.id)
 
 
 class SIIInvoice:

@@ -1,3 +1,4 @@
+from dropbox import secondary_emails
 from mysqlx import Column
 from sqlalchemy import create_engine, event, insert, update, delete
 from sqlalchemy.orm import sessionmaker, scoped_session
@@ -1115,6 +1116,22 @@ class SaleInvoice(Base):
     wh_incoming_rma_id = Column(Integer, ForeignKey('wh_incoming_rmas.id'), nullable=True)
 
     wh_incoming_rma = relationship('WhIncomingRma', backref=backref('invoices'))
+
+    applied_credit_notes = relationship(
+        "SaleInvoice",
+        secondary="many_manies",
+        primaryjoin="ManyManySales.sale_id==SaleInvoice.id",
+        secondaryjoin="SaleInvoice.id == ManyManySales.credit_id",
+        viewonly=True
+    )
+
+    where_applied = relationship(
+        "SaleInvoice",
+        secondary="many_manies",
+        primaryjoin="ManyManySales.credit_id == SaleInvoice.id",
+        secondaryjoin="SaleInvoice.id == ManyManySales.sale_id", viewonly=True
+    )
+
 
     def get_device_count(self, series):
         count = 0
@@ -2425,6 +2442,9 @@ class ManyManySales(Base):
 
     fraction = Column(Float, nullable=False)
 
+    def __repr__(self):
+        clsname = self.__class__.__name__
+        return f"{clsname}(sale_id={self.sale_id}, credit_id={self.credit_id}, fraction={self.fraction})"
 
 def create_init_data():
     spec = Spec('Mix')
