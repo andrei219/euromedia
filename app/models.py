@@ -771,7 +771,7 @@ class SaleInvoiceModel(BaseTable, QtCore.QAbstractTableModel):
 
         # Avoid double computations: display and decoration branches
         logistic_status_string = invoice.logistic_status_string
-        financial_status_string = invoice.financial_status_string
+        financial_status_string:str = invoice.financial_status_string
         ready_status_string = invoice.ready
 
         if role == Qt.DisplayRole:
@@ -800,15 +800,15 @@ class SaleInvoiceModel(BaseTable, QtCore.QAbstractTableModel):
                 return QtGui.QIcon(':\calendar')
 
             elif col == self.FINANCIAL:
-
-                if financial_status_string in ('Not Paid', 'New'):
-                    return QtGui.QColor(YELLOW)
-                elif financial_status_string in ('Paid', 'Applied', 'Returned/Applied', 'Returned'):
-                    return QtGui.QColor(GREEN)
-                elif financial_status_string in ('Partially Paid', 'Partially Returned'):
-                    return QtGui.QColor(ORANGE)
-                elif financial_status_string == 'We Owe':
-                    return QtGui.QColor(RED)
+                if financial_status_string in ('Not Paid', 'Not Returned'):
+                    color = YELLOW
+                elif financial_status_string in ('Returned', 'Paid'):
+                    color = GREEN
+                elif financial_status_string.find('Partially') == 0:
+                    color = ORANGE
+                elif financial_status_string.find('Over') == 0:
+                    color = RED
+                return QtGui.QColor(color)
 
             elif col == self.LOGISTIC:
                 if logistic_status_string == 'Empty':
@@ -816,7 +816,6 @@ class SaleInvoiceModel(BaseTable, QtCore.QAbstractTableModel):
                 elif logistic_status_string == 'Overflowed':
                     return QtGui.QColor(RED)
                 elif logistic_status_string == 'Partially Prepared':
-                    return QtGui.QColor(ORANGE)
                     return QtGui.QColor(ORANGE)
                 elif logistic_status_string == 'Completed':
                     return QtGui.QColor(GREEN)
@@ -1784,10 +1783,11 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
         proforma = self.proformas[row]
 
         financial_status_string = proforma.financial_status_string
+        sign = ' EUR' if proforma.eur_currency else ' USD'
+
         if role == Qt.DisplayRole:
             if col == self.TYPE_NUM:
-                s = str(proforma.type) + '-' + str(proforma.number).zfill(6)
-                return s
+                return proforma.doc_repr
             elif col == self.DATE:
                 return proforma.date.strftime('%d/%m/%Y')
             elif col == self.PARTNER:
@@ -1829,15 +1829,10 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
             elif col == self.CANCELLED:
                 return 'Yes' if proforma.cancelled else 'No'
             elif col == self.OWING:
-                sign = ' -€' if proforma.eur_currency else ' $'
-
-                owes = proforma.financial_status_dependant_debt
-                owes = round(owes)
-                return str(owes) + sign
+                return f"{proforma.owing} {sign}"
 
             elif col == self.TOTAL:
-                sign = ' -€' if proforma.eur_currency else ' $'
-                return str(proforma.total_debt) + sign
+                return f"{proforma.total_debt} {sign}"
 
             elif col == self.ADVANCED:
                 return 'Yes' if proforma.advanced_lines else 'No'
@@ -1851,14 +1846,15 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 
         elif role == Qt.DecorationRole:
             if col == self.FINANCIAL:
-                if financial_status_string in ('Not Paid', 'New'):
-                    return QtGui.QColor(YELLOW)
-                elif financial_status_string in ('Paid', 'Applied', 'Returned/Applied', 'Returned'):
-                    return QtGui.QColor(GREEN)
-                elif financial_status_string in ('Partially Paid', 'Partially Returned'):
-                    return QtGui.QColor(ORANGE)
-                elif financial_status_string == 'We Owe':
-                    return QtGui.QColor(RED)
+                if financial_status_string in ('Not Paid', 'Not Returned'):
+                    color = YELLOW
+                elif financial_status_string in ('Returned', 'Paid'):
+                    color = GREEN
+                elif financial_status_string.find('Partially') == 0:
+                    color = ORANGE
+                elif financial_status_string.find('Over') == 0:
+                    color = RED
+                return QtGui.QColor(color)
 
             elif col == self.DATE:
                 return QtGui.QIcon(':\calendar')
@@ -6295,7 +6291,6 @@ class AvailableCreditNotesModel:
     def __init__(self, invoice):
         self.invoice = invoice
         
-
 
 #On sale invoice form, Show which invoices applied and how much
 class AppliedCreditNotesModel:

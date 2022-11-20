@@ -887,17 +887,6 @@ class SaleProforma(Base):
     def __hash__(self):
         return functools.reduce(operator.xor, (hash(x) for x in (self.type, self.number)), 0)
 
-    @property
-    def financial_status_independent_debt(self):
-        return round(self.total_debt - self.total_paid, 2)
-
-
-    @property
-    def financial_status_dependant_debt(self):
-        try:
-            return self.invoice.financial_status_dependant_debt
-        except AttributeError:
-            return self.financial_status_independent_debt
 
     @property
     def doc_repr(self):
@@ -1024,10 +1013,6 @@ class SaleProforma(Base):
 
     @property
     def financial_status_string(self):
-        # En la factura existe más lógica que cubre
-        # Los estados relaciondos con las devolcuciones
-        # y notas de crédito. Si existe, vamos a delegar en
-        # ella los calculos y no repetirnos aqui .
         try:
             return self.invoice.financial_status_string
         except AttributeError:
@@ -1038,7 +1023,13 @@ class SaleProforma(Base):
             elif self.partially_paid:
                 return 'Partially Paid'
             elif self.overpaid:
-                return 'Overpaid'
+                return 'Over Paid'
+    @property
+    def owing(self):
+        try:
+            return self.invoice.owing
+        except AttributeError:
+            return self.total_debt - self.total_paid
 
 
 class SalePayment(Base):
@@ -1117,6 +1108,18 @@ class SaleInvoice(Base):
 
     wh_incoming_rma = relationship('WhIncomingRma', backref=backref('invoices'))
 
+    return_discounts = relationship(
+        'ManyManySales',
+        primaryjoin='ManyManySales.sale_id==SaleInvoice.id',
+        viewonly=True
+    )
+
+    wasted_discounts = relationship(
+        'ManyManySales',
+        primaryjoin='ManyManySales.credit_id == SaleInvoice.id',
+        viewonly=True
+    )
+
     applied_credit_notes = relationship(
         "SaleInvoice",
         secondary="many_manies",
@@ -1125,13 +1128,14 @@ class SaleInvoice(Base):
         viewonly=True
     )
 
+
     where_applied = relationship(
         "SaleInvoice",
         secondary="many_manies",
         primaryjoin="ManyManySales.credit_id == SaleInvoice.id",
-        secondaryjoin="SaleInvoice.id == ManyManySales.sale_id", viewonly=True
+        secondaryjoin="SaleInvoice.id == ManyManySales.sale_id",
+        viewonly=True
     )
-
 
     def get_device_count(self, series):
         count = 0
@@ -1150,16 +1154,6 @@ class SaleInvoice(Base):
         self.type = type
         self.number = number
 
-    @property
-    def financial_status_independent_debt(self):
-        return round(sum(p.financial_status_independent_debt for p in self.proformas),2)
-
-    @property
-    def financial_status_dependant_debt(self):
-        status = self.financial_status_string
-        if status in ('Paid', 'Applied', 'Returned/Applied'):
-            return 0.0
-        return self.financial_status_independent_debt
 
     @property
     def payments(self):
@@ -1176,14 +1170,6 @@ class SaleInvoice(Base):
             for invoice in session.query(SaleInvoice).
             where(SaleInvoice.parent_id == self.id)
         ), 2)
-
-    @property
-    def applied(self):
-        return self.parent_id is not None
-
-       # return session.query(SaleInvoice.parent_id).\
-        #    where(SaleInvoice.id == self.id).scalar() is not None
-
 
     @property
     def subtotal(self):
@@ -1252,58 +1238,38 @@ class SaleInvoice(Base):
         elif proforma.completed:
             return 'Completed'
 
-    def has_children(self):
-        return session.query(exists().where(SaleInvoice.parent_id == self.id)).scalar()
-
-    def get_children_debt(self):
-        """ For each invoice applied to this invoice
-            diff = distance(total, sum(payments))
-            This represents the value that the customer has right to.
-        """
-        return abs(
-            sum(
-                invoice.financial_status_independent_debt
-                for invoice in session.query(SaleInvoice).where(
-                    SaleInvoice.parent_id == self.id
-                )
-            )
-        )
-
     @property
     def financial_status_string(self):
-        proforma: SaleProforma
-        proforma = self.proformas[0]
-        if proforma.is_credit_note:
-            applied = self.applied
-            payments = self.payments
-            if applied and not payments:
-                return 'Applied'
-            elif not applied and not payments:
-                return 'New'
-            elif not applied and self.total_debt < self.total_paid < 0:
-                return 'Partially Returned'
-            elif applied and payments:
-                return 'Returned/Applied'
-            elif math.isclose(self.total_paid, self.total_debt):
-                return 'Returned'
+        if self.is_credit_note:
+            x = self.paid + self.applied
         else:
-            if self.has_children():
-                debt = self.get_children_debt()
-                if proforma.is_paid_with_debt(debt):
-                    return 'Paid'
-                elif proforma.is_partially_paid_with_debt(debt):
-                    return 'Partially Paid'
-                elif proforma.is_overpaid_with_debt(debt):
-                    return 'We Owe'
+            x = self.paid - self.applied
+        s = "Returned" if self.is_credit_note else "Paid"
+
+        if x == 0:
+            return f"Not {s}"
+        elif math.isclose(self.total_debt, x):
+            return s
+        else:
+            if self.is_credit_note:
+                if self.total_debt < x:
+                    return "Partially Returned"
+                elif self.total_debt > x:
+                    return "Over Returned"
             else:
-                if proforma.not_paid:
-                    return 'Not Paid'
-                elif proforma.fully_paid:
-                    return 'Paid'
-                elif proforma.partially_paid:
-                    return 'Partially Paid'
-                elif proforma.overpaid:
-                    return 'We Owe'
+                if self.total_debt < x:
+                    return "Over Paid"
+                elif self.total_debt > x:
+                    return "Partially Paid"
+
+    @property
+    def paid(self):
+        return sum(p.amount for p in self.payments)
+
+    @property
+    def applied(self):
+        _relationship = self.wasted_discounts if self.is_credit_note else self.return_discounts
+        return sum(d.fraction for d in _relationship)
 
 
     @property
@@ -1334,8 +1300,15 @@ class SaleInvoice(Base):
         return ' EUR' if self.proformas[0].eur_currency else ' USD'
 
     @property
+    def owing(self):
+        if self.is_credit_note:
+            return self.total_debt - self.paid - self.applied
+        else:
+            return self.total_debt + self.applied - self.paid
+
+    @property
     def owing_string(self):
-        return str(self.financial_status_dependant_debt) + self.currency
+        return f"{self.owing} {self.currency}"
 
     @property
     def total(self):
