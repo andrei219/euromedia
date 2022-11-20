@@ -4,8 +4,8 @@ from PyQt5.QtWidgets import QDialog, QMessageBox
 
 from ui_apply_credit_note_form import Ui_Dialog
 
-from models import AppliedNoteModel
-from models import AvailableNoteModel
+from models import AppliedCreditNotesModel
+from models import AvailableCreditNotesModel
 
 
 class Form(Ui_Dialog, QDialog):
@@ -26,11 +26,11 @@ class Form(Ui_Dialog, QDialog):
         self.delete_.clicked.connect(self.delete_handler)
 
     def set_applied_model(self):
-        self.applied_model = AppliedNoteModel(self.invoice)
+        self.applied_model = AppliedCreditNotesModel(self.invoice)
         self.applied.setModel(self.applied_model)
 
     def set_available_model(self):
-        self.available_model = AvailableNoteModel(self.invoice)
+        self.available_model = AvailableCreditNotesModel(self.invoice)
         self.available.setModel(self.available_model)
 
     def set_models(self):

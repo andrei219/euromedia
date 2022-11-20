@@ -1088,7 +1088,6 @@ class SaleDocument(Base):
 
     proforma = relationship('SaleProforma', backref=backref('documents'))
 
-
 import functools
 
 
@@ -1127,7 +1126,6 @@ class SaleInvoice(Base):
         secondaryjoin="SaleInvoice.id == ManyManySales.credit_id",
         viewonly=True
     )
-
 
     where_applied = relationship(
         "SaleInvoice",
@@ -2415,9 +2413,22 @@ class ManyManySales(Base):
 
     fraction = Column(Float, nullable=False)
 
+    sale = relationship(
+        'SaleInvoice',
+        primaryjoin="ManyManySales.sale_id == SaleInvoice.id",
+        viewonly=True
+    )
+
+    credit_note = relationship(
+        'SaleInvoice',
+        primaryjoin="ManyManySales.credit_id == SaleInvoice.id",
+        viewonly=True
+    )
+
     def __repr__(self):
         clsname = self.__class__.__name__
         return f"{clsname}(sale_id={self.sale_id}, credit_id={self.credit_id}, fraction={self.fraction})"
+
 
 def create_init_data():
     spec = Spec('Mix')

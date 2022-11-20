@@ -9,6 +9,7 @@ from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtCore import Qt
 
 from models import CreditNoteLineModel
+from models import WhereCreditNotesModel
 
 import utils
 from db import session, SaleInvoice
@@ -28,11 +29,14 @@ class Form(Ui_Form, QWidget):
         self.save.clicked.connect(self.save_handler)
         self.set_form()
 
-        try:
-            parent = session.query(SaleInvoice).where(SaleInvoice.id == proforma.invoice.parent_id).one()
-            self.where_applied.setText(parent.doc_repr)
-        except (AttributeError, sqlalchemy.exc.NoResultFound):
-            self.where_applied.setText('Not yet applied')
+        if self.is_invoice:
+            self.where_model = WhereCreditNotesModel(self.proforma.invoice)
+            self.where_applied_view.setModel(self.where_model)
+            self.where_applied_total.setText(f"Total: {self.where_model.total}")
+        else:
+            self.where_applied_total.setVisible(False)
+            self.where_applied_title.setVisible(False)
+            self.where_applied_view.setVisible(False)
 
     def set_handlers(self):
         self.save.clicked.connect(self.save_handler)

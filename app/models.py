@@ -6287,13 +6287,20 @@ class AppliedNoteModel_old(BaseTable, QtCore.QAbstractTableModel):
 
 
 # On invoice
-class AvailableCreditNotesModel:
+class AvailableCreditNotesModel(BaseTable, QtCore.QAbstractTableModel):
+
     def __init__(self, invoice):
+        super().__init__()
         self.invoice = invoice
-        
+        self._data = []
+        self.name = '_data'
+        self._headerData = []
+
+
+
 
 #On sale invoice form, Show which invoices applied and how much
-class AppliedCreditNotesModel:
+class AppliedCreditNotesModel_old:
 
     def __init__(self, invoice):
         self.invoice = invoice
@@ -6304,11 +6311,44 @@ class AppliedCreditNotesModel:
         for elm in query:
             print(elm, elm.id)
 
+# AppliedCreditNote = namedtuple('AppliedCreditNote', 'sale_id credit_id credit_note fraction')
+
+
+class AppliedCreditNotesModel(BaseTable, QtCore.QAbstractTableModel):
+
+    DOC_REPR, FRACTION = 0, 1
+
+    def __init__(self, invoice: db.SaleInvoice):
+        super().__init__()
+        self.invoice = invoice
+        self._data = invoice.return_discounts
+        self.name = '_data'
+        self._headerData = ['Document', 'Rate Applied']
+
+    def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
+        if not index.isValid():
+            return 
+        row, col = index.row(), index.column()
+        if role == Qt.DisplayRole:
+            obj = self._data[row]
+            if col == self.DOC_REPR:
+                return obj.credit_note.doc_repr
+            elif col == self.FRACTION:
+                return obj.fraction
+
+    def delete(self, rows):
+        pass
+
+    def _get_delete_statement(self):
+        pass 
+
 
 # on credit note form, show where applied and how much
-class WhereCreditNotesModel:
+class WhereCreditNotesModel_old(BaseTable, QtCore.QAbstractTableModel):
 
-    def __init__(self, credit_note):
+    DOC_REPR, FRACTION = 0, 1
+
+    def __init__(self, credit_note: db.SaleInvoice):
         self.credit_note = credit_note
 
         query = db.session.query(db.SaleInvoice).\
@@ -6317,6 +6357,33 @@ class WhereCreditNotesModel:
 
         for elm in query:
             print(elm, elm.id)
+
+
+class WhereCreditNotesModel(BaseTable, QtCore.QAbstractTableModel):
+
+    DOC_REPR, FRACTION = 0, 1
+
+    def __init__(self, credit_note: db.SaleInvoice):
+        super().__init__()
+        self.credit_note = credit_note
+        self._data = credit_note.wasted_discounts
+        self.name = '_data'
+        self._headerData = ['Document', 'Rate Applied']
+
+    def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
+        if not index.isValid():
+            return 
+        row, column = index.row(), index.column()
+        if role == Qt.DisplayRole:
+            obj = self._data[row]
+            if column == self.DOC_REPR:
+                return obj.sale.doc_repr
+            elif column == self.FRACTION:
+                return obj.fraction
+    
+    @property
+    def total(self):
+        return sum(o.fraction for o in self._data)
 
 
 class SIIInvoice:
