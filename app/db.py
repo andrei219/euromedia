@@ -1101,8 +1101,6 @@ class SaleInvoice(Base):
     date = Column(Date, default=datetime.now)
     eta = Column(Date, default=datetime.now)
 
-    # parent_id = Column(Integer, ForeignKey('sale_invoices.id'))
-
     wh_incoming_rma_id = Column(Integer, ForeignKey('wh_incoming_rmas.id'), nullable=True)
 
     wh_incoming_rma = relationship('WhIncomingRma', backref=backref('invoices'))
@@ -1163,11 +1161,7 @@ class SaleInvoice(Base):
 
     @property
     def cn_total(self):
-        return round(sum(
-            invoice.financial_status_dependant_debt
-            for invoice in session.query(SaleInvoice).
-            where(SaleInvoice.parent_id == self.id)
-        ), 2)
+        return sum(o.fraction for o in self.return_discounts)
 
     @property
     def subtotal(self):

@@ -20,6 +20,7 @@ class Ui_Dialog(object):
         self.groupBox.setObjectName("groupBox")
         self.available = QtWidgets.QTableView(self.groupBox)
         self.available.setGeometry(QtCore.QRect(0, 20, 471, 191))
+        self.available.setAlternatingRowColors(True)
         self.available.setSelectionMode(QtWidgets.QAbstractItemView.MultiSelection)
         self.available.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
         self.available.setObjectName("available")

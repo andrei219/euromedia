@@ -582,7 +582,7 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.total.setText(str(self.proforma.total_debt))
         self.ptax.setText(str(self.proforma.tax))
         self.cn.setText(str(self.proforma.cn_total))
-        self.pending.setText(str(self.proforma.total_debt - self.proforma.total_paid))
+        self.pending.setText(str(self.proforma.owing))
         self.subtotal.setText(str(self.proforma.subtotal))
         self.quantity_label.setText('Qnt.: ' + str(self.lines_model.quantity))
 

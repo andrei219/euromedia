@@ -6248,12 +6248,14 @@ class AvailableCreditNotesModel(BaseTable, QtCore.QAbstractTableModel):
 
         self.name = '_data'
         self._headerData = ['Document', 'Total', 'Applied', 'Applying(Editable)']
+
     def sort(self, column: int, order: Qt.SortOrder = ...) -> None:
+
         if column == self.DOC_REPR:
             self.layoutAboutToBeChanged().emit()
-            self._data = sorted(self._data, key=lambda o:o.doc_repr)
+            self._data = sorted(self._data, key=lambda o: o.doc_repr,
+                                reverse=True if order == Qt.DescendingOrder else False)
             self.layoutChanged()
-
 
     def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
         if not index.isValid():
