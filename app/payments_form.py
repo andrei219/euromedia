@@ -21,10 +21,9 @@ class PaymentForm(Ui_PaymentsForm, QDialog):
         self.view.setModel(self.model) 
         self.is_credit_note = self.proforma.warehouse_id is None
 
-
-        self.add_payment_tool_button.clicked.connect(self.addHandler) 
+        self.add_payment_tool_button.clicked.connect(self.addHandler)
         self.delete_payment_tool_button.clicked.connect(self.deleteHandler)
-        self.all.clicked.connect(lambda: self.amount.setText(str(self.proforma.total_debt - self.proforma.total_paid)))
+        self.all.clicked.connect(lambda: self.amount.setText(str(self.proforma.owing)))
 
         self.view.setSelectionBehavior(QTableView.SelectRows)
         self.view.setSortingEnabled(True)
@@ -36,9 +35,6 @@ class PaymentForm(Ui_PaymentsForm, QDialog):
 
         self.rate.setEnabled(not self.proforma.eur_currency)
         self.rate.setText('1.0')
-
-    def all_clicked(self):
-        pass
 
 
     def addHandler(self):
@@ -94,7 +90,7 @@ class PaymentForm(Ui_PaymentsForm, QDialog):
             caches_clear()
 
     def updateOwing(self):
-        self.owing_lineedit.setText(str(self.proforma.total_debt - self.proforma.total_paid))
+        self.owing_lineedit.setText(str(self.proforma.owing))
 
     def clearFields(self):
         # self.date_line_edit.clear() 

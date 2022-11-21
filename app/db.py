@@ -2413,6 +2413,11 @@ class ManyManySales(Base):
 
     fraction = Column(Float, nullable=False)
 
+    def __init__(self, sale_id, credit_id, fraction):
+        self.sale_id = sale_id
+        self.credit_id = credit_id
+        self.fraction = fraction
+
     sale = relationship(
         'SaleInvoice',
         primaryjoin="ManyManySales.sale_id == SaleInvoice.id",

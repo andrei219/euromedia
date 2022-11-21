@@ -47,12 +47,11 @@ class Form(Ui_Dialog, QDialog):
             QMessageBox.critical(self, 'Error', str(ex))
         else:
             self.set_models()
-            self.parent.update_totals()
 
     def add_handler(self):
         rows = {i.row() for i in self.available.selectedIndexes()}
         try:
-            self.available_model.add(rows)
+            self.available_model.add()
         except ValueError as ex:
             QMessageBox.critical(self, 'Error', str(ex))
         else:

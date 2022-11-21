@@ -6246,72 +6246,145 @@ class AvailableNoteModel_old(BaseTable, QtCore.QAbstractTableModel):
                 return invoice.subtotal
 
 
-class AppliedNoteModel_old(BaseTable, QtCore.QAbstractTableModel):
-    DOCUMENT, SUBTOTAL = 0, 1
+class AvailableEntry:
+
+    def __init__(self, sale_invoice, credit_note):
+        self.sale_id = sale_invoice.id
+        self.credit_id = credit_note.id
+        self.doc_repr = credit_note.doc_repr
+        self.total = credit_note.total_debt
+        self.applied = credit_note.applied
+        self._applying = 0
+
+    @property
+    def applying(self):
+        return self._applying
+
+    @applying.setter
+    def applying(self, v):
+        if v == 't':
+            self._applying = self.total - self.applied
+            return
+
+        v = float(v)
+        if v > 0:
+            raise ValueError
+        if v < self.total - self.applied:
+            raise ValueError
+        self._applying = v
+
+
+class AvailableCreditNotesModel(BaseTable, QtCore.QAbstractTableModel):
+
+    DOC_REPR, TOTAL, APPLIED, APPLYING = 0, 1, 2, 3
 
     def __init__(self, invoice):
         super().__init__()
-        self._headerData = ['Document', 'Subtotal']
-        self.name = 'invoices'
-        self.parent_invoice = invoice
+        self.invoice = invoice
+        self._data = self._get_data()
 
-        self.invoices = db.session.query(db.SaleInvoice). \
-            where(db.SaleInvoice.parent_id == self.parent_invoice.id).all()
+        self.name = '_data'
+        self._headerData = ['Document', 'Total', 'Applied', 'Applying(Editable)']
+    def sort(self, column: int, order: Qt.SortOrder = ...) -> None:
+        if column == self.DOC_REPR:
+            self.layoutAboutToBeChanged().emit()
+            self._data = sorted(self._data, key=lambda o:o.doc_repr)
+            self.layoutChanged()
 
-    def delete(self, rows):
-        from db import delete
-        for row in rows:
-            invoice = self.invoices[row]
-            invoice.parent_id = None
-            # stmt = delete(db.SalePayment).where(db.SalePayment.note == invoice.cn_repr)
-            # db.session.execute(stmt)
-            try:
-                db.session.commit()
-            except Exception as ex:
-                raise ValueError(str(ex))
 
     def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
         if not index.isValid():
             return
         row, column = index.row(), index.column()
         if role == Qt.DisplayRole:
-            invoice = self.invoices[row]
-            if column == self.DOCUMENT:
-                return invoice.doc_repr
-            elif column == self.SUBTOTAL:
-                return invoice.subtotal
+            entry = self._data[row]
+            return [
+                entry.doc_repr,
+                entry.total,
+                entry.applied,
+                entry.applying
+            ][column]
 
-    @property
-    def credit_notes_subtotal(self):
-        return sum(i.subtotal for i in self.invoices)
+    def setData(self, index: QModelIndex, value: typing.Any, role: int = ...) -> bool:
+        if not index.isValid():
+            return
+        row, column = index.row(), index.column()
+        entry = self._data[row]
+        if role == Qt.EditRole:
+            if column == self.APPLYING:
+                try:
+                    entry.applying = value
+                    return True
+                except ValueError as ex:
+                    return False
+            return False
+        return False
 
+    def flags(self, index: QModelIndex) -> Qt.ItemFlags:
+        if not index.isValid():
+            return
+        col = index.column()
+        if col == self.APPLYING:
+            return Qt.ItemFlags(super().flags(index) | Qt.ItemIsEditable)
+        else:
+            return Qt.ItemFlags(~Qt.ItemIsEditable)
+    
+    def _get_data(self):
+        data = []
 
-# On invoice
-class AvailableCreditNotesModel(BaseTable, QtCore.QAbstractTableModel):
+        sq = db.session.query(db.ManyManySales.credit_id).distinct()
 
-    def __init__(self, invoice):
-        super().__init__()
-        self.invoice = invoice
-        self._data = []
-        self.name = '_data'
-        self._headerData = []
+        q = db.session.query(db.SaleInvoice).join(db.SaleProforma).where(
+            db.SaleProforma.warehouse_id == None,
+            db.SaleProforma.partner_id == self.invoice.partner_object.id,
+            db.SaleInvoice.id.not_in(sq)
+        )
 
+        data.extend([AvailableEntry(self.invoice, c) for c in q])
 
+        credit_applied_query = db.session.query(db.ManyManySales.credit_id, func.sum(db.ManyManySales.fraction).label('applied'))\
+            .group_by(db.ManyManySales.credit_id)
 
+        credit_applied_dict = dict(r for r in credit_applied_query)
 
-#On sale invoice form, Show which invoices applied and how much
-class AppliedCreditNotesModel_old:
+        invoice_id_line_query = db.session.query(
+            db.SaleInvoice.id,
+            db.CreditNoteLine.price * db.CreditNoteLine.quantity * (1 + db.CreditNoteLine.tax/100)
+        ).join(
+            db.SaleProforma, db.SaleProforma.sale_invoice_id == db.SaleInvoice.id
+        ).join(
+            db.CreditNoteLine, db.SaleProforma.id == db.CreditNoteLine.proforma_id
+        )
 
-    def __init__(self, invoice):
-        self.invoice = invoice
-        query = db.session.query(db.SaleInvoice).\
-            join(db.ManyManySales, db.ManyManySales.credit_id == db.SaleInvoice.id).\
-            where(db.ManyManySales.sale_id == self.invoice.id)
+        key = lambda r: r.id
+        invoice_id_lines = sorted(invoice_id_line_query.all(), key=key)
 
-        for elm in query:
-            print(elm, elm.id)
+        invoice_id_total_dict = dict((id, sum(r[1] for r in group)) for id, group in groupby(invoice_id_lines, key=key))
 
-# AppliedCreditNote = namedtuple('AppliedCreditNote', 'sale_id credit_id credit_note fraction')
+        candidate_ids = set()
+        for credit_id in credit_applied_dict:
+            if invoice_id_total_dict[credit_id] < credit_applied_dict[credit_id]:
+                candidate_ids.add(credit_id)
+
+        assert credit_applied_dict.keys() & invoice_id_total_dict.keys() == credit_applied_dict.keys()
+
+        data.extend(
+            [
+                AvailableEntry(self.invoice, c)
+                for c in db.session.query(db.SaleInvoice).where(db.SaleInvoice.id.in_(candidate_ids))
+            ]
+        )
+
+        return data
+
+    def add(self):
+        for obj in [o for o in self._data if o.applying != 0]:
+            db.session.add(db.ManyManySales(obj.sale_id, obj.credit_id, obj.applying))
+        try:
+            db.session.commit()
+        except sqlalchemy.exc.IntegrityError:
+            db.session.rollback()
+            raise ValueError('You cant apply same credit note to same invoice twice.')
 
 
 class AppliedCreditNotesModel(BaseTable, QtCore.QAbstractTableModel):
@@ -6337,26 +6410,9 @@ class AppliedCreditNotesModel(BaseTable, QtCore.QAbstractTableModel):
                 return obj.fraction
 
     def delete(self, rows):
-        pass
-
-    def _get_delete_statement(self):
-        pass 
-
-
-# on credit note form, show where applied and how much
-class WhereCreditNotesModel_old(BaseTable, QtCore.QAbstractTableModel):
-
-    DOC_REPR, FRACTION = 0, 1
-
-    def __init__(self, credit_note: db.SaleInvoice):
-        self.credit_note = credit_note
-
-        query = db.session.query(db.SaleInvoice).\
-            join(db.ManyManySales, db.ManyManySales.sale_id == db.SaleInvoice.id).\
-            where(db.ManyManySales.credit_id == self.credit_note.id)
-
-        for elm in query:
-            print(elm, elm.id)
+        for row in rows:
+            db.session.delete(self._data[row])
+        db.session.commit()
 
 
 class WhereCreditNotesModel(BaseTable, QtCore.QAbstractTableModel):
