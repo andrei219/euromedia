@@ -224,7 +224,7 @@ class MainGui(Ui_MainGui, QMainWindow):
             paid += sum(p.amount for p in doc.payments)
             total += doc.total_debt
             device_count += doc.device_count
-            owing = total - paid
+            owing += doc.owing
 
         name = view.objectName()
         prefix = name[0:name.rfind('_') + 1]
@@ -1350,6 +1350,8 @@ class MainGui(Ui_MainGui, QMainWindow):
         try:
             self.rmas_incoming_model.to_warehouse(row)
         except ValueError as ex:
+            print('catched value error')
+            print(str(ex))
             QMessageBox.critical(self, 'Error', str(ex))
         else:
             QMessageBox.information(self, 'Error', 'RMA WH order created')

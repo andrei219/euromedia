@@ -184,38 +184,6 @@ class AgentModel(QtCore.QAbstractTableModel):
             db.session.rollback()
             raise
 
-    def update(self, agent):
-        # for old_agent in self.agents:
-        # 	if old_agent.id == agent.id:
-        # 		break
-        # old_agent.fiscal_name = agent.fiscal_name
-        # old_agent.fiscal_number = agent.fiscal_number
-        # old_agent.email = agent.email
-        # old_agent.phone = agent.phone
-        # old_agent.active = agent.active
-        # old_agent.country = agent.country
-        # old_agent.fixed_salary = agent.fixed_salary
-        # old_agent.from_profit = agent.from_profit
-        # old_agent.from_turnover = agent.from_turnover
-        # old_agent.fixed_perpiece = agent.fixed_perpiece
-        # old_agent.bank_name = agent.bank_name
-        # old_agent.iban = agent.iban
-        # old_agent.swift = agent.swift
-        # old_agent.bank_address = agent.bank_address
-        # old_agent.bank_postcode = agent.bank_postcode
-        # old_agent.bank_city = agent.bank_city
-        # old_agent.bank_state = agent.bank_state
-        # old_agent.bank_country = agent.bank_country
-        # old_agent.bank_routing = agent.bank_routing
-
-        # try:
-        # 	db.session.commit()
-        # 	print('commit executed')
-        # except:
-        # 	db.session.rollback()
-        # 	raise
-        # self.dataChanged.emit(QModelIndex(), QModelIndex())
-
         try:
             self.layoutAboutToBeChanged.emit()
             db.session.commit()
@@ -803,7 +771,7 @@ class SaleInvoiceModel(BaseTable, QtCore.QAbstractTableModel):
 
         # Avoid double computations: display and decoration branches
         logistic_status_string = invoice.logistic_status_string
-        financial_status_string = invoice.financial_status_string
+        financial_status_string:str = invoice.financial_status_string
         ready_status_string = invoice.ready
 
         if role == Qt.DisplayRole:
@@ -832,15 +800,15 @@ class SaleInvoiceModel(BaseTable, QtCore.QAbstractTableModel):
                 return QtGui.QIcon(':\calendar')
 
             elif col == self.FINANCIAL:
-
-                if financial_status_string == 'Not Paid':
-                    return QtGui.QColor(YELLOW)
-                elif financial_status_string == 'Paid' or financial_status_string == 'Applied':
-                    return QtGui.QColor(GREEN)
-                elif financial_status_string == 'Partially Paid':
-                    return QtGui.QColor(ORANGE)
-                elif financial_status_string == 'We Owe':
-                    return QtGui.QColor(RED)
+                if financial_status_string in ('Not Paid', 'Not Returned'):
+                    color = YELLOW
+                elif financial_status_string in ('Returned', 'Paid'):
+                    color = GREEN
+                elif financial_status_string.find('Partially') == 0:
+                    color = ORANGE
+                elif financial_status_string.find('Over') == 0:
+                    color = RED
+                return QtGui.QColor(color)
 
             elif col == self.LOGISTIC:
                 if logistic_status_string == 'Empty':
@@ -848,7 +816,6 @@ class SaleInvoiceModel(BaseTable, QtCore.QAbstractTableModel):
                 elif logistic_status_string == 'Overflowed':
                     return QtGui.QColor(RED)
                 elif logistic_status_string == 'Partially Prepared':
-                    return QtGui.QColor(ORANGE)
                     return QtGui.QColor(ORANGE)
                 elif logistic_status_string == 'Completed':
                     return QtGui.QColor(GREEN)
@@ -1819,10 +1786,12 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
         row, col = index.row(), index.column()
         proforma = self.proformas[row]
 
+        financial_status_string = proforma.financial_status_string
+        sign = ' EUR' if proforma.eur_currency else ' USD'
+
         if role == Qt.DisplayRole:
             if col == self.TYPE_NUM:
-                s = str(proforma.type) + '-' + str(proforma.number).zfill(6)
-                return s
+                return proforma.doc_repr
             elif col == self.DATE:
                 return proforma.date.strftime('%d/%m/%Y')
             elif col == self.PARTNER:
@@ -1843,18 +1812,7 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
                 return 'Yes' if proforma.expedition is not None else 'No'
 
             elif col == self.FINANCIAL:
-
-                if proforma.is_credit_note and proforma.applied:
-                    return 'Applied'
-
-                if proforma.not_paid:
-                    return 'Not Paid'
-                elif proforma.fully_paid:
-                    return 'Paid'
-                elif proforma.partially_paid:
-                    return 'Partially Paid'
-                elif proforma.overpaid:
-                    return 'We Owe'
+                return financial_status_string
 
             elif col == self.LOGISTIC:
 
@@ -1875,13 +1833,10 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
             elif col == self.CANCELLED:
                 return 'Yes' if proforma.cancelled else 'No'
             elif col == self.OWING:
-                sign = ' -€' if proforma.eur_currency else ' $'
-                owes = round(proforma.total_debt - proforma.total_paid, 2)
-                return str(owes) + sign
+                return f"{proforma.owing} {sign}"
 
             elif col == self.TOTAL:
-                sign = ' -€' if proforma.eur_currency else ' $'
-                return str(proforma.total_debt) + sign
+                return f"{proforma.total_debt} {sign}"
 
             elif col == self.ADVANCED:
                 return 'Yes' if proforma.advanced_lines else 'No'
@@ -1895,17 +1850,15 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 
         elif role == Qt.DecorationRole:
             if col == self.FINANCIAL:
-                if proforma.is_credit_note and proforma.applied:
-                    return QtGui.QColor(GREEN)
-
-                if proforma.not_paid:
-                    return QtGui.QColor(YELLOW)
-                elif proforma.fully_paid:
-                    return QtGui.QColor(GREEN)
-                elif proforma.partially_paid:
-                    return QtGui.QColor(ORANGE)
-                elif proforma.overpaid:
-                    return QtGui.QColor(YELLOW)
+                if financial_status_string in ('Not Paid', 'Not Returned'):
+                    color = YELLOW
+                elif financial_status_string in ('Returned', 'Paid'):
+                    color = GREEN
+                elif financial_status_string.find('Partially') == 0:
+                    color = ORANGE
+                elif financial_status_string.find('Over') == 0:
+                    color = RED
+                return QtGui.QColor(color)
 
             elif col == self.DATE:
                 return QtGui.QIcon(':\calendar')
@@ -5844,7 +5797,7 @@ class RmaIncomingModel(BaseTable, QtCore.QAbstractTableModel):
             self.orders.sort(key=operator.attrgetter(attr), reverse=reverse)
             self.layoutChanged.emit()
 
-    def to_warehouse(self, row):
+    def to_warehouse_old(self, row):
         rma_order: db.IncomingRma = self.orders[row]
         wh_rma_order = db.WhIncomingRma(rma_order)
 
@@ -5852,14 +5805,36 @@ class RmaIncomingModel(BaseTable, QtCore.QAbstractTableModel):
             raise ValueError('Rma not accepted. I will not send to WH')
 
         # Raises value error if invoice type not found
+        lines = []
         for line in rma_order.lines:
             if line.accepted:
                 wh_rma_order.lines.append(db.WhIncomingRmaLine(line))
+
+        for line in rma_order.lines:
+            if line.accpeted:
+                lines.append(db.WhIncomingRmaLine(line))
+
+
         try:
             db.session.commit()
         except IntegrityError as ex:
             db.session.rollback()
             raise ValueError('Wh order already exists')
+
+    def to_warehouse(self, row):
+        rma_order = self.orders[row]
+
+        if all(not line.accepted for line in rma_order.lines):
+            raise ValueError('Rma not accepted. I will not send to WH')
+
+        lines = []
+        for line in rma_order.lines:
+            if line.accepted:
+                lines.append(db.WhIncomingRmaLine(line))
+
+        wh_order = db.WhIncomingRma(rma_order)
+        wh_order.lines.extend(lines)
+        db.session.commit() # No posible error raising
 
     def __getitem__(self, item):
         return self.orders[item]
@@ -6233,98 +6208,200 @@ def build_credit_note_and_commit(partner_id, agent_id, order, candidates):
     db.session.commit()
     return proforma
 
+class AvailableEntry:
 
-class AvailableNoteModel(BaseTable, QtCore.QAbstractTableModel):
-    DOCUMENT, SUBTOTAL = 0, 1
-
-    def __init__(self, invoice):
-        super().__init__()
-        self.parent_invoice = invoice
-
-        self._headerData = ['Document', 'Subtotal']
-
-        self.name = 'invoices'
-        # Since relationship is 1 - n it would return i proformas for each
-        # invoice, but ( business logic), relationship between proforma without warehouse
-        # relates 1 - 1, then, desired results obtained.
-        self.invoices = db.session.query(db.SaleInvoice).join(db.SaleProforma). \
-            join(db.Partner). \
-            where(db.Partner.id == invoice.partner_id). \
-            where(db.SaleProforma.warehouse_id == None). \
-            where(db.SaleInvoice.parent_id == None).all()
-
-    def add(self, rows):
-        # Set relationship and add payment
-        for row in rows:
-            invoice = self.invoices[row]
-            invoice.parent_id = self.parent_invoice.id
-            self.parent_invoice.proformas[0].payments.append(
-                db.SalePayment(
-                    date=invoice.date,
-                    amount=invoice.subtotal,
-                    rate=1.0,
-                    note=invoice.cn_repr,
-                    proforma=self.parent_invoice.proformas[0]
-                )
-            )
-
-        try:
-            db.session.commit()
-        except Exception as ex:
-            db.session.rollback()
-            raise
-            # raise ValueError
-
-    def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
-        if not index.isValid():
-            return
-        row, column = index.row(), index.column()
-        if role == Qt.DisplayRole:
-            invoice = self.invoices[row]
-            if column == self.DOCUMENT:
-                return invoice.doc_repr
-            elif column == self.SUBTOTAL:
-                return invoice.subtotal
-
-
-class AppliedNoteModel(BaseTable, QtCore.QAbstractTableModel):
-    DOCUMENT, SUBTOTAL = 0, 1
-
-    def __init__(self, invoice):
-        super().__init__()
-        self._headerData = ['Document', 'Subtotal']
-        self.name = 'invoices'
-        self.parent_invoice = invoice
-
-        self.invoices = db.session.query(db.SaleInvoice). \
-            where(db.SaleInvoice.parent_id == self.parent_invoice.id).all()
-
-    def delete(self, rows):
-        from db import delete
-        for row in rows:
-            invoice = self.invoices[row]
-            invoice.parent_id = None
-            stmt = delete(db.SalePayment).where(db.SalePayment.note == invoice.cn_repr)
-            db.session.execute(stmt)
-            try:
-                db.session.commit()
-            except Exception as ex:
-                raise ValueError(str(ex))
-
-    def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
-        if not index.isValid():
-            return
-        row, column = index.row(), index.column()
-        if role == Qt.DisplayRole:
-            invoice = self.invoices[row]
-            if column == self.DOCUMENT:
-                return invoice.doc_repr
-            elif column == self.SUBTOTAL:
-                return invoice.subtotal
+    def __init__(self, sale_invoice, credit_note):
+        self.sale_id = sale_invoice.id
+        self.credit_id = credit_note.id
+        self.doc_repr = credit_note.doc_repr
+        self.total = credit_note.total_debt
+        self.applied = credit_note.applied
+        self._applying = 0
 
     @property
-    def credit_notes_subtotal(self):
-        return abs(sum(i.subtotal for i in self.invoices))
+    def applying(self):
+        return self._applying
+
+    @applying.setter
+    def applying(self, v):
+        if v == 't':
+            self._applying = self.total - self.applied
+            return
+
+        v = float(v)
+        if v > 0:
+            raise ValueError
+        if v < self.total - self.applied:
+            raise ValueError
+        self._applying = v
+
+
+class AvailableCreditNotesModel(BaseTable, QtCore.QAbstractTableModel):
+
+    DOC_REPR, TOTAL, APPLIED, APPLYING = 0, 1, 2, 3
+
+    def __init__(self, invoice):
+        super().__init__()
+        self.invoice = invoice
+        self._data = self._get_data()
+
+        self.name = '_data'
+        self._headerData = ['Document', 'Total', 'Applied', 'Applying(Editable)']
+    def sort(self, column: int, order: Qt.SortOrder = ...) -> None:
+        if column == self.DOC_REPR:
+            self.layoutAboutToBeChanged().emit()
+            self._data = sorted(self._data, key=lambda o:o.doc_repr)
+            self.layoutChanged()
+
+
+    def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
+        if not index.isValid():
+            return
+        row, column = index.row(), index.column()
+        if role == Qt.DisplayRole:
+            entry = self._data[row]
+            return [
+                entry.doc_repr,
+                entry.total,
+                entry.applied,
+                entry.applying
+            ][column]
+
+    def setData(self, index: QModelIndex, value: typing.Any, role: int = ...) -> bool:
+        if not index.isValid():
+            return
+        row, column = index.row(), index.column()
+        entry = self._data[row]
+        if role == Qt.EditRole:
+            if column == self.APPLYING:
+                try:
+                    entry.applying = value
+                    return True
+                except ValueError as ex:
+                    return False
+            return False
+        return False
+
+    def flags(self, index: QModelIndex) -> Qt.ItemFlags:
+        if not index.isValid():
+            return
+        col = index.column()
+        if col == self.APPLYING:
+            return Qt.ItemFlags(super().flags(index) | Qt.ItemIsEditable)
+        else:
+            return Qt.ItemFlags(~Qt.ItemIsEditable)
+    
+    def _get_data(self):
+        data = []
+
+        sq = db.session.query(db.ManyManySales.credit_id).distinct()
+
+        q = db.session.query(db.SaleInvoice).join(db.SaleProforma).where(
+            db.SaleProforma.warehouse_id == None,
+            db.SaleProforma.partner_id == self.invoice.partner_object.id,
+            db.SaleInvoice.id.not_in(sq)
+        )
+
+        data.extend([AvailableEntry(self.invoice, c) for c in q])
+
+        credit_applied_query = db.session.query(db.ManyManySales.credit_id, func.sum(db.ManyManySales.fraction).label('applied'))\
+            .group_by(db.ManyManySales.credit_id)
+
+        credit_applied_dict = dict(r for r in credit_applied_query)
+
+        invoice_id_line_query = db.session.query(
+            db.SaleInvoice.id,
+            db.CreditNoteLine.price * db.CreditNoteLine.quantity * (1 + db.CreditNoteLine.tax/100)
+        ).join(
+            db.SaleProforma, db.SaleProforma.sale_invoice_id == db.SaleInvoice.id
+        ).join(
+            db.CreditNoteLine, db.SaleProforma.id == db.CreditNoteLine.proforma_id
+        )
+
+        key = lambda r: r.id
+        invoice_id_lines = sorted(invoice_id_line_query.all(), key=key)
+
+        invoice_id_total_dict = dict((id, sum(r[1] for r in group)) for id, group in groupby(invoice_id_lines, key=key))
+
+        candidate_ids = set()
+        for credit_id in credit_applied_dict:
+            if invoice_id_total_dict[credit_id] < credit_applied_dict[credit_id]:
+                candidate_ids.add(credit_id)
+
+        assert credit_applied_dict.keys() & invoice_id_total_dict.keys() == credit_applied_dict.keys()
+
+        data.extend(
+            [
+                AvailableEntry(self.invoice, c)
+                for c in db.session.query(db.SaleInvoice).where(db.SaleInvoice.id.in_(candidate_ids))
+            ]
+        )
+
+        return data
+
+    def add(self):
+        for obj in [o for o in self._data if o.applying != 0]:
+            db.session.add(db.ManyManySales(obj.sale_id, obj.credit_id, obj.applying))
+        try:
+            db.session.commit()
+        except sqlalchemy.exc.IntegrityError:
+            db.session.rollback()
+            raise ValueError('You cant apply same credit note to same invoice twice.')
+
+
+class AppliedCreditNotesModel(BaseTable, QtCore.QAbstractTableModel):
+
+    DOC_REPR, FRACTION = 0, 1
+
+    def __init__(self, invoice: db.SaleInvoice):
+        super().__init__()
+        self.invoice = invoice
+        self._data = invoice.return_discounts
+        self.name = '_data'
+        self._headerData = ['Document', 'Rate Applied']
+
+    def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
+        if not index.isValid():
+            return 
+        row, col = index.row(), index.column()
+        if role == Qt.DisplayRole:
+            obj = self._data[row]
+            if col == self.DOC_REPR:
+                return obj.credit_note.doc_repr
+            elif col == self.FRACTION:
+                return obj.fraction
+
+    def delete(self, rows):
+        for row in rows:
+            db.session.delete(self._data[row])
+        db.session.commit()
+
+
+class WhereCreditNotesModel(BaseTable, QtCore.QAbstractTableModel):
+
+    DOC_REPR, FRACTION = 0, 1
+
+    def __init__(self, credit_note: db.SaleInvoice):
+        super().__init__()
+        self.credit_note = credit_note
+        self._data = credit_note.wasted_discounts
+        self.name = '_data'
+        self._headerData = ['Document', 'Rate Applied']
+
+    def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
+        if not index.isValid():
+            return 
+        row, column = index.row(), index.column()
+        if role == Qt.DisplayRole:
+            obj = self._data[row]
+            if column == self.DOC_REPR:
+                return obj.sale.doc_repr
+            elif column == self.FRACTION:
+                return obj.fraction
+    
+    @property
+    def total(self):
+        return sum(o.fraction for o in self._data)
 
 
 class SIIInvoice:
@@ -7622,7 +7699,7 @@ class InvoicePaymentModel(BaseTable, QtCore.QAbstractTableModel):
             return
         row, col = index.row(), index.column()
         proforma = self.proformas[row]
-        paid = sum(abs(p.amount) for p in proforma.payments)
+        paid = sum(p.amount for p in proforma.payments)
         total_debt = proforma.total_debt
         if role == Qt.DisplayRole:
             return [
@@ -7705,8 +7782,6 @@ class SwitchModel(QtCore.QAbstractListModel):
 
      def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
          pass
-
-
 
 
 def caches_clear():

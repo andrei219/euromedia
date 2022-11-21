@@ -1,3 +1,4 @@
+from dropbox import secondary_emails
 from mysqlx import Column
 from sqlalchemy import create_engine, event, insert, update, delete
 from sqlalchemy.orm import sessionmaker, scoped_session
@@ -886,20 +887,21 @@ class SaleProforma(Base):
     def __hash__(self):
         return functools.reduce(operator.xor, (hash(x) for x in (self.type, self.number)), 0)
 
+
     @property
     def doc_repr(self):
         return str(self.type) + '-' + str(self.number).zfill(6)
 
     @property
     def subtotal(self):
-        return round(sum(line.price * line.quantity for line in self.lines) or \
-               sum(line.price * line.quantity for line in self.advanced_lines) or \
+        return round(sum(line.price * line.quantity for line in self.lines) or
+               sum(line.price * line.quantity for line in self.advanced_lines) or
                sum(line.price * line.quantity for line in self.credit_note_lines), 2)
 
     @property
     def tax(self):
-        return round(sum(line.price * line.quantity * line.tax / 100 for line in self.lines) or \
-               sum(line.price * line.quantity * line.tax / 100 for line in self.advanced_lines) or \
+        return round(sum(line.price * line.quantity * line.tax / 100 for line in self.lines) or
+               sum(line.price * line.quantity * line.tax / 100 for line in self.advanced_lines) or
                sum(line.price * line.quantity * line.tax / 100 for line in self.credit_note_lines), 2)
 
     @property
@@ -921,13 +923,14 @@ class SaleProforma(Base):
     # Posible fuente de error de precision en este método,
     # Es el invonveniente de usar floats vx
     # Deberias usar el modulo Decimal
+
     @property
     def total_debt(self):
         return round(self.subtotal + self.tax, 2)
 
     @property
     def total_paid(self):
-        return round(sum(abs(p.amount) for p in self.payments), 2)
+        return round(sum(p.amount for p in self.payments), 2)
 
     @property
     def not_paid(self):
@@ -999,6 +1002,34 @@ class SaleProforma(Base):
         except AttributeError:
             return 0
 
+    def is_paid_with_debt(self, debt):
+        return math.isclose(debt + self.total_paid, self.total_debt)
+
+    def is_partially_paid_with_debt(self, debt):
+        return 0 < (debt + self.total_paid) < self.total_debt
+
+    def is_overpaid_with_debt(self, debt):
+        return self.total_debt < (debt + self.total_paid)
+
+    @property
+    def financial_status_string(self):
+        try:
+            return self.invoice.financial_status_string
+        except AttributeError:
+            if self.not_paid:
+                return 'Not Paid'
+            elif self.fully_paid:
+                return 'Paid'
+            elif self.partially_paid:
+                return 'Partially Paid'
+            elif self.overpaid:
+                return 'Over Paid'
+    @property
+    def owing(self):
+        try:
+            return self.invoice.owing
+        except AttributeError:
+            return self.total_debt - self.total_paid
 
 
 class SalePayment(Base):
@@ -1076,6 +1107,33 @@ class SaleInvoice(Base):
 
     wh_incoming_rma = relationship('WhIncomingRma', backref=backref('invoices'))
 
+    return_discounts = relationship(
+        'ManyManySales',
+        primaryjoin='ManyManySales.sale_id==SaleInvoice.id',
+        viewonly=True
+    )
+
+    wasted_discounts = relationship(
+        'ManyManySales',
+        primaryjoin='ManyManySales.credit_id == SaleInvoice.id',
+        viewonly=True
+    )
+
+    applied_credit_notes = relationship(
+        "SaleInvoice",
+        secondary="many_manies",
+        primaryjoin="ManyManySales.sale_id==SaleInvoice.id",
+        secondaryjoin="SaleInvoice.id == ManyManySales.credit_id",
+        viewonly=True
+    )
+
+    where_applied = relationship(
+        "SaleInvoice",
+        secondary="many_manies",
+        primaryjoin="ManyManySales.credit_id == SaleInvoice.id",
+        secondaryjoin="SaleInvoice.id == ManyManySales.sale_id",
+        viewonly=True
+    )
 
     def get_device_count(self, series):
         count = 0
@@ -1094,6 +1152,7 @@ class SaleInvoice(Base):
         self.type = type
         self.number = number
 
+
     @property
     def payments(self):
         return [payment for proforma in self.proformas for payment in proforma.payments]
@@ -1105,14 +1164,10 @@ class SaleInvoice(Base):
     @property
     def cn_total(self):
         return round(sum(
-            invoice.subtotal for invoice in session.query(SaleInvoice).
+            invoice.financial_status_dependant_debt
+            for invoice in session.query(SaleInvoice).
             where(SaleInvoice.parent_id == self.id)
         ), 2)
-
-    @property
-    def applied(self):
-        return session.query(SaleInvoice.parent_id).\
-            where(SaleInvoice.id == self.id).scalar() is not None
 
     @property
     def subtotal(self):
@@ -1128,7 +1183,7 @@ class SaleInvoice(Base):
 
     @property
     def total_paid(self):
-        return round(sum(abs(p.amount) for p in self.payments), 2)
+        return round(sum(p.amount for p in self.payments), 2)
 
     @property
     def not_paid(self):
@@ -1183,18 +1238,37 @@ class SaleInvoice(Base):
 
     @property
     def financial_status_string(self):
-        proforma = self.proformas[0]
-        if proforma.is_credit_note and proforma.applied:
-            return 'Applied'
+        if self.is_credit_note:
+            x = self.paid + self.applied
+        else:
+            x = self.paid - self.applied
+        s = "Returned" if self.is_credit_note else "Paid"
 
-        if proforma.not_paid:
-            return 'Not Paid'
-        elif proforma.fully_paid:
-            return 'Paid'
-        elif proforma.partially_paid:
-            return 'Partially Paid'
-        elif proforma.overpaid:
-            return 'We Owe'
+        if x == 0:
+            return f"Not {s}"
+        elif math.isclose(self.total_debt, x):
+            return s
+        else:
+            if self.is_credit_note:
+                if self.total_debt < x:
+                    return "Partially Returned"
+                elif self.total_debt > x:
+                    return "Over Returned"
+            else:
+                if self.total_debt < x:
+                    return "Over Paid"
+                elif self.total_debt > x:
+                    return "Partially Paid"
+
+    @property
+    def paid(self):
+        return sum(p.amount for p in self.payments)
+
+    @property
+    def applied(self):
+        _relationship = self.wasted_discounts if self.is_credit_note else self.return_discounts
+        return sum(d.fraction for d in _relationship)
+
 
     @property
     def agent(self):
@@ -1224,8 +1298,15 @@ class SaleInvoice(Base):
         return ' EUR' if self.proformas[0].eur_currency else ' USD'
 
     @property
+    def owing(self):
+        if self.is_credit_note:
+            return self.total_debt - self.paid - self.applied
+        else:
+            return self.total_debt + self.applied - self.paid
+
+    @property
     def owing_string(self):
-        return str(self.total_debt - self.total_paid) + self.currency
+        return f"{self.owing} {self.currency}"
 
     @property
     def total(self):
@@ -2321,6 +2402,37 @@ class IncomingRmaLine(Base):
                                 self.price = line.price
 
         return self
+
+
+class ManyManySales(Base):
+
+    __tablename__ = 'many_manies'
+
+    sale_id = Column(ForeignKey('sale_invoices.id'), nullable=False, primary_key=True)
+    credit_id = Column(ForeignKey('sale_invoices.id'), nullable=False, primary_key=True)
+
+    fraction = Column(Float, nullable=False)
+
+    def __init__(self, sale_id, credit_id, fraction):
+        self.sale_id = sale_id
+        self.credit_id = credit_id
+        self.fraction = fraction
+
+    sale = relationship(
+        'SaleInvoice',
+        primaryjoin="ManyManySales.sale_id == SaleInvoice.id",
+        viewonly=True
+    )
+
+    credit_note = relationship(
+        'SaleInvoice',
+        primaryjoin="ManyManySales.credit_id == SaleInvoice.id",
+        viewonly=True
+    )
+
+    def __repr__(self):
+        clsname = self.__class__.__name__
+        return f"{clsname}(sale_id={self.sale_id}, credit_id={self.credit_id}, fraction={self.fraction})"
 
 
 def create_init_data():
