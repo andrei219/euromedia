@@ -6192,60 +6192,6 @@ def build_credit_note_and_commit(partner_id, agent_id, order, candidates):
     db.session.commit()
     return proforma
 
-
-class AvailableNoteModel_old(BaseTable, QtCore.QAbstractTableModel):
-    DOCUMENT, SUBTOTAL = 0, 1
-
-    def __init__(self, invoice):
-        super().__init__()
-        self.parent_invoice = invoice
-
-        self._headerData = ['Document', 'Subtotal']
-
-        self.name = 'invoices'
-        # Since relationship is 1 - n it would return i proformas for each
-        # invoice, but ( business logic), relationship between proforma without warehouse
-        # relates 1 - 1, then, desired results obtained.
-        self.invoices = db.session.query(db.SaleInvoice).join(db.SaleProforma). \
-            join(db.Partner). \
-            where(db.Partner.id == invoice.partner_id). \
-            where(db.SaleProforma.warehouse_id == None). \
-            where(db.SaleInvoice.parent_id == None).all()
-
-    def add(self, rows):
-        # Set relationship and add payment
-        for row in rows:
-            invoice = self.invoices[row]
-            invoice.parent_id = self.parent_invoice.id
-            # self.parent_invoice.proformas[0].payments.append(
-            #     db.SalePayment(
-            #         date=invoice.date,
-            #         amount=invoice.subtotal,
-            #         rate=1.0,
-            #         note=invoice.cn_repr,
-            #         proforma=self.parent_invoice.proformas[0]
-            #     )
-            # )
-
-        try:
-            db.session.commit()
-        except Exception as ex:
-            db.session.rollback()
-            raise
-            # raise ValueError
-
-    def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
-        if not index.isValid():
-            return
-        row, column = index.row(), index.column()
-        if role == Qt.DisplayRole:
-            invoice = self.invoices[row]
-            if column == self.DOCUMENT:
-                return invoice.doc_repr
-            elif column == self.SUBTOTAL:
-                return invoice.subtotal
-
-
 class AvailableEntry:
 
     def __init__(self, sale_invoice, credit_note):
