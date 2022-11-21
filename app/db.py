@@ -1113,7 +1113,7 @@ class SaleInvoice(Base):
 
     wasted_discounts = relationship(
         'ManyManySales',
-        primaryjoin='ManyManySales.credit_id == SaleInvoice.id',
+        primaryjoin='ManyManySales.credit_id==SaleInvoice.id',
         viewonly=True
     )
 
@@ -1150,6 +1150,18 @@ class SaleInvoice(Base):
         self.type = type
         self.number = number
 
+    @property
+    def simplified_doc_repr(self):
+        return f"{self.type}-{self.number}"
+
+    @property
+    def self_referential_relationship(self):
+        if not self.is_credit_note:
+            return ', '.join(f"{o.credit_note.simplified_doc_repr}:{o.fraction}" \
+                             for o in self.return_discounts)
+        else:
+            return ', '.join(f"{o.sale.simplified_doc_repr}:{o.fraction}" \
+                             for o in self.wasted_discounts)
 
     @property
     def payments(self):

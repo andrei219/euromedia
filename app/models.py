@@ -641,15 +641,15 @@ class PartnerContactModel(QtCore.QAbstractTableModel):
 
 
 class SaleInvoiceModel(BaseTable, QtCore.QAbstractTableModel):
-    TYPENUM, DATE, ETA, PARTNER, AGENT, FINANCIAL, LOGISTIC, SENT, CANCELLED, OWING, \
-    TOTAL, EXT, INWH, READY, PROFORMA, WARNING = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15
+    TYPENUM, RELATIONSHIP, DATE, ETA, PARTNER, AGENT, FINANCIAL, LOGISTIC, SENT, CANCELLED, OWING, \
+    TOTAL, EXT, INWH, READY, PROFORMA, WARNING = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16
 
     def __init__(self, filters=None, search_key=None, last=10):
         super().__init__()
         self._headerData = [
-            'Type & Num', 'Date', 'ETA', 'Partner', 'Agent',
+            'Type & Num', 'Sales/Credit', 'Date', 'ETA', 'Partner', 'Agent',
             'Financial', 'Logistic', 'Sent', 'Cancelled', 'Owing',
-            'Total', 'Ext. Doc.', 'In WH', 'Ready to go', 'Proforma', 'Warning'
+            'Total', 'Ext. Doc.', 'In WH', 'Ready to go', 'Proforma', 'Warning',
         ]
 
         self.name = 'invoices'
@@ -777,6 +777,7 @@ class SaleInvoiceModel(BaseTable, QtCore.QAbstractTableModel):
         if role == Qt.DisplayRole:
             return [
                 invoice.doc_repr,
+                invoice.self_referential_relationship,
                 invoice.date.strftime('%d/%m/%Y'),
                 invoice.eta.strftime('%d/%m/%Y'),
                 invoice.partner_name,
@@ -791,7 +792,7 @@ class SaleInvoiceModel(BaseTable, QtCore.QAbstractTableModel):
                 invoice.inwh,
                 ready_status_string,
                 invoice.origin_proformas,
-                invoice.warning
+                invoice.warning,
             ][col]
 
         elif role == Qt.DecorationRole:
