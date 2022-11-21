@@ -13,10 +13,10 @@ def move_credit_relationship():
 
     for sale in session.query(SaleInvoice).where(SaleInvoice.parent_id != None):
 
-        mm = ManyManySales()
-        mm.sale_id = sale.parent_id
-        mm.credit_id = sale.id
-        mm.fraction = sale.total_debt
+        mm = ManyManySales(sale.parent_id, sale.id, sale.total_debt)
+        # mm.sale_id = sale.parent_id
+        # mm.credit_id = sale.id
+        # mm.fraction = sale.total_debt
 
         session.add(mm)
 

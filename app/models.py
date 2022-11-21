@@ -6208,6 +6208,7 @@ def build_credit_note_and_commit(partner_id, agent_id, order, candidates):
     db.session.commit()
     return proforma
 
+
 class AvailableEntry:
 
     def __init__(self, sale_invoice, credit_note):

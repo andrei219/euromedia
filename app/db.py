@@ -1101,7 +1101,7 @@ class SaleInvoice(Base):
     date = Column(Date, default=datetime.now)
     eta = Column(Date, default=datetime.now)
 
-    parent_id = Column(Integer, ForeignKey('sale_invoices.id'))
+    # parent_id = Column(Integer, ForeignKey('sale_invoices.id'))
 
     wh_incoming_rma_id = Column(Integer, ForeignKey('wh_incoming_rmas.id'), nullable=True)
 
