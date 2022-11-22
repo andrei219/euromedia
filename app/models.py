@@ -7402,7 +7402,7 @@ class StockValuationEntryDocument(Tupable):
 
 class StockValuationEntryImei(Tupable):
 
-    def __init__(self, purchase_row: PurchaseRow, external):
+    def __init__(self, purchase_row: PurchaseRow):
         self.description = purchase_row.pitem
         self.condition = purchase_row.pcond
         self.spec = purchase_row.pspec
@@ -7662,7 +7662,7 @@ class StockValuationModelImei(Exportable, BaseTable, QtCore.QAbstractTableModel)
 
         self.name = 'entries'
         self.entries = []
-        self.entries.append(StockValuationEntryImei(do_cost_price(imei), external))
+        self.entries.append(StockValuationEntryImei(do_cost_price(imei)))
 
     def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
         if not index.isValid():
@@ -7685,8 +7685,6 @@ class StockValuationModelImei(Exportable, BaseTable, QtCore.QAbstractTableModel)
                 return reg.partner
             elif col == self.DOC_REPR:
                 return reg.doc
-            elif col == self.EXTERNAL_DOC:
-                return reg.external
             elif col == self.COST:
                 return reg.cost
 
