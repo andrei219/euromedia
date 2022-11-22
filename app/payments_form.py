@@ -47,7 +47,7 @@ class PaymentForm(Ui_PaymentsForm, QDialog):
         try:
             amount = self.amount.text().replace(',', '.') 
 
-            float(amount)
+            amount = float(amount)
         
         except ValueError:
             QMessageBox.critical(self, 'Error - Update', 'Error amount format. Enter a valid decimal number')

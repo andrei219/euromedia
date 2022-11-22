@@ -6218,6 +6218,7 @@ class AvailableEntry:
         self.doc_repr = credit_note.doc_repr
         self.total = credit_note.total_debt
         self.applied = credit_note.applied
+        self.paid = credit_note.paid
         self._applying = 0
 
     @property
@@ -6227,20 +6228,21 @@ class AvailableEntry:
     @applying.setter
     def applying(self, v):
         if v == 't':
-            self._applying = self.total - self.applied
+            self._applying = self.total - self.applied - self.paid
             return
 
         v = float(v)
         if v > 0:
             raise ValueError
-        if v < self.total - self.applied:
+        if v < self.total - self.applied - self.paid:
             raise ValueError
+
         self._applying = v
 
 
 class AvailableCreditNotesModel(BaseTable, QtCore.QAbstractTableModel):
 
-    DOC_REPR, TOTAL, APPLIED, APPLYING = 0, 1, 2, 3
+    DOC_REPR, TOTAL, APPLIED, PAID, APPLYING = 0, 1, 2, 3, 4
 
     def __init__(self, invoice):
         super().__init__()
@@ -6248,7 +6250,7 @@ class AvailableCreditNotesModel(BaseTable, QtCore.QAbstractTableModel):
         self._data = self._get_data()
 
         self.name = '_data'
-        self._headerData = ['Document', 'Total', 'Applied', 'Applying(Editable)']
+        self._headerData = ['Document', 'Total', 'Applied', 'Returned', 'Applying(Editable)']
 
     def sort(self, column: int, order: Qt.SortOrder = ...) -> None:
 
@@ -6268,6 +6270,7 @@ class AvailableCreditNotesModel(BaseTable, QtCore.QAbstractTableModel):
                 entry.doc_repr,
                 entry.total,
                 entry.applied,
+                entry.paid,
                 entry.applying
             ][column]
 

@@ -18,7 +18,7 @@
     <rect>
      <x>30</x>
      <y>50</y>
-     <width>471</width>
+     <width>551</width>
      <height>211</height>
     </rect>
    </property>
@@ -30,7 +30,7 @@
      <rect>
       <x>0</x>
       <y>20</y>
-      <width>471</width>
+      <width>551</width>
       <height>191</height>
      </rect>
     </property>
@@ -48,7 +48,7 @@
   <widget class="QGroupBox" name="groupBox_2">
    <property name="geometry">
     <rect>
-     <x>630</x>
+     <x>680</x>
      <y>50</y>
      <width>311</width>
      <height>211</height>
@@ -77,8 +77,8 @@
   <widget class="QToolButton" name="exit">
    <property name="geometry">
     <rect>
-     <x>870</x>
-     <y>320</y>
+     <x>910</x>
+     <y>330</y>
      <width>71</width>
      <height>61</height>
     </rect>
@@ -109,7 +109,7 @@
   <widget class="QPushButton" name="delete_">
    <property name="geometry">
     <rect>
-     <x>865</x>
+     <x>910</x>
      <y>267</y>
      <width>75</width>
      <height>23</height>
@@ -122,7 +122,7 @@
   <widget class="QToolButton" name="add">
    <property name="geometry">
     <rect>
-     <x>520</x>
+     <x>584</x>
      <y>130</y>
      <width>91</width>
      <height>61</height>
