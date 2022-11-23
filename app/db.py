@@ -665,6 +665,10 @@ class PurchaseInvoice(Base):
     def device_count(self):
         return sum(p.device_count for p in self.proformas)
 
+    @property
+    def owing(self):
+        return self.total_debt - self.total_paid
+
     def __init__(self, type, number):
         self.type = type
         self.number = number

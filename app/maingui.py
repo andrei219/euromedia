@@ -1,7 +1,8 @@
 import os
 import subprocess
+
+import tempfile
 from builtins import getattr
-from lib2to3.fixes.fix_operator import invocation
 
 from PyQt5.QtWidgets import (
     QMainWindow,
@@ -129,7 +130,6 @@ def get_prefix(model, document):
         return 'PI '
     return 'INV'
 
-
 def view_document(view, model):
     ixs = view.selectedIndexes()
     if not ixs:
@@ -137,7 +137,26 @@ def view_document(view, model):
     row = {i.row() for i in ixs}.pop()
     document = model[row]
     filename = get_prefix(model, document) + document.doc_repr + '.pdf'
+    pdf_object = build_document(document)
+
+    with tempfile.NamedTemporaryFile('wb', dir='.', delete=False, suffix='.pdf') as file:
+        pdf_object.output(file.name)
+        subprocess.Popen((file.name, ), shell=True)
+
+
+
+def view_document_old(view, model):
+    ixs = view.selectedIndexes()
+    if not ixs:
+        return
+    row = {i.row() for i in ixs}.pop()
+    document = model[row]
+    filename = get_prefix(model, document) + document.doc_repr + '.pdf'
     pdf = build_document(document)
+
+
+
+
     pdf.output(filename)
 
     subprocess.Popen((filename,), shell=True)
