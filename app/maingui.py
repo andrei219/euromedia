@@ -877,7 +877,7 @@ class MainGui(Ui_MainGui, QMainWindow):
         completed_subprocess = subprocess.run(['mailunch.exe', 'A', recipient, abs_path])
 
 
-    def proformas_sales_mail_handler_new(self):
+    def proformas_sales_mail_handler_try(self):
         proforma = self.get_sale_proforma()
         if not proforma:
             return
@@ -886,12 +886,17 @@ class MainGui(Ui_MainGui, QMainWindow):
         if not recipient:
             return
         from pdfbuilder import build_document
+
         with tempfile.TemporaryDirectory(dir=".") as tempdir:
             pdf_object = build_document(proforma)
             filename = f"{get_prefix(self.proformas_sales_model)}{proforma.doc_repr}.pdf"
             filepath = os.path.abspath(os.path.join(tempdir, filename))
-            subprocess.run(('mailunch.exe', 'A', recipient, filepath), shell=True)
-
+            try:
+                p = subprocess.run(('mailunch.exe', 'A', recipient, filepath),
+                                   stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                                   stderr=subprocess.STDOUT)
+            except subprocess.CalledProcessError as err:
+                raise
 
 
 
