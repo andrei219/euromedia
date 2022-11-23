@@ -7540,7 +7540,7 @@ class StockValuationModelDocument(Exportable, BaseTable, QtCore.QAbstractTableMo
 
 class StockValuationEntryWarehouse:
 
-    def __init__(self, purchase_row: PurchaseRow, external):
+    def __init__(self, purchase_row: PurchaseRow):
         self.description = purchase_row.pitem
         self.condition = purchase_row.pcond
         self.spec = purchase_row.pspec
@@ -7594,7 +7594,7 @@ class StockValuationModelWarehouse(Exportable, BaseTable, QtCore.QAbstractTableM
 
         registers = []
         for register in db.session.query(db.Imei.imei).where(db.Imei.warehouse_id == warehouse_id):
-            registers.append(StockValuationEntryWarehouse(do_cost_price(register.imei), 'Not found'))
+            registers.append(StockValuationEntryWarehouse(do_cost_price(register.imei)))
 
         has_not_serie = lambda object: utils.valid_uuid(object.serial)
         has_serie = lambda object: not utils.valid_uuid(object.serial)
@@ -7608,13 +7608,13 @@ class StockValuationModelWarehouse(Exportable, BaseTable, QtCore.QAbstractTableM
         for entry in sn_group:
             self.entries.append(entry)
 
-        key = operator.attrgetter('description', 'condition', 'spec', 'date', 'partner', 'doc', 'external', 'cost')
+        key = operator.attrgetter('description', 'condition', 'spec', 'date', 'partner', 'doc', 'cost')
 
         for key, group in groupby(iterable=uuid_group, key=key):
-            description, condition, spec, date, partner, doc, external, cost = key
+            description, condition, spec, date, partner, doc, cost = key
 
             self.entries.append(StockValuationEntryWarehouseNoSerie(
-                description, condition, spec, date, partner, doc, external, cost, len(list(group)))
+                description, condition, spec, date, partner, doc, cost, len(list(group)))
             )
 
     def data(self, index: QModelIndex, role: int = ...) -> typing.Any:

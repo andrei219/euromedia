@@ -125,7 +125,7 @@ def clean_up_directories():
         os.remove(os.path.join(os.curdir, 'temp', file))
 
 
-def get_prefix(model, document):
+def get_prefix(model):
     if isinstance(model, (SaleProformaModel, PurchaseProformaModel)):
         return 'PI '
     return 'INV'
@@ -136,7 +136,7 @@ def view_document(view, model):
         return
     row = {i.row() for i in ixs}.pop()
     document = model[row]
-    filename = get_prefix(model, document) + document.doc_repr + '.pdf'
+    filename = get_prefix(model) + document.doc_repr + '.pdf'
     pdf_object = build_document(document)
 
     with tempfile.NamedTemporaryFile('wb', dir='.', delete=False, suffix='.pdf') as file:
@@ -151,7 +151,7 @@ def view_document_old(view, model):
         return
     row = {i.row() for i in ixs}.pop()
     document = model[row]
-    filename = get_prefix(model, document) + document.doc_repr + '.pdf'
+    filename = get_prefix(model) + document.doc_repr + '.pdf'
     pdf = build_document(document)
 
 
@@ -875,6 +875,24 @@ class MainGui(Ui_MainGui, QMainWindow):
         import subprocess
 
         completed_subprocess = subprocess.run(['mailunch.exe', 'A', recipient, abs_path])
+
+
+    def proformas_sales_mail_handler_new(self):
+        proforma = self.get_sale_proforma()
+        if not proforma:
+            return
+        from utils import get_email_recipient
+        recipient = get_email_recipient(proforma)
+        if not recipient:
+            return
+        from pdfbuilder import build_document
+        with tempfile.TemporaryDirectory(dir=".") as tempdir:
+            pdf_object = build_document(proforma)
+            filename = f"{get_prefix(self.proformas_sales_model)}{proforma.doc_repr}.pdf"
+            filepath = os.path.abspath(os.path.join(tempdir, filename))
+            subprocess.run(('mailunch.exe', 'A', recipient, filepath), shell=True)
+
+
 
 
     def proformas_sales_payments_handler(self):
