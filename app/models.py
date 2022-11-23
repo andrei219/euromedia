@@ -7416,10 +7416,6 @@ class StockValuationEntryImei(Tupable):
         self.cost = purchase_row.ptotal
 
 
-class StockValuationEntryWarehouse(Tupable):
-    pass
-
-
 def get_external_from_imei(imei):
     try:
         return db.session.query(db.PurchaseProforma.external).join(db.Reception). \
@@ -7538,7 +7534,7 @@ class StockValuationModelDocument(Exportable, BaseTable, QtCore.QAbstractTableMo
             self.entries.append(entry)
 
 
-class StockValuationEntryWarehouse:
+class StockValuationEntryWarehouse(Tupable):
 
     def __init__(self, purchase_row: PurchaseRow):
         self.description = purchase_row.pitem
@@ -7559,7 +7555,7 @@ class StockValuationEntryWarehouse:
         return tuple(self.__dict__.values())
 
 
-class StockValuationEntryWarehouseNoSerie:
+class StockValuationEntryWarehouseNoSerie(Tupable):
 
     def __init__(self, description, condition, spec, date, partner, doc, cost, qnt):
         self.description = description
