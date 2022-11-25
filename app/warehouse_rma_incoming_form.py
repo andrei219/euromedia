@@ -35,7 +35,7 @@ class Form(Ui_Form, QWidget):
         self.view.resizeColumnsToContents()
 
     def populate_form(self):
-        self.partner.setText(self.order.incoming_rma.lines[0].supp)
+        self.partner.setText(self.order.incoming_rma.lines[0].cust)
         self.date.setText(self.order.incoming_rma.date.strftime('%d%m%y'))
         try:
             self.warehouse.setCurrentText(self.order.warehouse.description)
