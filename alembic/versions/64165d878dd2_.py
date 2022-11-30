@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 3099beb94389
+Revision ID: 64165d878dd2
 Revises: 
-Create Date: 2022-11-30 11:37:22.425533
+Create Date: 2022-11-30 14:18:27.759684
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
-revision = '3099beb94389'
+revision = '64165d878dd2'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -65,8 +65,6 @@ def upgrade():
                existing_type=mysql.DOUBLE(asdecimal=True),
                type_=sa.Float(precision=32),
                existing_nullable=True)
-    op.drop_column('partners', 'email')
-    op.drop_column('partners', 'phone')
     op.alter_column('purchase_documents', 'document',
                existing_type=mysql.LONGBLOB(),
                type_=sa.LargeBinary(length=4294967295),
@@ -176,8 +174,6 @@ def downgrade():
                existing_type=sa.LargeBinary(length=4294967295),
                type_=mysql.LONGBLOB(),
                existing_nullable=True)
-    op.add_column('partners', sa.Column('phone', mysql.VARCHAR(length=50), nullable=True))
-    op.add_column('partners', sa.Column('email', mysql.VARCHAR(length=100), nullable=True))
     op.alter_column('partners', 'amount_credit_limit',
                existing_type=sa.Float(precision=32),
                type_=mysql.DOUBLE(asdecimal=True),
