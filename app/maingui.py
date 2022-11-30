@@ -9,11 +9,13 @@ from PyQt5.QtWidgets import (
     QTableView,
     QMessageBox,
 )
-from pipe import index
+
 
 from sqlalchemy.exc import IntegrityError
 
 from clipboard import ClipBoard
+
+from pyVies import api
 
 import advanced_definition_form
 import rmas_incoming_form
@@ -920,6 +922,8 @@ class MainGui(Ui_MainGui, QMainWindow):
         if not rows:
             return
         model = self.proformas_sales_model
+
+
         if any(model[row].cancelled for row in rows):
             QMessageBox.critical(self, 'Error', 'Cancelled proforma/s')
             return
@@ -929,12 +933,18 @@ class MainGui(Ui_MainGui, QMainWindow):
             return
 
         try:
+
             invoice = model.associateInvoice(rows)
+
         except ValueError as ex:
             QMessageBox.critical(self, 'Error', str(ex))
+        except (api.ViesValidationError, api.ViesError, api.ViesHTTPError) as ex:
+            if QMessageBox.question(self, 'Error validating IVA.', 'I could not validate IVA number. Build invoice '
+                                                                   'anyway?', QMessageBox.Yes | QMessageBox.No) == QMessageBox.Yes:
+                model.associateInvoice(rows, bypass_vies=True)
+
         else:
             QMessageBox.information(self, 'Success', f'{invoice.doc_repr} created')
-
 
     def proformas_sales_towh_handler(self, invoice=None):
         proforma = self.get_sale_proforma()

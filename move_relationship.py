@@ -2,6 +2,7 @@
 from app.db import SaleInvoice, session
 from app.db import ManyManySales
 
+import pyVies.api
 
 def move_credit_relationship():
 

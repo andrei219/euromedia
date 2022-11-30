@@ -1,5 +1,4 @@
 from dropbox import secondary_emails
-from mysqlx import Column
 from sqlalchemy import create_engine, event, insert, update, delete
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.sql import func
@@ -1028,6 +1027,12 @@ class SaleProforma(Base):
                 return 'Partially Paid'
             elif self.overpaid:
                 return 'Over Paid'
+
+
+            return 'Partially'
+
+
+
     @property
     def owing(self):
         try:
@@ -2445,6 +2450,21 @@ class ManyManySales(Base):
         return f"{clsname}(sale_id={self.sale_id}, credit_id={self.credit_id}, fraction={self.fraction})"
 
 
+class ViesRequest(Base):
+
+    __tablename__ = 'vies_requests'
+
+    id = Column(Integer, primary_key=True)
+    request_date = Column(Date, nullable=False)
+    valid = Column(Boolean, nullable=False)
+    fiscal_number = Column(String(50), nullable=False)
+
+    def __init__(self, request_date, valid, fiscal_number):
+        self.request_date = request_date
+        self.valid = valid
+        self.fiscal_number = fiscal_number
+
+
 def create_init_data():
     spec = Spec('Mix')
     condition = Condition('Mix')
@@ -2453,6 +2473,7 @@ def create_init_data():
     session.add(condition)
 
     session.commit()
+
 
 
 def correct_mask():

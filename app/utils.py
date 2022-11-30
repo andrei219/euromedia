@@ -7,19 +7,16 @@ import sys
 from datetime import datetime, timedelta
 import functools
 
-# QtFramework stuff:
-from operator import is_
 
 import pycountry
 from PyQt5.QtWidgets import QInputDialog
 from PyQt5.QtWidgets import QAbstractItemView
 from PyQt5.QtWidgets import QFileDialog, QLineEdit
 
-# Miscelaneous
 from country_list import countries_for_language
 from schwifty import IBAN, BIC
+from pyVies.api import Vies, ViesError, ViesValidationError, ViesHTTPError
 
-# Sqalchemy
 from sqlalchemy.sql import select, func
 
 import db
@@ -46,6 +43,12 @@ description_id_map = bidict({item.clean_repr: item.id for item in db.session.que
 
 # STOCK TYPES:
 ONLY_COL, ONLY_CAP, CAP_COL = 1, 2, 3
+
+
+def check_vies(fiscal_number):
+    v = Vies()
+    r = v.request(fiscal_number)
+    return r.requestDate, r.valid
 
 
 def stock_type(stock):

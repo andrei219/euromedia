@@ -28,6 +28,8 @@ from sqlalchemy import func
 from sqlalchemy import or_, and_
 from sqlalchemy.exc import IntegrityError
 
+import pyVies.api as vies
+
 import utils
 import db
 from utils import description_id_map
@@ -522,7 +524,7 @@ class PartnerModel(QtCore.QAbstractTableModel):
 
         if attr:
             self.layoutAboutToBeChanged.emit()
-            self.partners.sort(key=operator.attrgetter(attr), \
+            self.partners.sort(key=operator.attrgetter(attr),
                                reverse=True if Qt.AscendingOrder else False)
             self.layoutChanged.emit()
 
@@ -1548,6 +1550,8 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
 
         any_proforma = self.proformas[row]
 
+
+
         current_num = db.session.query(func.max(db.PurchaseInvoice.number)). \
             where(db.PurchaseInvoice.type == any_proforma.type).scalar()
 
@@ -1563,6 +1567,8 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
             proforma.invoice = invoice
 
         try:
+
+            db.session.add(r)
             db.session.commit()
             return proforma.invoice
         except:
@@ -1789,7 +1795,6 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 
         financial_status_string = proforma.financial_status_string
         sign = ' EUR' if proforma.eur_currency else ' USD'
-
         if role == Qt.DisplayRole:
             if col == self.TYPE_NUM:
                 return proforma.doc_repr
@@ -1973,7 +1978,7 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 
         return proforma.invoice
 
-    def associateInvoice(self, rows: set):
+    def associateInvoice(self, rows: set, bypass_vies=False):
         if any(
                 bool(self.proformas[row].credit_note_lines)
                 for row in rows
@@ -1992,6 +1997,22 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
             break  # Peek an element (set is not subscriptable)
 
         any_proforma = self.proformas[row]
+
+        if not bypass_vies:
+            number, country = any_proforma.partner.fiscal_number, any_proforma.partner.billing_country
+            from utils import get_country_code
+            code = get_country_code(country)
+            if not number.startswith(code):
+                number = code + number
+
+            try:
+                request = vies.Vies().request(number)
+                if request.valid:
+                    register = db.ViesRequest(request.requestDate, request.valid, number)
+                    db.session.add(register)
+
+            except (vies.ViesValidationError, vies.ViesError, vies.ViesHTTPError):
+                raise
 
         next_num = get_sale_invoice_next_number(any_proforma)
 
