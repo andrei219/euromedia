@@ -1551,7 +1551,6 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
         any_proforma = self.proformas[row]
 
 
-
         current_num = db.session.query(func.max(db.PurchaseInvoice.number)). \
             where(db.PurchaseInvoice.type == any_proforma.type).scalar()
 
@@ -1567,8 +1566,6 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
             proforma.invoice = invoice
 
         try:
-
-            db.session.add(r)
             db.session.commit()
             return proforma.invoice
         except:
