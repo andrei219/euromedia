@@ -7083,11 +7083,11 @@ class OutputModel(BaseTable, QtCore.QAbstractTableModel):
     @classmethod
     def by_period(cls, _from, to, partner=None, agent=None):
         self = cls()
-        # 1. Get imeis whose input is in that period:
-        query = db.session.query(db.ReceptionSerie.serie).join(db.ReceptionLine) \
-            .join(db.Reception).join(db.PurchaseProforma) \
-            .where(_from < db.PurchaseProforma.date) \
-            .where(db.PurchaseProforma.date < to)
+        # 1. Get imeis whose output is in that period:
+        query = db.session.query(db.ExpeditionSerie.serie).join(db.ExpeditionLine)\
+            .join(db.Expedition).join(db.SaleProforma)\
+            .where(_from <= db.SaleProforma.date)\
+            .where(db.SaleProforma.date <= to)
 
         append_registers(self, query)
 
