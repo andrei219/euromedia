@@ -2400,7 +2400,6 @@ class OrganizedLines:
         lines = self.organized_lines[row]
         if isinstance(lines, Iterable):
             for line in lines:
-                print(f'line={line}, condition={condition}')
                 line.showing_condition = condition
         else:
             lines.showing_condition = condition
@@ -6862,10 +6861,6 @@ def do_sale_price(imei):
         base_price = proforma_line.price
 
         remaining_expense, shipping_expense, terms = get_sale_breakdown(proforma)
-        if remaining_expense < 0:
-            print(proforma.doc_repr, f'remaining_expense={remaining_expense}')
-
-
 
         # Compute deltas:
         shipping_delta = shipping_expense / proforma.total_quantity
@@ -7076,7 +7071,10 @@ class OutputModel(BaseTable, QtCore.QAbstractTableModel):
         ws = wb.active
         ws.append(self._headerData)
         for register in self._registers:
-            ws.append(register.astuple + (register.stotal - register.ptotal,))
+            try:
+                ws.append(register.astuple + (register.stotal - register.ptotal,))
+            except TypeError:
+                ws.append(register.astuple + ('Could not find a result',))
 
         wb.save(file)
 
@@ -7087,9 +7085,9 @@ class OutputModel(BaseTable, QtCore.QAbstractTableModel):
         query = db.session.query(db.ExpeditionSerie.serie).join(db.ExpeditionLine)\
             .join(db.Expedition).join(db.SaleProforma)\
             .where(_from <= db.SaleProforma.date)\
-            .where(db.SaleProforma.date <= to)
+            .where(db.SaleProforma.date <= to).all()
 
-        append_registers(self, query)
+        append_registers(self, query=query)
 
         return self
 
