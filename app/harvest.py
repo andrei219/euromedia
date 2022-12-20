@@ -1,9 +1,13 @@
 from ui_harvevst import Ui_Form
 
 from PyQt5.QtWidgets import QDialog, QMessageBox
+from PyQt5.QtWidgets import QCompleter
+from PyQt5.QtCore import Qt
+
+
 
 from models import HarvestModel
-from utils import parse_date
+from utils import parse_date, agent_id_map
 import re
 
 from output import Form as OutputForm
@@ -31,6 +35,10 @@ class Form(Ui_Form, QDialog):
         self.add_serial.clicked.connect(self.add_serial_handler)
         self.delete_serial.clicked.connect(self.delete_serial_handler)
         self.calculate.clicked.connect(self.calculate_handler)
+
+        completer = QCompleter(agent_id_map.keys())
+        completer.setCaseSensitivity(Qt.CaseInsensitive)
+        self.agent.setCompleter(completer)
 
     def by_doc_toggled(self, enable):
         self.by_serial.setEnabled(not enable)
@@ -73,7 +81,16 @@ class Form(Ui_Form, QDialog):
                 QMessageBox.critical(self, 'Error', 'Invalid date format')
                 return
             else:
-                OutputForm.by_period(self, _from, to).exec_()
+                print(self.agent.text())
+                print(self.input.isChecked())
+                try:
+                    agent_id = agent_id_map[self.agent.text()]
+                except KeyError:
+                    agent_id = None
+
+                OutputForm.by_period(self, _from, to,
+                                     _input=self.input.isChecked(),
+                                     agent_id=agent_id).exec_()
 
         elif self.by_serial.isChecked():
             serials = self.serial_model.elements

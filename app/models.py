@@ -7079,13 +7079,28 @@ class OutputModel(BaseTable, QtCore.QAbstractTableModel):
         wb.save(file)
 
     @classmethod
-    def by_period(cls, _from, to, partner=None, agent=None):
+    def by_period(cls, _from, to, _input=False, agent_id=None):
         self = cls()
-        # 1. Get imeis whose output is in that period:
-        query = db.session.query(db.ExpeditionSerie.serie).join(db.ExpeditionLine)\
-            .join(db.Expedition).join(db.SaleProforma)\
-            .where(_from <= db.SaleProforma.date)\
-            .where(db.SaleProforma.date <= to).all()
+        if _input:
+            print('if input ')
+            query = db.session.query(db.ReceptionSerie.serie).join(db.ReceptionLine).\
+                join(db.Reception).join(db.PurchaseProforma).\
+                where(db.PurchaseProforma.date >= _from,
+                      db.PurchaseProforma.date <= to)
+
+        else:
+            print('if not input')
+            query = db.session.query(db.ExpeditionSerie.serie).join(db.ExpeditionLine).\
+                join(db.Expedition).join(db.SaleProforma).\
+                where(db.SaleProforma.date >= _from,
+                      db.SaleProforma.date <= to)
+
+        if agent_id:
+            print('if agent_id ')
+            if _input:
+                query = query.where(db.PurchaseProforma.agent_id == agent_id)
+            else:
+                query = query.where(db.SaleProforma.agent_id == agent_id)
 
         append_registers(self, query=query)
 

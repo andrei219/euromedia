@@ -15,9 +15,9 @@ class Form(Ui_Dialog, QDialog):
         self._export.clicked.connect(self.export_handler)
 
     @classmethod
-    def by_period(cls, parent, _from, to, agent=None, partner=None):
+    def by_period(cls, parent, _from, to, _input=False, agent_id=None):
         self = cls(parent)
-        self.model = OutputModel.by_period(_from, to, agent=agent, partner=partner)
+        self.model = OutputModel.by_period(_from, to, _input, agent_id)
         self.view.setModel(self.model)
         return self
 

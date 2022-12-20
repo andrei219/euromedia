@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>615</width>
-    <height>646</height>
+    <width>667</width>
+    <height>866</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,10 +16,10 @@
   <widget class="QPushButton" name="exit">
    <property name="geometry">
     <rect>
-     <x>470</x>
-     <y>580</y>
+     <x>530</x>
+     <y>800</y>
      <width>100</width>
-     <height>30</height>
+     <height>51</height>
     </rect>
    </property>
    <property name="font">
@@ -32,24 +32,11 @@
     <string>Exit</string>
    </property>
   </widget>
-  <widget class="Line" name="line_2">
-   <property name="geometry">
-    <rect>
-     <x>280</x>
-     <y>80</y>
-     <width>20</width>
-     <height>411</height>
-    </rect>
-   </property>
-   <property name="orientation">
-    <enum>Qt::Vertical</enum>
-   </property>
-  </widget>
   <widget class="QPushButton" name="calculate">
    <property name="geometry">
     <rect>
-     <x>470</x>
-     <y>520</y>
+     <x>400</x>
+     <y>800</y>
      <width>100</width>
      <height>50</height>
     </rect>
@@ -85,26 +72,13 @@
     <string>Harvest Check</string>
    </property>
   </widget>
-  <widget class="Line" name="line">
-   <property name="geometry">
-    <rect>
-     <x>315</x>
-     <y>210</y>
-     <width>250</width>
-     <height>3</height>
-    </rect>
-   </property>
-   <property name="orientation">
-    <enum>Qt::Horizontal</enum>
-   </property>
-  </widget>
   <widget class="QGroupBox" name="by_document">
    <property name="geometry">
     <rect>
-     <x>10</x>
+     <x>30</x>
      <y>60</y>
-     <width>281</width>
-     <height>451</height>
+     <width>261</width>
+     <height>711</height>
     </rect>
    </property>
    <property name="font">
@@ -130,7 +104,7 @@
       <x>20</x>
       <y>210</y>
       <width>225</width>
-      <height>190</height>
+      <height>441</height>
      </rect>
     </property>
     <property name="selectionMode">
@@ -178,8 +152,8 @@
    <widget class="QCheckBox" name="delete_all_document">
     <property name="geometry">
      <rect>
-      <x>210</x>
-      <y>405</y>
+      <x>200</x>
+      <y>670</y>
       <width>45</width>
       <height>23</height>
      </rect>
@@ -207,8 +181,8 @@
    <widget class="QPushButton" name="delete_document">
     <property name="geometry">
      <rect>
-      <x>130</x>
-      <y>405</y>
+      <x>110</x>
+      <y>670</y>
       <width>65</width>
       <height>23</height>
      </rect>
@@ -303,10 +277,10 @@
   <widget class="QGroupBox" name="by_period">
    <property name="geometry">
     <rect>
-     <x>290</x>
-     <y>60</y>
+     <x>310</x>
+     <y>61</y>
      <width>281</width>
-     <height>151</height>
+     <height>251</height>
     </rect>
    </property>
    <property name="font">
@@ -329,8 +303,8 @@
    <widget class="QLabel" name="label_6">
     <property name="geometry">
      <rect>
-      <x>70</x>
-      <y>80</y>
+      <x>80</x>
+      <y>50</y>
       <width>21</width>
       <height>16</height>
      </rect>
@@ -348,8 +322,8 @@
    <widget class="QLabel" name="label_5">
     <property name="geometry">
      <rect>
-      <x>60</x>
-      <y>50</y>
+      <x>70</x>
+      <y>20</y>
       <width>31</width>
       <height>16</height>
      </rect>
@@ -367,8 +341,8 @@
    <widget class="QLineEdit" name="to">
     <property name="geometry">
      <rect>
-      <x>100</x>
-      <y>80</y>
+      <x>110</x>
+      <y>50</y>
       <width>80</width>
       <height>20</height>
      </rect>
@@ -377,21 +351,70 @@
    <widget class="QLineEdit" name="_from">
     <property name="geometry">
      <rect>
-      <x>100</x>
-      <y>50</y>
+      <x>110</x>
+      <y>20</y>
       <width>80</width>
       <height>20</height>
      </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>110</y>
+      <width>55</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Agent:</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="agent">
+    <property name="geometry">
+     <rect>
+      <x>110</x>
+      <y>110</y>
+      <width>131</width>
+      <height>22</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="input">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>170</y>
+      <width>91</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Input</string>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="output">
+    <property name="geometry">
+     <rect>
+      <x>160</x>
+      <y>170</y>
+      <width>71</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Output</string>
     </property>
    </widget>
   </widget>
   <widget class="QGroupBox" name="by_serial">
    <property name="geometry">
     <rect>
-     <x>290</x>
-     <y>220</y>
+     <x>310</x>
+     <y>329</y>
      <width>281</width>
-     <height>291</height>
+     <height>441</height>
     </rect>
    </property>
    <property name="font">
@@ -415,7 +438,7 @@
     <property name="geometry">
      <rect>
       <x>140</x>
-      <y>248</y>
+      <y>380</y>
       <width>65</width>
       <height>23</height>
      </rect>
@@ -465,7 +488,7 @@
       <x>30</x>
       <y>53</y>
       <width>225</width>
-      <height>190</height>
+      <height>311</height>
      </rect>
     </property>
     <property name="selectionMode">
@@ -475,8 +498,8 @@
    <widget class="QCheckBox" name="delete_all_serial">
     <property name="geometry">
      <rect>
-      <x>220</x>
-      <y>248</y>
+      <x>230</x>
+      <y>380</y>
       <width>45</width>
       <height>23</height>
      </rect>
