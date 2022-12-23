@@ -6103,40 +6103,40 @@ class OperationModel(BaseTable, QtCore.QAbstractTableModel):
         # query = db.session.query(db.WhIncomingRmaLine).join(db.WhIncomingRma).join(db.SaleInvoice) \
         #     .where(db.WhIncomingRmaLine.sn == imei)\
         #     .where(db.WhIncomingRmaLine.accepted == 'y')
-        # 
+        #
         # for r in query:
         #     te = TraceEntry()
         #     te.operation = 'Incoming Rma'
-        # 
+        #
         #     # Find concrete sale
         #     for sale in r.wh_incoming_rma.invoices:
         #         for line in sale.proformas[0].credit_note_lines:
         #             if line.sn == imei:
         #                 break
-        # 
+        #
         #     te.doc = 'FR ' + sale.doc_repr
         #     te.date = sale.date
         #     te.partner = r.wh_incoming_rma.incoming_rma.lines[0].cust
         #     te.picking = 'Not Registered'
-        # 
+        #
         #     self.entries.append(te)
 
         query = db.session.query(db.CreditNoteLine).join(db.SaleProforma).join(db.SaleInvoice).\
             where(db.CreditNoteLine.sn == imei)
-        
+
         for r in query:
             te = TraceEntry()
             te.operation = 'Incoming Rma'
-            
+
             invoice = r.proforma.invoice
-            
-            te.doc = 'FR ' + invoice.doc_repr 
-            te.date = invoice.date 
+
+            te.doc = 'FR ' + invoice.doc_repr
+            te.date = invoice.date
             te.partner = invoice.partner_name
             te.picking = 'Not registered'
-            
+
             self.entries.append(te)
-            
+
 
         self.entries.sort(key=lambda te: te.date)
 
@@ -6314,7 +6314,7 @@ class AvailableCreditNotesModel(BaseTable, QtCore.QAbstractTableModel):
             return Qt.ItemFlags(super().flags(index) | Qt.ItemIsEditable)
         else:
             return Qt.ItemFlags(~Qt.ItemIsEditable)
-    
+
     def _get_data(self):
         data = []
 
@@ -6386,7 +6386,7 @@ class AppliedCreditNotesModel(BaseTable, QtCore.QAbstractTableModel):
 
     def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
         if not index.isValid():
-            return 
+            return
         row, col = index.row(), index.column()
         if role == Qt.DisplayRole:
             obj = self._data[row]
@@ -6414,7 +6414,7 @@ class WhereCreditNotesModel(BaseTable, QtCore.QAbstractTableModel):
 
     def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
         if not index.isValid():
-            return 
+            return
         row, column = index.row(), index.column()
         if role == Qt.DisplayRole:
             obj = self._data[row]
@@ -6422,7 +6422,7 @@ class WhereCreditNotesModel(BaseTable, QtCore.QAbstractTableModel):
                 return obj.sale.doc_repr
             elif column == self.FRACTION:
                 return obj.fraction
-    
+
     @property
     def total(self):
         return sum(o.fraction for o in self._data)
@@ -6570,28 +6570,17 @@ candidates = [
 
 candidates.extend([c.description for c in db.session.query(db.Courier)])
 
-
 # Works for both purchases and sales
 @functools.cache
 def get_avg_rate(proforma):
-    if proforma.eur_currency:
+    base, rated_base = 0, 0
+    for p in proforma.payments:
+        base += p.amount
+        rated_base = p.amount / p.rate
+    try:
+        return base / rated_base
+    except ZeroDivisionError:
         return 1
-
-    if all(payment.rate == 1 for payment in proforma.payments):
-        return 1
-
-    base = 0
-    base_with_rates = 0
-
-    for payment in proforma.payments:
-        base += payment.amount
-        base_with_rates += payment.amount / payment.rate
-
-    if base == 0:
-        return 'No payments yet'
-
-    if math.isclose(base, proforma.total_debt):
-        return base / base_with_rates
 
 
 @functools.cache
@@ -6637,7 +6626,7 @@ def get_purchase_stock_value(proforma):
 
 fields = """
     pdoc_type pdoc_number pdate ppartner pagent pitem 
-    pcond pspec pserie pdollar prate peuro pship pexpenses 
+    pcond pspec pserie pdollar prate peuro pfinancial_status pship pexpenses 
     ptotal
     """
 
@@ -6671,10 +6660,9 @@ def do_cost_price(imei):
 
         avg_rate = get_avg_rate(proforma)
         base_price = proforma_line.price
-
-        remaining_expense, shipping_expense = get_purchase_expenses_breakdown(proforma)  # already rate applied
+        no_shipping_expense, shipping_expense = get_purchase_expenses_breakdown(proforma)  # already rate applied
         shipping_delta = shipping_expense / proforma.total_quantity
-        remaining_expense_delta = base_price * remaining_expense / get_purchase_stock_value(proforma)  # formula
+        remaining_expense_delta = base_price * no_shipping_expense / get_purchase_stock_value(proforma)  # formula
 
         try:
             doc_number = proforma.invoice.doc_repr
@@ -6710,6 +6698,7 @@ def do_cost_price(imei):
             pdollar=dollar,
             prate=avg_rate,
             peuro=euro,
+            pfinancial_status=proforma.financial_status_string,
             pship=shipping_delta,
             pexpenses=remaining_expense_delta,
             ptotal=euro + shipping_delta + remaining_expense_delta
@@ -6792,7 +6781,7 @@ def get_sale_proforma_stock_value(proforma):
 
 
 fields = """ sdoc_type sdoc_number sdate spartner sagent 
-          sitem scond sspec sserie sdollar srate seuro sship 
+          sitem scond sspec sserie sdollar srate seuro sfinancial_status sship 
           sterm sexpenses stotal """
 
 defaults = ('',) * (len(fields.split()) - 1)
@@ -6896,6 +6885,7 @@ def do_sale_price(imei):
             srate=avg_rate,
             sdollar=dollar,
             seuro=euro,
+            sfinancial_status=proforma.financial_status_string,
             sship=shipping_delta,
             sterm=terms_delta,
             sexpenses=remaining_expense_delta,
@@ -6974,10 +6964,10 @@ def append_registers(obj, query=None, series=None):
 
 class OutputModel(BaseTable, QtCore.QAbstractTableModel):
     PDOCTYPE, PNUMBER, PDATE, PPARTNER, PAGENT, PDESCRIPTION, PCONDITION, PSPEC, PSERIAL, PDOLAR, PRATE, PEURO, \
-    PSHIPPING, PEXPENSES, PTOTAL, SDOCTYPE, SDOCNUMBER, SDATE, SPARTNER, SAGENT, SDESCRIPTION, SCONDITION, \
-    SSPEC, SSERIAL, SDOLAR, SRATE, SEURO, SSHIPPING, STERMS, SEXPENSES, STOTAL, SHARVEST = \
+    PFINANCIAL_STATUS, PSHIPPING, PEXPENSES, PTOTAL, SDOCTYPE, SDOCNUMBER, SDATE, SPARTNER, SAGENT, SDESCRIPTION, SCONDITION, \
+    SSPEC, SSERIAL, SDOLAR, SRATE, SEURO, SFINANCIAL_STATUS, SSHIPPING, STERMS, SEXPENSES, STOTAL, SHARVEST = \
         0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, \
-        21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31
+        21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33
 
     def __init__(self):
         super().__init__()
@@ -6985,8 +6975,8 @@ class OutputModel(BaseTable, QtCore.QAbstractTableModel):
         self._registers = []
         self._headerData = [
             'Doc. Type', 'Doc. Nº', 'Date', 'Partner', 'Agent', 'Product', 'Condition', 'Spec.', 'Serial',
-            '$', 'Rate', '€', 'Shipping', 'Expenses', 'Total Cost €', 'Doc. Type', 'Doc. Nº', 'Date', 'Partner',
-            'Agent', 'Product', 'Condition', 'Spec', 'Serial', '$', 'Rate', '€', 'Shipping', 'Terms',
+            '$', 'Rate', '€', 'Status', 'Shipping', 'Expenses', 'Total Cost €', 'Doc. Type', 'Doc. Nº', 'Date', 'Partner',
+            'Agent', 'Product', 'Condition', 'Spec', 'Serial', '$', 'Rate', '€', 'Status', 'Shipping', 'Terms',
             'Expenses', 'Total Income', 'Harvest'
         ]
 
@@ -7021,6 +7011,8 @@ class OutputModel(BaseTable, QtCore.QAbstractTableModel):
                 return register.prate
             elif col == self.PEURO:
                 return register.peuro
+            elif col == self.PFINANCIAL_STATUS:
+                return register.pfinancial_status
             elif col == self.PSHIPPING:
                 return register.pship
             elif col == self.PEXPENSES:
@@ -7051,6 +7043,8 @@ class OutputModel(BaseTable, QtCore.QAbstractTableModel):
                 return register.srate
             elif col == self.SEURO:
                 return register.seuro
+            elif col == self.SFINANCIAL_STATUS:
+                return register.sfinancial_status
             elif col == self.SSHIPPING:
                 return register.sship
             elif col == self.STERMS:
@@ -7082,21 +7076,18 @@ class OutputModel(BaseTable, QtCore.QAbstractTableModel):
     def by_period(cls, _from, to, _input=False, agent_id=None):
         self = cls()
         if _input:
-            print('if input ')
             query = db.session.query(db.ReceptionSerie.serie).join(db.ReceptionLine).\
                 join(db.Reception).join(db.PurchaseProforma).\
                 where(db.PurchaseProforma.date >= _from,
                       db.PurchaseProforma.date <= to)
 
         else:
-            print('if not input')
             query = db.session.query(db.ExpeditionSerie.serie).join(db.ExpeditionLine).\
                 join(db.Expedition).join(db.SaleProforma).\
                 where(db.SaleProforma.date >= _from,
                       db.SaleProforma.date <= to)
 
         if agent_id:
-            print('if agent_id ')
             if _input:
                 query = query.where(db.PurchaseProforma.agent_id == agent_id)
             else:
@@ -7464,7 +7455,10 @@ class Exportable:
         ws = wb.active
         ws.append(self._headerData)
         for entry in self.entries:
-            ws.append(entry.as_tuple)
+            if isinstance(entry, tuple):
+                ws.append(entry)
+            else:
+                ws.append(entry.as_tuple)
 
         wb.save(filepath)
 
@@ -7669,6 +7663,81 @@ class StockValuationModelWarehouse(Exportable, BaseTable, QtCore.QAbstractTableM
                 return reg.cost
             elif col == self.QNT:
                 return reg.qnt
+
+
+class WarehouseSimpleValueModel(Exportable, BaseTable, QtCore.QAbstractTableModel):
+
+    def __init__(self, warehouse_id):
+        super().__init__()
+        self._headerData = [
+            'Description',
+            'Condition',
+            'Spec',
+            'Serial',
+            'Purchase Date',
+            'Partner',
+            'Nº Doc',
+            'Cost'
+        ]
+        self.warhouse_id = warehouse_id
+        self.name = 'entries'
+        self.entries = self._build_entries()
+
+    def _get_imeis(self):
+        return [
+            r.imei for r in
+            db.session.query(db.Imei.imei).where(db.Imei.warehouse_id == self.warhouse_id).all()
+        ]
+
+    def _build_entries(self):
+        entries = []
+        for imei in self._get_imeis():
+            try:
+                reception_serie = (
+                        db.session.query(db.ReceptionSerie).where(
+                        db.ReceptionSerie.serie == imei).all()[-1])
+            except IndexError:
+                print('Imei:', imei, 'Not found in reception')
+            else:
+                proforma = reception_serie.line.reception.proforma
+                reception_line = reception_serie.line
+                for proforma_line in proforma.lines:
+                    if proforma_line == reception_line:
+                        break
+                else:
+                    print('No line match:', reception_line)
+                    continue
+
+                proforma = reception_line.reception.proforma
+
+                try:
+                    date = proforma.invoice.date
+                except TypeError:
+                    date = proforma.date
+
+                entries.append(
+                    (
+                        reception_serie.item.clean_repr,
+                        reception_serie.condition,
+                        reception_serie.spec,
+                        imei,
+                        date.strftime('%d/%m/%Y'),
+                        proforma.partner_name,
+                        proforma.doc_repr,
+                        proforma_line.price
+
+                    )
+                )
+
+        return entries
+
+    def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
+        if not index.isValid():
+            return
+        if role == Qt.DisplayRole:
+            return self.entries[index.row()][index.column()]
+
+
 
 
 class StockValuationModelImei(Exportable, BaseTable, QtCore.QAbstractTableModel):

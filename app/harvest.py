@@ -81,8 +81,6 @@ class Form(Ui_Form, QDialog):
                 QMessageBox.critical(self, 'Error', 'Invalid date format')
                 return
             else:
-                print(self.agent.text())
-                print(self.input.isChecked())
                 try:
                     agent_id = agent_id_map[self.agent.text()]
                 except KeyError:

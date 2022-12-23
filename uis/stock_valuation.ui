@@ -73,8 +73,8 @@
     <rect>
      <x>387</x>
      <y>106</y>
-     <width>191</width>
-     <height>81</height>
+     <width>201</width>
+     <height>111</height>
     </rect>
    </property>
    <property name="title">
@@ -89,37 +89,24 @@
    <widget class="QLineEdit" name="warehouse">
     <property name="geometry">
      <rect>
-      <x>30</x>
-      <y>50</y>
-      <width>137</width>
+      <x>20</x>
+      <y>30</y>
+      <width>161</width>
       <height>20</height>
      </rect>
     </property>
    </widget>
-   <widget class="QRadioButton" name="warehouse_grouped">
+   <widget class="QCheckBox" name="just_line_price">
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>20</y>
-      <width>71</width>
-      <height>17</height>
+      <y>60</y>
+      <width>151</width>
+      <height>31</height>
      </rect>
     </property>
     <property name="text">
-     <string>Grouped</string>
-    </property>
-   </widget>
-   <widget class="QRadioButton" name="warehouse_itemized">
-    <property name="geometry">
-     <rect>
-      <x>110</x>
-      <y>20</y>
-      <width>82</width>
-      <height>17</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Itemized</string>
+     <string>Book value</string>
     </property>
    </widget>
   </widget>
@@ -176,8 +163,8 @@
   <widget class="QPushButton" name="calculate">
    <property name="geometry">
     <rect>
-     <x>100</x>
-     <y>210</y>
+     <x>90</x>
+     <y>240</y>
      <width>777</width>
      <height>45</height>
     </rect>
@@ -203,7 +190,7 @@
    <property name="geometry">
     <rect>
      <x>40</x>
-     <y>280</y>
+     <y>300</y>
      <width>891</width>
      <height>281</height>
     </rect>

@@ -5,6 +5,7 @@ from ui_stock_valuation import Ui_Dialog
 from models import StockValuationModelDocument
 from models import StockValuationModelImei
 from models import StockValuationModelWarehouse
+from models import WarehouseSimpleValueModel
 
 
 import utils
@@ -67,10 +68,17 @@ class Form(Ui_Dialog, QDialog):
         elif self.by_warehouse.isChecked():
             try:
                 warehouse_id = utils.warehouse_id_map[self.warehouse.text()]
+
             except KeyError:
                 return
             else:
-                self.model = StockValuationModelWarehouse(warehouse_id)
+
+                if self.just_line_price.isChecked():
+                    self.model = WarehouseSimpleValueModel(warehouse_id)
+                else:
+                    self.model = StockValuationModelWarehouse(warehouse_id)
+
+
                 self.view.setModel(self.model)
 
 
