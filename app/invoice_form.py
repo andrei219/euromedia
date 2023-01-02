@@ -14,6 +14,8 @@ from models import (
 
 import utils
 
+from utils import parse_date, get_next_num
+
 class Form(Ui_InvoiceForm, QWidget):
 
     def __init__(self, invoice):
@@ -23,12 +25,14 @@ class Form(Ui_InvoiceForm, QWidget):
         self.warehouse.setDisabled(True)
 
         if isinstance(invoice, SaleInvoice):
+            self.cls = SaleInvoice
             self.model = SaleInvoiceLineModel(invoice)
             self.update_warehouse_callback = update_sale_warehouse
 
         elif isinstance(invoice, PurchaseInvoice):
             self.model = PurchaseInvoiceLineModel(invoice)
             self.update_warehouse_callback = update_purchase_warehouse
+            self.cls = PurchaseInvoice
 
         self.view.setModel(self.model)
 
@@ -45,17 +49,25 @@ class Form(Ui_InvoiceForm, QWidget):
         self.view.selectionModel().selectionChanged.connect(self.selection_changed)
         self.set_wildcard()
 
-    def selection_changed(self):  # Código lanzado al seleccionar elementos
-        self.selected.setText(                                        # 5. Actualiza texto de la etiqueta llamada label
-            'Selected:' + str(                                        # 4. convierte a texto el resultado
-                sum(                                                  # 3. agrega todos estos numeros
-                    self.model[row].quantity for row in {             # 2. get quantity asociado
-                        i.row() for i in self.view.selectedIndexes()  # 1. get filas seleccionadas
+    def selection_changed(self):
+        self.selected.setText(
+            'Selected:' + str(
+                sum(
+                    self.model[row].quantity for row in {
+                        i.row() for i in self.view.selectedIndexes()
                     }
                 )
             )
         )
 
+    def type_changed(self):
+        try:
+            d = parse_date(self.date.text())
+        except ValueError:
+            return
+        else:
+            _next = get_next_num(self.cls, int(type), d.year)
+            self.number_line_edit.setText(str(_next).zfill(6))
 
     def setCombos(self):
         for combo, data in [
@@ -89,8 +101,6 @@ class Form(Ui_InvoiceForm, QWidget):
         self.they_pay_they_ship.setChecked(p.they_pay_they_ship)
         self.we_pay_we_ship.setChecked(p.we_pay_we_ship)
 
-        # TODO
-        # self.we_pay_they_ship.setChecked(p.we_pay_they_ship)
         self.partner.setText(p.partner_name)
 
     def update_objects(self):

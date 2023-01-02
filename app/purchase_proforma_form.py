@@ -11,19 +11,12 @@ from ui_purchase_proforma_form import Ui_PurchaseProformaForm
 
 import models
 import db
-import os
 
 from datetime import date
 
-from exceptions import DuplicateLine
-from pdfbuilder import build_document
 
 from db import (
     Partner,
-    PurchaseProformaLine,
-    PurchaseProforma,
-    PurchasePayment,
-    func,
     Agent
 )
 
@@ -35,6 +28,7 @@ def reload_utils():
     global utils
     utils = reload(utils)
 
+from utils import get_next_num
 
 class Form(Ui_PurchaseProformaForm, QWidget):
 
@@ -56,10 +50,20 @@ class Form(Ui_PurchaseProformaForm, QWidget):
 
     def setUp(self):
 
+        def typeChanged(type):
+            try:
+                d = parse_date(self.date_line_edit.text())
+            except ValueError:
+                return
+            else:
+                _next = get_next_num(db.PurchaseProforma, int(type), d.year)
+                self.number_line_edit.setText(str(_next).zfill(6))
+
         self.partner_line_edit.setFocus()
         self.type_combo_box.setCurrentText('1')
-        self.number_line_edit.setText(str(models.purchase_proforma_next_number(1)).zfill(6))
         self.date_line_edit.setText(date.today().strftime('%d%m%Y'))
+
+        typeChanged(1)
 
         self.setCombos()
         self.setCompleters()
@@ -71,9 +75,6 @@ class Form(Ui_PurchaseProformaForm, QWidget):
             self.total_spinbox.setValue(
                 self.subtotal_spinbox.value() * (1 + int(self.tax_combobox.currentText()) / 100))
 
-        def typeChanged(type):
-            next_num = models.purchase_proforma_next_number(int(type))
-            self.number_line_edit.setText(str(next_num).zfill(6))
 
         self.price_spinbox.valueChanged.connect(priceOrQuantityChanged)
         self.quantity_spinbox.valueChanged.connect(priceOrQuantityChanged)

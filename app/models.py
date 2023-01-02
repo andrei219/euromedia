@@ -1,6 +1,5 @@
 import csv
 import re
-import sys
 import typing
 import math
 import os
@@ -11,14 +10,13 @@ from itertools import groupby, product, combinations
 from operator import attrgetter
 from datetime import datetime, timedelta
 from collections.abc import Iterable
-from re import search
 
 from openpyxl import Workbook
 
 import sqlalchemy
 from sqlalchemy import exists
 
-from PyQt5 import QtCore, QtGui
+from PyQt5 import QtCore
 from PyQt5 import QtGui
 from PyQt5.QtCore import QModelIndex
 from PyQt5.QtCore import Qt
@@ -34,6 +32,10 @@ import utils
 import db
 from utils import description_id_map
 from exceptions import SeriePresentError
+
+
+from utils import get_next_num
+from datetime import date
 
 # COLORS:
 # RED FOR CANCELLED
@@ -1273,14 +1275,6 @@ def update_purchase_warehouse(proforma):
         raise
 
 
-def purchase_proforma_next_number(type):
-    Session = db.sessionmaker(bind=db.get_engine())
-    with Session.begin() as session:
-        current_num = db.session.query(func.max(db.PurchaseProforma.number)). \
-            where(db.PurchaseProforma.type == type).scalar()
-        return 1 if current_num is None else current_num + 1
-
-
 def ship_several(proformas, tracking=None):
     for proforma in proformas:
         proforma.tracking = tracking
@@ -1496,26 +1490,11 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
                 self.layoutChanged.emit()
 
     def add(self, proforma):
-        proforma.number = purchase_proforma_next_number(proforma.type)
         db.session.add(proforma)
-        try:
-            db.session.commit()
-            self.layoutAboutToBeChanged.emit()
-            self.proformas.append(proforma)
-            self.layoutChanged.emit()
-        except IntegrityError:
-            db.session.rollback()
-            try:
-                proforma.number = purchase_proforma_next_number(proforma.type)
-                db.session.add(proforma)
-                db.session.commit()
-                self.layoutAboutToBeChanged.emit()
-                self.proformas.append(proforma)
-                self.layoutChanged.emit()
-
-            except:
-                db.session.rollback()
-                raise
+        db.session.commit()
+        self.layoutAboutToBeChanged.emit()
+        self.proformas.append(proforma)
+        self.layoutChanged.emit()
 
     def cancel(self, indexes):
         rows = {index.row() for index in indexes}
@@ -1550,15 +1529,7 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
 
         any_proforma = self.proformas[row]
 
-
-        current_num = db.session.query(func.max(db.PurchaseInvoice.number)). \
-            where(db.PurchaseInvoice.type == any_proforma.type).scalar()
-
-        if current_num:
-            next_num = current_num + 1
-        else:
-            next_num = 1
-
+        next_num = get_next_num(db.PurchaseInvoice, any_proforma.type, any_proforma.date.year)
         invoice = db.PurchaseInvoice(any_proforma.type, next_num)
 
         for row in rows:
@@ -1675,22 +1646,6 @@ def update_sale_warehouse(proforma):
         db.session.rollback()
         raise
 
-
-def sale_proforma_next_number(type):
-    Session = db.sessionmaker(bind=db.get_engine())
-    with Session.begin() as session:
-        current_num = db.session.query(func.max(db.SaleProforma.number)). \
-            where(db.SaleProforma.type == type).scalar()
-        return 1 if current_num is None else current_num + 1
-
-
-def get_sale_invoice_next_number(proforma):
-    current_num = db.session.query(func.max(db.SaleInvoice.number)). \
-        where(db.SaleInvoice.type == proforma.type).scalar()
-    if current_num:
-        return current_num + 1
-    else:
-        return 1
 
 
 class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
@@ -1934,25 +1889,11 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
                 self.layoutChanged.emit()
 
     def add(self, proforma):
-        proforma.number = sale_proforma_next_number(proforma.type)
         db.session.add(proforma)
-        try:
-            db.session.commit()
-            self.layoutAboutToBeChanged.emit()
-            self.proformas.append(proforma)
-            self.layoutChanged.emit()
-        except IntegrityError:
-            db.session.rollback()
-            try:
-                proforma.number = sale_proforma_next_number(proforma.type)
-                db.session.add(proforma)
-                db.session.commit()
-                self.layoutAboutToBeChanged.emit()
-                self.proformas.append(proforma)
-                self.layoutChanged.emit()
-            except:
-                db.session.rollback()
-                raise
+        db.session.commit()
+        self.layoutAboutToBeChanged.emit()
+        self.proformas.append(proforma)
+        self.layoutChanged.emit()
 
     def cancel(self, indexes):
         rows = {index.row() for index in indexes}
@@ -1968,8 +1909,8 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
             raise
 
     def build_invoice_from_proforma(self, proforma, wh_order):
-        next_num = get_sale_invoice_next_number(proforma)
-        proforma.invoice = db.SaleInvoice(proforma.type, next_num)
+        _next = get_next_num(db.SaleInvoice, proforma.type, proforma.date.year)
+        proforma.invoice = db.SaleInvoice(proforma.type, _next)
         proforma.invoice.wh_incoming_rma_id = wh_order.id
         db.session.commit()
 
@@ -2011,7 +1952,7 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
             except (vies.ViesValidationError, vies.ViesError, vies.ViesHTTPError):
                 raise
 
-        next_num = get_sale_invoice_next_number(any_proforma)
+        next_num = get_next_num(db.SaleInvoice, any_proforma.type, any_proforma.date.year)
 
         invoice = db.SaleInvoice(any_proforma.type, next_num)
 
@@ -6201,9 +6142,9 @@ def build_credit_note_and_commit(partner_id, agent_id, order, candidates):
 
     proforma = db.SaleProforma()
     proforma.type = order.lines[0].invoice_type
-    number = db.session.query(db.func.max(db.SaleProforma.number).label('number')).scalar()
 
-    proforma.number = number + 1
+    proforma.number = get_next_num(db.SaleProforma, proforma.type, date.today().year)
+
     proforma.partner_id = partner_id
     proforma.warehouse_id = None
     proforma.date = datetime.now().date()

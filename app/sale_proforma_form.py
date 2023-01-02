@@ -1,31 +1,28 @@
 
 from datetime import date
 
-from PyQt5.QtCore import QAbstractTableModel, QStringListModel, Qt
 from PyQt5.QtWidgets import QCompleter, QMessageBox, QTableView, QWidget
 
 import db
-import decorators
 import models
 import utils
+
+
 from db import (
     Agent,
     Partner,
-    SaleProforma,
-    SaleProformaLine,
-    func
 )
 from models import (
     ActualLinesFromMixedModel,
     SaleProformaLineModel,
     StockModel,
-    sale_proforma_next_number,
     update_sale_warehouse
 )
 from ui_sale_proforma_form import Ui_SalesProformaForm
 
 from sqlalchemy.exc import IntegrityError
 
+from utils import get_next_num, parse_date
 
 class StockBase:
 
@@ -198,7 +195,8 @@ class Form(Ui_SalesProformaForm, QWidget):
  
         self.date.setText(date.today().strftime('%d%m%Y'))
         self.type.setCurrentText('1')
-        self.number.setText(str(sale_proforma_next_number(1)).zfill(6))
+
+        self.typeChanged(1)
 
         self.warehouse.currentTextChanged.connect(self.warehouse_changed)
         # Solo interesa en formulario nuevo
@@ -276,7 +274,6 @@ class Form(Ui_SalesProformaForm, QWidget):
 
         self.filters.set(description, condition, spec)
 
-        # self.description.setText(description)
 
         self.condition.setFocus(True)
 
@@ -319,8 +316,13 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.search.setFocus(True)
 
     def typeChanged(self, type):
-        next_num = sale_proforma_next_number(int(type))
-        self.number.setText(str(next_num).zfill(6))
+        try:
+            d = parse_date(self.date.text())
+        except ValueError:
+            return
+        else:
+            _next = get_next_num(db.SaleProforma, int(type), d.year)
+            self.number.setText(str(_next).zfill(6))
 
     def setCombos(self):
         for combo, data in [

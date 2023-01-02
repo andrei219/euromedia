@@ -2,22 +2,20 @@ from datetime import date
 
 from PyQt5.QtWidgets import QWidget, QMessageBox
 
-import db
-import utils
+import db, utils
 
 from db import Agent, Partner
 from models import (
     AdvancedLinesModel,
     IncomingStockModel,
     computeCreditAvailable,
-    sale_proforma_next_number,
     update_sale_warehouse
 )
 from sale_proforma_form import Form
 from ui_advanced_sale_proforma_form import Ui_Form
 from utils import setCommonViewConfig
 
-
+from utils import parse_date, get_next_num
 MESSAGE = "This presale is only for incoming stock \n {}. For others stocks create new presale"
 
 from sqlalchemy.exc import IntegrityError
@@ -47,14 +45,15 @@ class Form(Ui_Form, QWidget):
         self.type_filter = None
         self.number_filter = None
 
-
     def init_template(self):
         self.proforma = db.SaleProforma()
         db.session.add(self.proforma)
         db.session.flush()
         self.date.setText(date.today().strftime('%d%m%Y'))
         self.type.setCurrentText('1')
-        self.number.setText(str(sale_proforma_next_number(1)).zfill(6))
+        self.number.setText(
+            str(get_next_num(db.SaleProforma, 1, date.today().year)).zfill(6)
+        )
 
     def set_handlers(self):
         self.partner.returnPressed.connect(self.partner_search)
@@ -275,8 +274,13 @@ class Form(Ui_Form, QWidget):
                 raise
 
     def type_changed(self, type):
-        next_num = sale_proforma_next_number(int(type))
-        self.number.setText(str(next_num).zfill(6))
+        try:
+            d = parse_date(self.date.text())
+        except ValueError:
+            return
+        else:
+            _next = get_next_num(db.SaleProforma, int(type), d.year)
+            self.number.setText(str(_next).zfill(6))
 
     def save_handler(self):
         if not self._valid_header():

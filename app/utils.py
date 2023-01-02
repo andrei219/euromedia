@@ -1,23 +1,19 @@
 
-# Python standad library
-import os
 import re
 import base64
-import sys
 from datetime import datetime, timedelta
 import functools
 
 
 import pycountry
 from PyQt5.QtWidgets import QInputDialog
-from PyQt5.QtWidgets import QAbstractItemView
 from PyQt5.QtWidgets import QFileDialog, QLineEdit
 
 from country_list import countries_for_language
 from schwifty import IBAN, BIC
-from pyVies.api import Vies, ViesError, ViesValidationError, ViesHTTPError
+from pyVies.api import Vies
 
-from sqlalchemy.sql import select, func
+from sqlalchemy import func
 
 import db
 from bidict import bidict
@@ -421,6 +417,14 @@ def today_date():
 
 from PyQt5.QtCore import QStringListModel, Qt
 from PyQt5.QtWidgets import QCompleter
+
+
+def get_next_num(cls, type, year):
+    q = db.session.query(func.max(cls.number)).\
+        where(cls.type == type).where(func.year(cls.date) == year)
+
+    current = q.scalar()
+    return 1 if current is None else current + 1
 
 
 def setCompleter(field, data):

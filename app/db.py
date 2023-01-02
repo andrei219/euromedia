@@ -408,9 +408,7 @@ class PurchaseProforma(Base):
 
     incoterm = Column(String(3), nullable=False)
 
-    __table_args__ = (
-        UniqueConstraint('type', 'number'),
-    )
+
 
     def __hash__(self):
         return functools.reduce(operator.xor, (hash(x) for x in (self.type, self.number)), 0)
@@ -672,10 +670,6 @@ class PurchaseInvoice(Base):
         self.type = type
         self.number = number
 
-    __table_args__ = (
-        UniqueConstraint('type', 'number'),
-    )
-
     @property
     def logistic_status_string(self):
         if all(p.empty for p in self.proformas):
@@ -883,9 +877,6 @@ class SaleProforma(Base):
         clasname = self.__class__.__name__
         return f'{clasname}(type={self.type}, number={self.number})'
 
-    __table_args__ = (
-        UniqueConstraint('type', 'number'),
-    )
 
     def __hash__(self):
         return functools.reduce(operator.xor, (hash(x) for x in (self.type, self.number)), 0)
@@ -1362,10 +1353,6 @@ class SaleInvoice(Base):
     @property
     def partner_id(self):
         return self.proformas[0].partner.id
-
-    __table_args__ = (
-        UniqueConstraint('type', 'number', name='unique_sales_sale_invoices'),
-    )
 
 
 class SaleProformaLine(Base):
