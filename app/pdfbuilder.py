@@ -326,7 +326,7 @@ class TableData:
             proforma = document
             self.Date = proforma.date.strftime('%d-%m-%Y')
             self.Document_No = proforma.doc_repr
-            self.External_Doc = ''
+            self.External_Doc = proforma.external
 
 
         self.Agent = proforma.agent.fiscal_name.split()[0]
