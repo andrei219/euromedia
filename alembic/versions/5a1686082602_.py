@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: ab7f4923053d
-Revises: 8427409139eb
-Create Date: 2023-01-02 14:59:54.551967
+Revision ID: 5a1686082602
+Revises: 
+Create Date: 2023-01-05 16:48:03.240346
 
 """
 from alembic import op
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
-revision = 'ab7f4923053d'
-down_revision = '8427409139eb'
+revision = '5a1686082602'
+down_revision = None
 branch_labels = None
 depends_on = None
 
@@ -54,6 +54,7 @@ def upgrade():
                existing_type=mysql.LONGBLOB(),
                type_=sa.LargeBinary(length=4294967295),
                existing_nullable=True)
+    op.add_column('partners', sa.Column('has_certificate', sa.Boolean(), nullable=True))
     op.alter_column('partners', 'amount_credit_limit',
                existing_type=mysql.DOUBLE(asdecimal=True),
                type_=sa.Float(precision=32),
@@ -90,7 +91,6 @@ def upgrade():
                existing_type=mysql.DOUBLE(asdecimal=True),
                type_=sa.Float(precision=32),
                existing_nullable=False)
-    op.drop_index('unique_sales_sale_invoices', table_name='sale_invoices')
     op.alter_column('sale_payments', 'amount',
                existing_type=mysql.DOUBLE(asdecimal=True),
                type_=sa.Float(precision=32),
@@ -136,7 +136,6 @@ def downgrade():
                existing_type=sa.Float(precision=32),
                type_=mysql.DOUBLE(asdecimal=True),
                existing_nullable=False)
-    op.create_index('unique_sales_sale_invoices', 'sale_invoices', ['type', 'number'], unique=False)
     op.alter_column('sale_expenses', 'amount',
                existing_type=sa.Float(precision=32),
                type_=mysql.DOUBLE(asdecimal=True),
@@ -173,6 +172,7 @@ def downgrade():
                existing_type=sa.Float(precision=32),
                type_=mysql.DOUBLE(asdecimal=True),
                existing_nullable=True)
+    op.drop_column('partners', 'has_certificate')
     op.alter_column('partner_documents', 'document',
                existing_type=sa.LargeBinary(length=4294967295),
                type_=mysql.LONGBLOB(),

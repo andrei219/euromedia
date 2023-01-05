@@ -28,7 +28,7 @@ from sqlalchemy import exists
 
 engine = create_engine('mysql+mysqlconnector://andrei:hnq#4506@192.168.1.78:3306/appdb', echo=False)
 
-dev_engine = create_engine('mysql+mysqlconnector://root:hnq#4506@localhost:3306/euromediadb', echo=True)
+dev_engine = create_engine('mysql+mysqlconnector://root:hnq#4506@localhost:3306/euromediadb', echo=False)
 
 
 # from sale types:
@@ -279,6 +279,8 @@ class Partner(Base):
     billing_state = Column(String(50))
     billing_country = Column(String(50))
     billing_postcode = Column(String(50))
+
+    has_certificate = Column(Boolean, default=False)
 
     agent = relationship('Agent', uselist=False)
 

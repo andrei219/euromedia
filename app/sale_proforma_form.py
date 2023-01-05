@@ -5,8 +5,10 @@ from PyQt5.QtWidgets import QCompleter, QMessageBox, QTableView, QWidget
 
 import db
 import models
+
 import utils
 
+from utils import has_certificate
 
 from db import (
     Agent,
@@ -129,7 +131,6 @@ class Completer:
                 self.form.spec, 
                 self.stock_base.specs.union({'Mix'})) 
 
-        
         if description is None:
             utils.setCompleter(
                 self.form.description, 
@@ -205,14 +206,13 @@ class Form(Ui_SalesProformaForm, QWidget):
 
         self.filters = Filters(warehouse_id, self)
 
-
     def set_handlers(self):
         self.search.clicked.connect(self.search_handler) 
         self.lines_view.clicked.connect(self.lines_view_clicked_handler)
         self.delete_button.clicked.connect(self.delete_handler)
         self.add.clicked.connect(self.add_handler) 
         self.save.clicked.connect(self.save_handler)
-        self.partner.editingFinished.connect(self.partner_search)
+        self.partner.returnPressed.connect(self.partner_search)
         self.insert.clicked.connect(self.insert_handler)
         self.type.currentTextChanged.connect(self.typeChanged)
         self.delete_selected_stock.clicked.connect(self.delete_selected_stock_clicked)
@@ -221,7 +221,6 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.description.editingFinished.connect(self.description_editing_finished)
         self.condition.editingFinished.connect(self.condition_editing_finished)
         self.spec.editingFinished.connect(self.spec_editing_finished)
-
 
     def prop_return_pressed(self):
 
@@ -363,7 +362,11 @@ class Form(Ui_SalesProformaForm, QWidget):
             self.usd.setChecked(not euro)
             self.they_pay_they_ship.setChecked(they_pay_they_ship) 
             self.they_pay_we_ship.setChecked(they_pay_we_ship) 
-            self.we_pay_we_ship.setChecked(we_pay_we_ship) 
+            self.we_pay_we_ship.setChecked(we_pay_we_ship)
+
+            if self.type.currentText() == '2':
+                if not has_certificate(partner_id):
+                    QMessageBox.information(self, 'Information', 'This partner has no reseller certificate.')
 
 
     def proforma_to_form(self):

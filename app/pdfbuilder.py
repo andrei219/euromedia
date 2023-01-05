@@ -328,12 +328,9 @@ class TableData:
             self.Document_No = proforma.doc_repr
             self.External_Doc = proforma.external
 
-
         self.Agent = proforma.agent.fiscal_name.split()[0]
         self.Incoterms = proforma.incoterm
         self.Currency = 'EUR' if proforma.eur_currency else 'USD'
-
-
 
     def __iter__(self):
         return iter(self.__dict__.items())

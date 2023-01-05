@@ -158,7 +158,8 @@ class PartnerForm(Ui_Partner_Form, QWidget):
         self.partner.shipping_postcode = self.shipment_postcode_line_edit.text()
         self.partner.shipping_state = self.shipment_state_line_edit.text()
         self.partner.shipping_city = self.shipment_city_line_edit.text()
-        self.partner.shipping_country = self.shipemnt_country_combobox.currentText() 
+        self.partner.shipping_country = self.shipemnt_country_combobox.currentText()
+        self.partner.has_certificate = self.has_certificate.isChecked()
         
         try:
             self.partner.agent = db.session.query(Agent).where(Agent.fiscal_name == \
@@ -205,7 +206,6 @@ class PartnerForm(Ui_Partner_Form, QWidget):
         self.credit_amount_spinbox.setValue(self.partner.amount_credit_limit)
         self.credit_days_spinbox.setValue(self.partner.days_credit_limit)
 
-        
         self.dolar_radiobutton.setChecked(True if not self.partner.euro else False)
         self.euro_radiobutton.setChecked(True if self.partner.euro else False)
     
@@ -217,7 +217,9 @@ class PartnerForm(Ui_Partner_Form, QWidget):
         self.note_text_edit.setText(self.partner.note)
 
         self.isp_checkbox.setChecked(self.partner.isp)
-        self.re_checkbox.setChecked(self.partner.re) 
+        self.re_checkbox.setChecked(self.partner.re)
+        self.has_certificate.setChecked(self.partner.has_certificate)
+
 
     def setUpContactView(self, contacts):
         self.contact_model = PartnerContactModel(self.contact_view, contacts)

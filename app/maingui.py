@@ -3,12 +3,15 @@ import subprocess
 
 import tempfile
 from builtins import getattr
+from turtle import mode
 
 from PyQt5.QtWidgets import (
     QMainWindow,
     QTableView,
     QMessageBox,
 )
+
+from utils import has_certificate
 
 
 from sqlalchemy.exc import IntegrityError
@@ -923,6 +926,11 @@ class MainGui(Ui_MainGui, QMainWindow):
             return
         model = self.proformas_sales_model
 
+        for row in rows:
+            proforma = model[row]
+            if proforma.type == 2 and not has_certificate(proforma.partner_id):
+                QMessageBox.critical(self, 'Error', 'Partner has no certificate')
+                return
 
         if any(model[row].cancelled for row in rows):
             QMessageBox.critical(self, 'Error', 'Cancelled proforma/s')

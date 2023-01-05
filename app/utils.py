@@ -392,6 +392,8 @@ def get_open_file_path(parent, pdf_filter=False, csv_filter=False):
     )
     return filepath
 
+def has_certificate(partner_id):
+    return db.session.query(db.Partner.has_certificate).where(db.Partner.id == partner_id).scalar()
 
 def get_dropbox_path():
     return os.path.join(os.path.join(os.environ['USERPROFILE']), 'Dropbox')

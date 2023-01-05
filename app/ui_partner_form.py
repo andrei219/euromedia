@@ -381,6 +381,9 @@ class Ui_Partner_Form(object):
         self.bank_button.setAutoRaise(True)
         self.bank_button.setArrowType(QtCore.Qt.NoArrow)
         self.bank_button.setObjectName("bank_button")
+        self.has_certificate = QtWidgets.QCheckBox(Partner_Form)
+        self.has_certificate.setGeometry(QtCore.QRect(430, 480, 171, 17))
+        self.has_certificate.setObjectName("has_certificate")
 
         self.retranslateUi(Partner_Form)
         self.cancel_button.clicked.connect(Partner_Form.close)
@@ -482,4 +485,5 @@ class Ui_Partner_Form(object):
         self.re_checkbox.setText(_translate("Partner_Form", "RE"))
         self.bank_button.setToolTip(_translate("Partner_Form", "Check Documentd assciated"))
         self.bank_button.setText(_translate("Partner_Form", "Bank info"))
+        self.has_certificate.setText(_translate("Partner_Form", "Has Reseller Certificate"))
 import icons_rc

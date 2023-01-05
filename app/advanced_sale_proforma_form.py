@@ -14,6 +14,7 @@ from models import (
 from sale_proforma_form import Form
 from ui_advanced_sale_proforma_form import Ui_Form
 from utils import setCommonViewConfig
+from utils import has_certificate
 
 from utils import parse_date, get_next_num
 MESSAGE = "This presale is only for incoming stock \n {}. For others stocks create new presale"
@@ -253,6 +254,11 @@ class Form(Ui_Form, QWidget):
         self.they_pay_they_ship.setChecked(they_pay_they_ship)
         self.they_pay_we_ship.setChecked(they_pay_we_ship)
         self.we_pay_we_ship.setChecked(we_pay_we_ship)
+
+        if self.type.currentText() == '2':
+            if not has_certificate(partner_id):
+                QMessageBox.information(self, 'Information', 'This partner has no reseller certificate.')
+
 
     def insert_handler(self):
         from free_line_form import Dialog

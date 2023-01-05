@@ -1244,6 +1244,19 @@ p, li { white-space: pre-wrap; }
     <enum>Qt::NoArrow</enum>
    </property>
   </widget>
+  <widget class="QCheckBox" name="has_certificate">
+   <property name="geometry">
+    <rect>
+     <x>430</x>
+     <y>480</y>
+     <width>171</width>
+     <height>17</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Has Reseller Certificate</string>
+   </property>
+  </widget>
  </widget>
  <tabstops>
   <tabstop>active_checkbox</tabstop>
