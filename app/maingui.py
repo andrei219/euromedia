@@ -1109,7 +1109,6 @@ class MainGui(Ui_MainGui, QMainWindow):
             from invoices_expenses_form import Form
             Form(self, invoice).exec_()
 
-    # def invoices_sales_double_click_handler(self, index):
 
     def invoices_sales_edit_handler(self):
         # TODO CREDIT NOTE LOGIC

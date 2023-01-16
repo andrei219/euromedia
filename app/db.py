@@ -2158,7 +2158,7 @@ class WhIncomingRmaLine(Base):
     def __init__(self, incoming_rma_line):
         self.sn = incoming_rma_line.sn
         self.problem = incoming_rma_line.problem
-        self.accepted = 'y' # Por defeto entran solo las lineas aceptadas
+        self.accepted = 'y'  # Por defecto entran solo las lineas aceptadas
         self.warehouse_id = 1  # General por defecto
         self.item_id = incoming_rma_line.item_id
         self.condition = incoming_rma_line.condition
@@ -2300,12 +2300,6 @@ class IncomingRmaLine(Base):
         s = f"{cls_name}(sn={self.sn})"
         return s
 
-    # This two method enables set difference
-    # def __hash__(self):
-    #     return hash(self.sn)
-    #
-    # def __eq__(self, other):
-    #     return self.sn == other.sn
 
     @classmethod
     def from_sn(cls, sn):
@@ -2354,7 +2348,6 @@ class IncomingRmaLine(Base):
                     expedition_serie.line.condition,
                     expedition_serie.line.spec
                 ))
-                self.public = expedition_serie.line.showing_condition
                 self.cust = expedition_serie.line.expedition.proforma.partner_name
                 self.cust_id = expedition_serie.line.expedition.proforma.partner_object.id
                 self.agent_id = expedition_serie.line.expedition.proforma.agent.id
@@ -2385,6 +2378,7 @@ class IncomingRmaLine(Base):
                                 line.spec == expedition_serie.line.spec
                         )):
                             self.price = line.price
+                            self.public = line.showing_condition
 
                 elif proforma.advanced_lines:
                     for line in proforma.advanced_lines:
@@ -2396,6 +2390,7 @@ class IncomingRmaLine(Base):
                                     definition.spec == expedition_serie.line.spec
                                 )):
                                     self.price = line.price
+                                    self.public = line.showing_condition
                                     break
                         else:
                             if all((
@@ -2404,6 +2399,8 @@ class IncomingRmaLine(Base):
                                 line.spec == expedition_serie.line.spec
                             )):
                                 self.price = line.price
+                                self.public = line.showing_condition
+                                break
 
         return self
 

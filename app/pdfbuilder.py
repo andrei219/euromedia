@@ -442,7 +442,6 @@ class PDF(FPDF):
             self.we_buy = False
             self.doc_header = 'COMMERCIAL INVOICE'
 
-
         elif isinstance(document, PurchaseProforma):
             self.we_buy = True
             self.doc_header = 'PURCHASE ORDER'
