@@ -6517,7 +6517,7 @@ def get_avg_rate(proforma):
     base, rated_base = 0, 0
     for p in proforma.payments:
         base += p.amount
-        rated_base = p.amount / p.rate
+        rated_base += p.amount / p.rate
     try:
         return base / rated_base
     except ZeroDivisionError:
