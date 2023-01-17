@@ -7554,6 +7554,8 @@ class StockValuationModelWarehouse(Exportable, BaseTable, QtCore.QAbstractTableM
             'Cost'
         ]
 
+        query = db.session.query(db.Imei.imei).where(db.Imei.warehouse_id == warehouse_id)
+
         registers = []
         for register in db.session.query(db.Imei.imei).where(db.Imei.warehouse_id == warehouse_id):
             registers.append(StockValuationEntryWarehouse(do_cost_price(register.imei)))
@@ -7653,7 +7655,7 @@ class WarehouseSimpleValueModel(Exportable, BaseTable, QtCore.QAbstractTableMode
 
                 try:
                     date = proforma.invoice.date
-                except TypeError:
+                except AttributeError:
                     date = proforma.date
 
                 entries.append(
@@ -7677,8 +7679,6 @@ class WarehouseSimpleValueModel(Exportable, BaseTable, QtCore.QAbstractTableMode
             return
         if role == Qt.DisplayRole:
             return self.entries[index.row()][index.column()]
-
-
 
 
 class StockValuationModelImei(Exportable, BaseTable, QtCore.QAbstractTableModel):
