@@ -7608,6 +7608,7 @@ class StockValuationModelWarehouse(Exportable, BaseTable, QtCore.QAbstractTableM
                 return reg.qnt
 
 
+
 class WarehouseSimpleValueModel(Exportable, BaseTable, QtCore.QAbstractTableModel):
 
     def __init__(self, warehouse_id):
@@ -7622,14 +7623,14 @@ class WarehouseSimpleValueModel(Exportable, BaseTable, QtCore.QAbstractTableMode
             'Nº Doc',
             'Cost'
         ]
-        self.warhouse_id = warehouse_id
+        self.warehouse_id = warehouse_id
         self.name = 'entries'
         self.entries = self._build_entries()
 
     def _get_imeis(self):
         return [
             r.imei for r in
-            db.session.query(db.Imei.imei).where(db.Imei.warehouse_id == self.warhouse_id).all()
+            db.session.query(db.Imei.imei).where(db.Imei.warehouse_id == self.warehouse_id).all()
         ]
 
     def _build_entries(self):
