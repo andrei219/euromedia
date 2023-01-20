@@ -25,10 +25,11 @@ from datetime import timedelta
 
 from sqlalchemy import exists
 
+echo = os.environ['APP_ECHO'].lower() == 'true'
 
-engine = create_engine('mysql+mysqlconnector://andrei:hnq#4506@192.168.1.78:3306/appdb', echo=False)
+engine = create_engine('mysql+mysqlconnector://andrei:hnq#4506@192.168.1.78:3306/appdb', echo=echo)
 
-dev_engine = create_engine('mysql+mysqlconnector://root:hnq#4506@localhost:3306/euromediadb', echo=False)
+dev_engine = create_engine('mysql+mysqlconnector://root:hnq#4506@localhost:3306/euromediadb', echo=echo)
 
 
 # from sale types:
@@ -2141,8 +2142,8 @@ class WhIncomingRmaLine(Base):
     )
 
     def __repr__(self):
-        clsname = self.__class__.__name__
-        s = f"{clsname}(sn={self.sn}, accepetd={self.accepted}, problem={self.problem},"
+        cls_name = self.__class__.__name__
+        s = f"{cls_name}(sn={self.sn}, accepetd={self.accepted}, problem={self.problem},"
         s += f"why={self.why})"
         return s
 
@@ -2218,6 +2219,8 @@ class CreditNoteLine(Base):
     price = Column(Float(precision=32, decimal_return_scale=None), nullable=False)
     tax = Column(Integer, nullable=False)
     sn = Column(String(100), nullable=False)
+
+    created_on = Column(DateTime, default=datetime.now)
 
     proforma = relationship(
         'SaleProforma',

@@ -6517,7 +6517,7 @@ def get_avg_rate(proforma):
     base, rated_base = 0, 0
     for p in proforma.payments:
         base += p.amount
-        rated_base = p.amount / p.rate
+        rated_base += p.amount / p.rate
     try:
         return base / rated_base
     except ZeroDivisionError:
@@ -7608,6 +7608,69 @@ class StockValuationModelWarehouse(Exportable, BaseTable, QtCore.QAbstractTableM
                 return reg.qnt
 
 
+class WarehouseSimpleValueEntry:
+
+    __slots__ = ('description', 'condition', 'spec', 'serial',
+                 'purchase_date', 'partner', 'doc', 'currency', 'cost', 'qnt')
+
+    def __init__(self, serie):
+
+        rec_serie = db.session.query(
+            db.ReceptionSerie
+        ).where(
+            db.ReceptionSerie.serie == serie
+        ).order_by(
+            db.ReceptionSerie.id.desc()
+        ).first()
+
+        proforma = rec_serie.line.reception.proforma
+
+        # Itera la factura si encuentra hace cosas
+        # si no, hace blancos para que se
+        # vean en el excel.
+
+        for line in proforma.lines:
+            if line == rec_serie.line:
+                self.description = line.description or line.item.clean_repr
+                self.condition = line.condition
+                self.spec = line.spec
+                self.serial = serie
+                self.purchase_date = proforma.date.strftime('%d/%m/%Y')
+                self.partner = proforma.partner_name
+                self.doc = proforma.doc_repr
+                self.qnt = 1
+
+                if proforma.eur_currency:
+                    self.currency = 'EUR'
+                    self.cost = line.price
+
+                else:
+                    if proforma.financial_status_string == 'Paid':
+                        self.currency = 'EUR'
+                        self.cost = line.price / get_avg_rate(proforma)
+                    else:
+                        self.currency = 'USD'
+                        self.cost = line.price
+
+                break  # Muy importante, si no, el código del bloque else se ejecuta.
+
+        else:
+            self.description = self.condition = self.spec = \
+                self.purchase_date = self.partner = self.doc = self.currency = ""
+            self.serial = serie
+            self.qnt = self.cost = 0
+
+    @property
+    def as_tuple(self):
+        return (
+            self.description, self.condition, self.spec,
+            self.serial, self.purchase_date, self.partner, self.doc,
+            self.currency, self.cost, self.qnt
+        )
+
+
+    def __repr__(self):
+        return repr(self.as_tuple)
 
 class WarehouseSimpleValueModel(Exportable, BaseTable, QtCore.QAbstractTableModel):
 
@@ -7620,66 +7683,22 @@ class WarehouseSimpleValueModel(Exportable, BaseTable, QtCore.QAbstractTableMode
             'Serial',
             'Purchase Date',
             'Partner',
+            'Currency',
             'Nº Doc',
             'Cost'
         ]
-        self.warehouse_id = warehouse_id
+
         self.name = 'entries'
-        self.entries = self._build_entries()
-
-    def _get_imeis(self):
-        return [
-            r.imei for r in
-            db.session.query(db.Imei.imei).where(db.Imei.warehouse_id == self.warehouse_id).all()
+        self.entries = [WarehouseSimpleValueEntry([0])
+            for r in db.session.query(db.Imei.imei).where(db.Imei.warehouse_id == warehouse_id)
         ]
-
-    def _build_entries(self):
-        entries = []
-        for imei in self._get_imeis():
-            try:
-                reception_serie = (
-                        db.session.query(db.ReceptionSerie).where(
-                        db.ReceptionSerie.serie == imei).all()[-1])
-            except IndexError:
-                print('Imei:', imei, 'Not found in reception')
-            else:
-                proforma = reception_serie.line.reception.proforma
-                reception_line = reception_serie.line
-                for proforma_line in proforma.lines:
-                    if proforma_line == reception_line:
-                        break
-                else:
-                    print('No line match:', reception_line)
-                    continue
-
-                proforma = reception_line.reception.proforma
-
-                try:
-                    date = proforma.invoice.date
-                except AttributeError:
-                    date = proforma.date
-
-                entries.append(
-                    (
-                        reception_serie.item.clean_repr,
-                        reception_serie.condition,
-                        reception_serie.spec,
-                        imei,
-                        date.strftime('%d/%m/%Y'),
-                        proforma.partner_name,
-                        proforma.doc_repr,
-                        proforma_line.price
-
-                    )
-                )
-
-        return entries
 
     def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
         if not index.isValid():
             return
+
         if role == Qt.DisplayRole:
-            return self.entries[index.row()][index.column()]
+            return self.entries[index.row()].as_tuple[index.column()]
 
 
 class StockValuationModelImei(Exportable, BaseTable, QtCore.QAbstractTableModel):
