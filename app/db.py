@@ -280,7 +280,7 @@ class Partner(Base):
     billing_country = Column(String(50))
     billing_postcode = Column(String(50))
 
-    has_certificate = Column(Boolean, default=False)
+    has_certificate = Column(Boolean, nullable=False, default=False)
 
     agent = relationship('Agent', uselist=False)
 

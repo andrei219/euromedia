@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 5a1686082602
+Revision ID: aa3352d6e908
 Revises: 
-Create Date: 2023-01-05 16:48:03.240346
+Create Date: 2023-01-23 16:18:51.953595
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
-revision = '5a1686082602'
+revision = 'aa3352d6e908'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -54,11 +54,13 @@ def upgrade():
                existing_type=mysql.LONGBLOB(),
                type_=sa.LargeBinary(length=4294967295),
                existing_nullable=True)
-    op.add_column('partners', sa.Column('has_certificate', sa.Boolean(), nullable=True))
     op.alter_column('partners', 'amount_credit_limit',
                existing_type=mysql.DOUBLE(asdecimal=True),
                type_=sa.Float(precision=32),
                existing_nullable=True)
+    op.alter_column('partners', 'has_certificate',
+               existing_type=mysql.TINYINT(display_width=1),
+               nullable=False)
     op.alter_column('purchase_documents', 'document',
                existing_type=mysql.LONGBLOB(),
                type_=sa.LargeBinary(length=4294967295),
@@ -168,11 +170,13 @@ def downgrade():
                existing_type=sa.LargeBinary(length=4294967295),
                type_=mysql.LONGBLOB(),
                existing_nullable=True)
+    op.alter_column('partners', 'has_certificate',
+               existing_type=mysql.TINYINT(display_width=1),
+               nullable=True)
     op.alter_column('partners', 'amount_credit_limit',
                existing_type=sa.Float(precision=32),
                type_=mysql.DOUBLE(asdecimal=True),
                existing_nullable=True)
-    op.drop_column('partners', 'has_certificate')
     op.alter_column('partner_documents', 'document',
                existing_type=sa.LargeBinary(length=4294967295),
                type_=mysql.LONGBLOB(),
