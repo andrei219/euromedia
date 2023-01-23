@@ -1,0 +1,29 @@
+
+
+	. Dado el diseño de multiples partnres que pueden ser emisores, 
+	osea nosotros, que informacion sera compartida ? 
+		Para mi: si tiene un nuevo foreign key o no
+		y revisar las queries en las que participan esos objetos que poseen esas foreign keys.
+
+	· Hay que conseguir abstraer el concepto de moneda. Asociar un codigo iso a cada objeto necesario.
+	  Pedir tipo de cambio y moneda en cada pago. Y quiza en cada gasto? Seria lo mas 
+	  recomendable. Con estos valores podriamos hacer un calculo de lo que seria un caja.
+
+	· Hay que corregir de una vez por todas el flaot -> decimal. Conseguir reconstruir eso ya .
+	  por otra parte hay que asociar, como pense para el diseño nuevo, las lineas a dos padres, 
+          y los pagos tambien, hay que complicar la relacion entre proformas-pagos-facturas y entre proformas-lines-facuturas. 
+	  Se introduciran rutas join multiples y habra que gestionar ese codigo tambien. 
+
+	. Partners con referncias a si mismos, representan las multiples empresas del grupo.
+
+	. Asociacion pagos-facturas-proformas mas complicado. proforma-facturas-gastos. 
+	  Stock Valuation poner :año para discriminar. 
+         
+	. Compras de la serie 3, el contador no discrimina año.
+
+	
+	. Cada movimiento bancario i/o corresponde a un concepto contable, y puede tener o no 
+	  un documento asociado.
+
+	El objetivo es ser capaz de clasificar los moviemientos en su categoria contable y match
+	los documentos. Cobro y pago. 
