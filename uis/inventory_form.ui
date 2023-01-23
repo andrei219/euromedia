@@ -24,9 +24,9 @@
    <property name="geometry">
     <rect>
      <x>50</x>
-     <y>150</y>
+     <y>170</y>
      <width>941</width>
-     <height>731</height>
+     <height>711</height>
     </rect>
    </property>
   </widget>
@@ -62,7 +62,7 @@
      <x>50</x>
      <y>20</y>
      <width>941</width>
-     <height>111</height>
+     <height>131</height>
     </rect>
    </property>
    <property name="title">
@@ -149,6 +149,35 @@
     </property>
     <property name="default">
      <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="date">
+    <property name="geometry">
+     <rect>
+      <x>270</x>
+      <y>90</y>
+      <width>201</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+    <property name="placeholderText">
+     <string>ddmmyyyy</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>114</x>
+      <y>90</y>
+      <width>111</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Historical Iventory:</string>
     </property>
    </widget>
   </widget>

@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import QDialog, QMessageBox
 
 from ui_inventory_form import Ui_InventoryForm
 
-from models import InventoryModel
+from models import FutureInventoryModel
 
 import utils 
 
@@ -14,13 +14,17 @@ class InventoryForm(Ui_InventoryForm, QDialog):
     def __init__(self, parent):
         super().__init__(parent=parent) 
         self.setupUi(self)
-        
+        self.model = None
+
         utils.setCommonViewConfig(self.view)
 
         self.apply.clicked.connect(self.apply_handler)
         self.excel.clicked.connect(self.excel_handler) 
 
         self.set_completers()
+
+        self.date.setText(utils.today_date())
+        self.description.setFocus()
 
     def set_completers(self):
         for field, data in [
@@ -31,12 +35,10 @@ class InventoryForm(Ui_InventoryForm, QDialog):
         ]:
             utils.setCompleter(field, data) 
    
-
     def excel_handler(self):
         from utils import get_file_path
-        from openpyxl import Workbook
 
-        if not hasattr(self, 'model'): 
+        if self.model is None:
             return 
         
         file_path = get_file_path(self)
@@ -53,7 +55,17 @@ class InventoryForm(Ui_InventoryForm, QDialog):
 
     def apply_handler(self):
         filters = self.build_filters()
-        self.model = InventoryModel(**filters)
+        date = self.date.text()
+        if date:
+            try:
+                date = utils.parse_date(date)
+            except ValueError:
+                QMessageBox.critical(self, 'Error', 'Incorrect value for date field.')
+                return
+        else:
+            date = None
+
+        self.model = FutureInventoryModel(**filters, date=date)
         self.view.setModel(self.model) 
         self.view.resizeColumnToContents(1)
     
@@ -62,6 +74,5 @@ class InventoryForm(Ui_InventoryForm, QDialog):
             'description': self.description.text().strip(),
             'spec': self.spec.text().strip(),
             'condition': self.condition.text().strip(),
-            'warehouse': self.warehouse.text().strip()
+            'warehouse': self.warehouse.text().strip(),
         }
-        return filters

@@ -19,40 +19,68 @@ class Changes:
 		return self.changes[serie]
 
 
+def get_from_last(last_reception, last_rma, attr):
+	try:
+		if last_reception.created_on >= last_rma.created_on:
+			return getattr(last_reception, attr)
+		else:
+			return getattr(last_rma, attr)
+	except AttributeError: # Not always rma exists
+		return getattr(last_reception, attr)
+
+
 def find_attributes_and_return_inventory_register(serie):
 	condition_changes = Changes(ConditionChange)
 	spec_changes = Changes(SpecChange)
 	warehouse_changes = Changes(WarehouseChange)
 
-	last_input = (
+	last_reception = (
 		session.query(ReceptionSerie).
 		where(ReceptionSerie.serie == serie).
 		order_by(ReceptionSerie.id.desc()).
 		first()
 	)
 
+	last_rma = (
+		session.query(CreditNoteLine).
+		where(CreditNoteLine.sn == serie).
+		order_by(CreditNoteLine.id.desc()).
+		first()
+	)
+
+	breakpoint()
+
 	try:
-		condition = condition_changes[serie]
+		condition = condition_changes['serie']
 	except KeyError:
-		condition = last_input.condition
+		condition = get_from_last(last_reception, last_rma, 'condition')
 
 	try:
 		spec = spec_changes[serie]
 	except KeyError:
-		spec = last_input.spec
+		spec = get_from_last(last_reception, last_rma, 'spec')
+
+	item_id = get_from_last(last_reception, last_rma, 'item_id')
 
 	try:
 		warehouse_name = warehouse_changes[serie]
 		warehouse_id = utils.warehouse_id_map[warehouse_name]
 
 	except KeyError:
-		warehouse_id = (
-			session.query(PurchaseProforma.warehouse_id).
-			join(Reception).join(ReceptionLine).join(ReceptionSerie).
-			where(ReceptionSerie.serie == serie).scalar()
-		)
+		if last_reception.created_on >= last_rma.created_on:
+			warehouse_id = (
+				session.query(PurchaseProforma.warehouse_id).
+				join(Reception).join(ReceptionLine).join(ReceptionSerie).
+				where(ReceptionSerie.serie == serie).scalar()
+			)
 
-	return serie, condition, spec, warehouse_id
+		else:
+
+			print(last_rma)
+
+			warehouse_id = 12
+
+	return serie, item_id, condition, spec, warehouse_id
 
 class Rmas:
 
@@ -186,9 +214,10 @@ def test():
 
 
 if __name__ == '__main__':
-	history = HistoricalInventory(datetime.date(2022, 12, 30)).inventory
 
-	for elm in history:
-		print(elm)
-
-
+	while True:
+		serie = str(input('Enter serie:'))
+		if serie == 'exit':
+			break
+		else:
+			print('finder: ', find_attributes_and_return_inventory_register(serie.lower().strip()))

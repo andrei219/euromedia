@@ -4499,14 +4499,30 @@ class AdvancedLinesModel(BaseTable, QtCore.QAbstractTableModel):
 
 InventoryEntry = namedtuple('InventoryEntry', 'serie description condition spec warehouse quantity')
 
+from historical_inventory import HistoricalInventory
+from utils import parse_date, today_date
+class FutureInventoryModel(BaseTable, QtCore.QAbstractTableModel):
+    SERIE, DESCRIPTION, CONDITION, SPEC, WAREHOUSE, QUANTITY = 0, 1, 2, 3, 4, 5
+
+    def __init__(self, **kwargs):
+        super().__init__()
+        self._headerData = ['Serie', 'Description', 'Condition', 'Spec', 'Warehouse', 'Quantity']
+        self.name = 'inventory'
+        self.inventory = []
+
+        date = kwargs.get('date')
+
+
+
 
 class InventoryModel(BaseTable, QtCore.QAbstractTableModel):
     SERIE, DESCRIPTION, CONDITION, SPEC, WAREHOUSE, QUANTITY = 0, 1, 2, 3, 4, 5,
 
-    def __init__(self, description=None, condition=None, spec=None, warehouse=None):
+    def __init__(self, description=None, condition=None, spec=None, warehouse=None, date=None):
         super().__init__()
         self._headerData = ['Serie', 'Description', 'Condition', 'Spec', 'Warehouse', 'Quantity']
         self.name = 'series'
+
         query = db.session.query(db.Imei).join(db.Item).join(db.Warehouse)
 
         if description:
@@ -4525,7 +4541,6 @@ class InventoryModel(BaseTable, QtCore.QAbstractTableModel):
 
         if condition:
             query = query.where(db.Imei.condition.contains(condition))
-
 
         if spec:
             query = query.where(db.Imei.spec.contains(spec))
@@ -6732,7 +6747,6 @@ SaleRow = namedtuple('SaleRow', field_names=fields, defaults=defaults)
 
 
 def get_rma_expenses(imei):
-    expenses = 0
     try:
         proforma = db.session.query(db.SaleProforma).join(db.SaleInvoice).join(db.WhIncomingRma) \
             .join(db.WhIncomingRmaLine).where(db.WhIncomingRmaLine.sn == imei).all()[-1]
@@ -7538,7 +7552,7 @@ class StockValuationEntryWarehouseNoSerie(Tupable):
 class StockValuationModelWarehouse(Exportable, BaseTable, QtCore.QAbstractTableModel):
     DESC, COND, SPEC, SERIAL, QNT, DATE, PARTNER, DOC_REPR, COST = 0, 1, 2, 3, 4, 5, 6, 7, 8
 
-    def __init__(self, warehouse_id):
+    def __init__(self, warehouse_id, date=None):
         super().__init__()
         self.name = 'entries'
         self.entries = []
@@ -7674,7 +7688,7 @@ class WarehouseSimpleValueEntry:
 
 class WarehouseSimpleValueModel(Exportable, BaseTable, QtCore.QAbstractTableModel):
 
-    def __init__(self, warehouse_id):
+    def __init__(self, warehouse_id, date=None):
         super().__init__()
         self._headerData = [
             'Description',
@@ -7689,9 +7703,8 @@ class WarehouseSimpleValueModel(Exportable, BaseTable, QtCore.QAbstractTableMode
         ]
 
         self.name = 'entries'
-        self.entries = [WarehouseSimpleValueEntry([0])
-            for r in db.session.query(db.Imei.imei).where(db.Imei.warehouse_id == warehouse_id)
-        ]
+
+        self.entries = []
 
     def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
         if not index.isValid():

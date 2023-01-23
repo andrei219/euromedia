@@ -68,17 +68,25 @@ class Form(Ui_Dialog, QDialog):
         elif self.by_warehouse.isChecked():
             try:
                 warehouse_id = utils.warehouse_id_map[self.warehouse.text()]
-
             except KeyError:
                 return
             else:
-
-                if self.just_line_price.isChecked():
-                    self.model = WarehouseSimpleValueModel(warehouse_id)
+                try:
+                    date = self.date.text()
+                    if date:
+                        date = utils.parse_date(self.date.text())
+                    else:
+                        date = None
+                except ValueError:
+                    return
                 else:
-                    self.model = StockValuationModelWarehouse(warehouse_id)
+
+                    if self.just_line_price.isChecked():
+                        self.model = WarehouseSimpleValueModel(warehouse_id, date=date)
+                    else:
+                        self.model = StockValuationModelWarehouse(warehouse_id, date=date)
 
 
-                self.view.setModel(self.model)
+                    self.view.setModel(self.model)
 
 
