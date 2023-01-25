@@ -1,16 +1,19 @@
 import datetime
 import os
+import time
+
 import openpyxl
 from collections import Counter, namedtuple
 
 from sqlalchemy import func
+
 
 import utils
 
 from db import session, ReceptionSerie, ExpeditionSerie, \
 	CreditNoteLine, Imei, ConditionChange, SpecChange, \
 	WarehouseChange, PurchaseProforma, Reception, ReceptionLine, \
-	WhIncomingRmaLine
+	WhIncomingRmaLine, Warehouse
 
 warehouse_id_map = {k.lower(): v for k, v in utils.warehouse_id_map.items()}
 
@@ -27,8 +30,27 @@ class Changes:
 	def __getitem__(self, serie):
 		return self.changes[serie]
 
-	def __contains__(self, key):
-		return key in self.changes
+	# def __contains__0(self, serie_cutoff_date):
+	# 	serie, cutoff_date = serie_cutoff_date
+	# 	try:
+	# 		change = self.changes[serie]
+	# 	except KeyError:
+	# 		return False
+	# 	else:
+	# 		if change.created_on >= cutoff_date:
+	# 			return True
+	# 		else:
+	# 			return False
+
+	def __contains__(self, serie_cutoff_date):
+		serie, cutoff_date = serie_cutoff_date
+		if serie in self.changes:
+			change = self.changes[serie]
+			if change.created_on.date() <= cutoff_date:
+				return True
+			else:
+				return False
+		return False
 
 
 condition_changes = Changes(ConditionChange)
@@ -50,7 +72,7 @@ def get_warehouse_id_from_rma(serie):
 	).where(WhIncomingRmaLine.sn == serie).order_by(WhIncomingRmaLine.id.desc()).first().warehouse_id
 
 
-def find_attributes_and_return_inventory_register(serie):
+def find_attributes_and_return_inventory_register(serie, cutoff_date):
 
 	last_reception = (
 		session.query(ReceptionSerie).
@@ -69,17 +91,17 @@ def find_attributes_and_return_inventory_register(serie):
 	# Build base events:
 	base_events = [last_reception]
 	if last_rma is not None:
-		base_events.append(last_rma)
+		base_events.insert(0, last_rma)
 
 	# 1. GET ITEM_ID:
-	item_id = max(base_events, key=lambda e: e.created_on).item_id
+	item_id = max(base_events, key=lambda e: e.created_on.date()).item_id
 
 	# 2. GET CONDITION:
-	if serie in condition_changes:
+	if (serie, cutoff_date) in condition_changes:
 		events = [condition_changes[serie]] + base_events
 	else:
 		events = base_events
-	last_cause = max(events, key=lambda e: e.created_on)
+	last_cause = max(events, key=lambda e: e.created_on.date())
 
 	try:
 		condition = last_cause.target
@@ -87,7 +109,7 @@ def find_attributes_and_return_inventory_register(serie):
 		condition = last_cause.condition
 
 	# 3. GET SPEC:
-	if serie in spec_changes:
+	if (serie, cutoff_date) in spec_changes:
 		events = base_events + [spec_changes[serie]]
 	else:
 		events = base_events
@@ -99,7 +121,7 @@ def find_attributes_and_return_inventory_register(serie):
 		spec = last_cause.spec
 
 	# 3. GET WH_ID:
-	if serie in warehouse_changes:
+	if (serie, cutoff_date) in warehouse_changes:
 		events = base_events + [warehouse_changes[serie]]
 	else:
 		events = base_events
@@ -185,21 +207,24 @@ class Outputs:
 		return self.vectors[item]
 
 
+from collections import namedtuple
+
+E = namedtuple('E', 'imei item_id')
+
+# TODO: FILTROS: Inventory Model, HistoricalInventory
+
 class HistoricalInventory:
 
-	def __init__(self, cutoff_date):
+	def __init__(self, cutoff_date, *, serie_only=True):
 		inputs, outputs, rmas = Inputs(cutoff_date), Outputs(cutoff_date), Rmas(cutoff_date)
 		outputs -= rmas
 		inputs -= outputs
 		self.series = {serie for serie, qnt in inputs.vectors.items() if qnt == 1}
 
-		# self.inventory = {find_attributes_and_return_inventory_register(s)
-		#                   for i, s in enumerate(self.series) if i < 100}
+		if serie_only:
+			self.series = set(filter(lambda s: not utils.valid_uuid(s), self.series))
 
-		self.inventory = {
-			find_attributes_and_return_inventory_register(s)
-			for s in self.series if not utils.valid_uuid(s)
-		}
+		self.inventory = {find_attributes_and_return_inventory_register(s, cutoff_date) for s in self.series}
 
 	def __len__(self):
 		return len(self.inventory)
@@ -210,29 +235,51 @@ class HistoricalInventory:
 
 class Inventory30Dec:
 
+	DESCRIPTION_COLUMN = 'A'
 	IMEI_COLUMN = 'D'
 	CONDITION_COLUMN = 'B'
 	SPEC_COLUMN = 'C'
 
+	files_wh_id = {r.description + '.xlsx': r.id for r in session.query(Warehouse)}
+
+	def __len__(self):
+		return len(self.inventory)
+
 	def __init__(self):
 		base_dir = r'C:\Users\Andrei\Desktop\Updated Prices'
-		self.series = set()
-		for file in os.listdir(base_dir):
+		self.inventory = set()
+		for file, wh_id in self.files_wh_id.items():
 			filepath = os.path.join(base_dir, file)
-			self.series.union(self.get_from_workbook(filepath))
+			s = self.get_from_workbook(filepath, wh_id)
+			self.inventory.update(s)
 
-	def get_from_workbook(self, filepath):
-
-		workbook = openpyxl.load_workbook(filepath)
+	def get_from_workbook(self, filepath, warehouse_id):
+		try:
+			workbook = openpyxl.load_workbook(filepath)
+		except FileNotFoundError:
+			return {}
 
 		sheet = workbook.active
 		s = set()
+		ord_a = ord('A')
+
+		first = True
 		for row in sheet.iter_rows(values_only=True):
-			try:
-				serie = row[ord(self.IMEI_COLUMN) - ord('A')]
-				s.add(serie.lower())
-			except AttributeError:
-				pass
+			if first:
+				first = False
+				continue
+
+			serie = row[ord(self.IMEI_COLUMN) - ord_a]
+			if not serie:
+				continue
+			else:
+				s.add((
+					serie.lower(),
+					utils.description_id_map[row[ord(self.DESCRIPTION_COLUMN) - ord_a]],
+					row[ord(self.CONDITION_COLUMN) - ord_a].lower(),
+					row[ord(self.SPEC_COLUMN) - ord_a].lower(),
+					warehouse_id
+				))
 		return s
 
 
@@ -257,15 +304,16 @@ def save_excel(data, filename):
 	workbook.save(filename)
 
 def assert_complete_equality():
+	from datetime import date
+
 	actual_inventory = {
 		(r.imei.lower().strip(), r.item_id, r.condition.lower().strip(), r.spec.lower().strip(), r.warehouse_id)
 		for r in session.query(Imei)
-		if not utils.valid_uuid(r.imei)
 	}
 
 	print('Len(Actual Inventory)=', len(actual_inventory))
 
-	actual_historical_inventory = HistoricalInventory(utils.parse_date(utils.today_date()))
+	actual_historical_inventory = HistoricalInventory(date.today(), serie_only=False)
 
 	print('Len(Historical Inventory)=', len(actual_historical_inventory))
 
@@ -279,7 +327,27 @@ def assert_complete_equality():
 	save_excel(history_actual, r'C:\Users\Andrei\Desktop\Projects\euromedia\history_minus_actual.xlsx')
 
 
+def assert_30_dic_imeis_equality():
+
+	inventory_30_dec = Inventory30Dec().inventory
+	print('Len(inventory_30_dec)=', len(inventory_30_dec))
+
+	start = time.time()
+	historic = HistoricalInventory(utils.parse_date('30122022').date(), serie_only=True).inventory
+	print('Elapsed history computation=', time.time() - start)
+	print('Len(historic)=', len(historic))
+
+	dec_history = inventory_30_dec - historic
+	history_dec = historic - inventory_30_dec
+
+	print('Len(D - H)=', len(dec_history))
+	print('Len(H - D)=', len(history_dec))
+
+	save_excel(dec_history, r'C:\Users\Andrei\Desktop\Projects\euromedia\dec_history.xlsx')
+	save_excel(history_dec, r'C:\Users\Andrei\Desktop\Projects\euromedia\history_dec.xlsx')
+
+
+
 if __name__ == '__main__':
 
-	assert_complete_equality()
-
+	assert_30_dic_imeis_equality()

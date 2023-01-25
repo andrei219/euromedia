@@ -4496,26 +4496,11 @@ class AdvancedLinesModel(BaseTable, QtCore.QAbstractTableModel):
     def __bool__(self):
         return bool(self._lines)
 
+from historical_inventory import HistoricalInventory
 
 InventoryEntry = namedtuple('InventoryEntry', 'serie description condition spec warehouse quantity')
 
-from historical_inventory import HistoricalInventory
-from utils import parse_date, today_date
-class FutureInventoryModel(BaseTable, QtCore.QAbstractTableModel):
-    SERIE, DESCRIPTION, CONDITION, SPEC, WAREHOUSE, QUANTITY = 0, 1, 2, 3, 4, 5
-
-    def __init__(self, **kwargs):
-        super().__init__()
-        self._headerData = ['Serie', 'Description', 'Condition', 'Spec', 'Warehouse', 'Quantity']
-        self.name = 'inventory'
-        self.inventory = []
-
-        date = kwargs.get('date')
-
-
-
-
-class InventoryModel(BaseTable, QtCore.QAbstractTableModel):
+class InventoryModel_old(BaseTable, QtCore.QAbstractTableModel):
     SERIE, DESCRIPTION, CONDITION, SPEC, WAREHOUSE, QUANTITY = 0, 1, 2, 3, 4, 5,
 
     def __init__(self, description=None, condition=None, spec=None, warehouse=None, date=None):
@@ -4523,35 +4508,37 @@ class InventoryModel(BaseTable, QtCore.QAbstractTableModel):
         self._headerData = ['Serie', 'Description', 'Condition', 'Spec', 'Warehouse', 'Quantity']
         self.name = 'series'
 
-        query = db.session.query(db.Imei).join(db.Item).join(db.Warehouse)
-
-        if description:
-
-            if 'Mixed' in description:
-                ids = utils.get_itemids_from_mixed_description(description)
-                if ids:
-                    query = query.where(db.Imei.item_id.in_(ids))
-
-            else:
-                ids = utils.get_items_ids_by_keyword(description.lower())
-                if ids:
-                    query = query.where(db.Imei.item_id.in_(ids))
+        if date is None:
+            query = db.session.query(db.Imei).join(db.Item).join(db.Warehouse)
+            if description:
+                if 'Mixed' in description:
+                    ids = utils.get_itemids_from_mixed_description(description)
+                    if ids:
+                        query = query.where(db.Imei.item_id.in_(ids))
                 else:
-                    query = query.where(db.Imei.imei.contains(description))
+                    ids = utils.get_items_ids_by_keyword(description.lower())
+                    if ids:
+                        query = query.where(db.Imei.item_id.in_(ids))
+                    else:
+                        query = query.where(db.Imei.imei.contains(description))
 
-        if condition:
-            query = query.where(db.Imei.condition.contains(condition))
+            if condition:
+                query = query.where(db.Imei.condition.contains(condition))
+            if spec:
+                query = query.where(db.Imei.spec.contains(spec))
+            if warehouse:
+                query = query.where(db.Warehouse.description.contains(warehouse))
+            series = query.all()
 
-        if spec:
-            query = query.where(db.Imei.spec.contains(spec))
+        else:
+            series = HistoricalInventory(
+                cutoff_date=date,
+                serie_only=False
 
-        if warehouse:
-            query = query.where(db.Warehouse.description.contains(warehouse))
+            ).inventory
 
-        series = query.all()
-
-        has_not_serie = lambda object: utils.valid_uuid(object.imei)
-        has_serie = lambda object: not utils.valid_uuid(object.imei)
+        has_not_serie = lambda o: utils.valid_uuid(o.imei)
+        has_serie = lambda o: not utils.valid_uuid(o.imei)
 
         uuid_group = list(filter(has_not_serie, series))
         sn_group = list(filter(has_serie, series))
@@ -4622,6 +4609,53 @@ class InventoryModel(BaseTable, QtCore.QAbstractTableModel):
             ))
 
         book.save(path)
+
+class E:
+
+    __slots__ = 'serie', 'description', 'condition', 'spec', 'warehouse', 'quantity'
+
+    def __init__(self, t, qnt=None):
+        pass
+
+
+class ActualInventory:
+
+    def __init__(self, **filters):
+        q = db.session.query(
+            db.Imei.imei, db.Imei.item_id, db.Imei.condition, db.Imei.spec, db.Imei.warehouse_id
+        )
+
+        if 'item_ids' in filters:
+            q = q.where(db.Imei.item_id.in_(filters['item_ids']))
+
+        if 'condition' in filters:
+            q = q.where(db.Imei.condition == filters['condition'])
+
+        if 'spec' in filters:
+            q = q.where(db.Imei.spec == filters['spec'])
+
+        if 'warehouse_id' in filters:
+            q = q.where(db.Imei.warehouse_id == filters['warehouse_id'])
+
+
+class InventoryModel(BaseTable, QtCore.QAbstractTableModel):
+
+    def __init__(self, **filters):
+        super().__init__()
+        self._headerData = ['Serie', 'Description', 'Condition', 'Spec', 'Warehouse', 'Quantity']
+        self.name = 'inventory'
+        self.inventory = []
+        if 'date' in filters:
+            pass
+        else:
+            pass
+
+    def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
+        if not index.isValid():
+            return
+        if role == Qt.DisplayRole:
+            return self.inventory[index.row()][index.column()]
+
 
 
 class WarehouseListModel(QtCore.QAbstractListModel):

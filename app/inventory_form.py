@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import QDialog, QMessageBox
 
 from ui_inventory_form import Ui_InventoryForm
 
-from models import FutureInventoryModel, InventoryModel
+from models import InventoryModel
 
 import utils 
 
@@ -49,7 +49,7 @@ class InventoryForm(Ui_InventoryForm, QDialog):
         try:
             self.model.excel_export(file_path)
         except:
-            QMessageBox.information(self, 'Error', 'An error ocurred while exporting data')
+            QMessageBox.information(self, 'Error', 'An error occurred while exporting data')
         else:
             QMessageBox.information(self, 'Information', 'Data exported successfully')
 
@@ -65,9 +65,19 @@ class InventoryForm(Ui_InventoryForm, QDialog):
         else:
             date = None
 
-        # self.model = FutureInventoryModel(**filters, date=date)
+        date = self.date.text()
+        if date == utils.today_date():
+            date = None
+        else:
+            try:
+                date = utils.parse_date(date)
+            except ValueError:
+                QMessageBox.critical(self, 'Error', 'Incorrect date value. Format: ddmmyyyy')
+                return
 
-        self.model = InventoryModel(**filters)
+        self.model = InventoryModel(**filters, date=date)
+
+        # self.model = InventoryModel(**filters)
         self.view.setModel(self.model)
         self.view.resizeColumnToContents(1)
     
