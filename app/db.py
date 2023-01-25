@@ -2211,6 +2211,8 @@ class CreditNoteLine(Base):
 
     id = Column(Integer, primary_key=True)
     proforma_id = Column(Integer, ForeignKey('sale_proformas.id'))
+    invoice_id = Column(Integer, ForeignKey('sale_invoices.id'))
+
     item_id = Column(Integer, ForeignKey('items.id'))
     condition = Column(String(50), nullable=False)
     public_condition = Column(String(50), nullable=True)

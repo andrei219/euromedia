@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import QDialog, QMessageBox
 
 from ui_inventory_form import Ui_InventoryForm
 
-from models import FutureInventoryModel
+from models import FutureInventoryModel, InventoryModel
 
 import utils 
 
@@ -65,8 +65,10 @@ class InventoryForm(Ui_InventoryForm, QDialog):
         else:
             date = None
 
-        self.model = FutureInventoryModel(**filters, date=date)
-        self.view.setModel(self.model) 
+        # self.model = FutureInventoryModel(**filters, date=date)
+
+        self.model = InventoryModel(**filters)
+        self.view.setModel(self.model)
         self.view.resizeColumnToContents(1)
     
     def build_filters(self):
