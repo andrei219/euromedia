@@ -20,27 +20,26 @@ warehouse_id_map = {k.lower(): v for k, v in utils.warehouse_id_map.items()}
 
 Change = namedtuple('Change', 'created_on target')
 
+# This structure is build in order to match
+# the results from the query in models.ActualInventory
+# and then models.no_serie_grouper can act on both results
+# HistoricalInventory.inventory and ActualInventory.inventory
+# because it sees the same properties .
+# Aux suffix in order to distinguish from db.Imei.
+
+ImeiAux = namedtuple('Imei', 'imei item_id condition spec warehouse_id')
+
+
 class Changes:
 
 	def __init__(self, cls):
 		self.changes = {
-			r.sn.lower(): Change(r.created_on, r.after.lower()) for r in session.query(cls)
+			r.sn.lower(): Change(r.created_on, r.after.lower())
+			for r in session.query(cls)
 		}
 
 	def __getitem__(self, serie):
 		return self.changes[serie]
-
-	# def __contains__0(self, serie_cutoff_date):
-	# 	serie, cutoff_date = serie_cutoff_date
-	# 	try:
-	# 		change = self.changes[serie]
-	# 	except KeyError:
-	# 		return False
-	# 	else:
-	# 		if change.created_on >= cutoff_date:
-	# 			return True
-	# 		else:
-	# 			return False
 
 	def __contains__(self, serie_cutoff_date):
 		serie, cutoff_date = serie_cutoff_date
@@ -137,7 +136,7 @@ def find_attributes_and_return_inventory_register(serie, cutoff_date):
 		elif event == last_rma:
 			warehouse_id = get_warehouse_id_from_rma(serie)
 
-	return serie.lower(), item_id, condition.lower(), spec.lower(), warehouse_id
+	return ImeiAux(serie.lower(), item_id, condition.lower(), spec.lower(), warehouse_id)
 
 class Rmas:
 
@@ -207,15 +206,11 @@ class Outputs:
 		return self.vectors[item]
 
 
-from collections import namedtuple
-
-E = namedtuple('E', 'imei item_id')
-
 # TODO: FILTROS: Inventory Model, HistoricalInventory
 
 class HistoricalInventory:
 
-	def __init__(self, cutoff_date, *, serie_only=True):
+	def __init__(self, cutoff_date, serie_only=True):
 		inputs, outputs, rmas = Inputs(cutoff_date), Outputs(cutoff_date), Rmas(cutoff_date)
 		outputs -= rmas
 		inputs -= outputs
@@ -223,6 +218,7 @@ class HistoricalInventory:
 
 		if serie_only:
 			self.series = set(filter(lambda s: not utils.valid_uuid(s), self.series))
+			print('H.__init__.series_only is True')
 
 		self.inventory = {find_attributes_and_return_inventory_register(s, cutoff_date) for s in self.series}
 
@@ -282,7 +278,6 @@ class Inventory30Dec:
 				))
 		return s
 
-
 def test():
 	today = datetime.date.today()
 	history = HistoricalInventory(today).series
@@ -294,7 +289,6 @@ def test():
 	print('Len(HistoricalInventory - Inventory)=', len(history - inventory))
 	print('Len(History & Inventory)=', len(history & inventory))
 	print('Historical inventory is equal to inventory = ', history == inventory)
-
 
 def save_excel(data, filename):
 	workbook = openpyxl.Workbook()
@@ -326,7 +320,6 @@ def assert_complete_equality():
 	save_excel(actual_history, r'C:\Users\Andrei\Desktop\Projects\euromedia\actual_minus_history.xlsx')
 	save_excel(history_actual, r'C:\Users\Andrei\Desktop\Projects\euromedia\history_minus_actual.xlsx')
 
-
 def assert_30_dic_imeis_equality():
 
 	inventory_30_dec = Inventory30Dec().inventory
@@ -347,7 +340,6 @@ def assert_30_dic_imeis_equality():
 	save_excel(history_dec, r'C:\Users\Andrei\Desktop\Projects\euromedia\history_dec.xlsx')
 
 
-
 if __name__ == '__main__':
 
-	assert_30_dic_imeis_equality()
+	history = HistoricalInventory(utils.parse_date('30042022').date())

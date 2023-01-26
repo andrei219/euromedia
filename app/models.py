@@ -4498,7 +4498,50 @@ class AdvancedLinesModel(BaseTable, QtCore.QAbstractTableModel):
 
 from historical_inventory import HistoricalInventory
 
-InventoryEntry = namedtuple('InventoryEntry', 'serie description condition spec warehouse quantity')
+
+from utils import description_id_map
+from utils import warehouse_id_map
+
+class InventoryEntry:
+
+    SERIE, ITEM_ID, CONDITION, SPEC, WAREHOUSE_ID, QUANTITY = 0, 1, 2, 3, 4, 5
+
+    def __init__(self, **kwargs):
+
+        kwargs['description'] = description_id_map.inverse[kwargs['item_id']]
+        del kwargs['item_id']
+
+        kwargs['warehouse'] = warehouse_id_map.inverse[kwargs['warehouse_id']]
+        del kwargs['warehouse_id']
+
+        self.__dict__.update(kwargs)
+
+    @classmethod
+    def from_tuple(cls, t):
+        return cls(**{
+            'serie': t[cls.SERIE],
+            'item_id': t[cls.ITEM_ID],
+            'condition': t[cls.CONDITION],
+            'spec': t[cls.SPEC],
+            'warehouse_id': t[cls.WAREHOUSE_ID],
+            'quantity': 1
+        })
+
+    def __getitem__(self, item):
+        if item == self.SERIE:
+            return self.serie
+        elif item == self.ITEM_ID:
+            return self.description
+        elif item == self.CONDITION:
+            return self.condition
+        elif item == self.SPEC:
+            return self.spec
+        elif item == self.WAREHOUSE_ID:
+            return self.warehouse
+        elif item == self.QUANTITY:
+            return self.quantity
+
+
 
 class InventoryModel_old(BaseTable, QtCore.QAbstractTableModel):
     SERIE, DESCRIPTION, CONDITION, SPEC, WAREHOUSE, QUANTITY = 0, 1, 2, 3, 4, 5,
@@ -4548,7 +4591,7 @@ class InventoryModel_old(BaseTable, QtCore.QAbstractTableModel):
 
         self.series = []
 
-        # InventoryModel actua como punto comun para los dos tipos de stock
+        # InventoryModel actua como punto común para los dos tipos de stock
         for entry in sn_group:
             self.series.append(
                 InventoryEntry(
@@ -4610,20 +4653,38 @@ class InventoryModel_old(BaseTable, QtCore.QAbstractTableModel):
 
         book.save(path)
 
-class E:
 
-    __slots__ = 'serie', 'description', 'condition', 'spec', 'warehouse', 'quantity'
+def no_serie_grouper(registers):
 
-    def __init__(self, t, qnt=None):
-        pass
+    print('no serie grouper called')
 
+    uuid_group = list(filter(lambda o: utils.valid_uuid(o.imei), registers))
+    key = operator.attrgetter('item_id', 'condition', 'spec', 'warehouse_id')
+    uuid_group = sorted(uuid_group, key=key)
+
+    for key, group in groupby(uuid_group, key=key):
+        item_id, condition, spec, warehouse_id = key
+        yield InventoryEntry(
+            serie="",
+            item_id=item_id,
+            condition=condition,
+            spec=spec,
+            warehouse_id=warehouse_id,
+            quantity=len(list(group))
+        )
 
 class ActualInventory:
 
-    def __init__(self, **filters):
+    def __init__(self, filters):
         q = db.session.query(
             db.Imei.imei, db.Imei.item_id, db.Imei.condition, db.Imei.spec, db.Imei.warehouse_id
         )
+
+        if 'warehouse_id' in filters:
+            q = q.where(db.Imei.warehouse_id == filters['warehouse_id'])
+
+        if 'serie' in filters:
+            q = q.where(db.Imei.imei.contains(filters['serie']))
 
         if 'item_ids' in filters:
             q = q.where(db.Imei.item_id.in_(filters['item_ids']))
@@ -4632,23 +4693,45 @@ class ActualInventory:
             q = q.where(db.Imei.condition == filters['condition'])
 
         if 'spec' in filters:
-            q = q.where(db.Imei.spec == filters['spec'])
+            q = q.where(db.Imei.condition == filters['spec'])
 
-        if 'warehouse_id' in filters:
-            q = q.where(db.Imei.warehouse_id == filters['warehouse_id'])
+        registers = [r for r in q]
 
+        has_serie = lambda o: not utils.valid_uuid(o.imei)
+
+        sn_group = list(filter(has_serie, registers))
+        self.inventory = [InventoryEntry.from_tuple(e) for e in sn_group]
+
+        # Check contains, because prepare_filters_dict cleans
+        # removing entries with falsy value. Then
+        # contains is equivalent to filter['include_no_serie'] being True.
+
+        if 'include_no_serie' in filters:
+            self.inventory.extend(list(no_serie_grouper(registers)))
+
+    def __getitem__(self, item):
+        return self.inventory[item]
+
+    @property
+    def total(self):
+        return sum(e.quantity for e in self.inventory)
+
+    def __len__(self):
+        return len(self.inventory)
+
+from datetime import date
 
 class InventoryModel(BaseTable, QtCore.QAbstractTableModel):
 
-    def __init__(self, **filters):
+    def __init__(self, filters):
         super().__init__()
         self._headerData = ['Serie', 'Description', 'Condition', 'Spec', 'Warehouse', 'Quantity']
         self.name = 'inventory'
-        self.inventory = []
-        if 'date' in filters:
-            pass
+
+        if date.today() == filters['date']:
+            self.inventory = ActualInventory(filters)
         else:
-            pass
+            self.inventory = HistoricalInventoryModel(filters)
 
     def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
         if not index.isValid():
@@ -4656,7 +4739,77 @@ class InventoryModel(BaseTable, QtCore.QAbstractTableModel):
         if role == Qt.DisplayRole:
             return self.inventory[index.row()][index.column()]
 
+    @property
+    def total(self):
+        return self.inventory.total
 
+    def __getitem__(self, item):
+        return self.inventory[item]
+
+
+from historical_inventory import HistoricalInventory
+
+class HistoricalInventoryModel:
+
+    def __init__(self, filters):
+        cutoff_date = filters['date']
+
+        # Containing equivalent to filters['include_no_serie'] being true
+        # because of the cleaning inventory_form.prepare_dict
+        # performs.
+        series_only = 'include_no_series' not in filters
+
+        print('series_only =', series_only)
+
+        history = HistoricalInventory(
+            cutoff_date,
+            serie_only=series_only
+        )
+
+        registers = history.inventory
+
+        if 'warehouse_id' in filters:
+            registers = list(
+                filter(lambda o: o.warehouse_id == filters['warehouse_id'], registers)
+            )
+
+        if 'item_ids' in filters:
+            registers = list(
+                filter(lambda o: o.item_id in filters['item_ids'], registers)
+            )
+
+        if 'condition' in filters:
+            registers = list(
+                filter(lambda o: o.condition == filters['condition'], registers)
+            )
+
+        if 'spec' in filters:
+            registers = list(
+                filter(lambda o: o.spec == filters['spec'], registers)
+            )
+
+        if 'serie' in filters:
+            registers = list(
+                filter(lambda o:filters['serie'] in o.imei, registers)
+            )
+
+        sn_group = list(filter(lambda o: not utils.valid_uuid(o[0]), registers))
+        self.inventory = [InventoryEntry.from_tuple(e) for e in sn_group]
+
+        if not series_only:
+            print('HModel.__init__ series_only is False')
+            self.inventory.extend(list(no_serie_grouper(registers)))
+
+
+    @property
+    def total(self):
+        return sum(e.quantity for e in self.inventory)
+
+    def __getitem__(self, item):
+        return self.inventory[item]
+
+    def __len__(self):
+        return len(self.inventory)
 
 class WarehouseListModel(QtCore.QAbstractListModel):
 
