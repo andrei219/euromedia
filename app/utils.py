@@ -359,7 +359,6 @@ def getNote(parent, obj):
     return ok, text
 
 
-
 def get_directory(parent):
     return QFileDialog.getExistingDirectory(parent, 'Get directory', get_desktop())
 

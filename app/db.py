@@ -411,11 +411,8 @@ class PurchaseProforma(Base):
 
     incoterm = Column(String(3), nullable=False)
 
-
-
     def __hash__(self):
         return functools.reduce(operator.xor, (hash(x) for x in (self.type, self.number)), 0)
-
 
     @property
     def doc_repr(self):
@@ -428,7 +425,6 @@ class PurchaseProforma(Base):
     @property
     def tax(self):
         return round(sum(line.price * line.quantity * line.tax / 100 for line in self.lines), 2)
-
 
     @property
     def total_debt(self):

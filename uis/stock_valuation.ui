@@ -7,11 +7,15 @@
     <x>0</x>
     <y>0</y>
     <width>966</width>
-    <height>683</height>
+    <height>677</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Dialog</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QLable {font-weight: bold}
+</string>
   </property>
   <widget class="QGroupBox" name="by_document">
    <property name="geometry">
@@ -71,9 +75,9 @@
   <widget class="QGroupBox" name="by_warehouse">
    <property name="geometry">
     <rect>
-     <x>350</x>
-     <y>90</y>
-     <width>271</width>
+     <x>360</x>
+     <y>80</y>
+     <width>341</width>
      <height>121</height>
     </rect>
    </property>
@@ -84,23 +88,26 @@
     <bool>true</bool>
    </property>
    <property name="checked">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
    <widget class="QLineEdit" name="warehouse">
     <property name="geometry">
      <rect>
-      <x>16</x>
-      <y>22</y>
+      <x>20</x>
+      <y>20</y>
       <width>161</width>
       <height>20</height>
      </rect>
     </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
    </widget>
-   <widget class="QCheckBox" name="just_line_price">
+   <widget class="QCheckBox" name="book_value">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>90</y>
+      <x>40</x>
+      <y>80</y>
       <width>101</width>
       <height>31</height>
      </rect>
@@ -112,8 +119,8 @@
    <widget class="QLineEdit" name="date">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>53</y>
+      <x>170</x>
+      <y>60</y>
       <width>113</width>
       <height>22</height>
      </rect>
@@ -125,14 +132,40 @@
      <string>ddmmyyyy</string>
     </property>
    </widget>
+   <widget class="QCheckBox" name="all">
+    <property name="geometry">
+     <rect>
+      <x>200</x>
+      <y>20</y>
+      <width>77</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>All Wh. </string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>60</y>
+      <width>91</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Histsorical:</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QGroupBox" name="by_serial">
    <property name="geometry">
     <rect>
-     <x>675</x>
-     <y>100</y>
+     <x>740</x>
+     <y>90</y>
      <width>200</width>
-     <height>87</height>
+     <height>91</height>
     </rect>
    </property>
    <property name="title">

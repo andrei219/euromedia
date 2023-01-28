@@ -1,14 +1,33 @@
 
 from PyQt5.QtWidgets import QDialog, QMessageBox
+
+import db
 from ui_stock_valuation import Ui_Dialog
 
-from models import StockValuationModelDocument
+from models import StockValuationModelDocument, WarehouseValueModel
 from models import StockValuationModelImei
-from models import StockValuationModelWarehouse
-from models import WarehouseSimpleValueModel
-
 
 import utils
+
+def prepare_filters(filters):
+
+    if not filters['date']:
+        raise ValueError('Date must be provided')
+    else:
+        try:
+            filters['date'] = utils.parse_date(filters['date']).date()
+        except ValueError:
+            raise ValueError('Incorrect date format: ddmmyyyy')
+
+    try:
+        filters['warehouse_id'] = utils.warehouse_id_map[filters['warehouse']]
+    except KeyError:
+        filters['warehouse_id'] = None
+
+    if not filters['all'] and not filters['warehouse_id']:
+        raise ValueError('Warehouse must be entered or all wh. checked.')
+
+    return filters
 
 class Form(Ui_Dialog, QDialog):
 
@@ -21,8 +40,16 @@ class Form(Ui_Dialog, QDialog):
         self.by_serial.toggled.connect(self.by_serial_toggled)
         self.by_warehouse.toggled.connect(self.by_warehouse_toggled)
         self.export_.clicked.connect(self.export_handler)
+        self.all.toggled.connect(self.all_toggled)
 
         utils.setCompleter(self.warehouse, utils.warehouse_id_map.keys())
+        self.all_path = None
+
+        self.date.setText(utils.today_date())
+        self.warehouse.setText(db.session.query(db.Warehouse.description).where(
+            db.Warehouse.id == 1
+        ).scalar())
+
 
     def by_doc_toggled(self, check):
         self.by_serial.setChecked(False)
@@ -67,26 +94,34 @@ class Form(Ui_Dialog, QDialog):
 
         elif self.by_warehouse.isChecked():
             try:
-                warehouse_id = utils.warehouse_id_map[self.warehouse.text()]
-            except KeyError:
+                filters = self.build_filters()
+            except ValueError as ex:
+                QMessageBox.critical(self, 'Error', str(ex))
                 return
             else:
-                try:
-                    date = self.date.text()
-                    if date:
-                        date = utils.parse_date(self.date.text())
-                    else:
-                        date = None
-                except ValueError:
-                    return
-                else:
+                self.model = WarehouseValueModel(filters).registers
 
-                    if self.just_line_price.isChecked():
-                        self.model = WarehouseSimpleValueModel(warehouse_id, date=date)
-                    else:
-                        self.model = StockValuationModelWarehouse(warehouse_id, date=date)
+                for elm in self.model:
+                    print(elm)
 
 
-                    self.view.setModel(self.model)
+    def all_toggled(self, checked):
+        if checked:
+            directory = utils.get_directory(self)
+            if not directory:
+                self.all.setChecked(False)
+            else:
+                self.all_path = directory
+                self.warehouse.setText('')
+        else:
+            self.all_path = None
 
-
+    def build_filters(self):
+        return prepare_filters(
+            {
+                'date': self.date.text(),
+                'all': self.all_path,
+                'book_value': self.book_value.isChecked(),
+                'warehouse': self.warehouse.text()
+            }
+        )
