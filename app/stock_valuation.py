@@ -102,7 +102,6 @@ class Form(Ui_Dialog, QDialog):
                 self.model = WarehouseValueModel(filters)
                 self.view.setModel(self.model)
 
-
     def all_toggled(self, checked):
         if checked:
             directory = utils.get_directory(self)
