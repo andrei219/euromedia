@@ -101,8 +101,6 @@ class Form(Ui_Dialog, QDialog):
             else:
                 self.model = WarehouseValueModel(filters)
                 self.view.setModel(self.model)
-                
-
 
 
     def all_toggled(self, checked):
