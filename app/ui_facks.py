@@ -14,18 +14,24 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
-        Dialog.resize(484, 381)
+        Dialog.resize(500, 455)
         self.view = QtWidgets.QTableView(Dialog)
-        self.view.setGeometry(QtCore.QRect(60, 60, 381, 231))
+        self.view.setGeometry(QtCore.QRect(20, 80, 451, 231))
         self.view.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
         self.view.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
         self.view.setObjectName("view")
         self.dojob = QtWidgets.QPushButton(Dialog)
-        self.dojob.setGeometry(QtCore.QRect(270, 320, 81, 31))
+        self.dojob.setGeometry(QtCore.QRect(270, 400, 81, 31))
         self.dojob.setObjectName("dojob")
         self.exit = QtWidgets.QPushButton(Dialog)
-        self.exit.setGeometry(QtCore.QRect(360, 320, 81, 31))
+        self.exit.setGeometry(QtCore.QRect(360, 400, 81, 31))
         self.exit.setObjectName("exit")
+        self.year = QtWidgets.QLineEdit(Dialog)
+        self.year.setGeometry(QtCore.QRect(220, 40, 113, 22))
+        self.year.setObjectName("year")
+        self.label = QtWidgets.QLabel(Dialog)
+        self.label.setGeometry(QtCore.QRect(104, 40, 91, 20))
+        self.label.setObjectName("label")
 
         self.retranslateUi(Dialog)
         self.exit.clicked.connect(Dialog.accept)
@@ -33,6 +39,7 @@ class Ui_Dialog(object):
 
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
-        Dialog.setWindowTitle(_translate("Dialog", "Fucks"))
+        Dialog.setWindowTitle(_translate("Dialog", "Facks"))
         self.dojob.setText(_translate("Dialog", "do job"))
         self.exit.setText(_translate("Dialog", "Exit"))
+        self.label.setText(_translate("Dialog", "Year:"))

@@ -7586,7 +7586,7 @@ class FucksModel(BaseTable, QtCore.QAbstractTableModel):
 			return False
 		return False
 
-	def export(self):
+	def export(self, year):
 		import os
 		from openpyxl import Workbook
 
@@ -7608,7 +7608,7 @@ class FucksModel(BaseTable, QtCore.QAbstractTableModel):
 		]
 
 		for fuck in self.fucks:
-			query = self.get_query(fuck.serie, fuck.from_, fuck.to)
+			query = self.get_query(fuck.serie, fuck.from_, fuck.to, year)
 			sales = query.all()
 			sales = sorted(sales, key=month_key)
 			for month, sales_group in groupby(sales, key=month_key):
@@ -7622,14 +7622,15 @@ class FucksModel(BaseTable, QtCore.QAbstractTableModel):
 				filename = ''.join(('serie', str(fuck.serie), '.xlsx'))
 				wb.save(os.path.join(target_dir, filename))
 
-	def get_query(self, serie, _from, to):
+	def get_query(self, serie, _from, to, year):
 
-		serie, _from, to = int(serie), int(_from), int(to)
+		serie, _from, to, year = int(serie), int(_from), int(to), int(year)
 
 		return db.session.query(db.SaleInvoice).where(
 			db.SaleInvoice.type == serie,
 			db.SaleInvoice.number >= _from,
-			db.SaleInvoice.number <= to
+			db.SaleInvoice.number <= to,
+			func.year(db.SaleInvoice.date) == year
 		)
 
 	@property

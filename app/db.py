@@ -873,13 +873,11 @@ class SaleProforma(Base):
     incoterm = Column(String(3), default='gbc')
 
     def __repr__(self):
-        clasname = self.__class__.__name__
-        return f'{clasname}(type={self.type}, number={self.number})'
-
+        cls_name = self.__class__.__name__
+        return f'{cls_name}(type={self.type}, number={self.number})'
 
     def __hash__(self):
         return functools.reduce(operator.xor, (hash(x) for x in (self.type, self.number)), 0)
-
 
     @property
     def doc_repr(self):
@@ -1017,10 +1015,7 @@ class SaleProforma(Base):
                 return 'Partially Paid'
             elif self.overpaid:
                 return 'Over Paid'
-
-
             return 'Partially'
-
 
 
     @property
@@ -2496,10 +2491,14 @@ def company_name():
 def year():
     return '2022'
 
-#
+
+
 # if __name__ == '__main__':
 #
 #     engine = create_engine(f'mysql+mysqlconnector://root:hnq#4506@localhost:3306/atcapital')
 #     Session = scoped_session(sessionmaker(bind=engine, autoflush=False))
 #     session = Session()
 #     Base.metadata.create_all(engine)
+
+
+
