@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: aa3352d6e908
+Revision ID: 3771a23c22bb
 Revises: 
-Create Date: 2023-01-23 16:18:51.953595
+Create Date: 2023-01-19 15:48:05.205546
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
-revision = 'aa3352d6e908'
+revision = '3771a23c22bb'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -42,6 +42,7 @@ def upgrade():
                existing_type=mysql.DOUBLE(asdecimal=True),
                type_=sa.Float(precision=32),
                existing_nullable=False)
+    op.add_column('credit_note_lines', sa.Column('created_on', sa.DateTime(), nullable=True))
     op.alter_column('credit_note_lines', 'price',
                existing_type=mysql.DOUBLE(asdecimal=True),
                type_=sa.Float(precision=32),
@@ -58,9 +59,6 @@ def upgrade():
                existing_type=mysql.DOUBLE(asdecimal=True),
                type_=sa.Float(precision=32),
                existing_nullable=True)
-    op.alter_column('partners', 'has_certificate',
-               existing_type=mysql.TINYINT(display_width=1),
-               nullable=False)
     op.alter_column('purchase_documents', 'document',
                existing_type=mysql.LONGBLOB(),
                type_=sa.LargeBinary(length=4294967295),
@@ -170,9 +168,6 @@ def downgrade():
                existing_type=sa.LargeBinary(length=4294967295),
                type_=mysql.LONGBLOB(),
                existing_nullable=True)
-    op.alter_column('partners', 'has_certificate',
-               existing_type=mysql.TINYINT(display_width=1),
-               nullable=True)
     op.alter_column('partners', 'amount_credit_limit',
                existing_type=sa.Float(precision=32),
                type_=mysql.DOUBLE(asdecimal=True),
@@ -189,6 +184,7 @@ def downgrade():
                existing_type=sa.Float(precision=32),
                type_=mysql.DOUBLE(asdecimal=True),
                existing_nullable=False)
+    op.drop_column('credit_note_lines', 'created_on')
     op.alter_column('agents', 'fixed_perpiece',
                existing_type=sa.Float(precision=32),
                type_=mysql.DOUBLE(asdecimal=True),

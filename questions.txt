@@ -22,8 +22,4 @@
 	. Compras de la serie 3, el contador no discrimina año.
 
 	
-	. Cada movimiento bancario i/o corresponde a un concepto contable, y puede tener o no 
-	  un documento asociado.
-
-	El objetivo es ser capaz de clasificar los moviemientos en su categoria contable y match
-	los documentos. Cobro y pago. 
+	

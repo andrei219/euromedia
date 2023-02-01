@@ -193,7 +193,6 @@ def get_itemids_from_mixed_description(mixed_description):
     if mixed_description.count('Mixed') == 2:
         for dirty_desc in dirty_map:
             mpn, man, cat, mod, *_ = dirty_desc.split('|')
-            # if mpn == '?':mpn = ''
             if mpn != '?':
                 continue
             else:
@@ -358,7 +357,6 @@ def getNote(parent, obj):
         f'Enter a warning for the warehouse order of {obj.doc_repr}'
     )
     return ok, text
-
 
 
 def get_directory(parent):

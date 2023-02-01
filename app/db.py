@@ -25,10 +25,11 @@ from datetime import timedelta
 
 from sqlalchemy import exists
 
+echo = os.environ['APP_ECHO'].lower() == 'true'
 
-engine = create_engine('mysql+mysqlconnector://andrei:hnq#4506@192.168.1.78:3306/appdb', echo=False)
+engine = create_engine('mysql+mysqlconnector://andrei:hnq#4506@192.168.1.78:3306/appdb', echo=echo)
 
-dev_engine = create_engine('mysql+mysqlconnector://root:hnq#4506@localhost:3306/euromediadb', echo=False)
+dev_engine = create_engine('mysql+mysqlconnector://root:hnq#4506@localhost:3306/euromediadb', echo=echo)
 
 
 # from sale types:
@@ -410,11 +411,8 @@ class PurchaseProforma(Base):
 
     incoterm = Column(String(3), nullable=False)
 
-
-
     def __hash__(self):
         return functools.reduce(operator.xor, (hash(x) for x in (self.type, self.number)), 0)
-
 
     @property
     def doc_repr(self):
@@ -427,7 +425,6 @@ class PurchaseProforma(Base):
     @property
     def tax(self):
         return round(sum(line.price * line.quantity * line.tax / 100 for line in self.lines), 2)
-
 
     @property
     def total_debt(self):
@@ -2141,8 +2138,8 @@ class WhIncomingRmaLine(Base):
     )
 
     def __repr__(self):
-        clsname = self.__class__.__name__
-        s = f"{clsname}(sn={self.sn}, accepetd={self.accepted}, problem={self.problem},"
+        cls_name = self.__class__.__name__
+        s = f"{cls_name}(sn={self.sn}, accepetd={self.accepted}, problem={self.problem},"
         s += f"why={self.why})"
         return s
 
@@ -2210,6 +2207,8 @@ class CreditNoteLine(Base):
 
     id = Column(Integer, primary_key=True)
     proforma_id = Column(Integer, ForeignKey('sale_proformas.id'))
+    invoice_id = Column(Integer, ForeignKey('sale_invoices.id'))
+
     item_id = Column(Integer, ForeignKey('items.id'))
     condition = Column(String(50), nullable=False)
     public_condition = Column(String(50), nullable=True)
@@ -2218,6 +2217,8 @@ class CreditNoteLine(Base):
     price = Column(Float(precision=32, decimal_return_scale=None), nullable=False)
     tax = Column(Integer, nullable=False)
     sn = Column(String(100), nullable=False)
+
+    created_on = Column(DateTime, default=datetime.now)
 
     proforma = relationship(
         'SaleProforma',
