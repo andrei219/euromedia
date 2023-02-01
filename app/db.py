@@ -868,7 +868,7 @@ class SaleProforma(Base):
 
     expedition = relationship('Expedition', uselist=False, back_populates='proforma')
 
-    warning = Column(String(50), nullable=True)
+    warning = Column(String(255), nullable=True)
 
     incoterm = Column(String(3), default='gbc')
 
