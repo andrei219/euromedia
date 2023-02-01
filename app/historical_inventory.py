@@ -218,7 +218,6 @@ class HistoricalInventory:
 
 		if serie_only:
 			self.series = set(filter(lambda s: not utils.valid_uuid(s), self.series))
-			print('H.__init__.series_only is True')
 
 		self.inventory = {find_attributes_and_return_inventory_register(s, cutoff_date) for s in self.series}
 

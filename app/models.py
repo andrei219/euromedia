@@ -64,15 +64,6 @@ class BaseTable:
 		return len(getattr(self, self.name))
 
 
-def coroutine(func):
-	@wraps
-	def primer(*args, **kwargs):
-		gen = func(*args, **kwargs)
-		next(gen)
-		return gen
-
-	return primer
-
 
 def computeCreditAvailable(partner_id):
 	max_credit = db.session.query(db.Partner.amount_credit_limit). \
@@ -4734,52 +4725,65 @@ cr_named_field_names = [
 	'quantity'
 ]
 
-CRNamed = namedtuple('CRNamed', field_names=cr_named_field_names)
 
 def create_valid_filename(name: str):
 	# Windows file name restrictions
 	invalid_chars = r'[\\/:*?"<>|]'
 	return re.sub(invalid_chars, '', name)
 
-# class WarehouseValueModel(BaseTable, QtCore.QAbstractTableModel):
 
-class WarehouseValueModel:
+class WarehouseValueModel(BaseTable, QtCore.QAbstractTableModel):
 	def __init__(self, filters):
 		super().__init__()
+		self._headerData = [
+			'Description',
+			'Condition',
+			'Spec',
+			'Serie',
+			'Date',
+			'Partner',
+			'Doc',
+			'Currency',
+			'Cost',
+			'Quantity'
+		]
+
+		self.name = '_data'
+
+		self._data = []
+
 		_date = filters.get('date')
 		all_path = filters.get('all')
 		warehouse_id = filters.get('warehouse_id')
 		book_value = filters.get('book_value')
 
-		from datetime import date
+		print('filters=', filters)
 
+		from datetime import date
 		if _date == date.today():
-			print('if _date == date.today():')
+			print('today')
 			if warehouse_id:
-				print('date == today and warehouse_id is not None')
+				print('Today and warehouse_id=', warehouse_id)
 				self.registers = ActualInventory.from_warehouse(warehouse_id).registers
 			else:
-				print('date == today and Warehouse id is None')
 				self.registers = ActualInventory.with_no_filters().registers
-		else:
 
-			print('date != today')
+		else:
+			print('not today.')
 			if warehouse_id:
-				print('date != today and warehouse_id is not None')
+				print('not today and warehouse_id=', warehouse_id)
 				self.registers = HistoricalInventoryModel.from_warehouse(
 					cutoff_date=_date,
 					warehouse_id=warehouse_id
 				).registers
 
 			else:
-				print('date != today and warehouse is None ')
-				s = time.time()
+				print('not today and not warehouse_id')
 				self.registers = HistoricalInventoryModel.with_no_filters(cutoff_date=_date).registers
-				print('Elapsed finding Inventory =', (time.time() - s) / 60)
 
 		promoted = [CostRegister(r, book_value=book_value) for r in self.registers]
 
-		key = operator.attrgetter('description', 'condition', 'spec', 'date',
+		key = operator.attrgetter('description', 'condition', 'spec', 'purchase_date',
 		                          'partner', 'doc_repr', 'currency', 'cost')
 
 		if all_path:
@@ -4787,12 +4791,8 @@ class WarehouseValueModel:
 				filepath = os.path.join(all_path, create_valid_filename(name + '.xlsx'))
 				wb = openpyxl.Workbook()
 				sheet = wb.active
-				sheet.append(cr_named_field_names)
-				warehouse_group = filter(lambda x: x.warehouse_id == warehouse_id, promoted)
-
-				for elm in warehouse_group:
-					print(elm)
-
+				sheet.append(self._headerData)
+				warehouse_group = list(filter(lambda x: x.warehouse_id == warehouse_id, promoted))
 
 				sn_group = filter(lambda o: not utils.valid_uuid(o.imei), warehouse_group)
 				for elm in sn_group:
@@ -4800,14 +4800,8 @@ class WarehouseValueModel:
 
 				uuid_group = sorted(list(filter(lambda o: utils.valid_uuid(o.imei), warehouse_group)), key=key)
 
-
-
-				print('len(uuid_group)=', len(uuid_group))
-
 				for key, group in groupby(uuid_group, key=key):
 					description, condition, spec, date, partner, doc_repr, currency, cost = key
-
-					print('uuid grouping...')
 
 					sheet.append((
 						description, condition, spec, '',  date, partner, doc_repr, currency,
@@ -4817,7 +4811,31 @@ class WarehouseValueModel:
 				wb.save(filepath)
 
 		else:
-			pass
+			print('not all path')
+			self._data.extend(elm.as_tuple for elm in filter(lambda o: not utils.valid_uuid(o.imei), promoted))
+			uuid_group = sorted(list(filter(lambda o: utils.valid_uuid(o.imei), promoted)), key=key)
+			for key, group in groupby(uuid_group, key=key):
+				description, condition, spec, date, partner, doc_repr, currency, cost = key
+				self._data.append((
+					description, condition, spec, '', date, partner, doc_repr, currency,
+					cost, len(list(group))
+				))
+
+	def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
+		if not index.isValid():
+			return
+		if role == QtCore.Qt.DisplayRole:
+			row, col = index.row(), index.column()
+			return self._data[row][col]
+
+
+	def export(self, path):
+		wb = openpyxl.Workbook()
+		sheet = wb.active
+		sheet.append(self._headerData)
+		for t in self._data:
+			sheet.append(t)
+		wb.save(path)
 
 class CostRegister:
 
@@ -4832,9 +4850,9 @@ class CostRegister:
 
 		proforma = (
 			db.session.query(db.PurchaseProforma).join(db.Reception).
-				join(db.ReceptionLine).join(db.ReceptionSerie).
-				where(db.ReceptionSerie.serie == inventory_entry.imei).
-				order_by(db.ReceptionSerie.id.desc()).first()
+			join(db.ReceptionLine).join(db.ReceptionSerie).
+			where(db.ReceptionSerie.serie == inventory_entry.imei).
+			order_by(db.ReceptionSerie.id.desc()).first()
 		)
 
 		reception_line = (
@@ -4889,7 +4907,7 @@ class CostRegister:
 		raise ValueError('Could not match line - ReceptionLine ')
 
 	def __repr__(self):
-		return repr(self.__dict__.values())
+		return f'{self.__class__.__name__}{repr(self.__dict__.values())}'
 
 
 class WarehouseListModel(QtCore.QAbstractListModel):
@@ -8134,17 +8152,31 @@ def caches_clear():
 
 if __name__ == '__main__':
 
-	filters = {
-		'date': date.today(),
-		'all': r'C:\Users\Andrei\Desktop\TestCode',
-		'book_value': True,
-		'warehouse_id': None
-	}
-
+	dicts = [
+		{
+			'date': date.today(),
+			'all': r'C:\Users\Andrei\Desktop\TestCode',
+			'book_value': True,
+			'warehouse_id': None
+		},
+		{
+			'date': date(2022, 12, 12),
+			'all': None,
+			'book_value': True,
+			'warehouse_id': 2
+		},
+		{
+			'date': date(2022, 12, 12),
+			'all': None,
+			'book_value': False,
+			'warehouse_id': 2
+		}
+	]
 
 	import time
 
-	start = time.time()
-	model = WarehouseValueModel(filters)
-	print('Elapsed:', (time.time() - start) / 60)
+	for filters in dicts:
+		start = time.time()
+		model = WarehouseValueModel(filters)
+		print('Total Elapsed:', (time.time() - start) / 60)
 

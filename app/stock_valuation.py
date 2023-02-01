@@ -99,10 +99,10 @@ class Form(Ui_Dialog, QDialog):
                 QMessageBox.critical(self, 'Error', str(ex))
                 return
             else:
-                self.model = WarehouseValueModel(filters).registers
+                self.model = WarehouseValueModel(filters)
+                self.view.setModel(self.model)
+                
 
-                for elm in self.model:
-                    print(elm)
 
 
     def all_toggled(self, checked):
