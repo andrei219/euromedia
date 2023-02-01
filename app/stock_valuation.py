@@ -21,8 +21,11 @@ import utils
 '''
 def match_doc_repr_and_year(doc_repr):
     import re
-    pattern = r'^[1-6]-[0-9]{1,5}:202[2-9]$'
+    pattern = r'^[1-6]-[0-9]{1,6}:20[2-9][2-9]$'
     return bool(re.match(pattern, doc_repr))
+
+
+
 
 
 ''' Write a function that parses a string that matches the pattern described in the previous function.'''
