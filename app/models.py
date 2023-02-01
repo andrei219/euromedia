@@ -7703,7 +7703,7 @@ class Exportable:
 class StockValuationModelDocument(Exportable, BaseTable, QtCore.QAbstractTableModel):
 	DESC, COND, SPEC, QNT, DATE, PARTNER, DOC_REPR, COST = 0, 1, 2, 3, 4, 5, 6, 7
 
-	def __init__(self, doc_repr, proforma=False):
+	def __init__(self, type, number, year, proforma=False):
 		super().__init__()
 		self.name = 'entries'
 		self.entries = []
@@ -7718,7 +7718,7 @@ class StockValuationModelDocument(Exportable, BaseTable, QtCore.QAbstractTableMo
 			'Cost'
 		]
 
-		self.init_data(doc_repr, proforma=proforma)
+		self.init_data(type, number, year, proforma=proforma)
 
 	def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
 		if not index.isValid():
@@ -7744,14 +7744,13 @@ class StockValuationModelDocument(Exportable, BaseTable, QtCore.QAbstractTableMo
 			elif col == self.COST:
 				return reg.cost
 
-	def init_data(self, doc_repr, proforma=False):
-		type, number = doc_repr.split('-')
-		type, number = int(type), int(number)
+	def init_data(self, type, number, year, proforma=False):
 		if not proforma:
 			try:
 				purchase_proforma = db.session.query(db.PurchaseProforma). \
 					join(db.PurchaseInvoice).where(db.PurchaseInvoice.type == type). \
-					where(db.PurchaseInvoice.number == number).one()
+					where(db.PurchaseInvoice.number == number). \
+					where(func.year(db.PurchaseInvoice.date) == year).one()
 			except sqlalchemy.exc.NoResultFound:
 				raise ValueError("No results found")
 		else:
@@ -7759,7 +7758,9 @@ class StockValuationModelDocument(Exportable, BaseTable, QtCore.QAbstractTableMo
 			try:
 				purchase_proforma = db.session.query(db.PurchaseProforma). \
 					where(db.PurchaseProforma.type == type). \
-					where(db.PurchaseProforma.number == number).one()
+					where(db.PurchaseProforma.number == number). \
+					where(func.year(db.PurchaseProforma.date) == year).one()
+
 			except sqlalchemy.exc.NoResultFound:
 				raise ValueError("No results found")
 

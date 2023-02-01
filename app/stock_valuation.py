@@ -9,6 +9,32 @@ from models import StockValuationModelImei
 
 import utils
 
+
+''' Write a function that validates text described as follows:
+    
+    an integer between 1 and 6 inclusive followed by a hyphen,
+    followed by optionally some zeroes and a number. The total length 
+    of the part after the hyphen must be 6. Then, a colon, then a year that must be >= 2022.
+    The following samples must match: 1-0123:2022, 1-123:2022, 4-000022:2023.
+    The following must not match: 7-123:2022, 1-123:2021, 1-123:2022a, 1-123:2022:2023, 
+    2-0000001. Return True if the text matches, False otherwise.
+'''
+def match_doc_repr_and_year(doc_repr):
+    import re
+    pattern = r'^[1-6]-[0-9]{1,5}:202[2-9]$'
+    return bool(re.match(pattern, doc_repr))
+
+
+''' Write a function that parses a string that matches the pattern described in the previous function.'''
+''' Return a tuple of three elements: the type of the document, the number of the document, and the year.'''
+''' The following 1-123:2022 must return (1, 123, 2022), 2-000001:2023 must return (2, 1, 2023), 
+    6-000001:2029 must return (6, 1, 2029).'''
+def parse_doc_repr_and_year(doc_repr):
+    type_, number = doc_repr.split('-')
+    number, year = number.split(':')
+    return int(type_), int(number), int(year)
+
+
 def prepare_filters(filters):
 
     if not filters['date']:
@@ -78,15 +104,22 @@ class Form(Ui_Dialog, QDialog):
     def calculate_handler(self, check):
         if self.by_document.isChecked():
             doc_repr = self.document.text()
-            if utils.match_doc_repr(doc_repr):
+
+            if match_doc_repr_and_year(doc_repr):
+                type_, number, year = parse_doc_repr_and_year(doc_repr)
+
                 try:
-                    self.model = StockValuationModelDocument(
-                        doc_repr=doc_repr,
-                        proforma=self.proforma.isChecked()
-                    )
+                    self.model = StockValuationModelDocument(type_, number, year, self.proforma.isChecked())
                     self.view.setModel(self.model)
+
                 except ValueError as ex:
                     QMessageBox.critical(self, 'Error', str(ex))
+                    return
+
+            else:
+                QMessageBox.critical(self, 'Error', 'Incorrect document representation. Correct format: d-nnnnnn:yyyy')
+                return
+
 
         elif self.by_serial.isChecked():
             self.model = StockValuationModelImei(self.serial.text())
@@ -122,3 +155,10 @@ class Form(Ui_Dialog, QDialog):
                 'warehouse': self.warehouse.text()
             }
         )
+
+
+if __name__ == '__main__':
+
+    pass
+
+
