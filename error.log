@@ -1,1 +1,9 @@
 qt.gui.icc: Unsupported ICC profile class 70727472
+Traceback (most recent call last):
+  File "C:\Users\Andrei\Desktop\Projects\euromedia\app\run.py", line 40, in <module>
+    maingui = MainGui()
+  File "C:\Users\Andrei\Desktop\Projects\euromedia\app\maingui.py", line 196, in __init__
+    self.setupUi(self)
+  File "C:\Users\Andrei\Desktop\Projects\euromedia\app\ui_maingui.py", line 41, in setupUi
+    self.label.setPixmap(QtGui.QPixmap(":/background"))
+KeyboardInterrupt
