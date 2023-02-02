@@ -9,7 +9,7 @@ $env:APP_ECHO='false'
 $mail_path = '.\mailunch\bin\Debug\net6.0\mailunch.exe'
 $easysii_path = '.\easysii\bin\Debug\net6.0\easysii.exe'
 
-$env:Path = "$env:PATH;$mail_path;$easysii_path"
+$env:Path = "$env:Path;$mail_path;$easysii_path"
 
 
 .\venv\Scripts\Activate.ps1
