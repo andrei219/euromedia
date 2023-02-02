@@ -16,7 +16,6 @@ class WarehouseChange(Ui_WarehouseChange, QDialog):
         self.setupUi(self) 
         self.setUp()
 
-    
     def setUp(self):
         self.exit.clicked.connect(self.close)
         self.update.clicked.connect(self.updateHandler)
