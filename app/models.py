@@ -4533,6 +4533,10 @@ class InventoryEntry:
 		elif item == self.QUANTITY:
 			return self.quantity
 
+	@property
+	def as_tuple(self):
+		return tuple(self.__dict__.values())
+
 
 def no_serie_grouper(registers):
 	uuid_group = list(filter(lambda o: utils.valid_uuid(o.imei), registers))
@@ -4635,6 +4639,14 @@ class InventoryModel(BaseTable, QtCore.QAbstractTableModel):
 
 	def __getitem__(self, item):
 		return self.inventory[item]
+
+	def export(self, file_path):
+		wb = openpyxl.Workbook()
+		sheet = wb.active
+		for entry in self.inventory:
+			sheet.append(entry.as_tuple)
+
+		wb.save(file_path)
 
 
 from historical_inventory import HistoricalInventory

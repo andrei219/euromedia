@@ -86,7 +86,7 @@ class InventoryForm(Ui_InventoryForm, QDialog):
             return
 
         try:
-            self.model.excel_export(file_path)
+            self.model.export(file_path)
         except:
             QMessageBox.information(self, 'Error', 'An error occurred while exporting data')
         else:
