@@ -16,4 +16,8 @@ app/__pycache__/
 
 .\__pycache__\*.pyc
 
+./__pycache__/*.pyc
+
+*.log
+
 brother/.vs/brother/FileContentIndex/7bd941d2-631b-448f-bcc3-b7ee40b29f54.vsidx

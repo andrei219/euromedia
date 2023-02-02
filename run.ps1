@@ -3,7 +3,7 @@
 
 $pythonPath = ".\venv\Scripts\python.exe"
 
-$env:APP_DEBUG='TRUE'
+$env:APP_DEBUG='false'
 $env:APP_ECHO='false'
 
 
