@@ -126,8 +126,9 @@ def clean_up_directories():
         for file in filter(lambda s: s.endswith('.pdf'), os.listdir()):
             os.remove(file)
 
-    for file in os.listdir(os.path.join(os.curdir, 'temp')):
-        os.remove(os.path.join(os.curdir, 'temp', file))
+    with suppress(FileNotFoundError):
+        for file in os.listdir(os.path.join(os.curdir, 'temp')):
+            os.remove(os.path.join(os.curdir, 'temp', file))
 
 
 def get_prefix(model):
