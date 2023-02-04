@@ -20,4 +20,6 @@ app/__pycache__/
 
 *.log
 
+*.json 
+
 brother/.vs/brother/FileContentIndex/7bd941d2-631b-448f-bcc3-b7ee40b29f54.vsidx
