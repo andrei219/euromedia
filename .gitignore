@@ -11,6 +11,16 @@ venv
 .\app\__pycache__
 app/__pycache__/
 
+__pycache__/*.pyc
+__pycache__/*.pyo
+__pycache__/*.pyd
+__pycache__\*.pyc
+__pycache__\*.pyo
+__pycache__\*.pyd
+
+
+
+
 *\__pycache__\*.pyc
 */__pycache__/*.pyc
 
