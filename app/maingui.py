@@ -1538,12 +1538,6 @@ class MainGui(Ui_MainGui, QMainWindow):
         if password != PASSWORD:
             return
 
-            # if models.stock_gap():
-        #     QMessageBox.information(self, 'Information', 'Process all sales first.')
-        #     return
-            # d = spec_change_form.SpecChange(self)
-        # d.exec_()
-
         from change_form import ChangeForm
         d = ChangeForm(parent=self, hint='spec')
         d.exec_()
@@ -1617,6 +1611,44 @@ class MainGui(Ui_MainGui, QMainWindow):
         from top_partners_form import Form
 
         Form(self).exec_()
+
+    ''' Function skeleton that sends a mail message with a error.log file attached'''
+    def tools_mail_handler(self):
+        import smtplib
+        from email.message import EmailMessage
+
+        file_path = os.path.abspath(os.path.join('error.log'))
+
+        msg = EmailMessage()
+
+        msg['Subject'] = 'Error log'
+        msg['From'] = 'andrei.officee@gmail.com'
+        msg['To'] = 'andrei.en@euromediagroup.es'
+
+        try:
+
+            with open(file_path, 'rb') as f:
+                file_data = f.read()
+                file_name = f.name
+
+            msg.add_attachment(file_data, maintype='application', subtype='octet-stream', filename=file_name)
+
+            with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
+
+                smtp.login('andrei.officee@gmail.com', 'mohidohcvbztftyn')
+                smtp.send_message(msg)
+
+        except smtplib.SMTPAuthenticationError:
+            QMessageBox.critical(self, 'Error', 'Authentication Error.')
+
+        except FileNotFoundError:
+            QMessageBox.critical(self, 'Error', 'I could not find the error log.')
+
+        except smtplib.SMTPException:
+            QMessageBox.critical(self, 'Error', 'Error sending the error log.')
+        else:
+            print('b')
+            QMessageBox.information(self, 'Success', 'Successfully sent last error log.')
 
     def tab_changed(self, index):
         db.session.commit()

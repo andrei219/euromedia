@@ -525,13 +525,6 @@ def match_doc_repr(doc_repr):
 
 
 
-from PyQt5.QtWidgets import QTableView
-
-class MenuTableView(QTableView):
-
-    def __init__(self):
-        super().__init__()
-
 
 
 

@@ -51,7 +51,7 @@
      <number>0</number>
     </property>
     <property name="currentIndex">
-     <number>3</number>
+     <number>7</number>
     </property>
     <property name="iconSize">
      <size>
@@ -1606,7 +1606,7 @@
           <x>919</x>
           <y>618</y>
           <width>891</width>
-          <height>18</height>
+          <height>23</height>
          </rect>
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout">
@@ -3033,7 +3033,7 @@
           <x>840</x>
           <y>620</y>
           <width>971</width>
-          <height>18</height>
+          <height>23</height>
          </rect>
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -4050,7 +4050,7 @@
           <x>880</x>
           <y>617</y>
           <width>941</width>
-          <height>18</height>
+          <height>23</height>
          </rect>
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -5250,7 +5250,7 @@
           <x>908</x>
           <y>616</y>
           <width>911</width>
-          <height>18</height>
+          <height>23</height>
          </rect>
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout_4">
@@ -7954,6 +7954,53 @@
       </property>
       <property name="text">
        <string>Top Partners</string>
+      </property>
+     </widget>
+     <widget class="Line" name="line_14">
+      <property name="geometry">
+       <rect>
+        <x>880</x>
+        <y>110</y>
+        <width>20</width>
+        <height>361</height>
+       </rect>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+     </widget>
+     <widget class="QToolButton" name="tools_mail">
+      <property name="geometry">
+       <rect>
+        <x>940</x>
+        <y>100</y>
+        <width>120</width>
+        <height>60</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>MS Shell Dlg 2</family>
+        <pointsize>10</pointsize>
+        <weight>50</weight>
+        <italic>false</italic>
+        <bold>false</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background:lightgray; </string>
+      </property>
+      <property name="text">
+       <string>Mail last error</string>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>50</width>
+        <height>50</height>
+       </size>
+      </property>
+      <property name="toolButtonStyle">
+       <enum>Qt::ToolButtonTextUnderIcon</enum>
       </property>
      </widget>
     </widget>

@@ -2258,11 +2258,10 @@ class OrganizedLines:
 
 		diff_items = {line.item_id for line in lines}
 
-		# For free lines, ugly, but works and uses preious code hahah
+		# For free lines, ugly, but works and uses previous code hahah
 		if diff_items == {None}:
 			line = lines[0]
 			return self.simple_line_repr(line, col)
-			return
 
 		diff_conditions = {line.condition for line in lines}
 		diff_specs = {line.spec for line in lines}
