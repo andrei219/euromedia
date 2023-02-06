@@ -1684,6 +1684,8 @@ class MainGui(Ui_MainGui, QMainWindow):
             self.set_mv(prefix, search_key=getattr(self, prefix + 'search').text(),
                         filters=self.get_filters(prefix=prefix))
 
+    # This is a dummy test change
+
     def closeEvent(self, event):
         for w in self.opened_windows_instances:
             w.close()
