@@ -1595,7 +1595,6 @@ class MainGui(Ui_MainGui, QMainWindow):
         from issued_invoices_form import Form
         Form(self).exec_()
 
-
     def tools_switch_handler(self):
         # from switch_form import Form
         # Form(self).exec_()
@@ -1643,7 +1642,6 @@ class MainGui(Ui_MainGui, QMainWindow):
         except smtplib.SMTPException:
             QMessageBox.critical(self, 'Error', 'Error sending the error log.')
         else:
-            print('b')
             QMessageBox.information(self, 'Success', 'Successfully sent last error log.')
 
     def tab_changed(self, index):

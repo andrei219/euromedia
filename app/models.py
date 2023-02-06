@@ -6748,7 +6748,6 @@ def do_sii(_from=None, to=None, series=None):
 
 	import json
 	import subprocess
-	import os
 
 	with open(jsonfeed, 'w') as fp:
 		json.dump(siiinovices, default=lambda o: o.__dict__, fp=fp, indent=4)
