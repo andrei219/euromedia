@@ -1507,13 +1507,8 @@ class MainGui(Ui_MainGui, QMainWindow):
     def tools_trace_handler(self):
 
         raise ValueError('Test error')
-        
 
-        from trace_form import Form
-        f = Form(self)
-        f.exec_()
 
-    def tools_trace_handler(self):
         from trace_form import Form
         f = Form(self)
         f.exec_()
