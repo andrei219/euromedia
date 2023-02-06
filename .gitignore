@@ -19,6 +19,9 @@ __pycache__\*.pyo
 __pycache__\*.pyd
 
 
+**/__pycache__/
+**\__pycache__\
+
 
 
 *\__pycache__\*.pyc
