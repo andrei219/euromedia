@@ -1,7 +1,9 @@
+import sqlalchemy
 from dropbox import secondary_emails
-from sqlalchemy import create_engine, event, insert, update, delete
+from sqlalchemy import create_engine, event, insert, update, delete, text
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.sql import func
+from sqlalchemy.sql.expression import Select, Update, Delete, Insert
 
 import sys
 import os
@@ -65,8 +67,11 @@ class Warehouse(Base):
 
     description = Column(String(50), nullable=False, unique=True)
 
+    company_id = Column(Integer, ForeignKey('companies.id'), nullable=True, index=True)
+
     def __init__(self, description):
         self.description = description
+        self.company_id = int(os.environ['COMPANY_ID'])
 
     def __eq__(self, other):
         if type(other) is Warehouse:
@@ -83,8 +88,11 @@ class Courier(Base):
 
     description = Column(String(50), nullable=False, unique=True)
 
+    company_id = Column(Integer, ForeignKey('companies.id'), nullable=True, index=True)
+
     def __init__(self, description):
         self.description = description
+        self.company_id = int(os.environ['COMPANY_ID'])
 
 
 class Spec(Base):
@@ -95,8 +103,11 @@ class Spec(Base):
 
     description = Column(String(50), nullable=False, unique=True)
 
+    company_id = Column(Integer, ForeignKey('companies.id'), nullable=True, index=True)
+
     def __init__(self, description):
         self.description = description
+        self.company_id = int(os.environ['COMPANY_ID'])
 
     def __eq__(self, other):
         if type(other) is Spec:
@@ -117,8 +128,11 @@ class Condition(Base):
 
     description = Column(String(50), nullable=False, unique=True)
 
+    company_id = Column(Integer, ForeignKey('companies.id'), nullable=True, index=True)
+
     def __init__(self, description):
         self.description = description
+        self.company_id = int(os.environ['COMPANY_ID'])
 
     def __eq__(self, other):
         if type(other) is Condition:
@@ -140,6 +154,8 @@ class Item(Base):
     color = Column(String(50))
     has_serie = Column(Boolean, default=False)
 
+    company_id = Column(Integer, ForeignKey('companies.id'), nullable=True, index=True)
+
     __table_args__ = (
         UniqueConstraint('mpn', 'manufacturer', 'category', 'model', 'capacity', 'color', name='uix_1'),
     )
@@ -153,6 +169,7 @@ class Item(Base):
         self.capacity = capacity.strip()
         self.color = color.strip()
         self.has_serie = has_serie
+        self.company_id = int(os.environ['COMPANY_ID'])
 
     @property
     def clean_repr(self):
@@ -218,12 +235,17 @@ class Agent(Base):
     bank_country = Column(String(50))
     bank_routing = Column(String(50))
 
+    company_id = Column(Integer, ForeignKey('companies.id'), nullable=True, index=True)
+
     __table_args__ = (
         CheckConstraint('fiscal_number != ""', name='no_empty_fiscal_number'),
         CheckConstraint('fiscal_name != ""', name='no_empty_fiscal_name'),
         CheckConstraint('email != ""', name='no_empty_email'),
         CheckConstraint('phone != ""', name='no_empty_phone')
     )
+
+    def __init__(self):
+        self.company_id = int(os.environ['COMPANY_ID'])
 
 
 class AgentDocument(Base):
@@ -234,6 +256,11 @@ class AgentDocument(Base):
     document = Column(LargeBinary(length=(2 ** 32) - 1))
 
     agent = relationship('Agent', backref=backref('documents'))
+
+    company_id = Column(Integer, ForeignKey('companies.id'), nullable=True, index=True)
+
+    def __init__(self):
+        self.company_id = int(os.environ['COMPANY_ID'])
 
 
 # Partners:
@@ -283,9 +310,16 @@ class Partner(Base):
 
     has_certificate = Column(Boolean, nullable=False, default=False)
 
+    company_id = Column(Integer, ForeignKey('companies.id'), nullable=True, index=True)
+
     agent = relationship('Agent', uselist=False)
 
     accounts = relationship('PartnerAccount', backref='partner', cascade='delete-orphan, save-update, delete')
+
+
+    def __init__(self):
+        self.company_id = int(os.environ['COMPANY_ID'])
+
 
     __table_args__ = (
         CheckConstraint('fiscal_name != ""', name='no_empty_partner_fiscal_name'),
@@ -304,6 +338,12 @@ class PartnerDocument(Base):
     created_on = Column(DateTime, default=datetime.now)
     partner = relationship('Partner', backref=backref('documents'))
 
+    company_id = Column(Integer, ForeignKey('companies.id'), nullable=True, index=True)
+
+
+    def __init__(self):
+        self.company_id = int(os.environ['COMPANY_ID'])
+
 
 class PartnerContact(Base):
     __tablename__ = 'partner_contacts'
@@ -317,8 +357,14 @@ class PartnerContact(Base):
     note = Column(String(50))
     preferred = Column(Boolean, default=True)
 
+    company_id = Column(Integer, ForeignKey('companies.id'), nullable=True, index=True)
+
+    def __init__(self):
+        self.company_id = int(os.environ['COMPANY_ID'])
+
     partner = relationship('Partner', backref=backref('contacts', cascade='delete-orphan, \
         delete, save-update'))
+
 
     def __init__(self, name, position, phone, email, note=None):
         self.name = name
@@ -326,6 +372,8 @@ class PartnerContact(Base):
         self.phone = phone
         self.email = email
         self.note = note
+        self.company_id = int(os.environ['COMPANY_ID'])
+
 
     __table_args__ = (
         CheckConstraint("name != ''", name='no_empty_contact_name'),
@@ -350,6 +398,8 @@ class PartnerAccount(Base):
     bank_routing = Column(String(50))
     currency = Column(String(50), default='')
 
+    company_id = Column(Integer, ForeignKey('companies.id'), nullable=True, index=True)
+
     def __init__(self, bank_name, iban, swift, bank_address,
                  bank_postcode, bank_city, bank_state, bank_country,
                  bank_routing, currency):
@@ -363,6 +413,7 @@ class PartnerAccount(Base):
         self.bank_country = bank_country
         self.bank_routing = bank_routing
         self.currency = currency
+        self.company_id = int(os.environ['COMPANY_ID'])
 
 
 RED, GREEN, YELLOW, ORANGE = '#FF7F7F', '#90EE90', '#FFFF66', '#FFD580'
@@ -409,7 +460,14 @@ class PurchaseProforma(Base):
     credit_amount = Column(Float(precision=32, decimal_return_scale=None), default=0.0)
     credit_days = Column(Integer, default=0, nullable=False)
 
+    company_id = Column(Integer, ForeignKey('companies.id'), nullable=True, index=True)
+
     incoterm = Column(String(3), nullable=False)
+
+
+    def __init__(self):
+        self.company_id = int(os.environ['COMPANY_ID'])
+
 
     def __hash__(self):
         return functools.reduce(operator.xor, (hash(x) for x in (self.type, self.number)), 0)
@@ -545,6 +603,8 @@ class PurchaseProformaLine(Base):
     price = Column(Float(precision=32, decimal_return_scale=None), default=1.0, nullable=False)
     tax = Column(Integer, nullable=False, default=0)
 
+    company_id = Column(Integer, ForeignKey('companies.id'), nullable=True, index=True)
+
     item = relationship('Item', uselist=False)
 
     proforma = relationship(
@@ -560,6 +620,10 @@ class PurchaseProformaLine(Base):
     # and proforma purchase lines, in order to update the
     # receptions when they are already created and user
     # wants the update proforma.
+
+    def __init__(self):
+        self.company_id = int(os.environ['COMPANY_ID'])
+
 
     @property
     def subtotal(self):
@@ -600,11 +664,17 @@ class PurchaseDocument(Base):
     name = Column(String(50), nullable=False)
     document = Column(LargeBinary(length=(2 ** 32) - 1))
 
+    company_id = Column(Integer, ForeignKey('companies.id'), nullable=True, index=True)
+
     proforma = relationship('PurchaseProforma', backref=backref('documents'))
 
     __table_args__ = (
         UniqueConstraint('proforma_id', 'name', name='unique_document_name'),
     )
+
+
+    def __init__(self):
+        self.company_id = int(os.environ['COMPANY_ID'])
 
 
 class PurchaseInvoice(Base):
@@ -616,6 +686,8 @@ class PurchaseInvoice(Base):
     number = Column(Integer, nullable=False)
     date = Column(Date, default=datetime.now)
     eta = Column(Date, default=datetime.now)
+
+    company_id = Column(Integer, ForeignKey('companies.id'), nullable=True, index=True)
 
     @property
     def payments(self):
@@ -668,6 +740,7 @@ class PurchaseInvoice(Base):
     def __init__(self, type, number):
         self.type = type
         self.number = number
+        self.company_id = int(os.environ['COMPANY_ID'])
 
     @property
     def logistic_status_string(self):
@@ -794,6 +867,8 @@ class PurchasePayment(Base):
     rate = Column(Float(precision=32, decimal_return_scale=None), default=0.0, nullable=False)
     note = Column(String(255))
 
+    company_id = Column(Integer, ForeignKey('companies.id'), nullable=True, index=True)
+
     proforma = relationship('PurchaseProforma', backref=backref('payments'))
 
     def __init__(self, date, amount, rate, note, proforma):
@@ -802,6 +877,7 @@ class PurchasePayment(Base):
         self.note = note
         self.rate = rate
         self.proforma = proforma
+        self.company_id = int(os.environ['COMPANY_ID'])
 
 
 class PurchaseExpense(Base):
@@ -814,6 +890,8 @@ class PurchaseExpense(Base):
     amount = Column(Float(precision=32, decimal_return_scale=None), default=0.0)
     note = Column(String(255))
 
+    company_id = Column(Integer, ForeignKey('companies.id'), nullable=True, index=True)
+
     proforma = relationship('PurchaseProforma', backref=backref('expenses'))
 
     def __init__(self, date, amount, note, proforma):
@@ -821,6 +899,8 @@ class PurchaseExpense(Base):
         self.amount = amount
         self.note = note
         self.proforma = proforma
+        self.company_id = int(os.environ['COMPANY_ID'])
+
 
 
 class SaleProforma(Base):
@@ -859,6 +939,8 @@ class SaleProforma(Base):
 
     ready = Column(Boolean, nullable=False, default=False)
 
+    company_id = Column(Integer, ForeignKey('companies.id'), nullable=True, index=True)
+
     partner = relationship('Partner', uselist=False)
     courier = relationship('Courier', uselist=False)
     warehouse = relationship('Warehouse', uselist=False)
@@ -871,6 +953,9 @@ class SaleProforma(Base):
     warning = Column(String(255), nullable=True)
 
     incoterm = Column(String(3), default='gbc')
+
+    def __init__(self):
+        self.company_id = int(os.environ['COMPANY_ID'])
 
     def __repr__(self):
         cls_name = self.__class__.__name__
@@ -1037,6 +1122,8 @@ class SalePayment(Base):
     amount = Column(Float(precision=32, decimal_return_scale=None), default=0.0, nullable=False)
     rate = Column(Float(precision=32, decimal_return_scale=None), default=0.0, nullable=False)
 
+    company_id = Column(Integer, ForeignKey('companies.id'), nullable=True, index=True)
+
     note = Column(String(255))
 
     def __init__(self, date, amount, rate, note, proforma):
@@ -1045,6 +1132,7 @@ class SalePayment(Base):
         self.rate = rate
         self.note = note
         self.proforma = proforma
+        self.company_id = int(os.environ['COMPANY_ID'])
 
     proforma = relationship('SaleProforma', backref=backref('payments'))
 
@@ -1059,11 +1147,15 @@ class SaleExpense(Base):
     amount = Column(Float(precision=32, decimal_return_scale=None), default=0.0, nullable=False)
     note = Column(String(255))
 
+
+    company_id = Column(Integer, ForeignKey('companies.id'), nullable=True, index=True)
+
     def __init__(self, date, amount, note, proforma):
         self.date = date
         self.amount = amount
         self.note = note
         self.proforma = proforma
+        self.company_id = int(os.environ['COMPANY_ID'])
 
     proforma = relationship('SaleProforma', backref=backref('expenses'))
 
@@ -1075,12 +1167,17 @@ class SaleDocument(Base):
     proforma_id = Column(Integer, ForeignKey('sale_proformas.id'))
     name = Column(String(50), nullable=False)
     document = Column(LargeBinary(length=(2 ** 32) - 1))
+    company_id = Column(Integer, ForeignKey('companies.id'), nullable=True, index=True)
 
     __table_args__ = (
         UniqueConstraint('proforma_id', 'name', name='unique_document_name'),
     )
 
     proforma = relationship('SaleProforma', backref=backref('documents'))
+
+
+    def __init__(self):
+        self.company_id = int(os.environ['COMPANY_ID'])
 
 import functools
 
@@ -1096,6 +1193,7 @@ class SaleInvoice(Base):
     eta = Column(Date, default=datetime.now)
 
     wh_incoming_rma_id = Column(Integer, ForeignKey('wh_incoming_rmas.id'), nullable=True)
+    company_id = Column(Integer, ForeignKey('companies.id'), nullable=True, index=True)
 
     wh_incoming_rma = relationship('WhIncomingRma', backref=backref('invoices'))
 
@@ -1143,6 +1241,7 @@ class SaleInvoice(Base):
     def __init__(self, type, number):
         self.type = type
         self.number = number
+        self.company_id = int(os.environ['COMPANY_ID'])
 
     @property
     def simplified_doc_repr(self):
@@ -1260,6 +1359,7 @@ class SaleInvoice(Base):
                 elif self.total_debt > x:
                     return "Partially Paid"
 
+
     @property
     def paid(self):
         return sum(p.amount for p in self.payments)
@@ -1336,10 +1436,6 @@ class SaleInvoice(Base):
         return ', '.join(p.doc_repr for p in self.proformas)
 
     @property
-    def partner_object(self):
-        return self.proformas[0].partner_object
-
-    @property
     def ready(self):
         p = self.proformas[0]
         return 'Yes' if p.ready else 'No'
@@ -1368,6 +1464,7 @@ class SaleProformaLine(Base):
     quantity = Column(Integer, default=1, nullable=False)
     price = Column(Float(precision=32, decimal_return_scale=None), default=0.0, nullable=False)
     tax = Column(Integer, default=0, nullable=False)
+    company_id = Column(Integer, ForeignKey('companies.id'), nullable=True, index=True)
 
     item = relationship('Item')
     proforma = relationship(
@@ -1377,7 +1474,7 @@ class SaleProformaLine(Base):
             cascade='delete-orphan, delete, save-update',
         )
     )
-    # options lazyjoined to the query
+
     __table_args__ = (
         UniqueConstraint('id', 'proforma_id'),
     )
@@ -1414,6 +1511,9 @@ class SaleProformaLine(Base):
         return f"{classname}(item_id={self.item_id}, condition={self.condition}, spec={self.spec},mix_id={self.mix_id}, quantity={self.quantity})"
 
 
+    def __init__(self):
+        self.company_id = int(os.environ['COMPANY_ID'])
+
 class AdvancedLine(Base):
     __tablename__ = 'advanced_lines'
 
@@ -1430,6 +1530,10 @@ class AdvancedLine(Base):
     tax = Column(Integer, nullable=False, default=0)
     ignore_spec = Column(Boolean, default=True, nullable=False)
     showing_condition = Column(String(50), nullable=True)
+    company_id = Column(Integer, ForeignKey('companies.id'), nullable=True, index=True)
+
+    def __init__(self):
+        self.company_id = int(os.environ['COMPANY_ID'])
 
     @property
     def defined(self):
@@ -1489,6 +1593,7 @@ class AdvancedLineDefinition(Base):
 
     local_count_relevant = Column(Boolean, default=True)
     global_count_relevant = Column(Boolean, default=False)
+    company_id = Column(Integer, ForeignKey('companies.id'), nullable=True, index=True)
 
     item = relationship('Item', uselist=False)
 
@@ -1509,6 +1614,7 @@ class AdvancedLineDefinition(Base):
         self.spec = spec
         self.quantity = quantity
         self.showing_condition = showing_condition
+        self.company_id = int(os.environ['COMPANY_ID'])
 
     def __bool__(self):
         return all((self.item_id, self.spec, self.condition))
@@ -1519,7 +1625,6 @@ class AdvancedLineDefinition(Base):
         s += f", spec={self.spec}, quantity={self.quantity})"
         return s
 
-        return repr(self.__dict__)
 
 
 class Expedition(Base):
@@ -1529,10 +1634,12 @@ class Expedition(Base):
     proforma_id = Column(Integer, ForeignKey('sale_proformas.id'), nullable=False)
     created_on = Column(DateTime, default=datetime.now)
     from_sale_type = Column(Integer, nullable=False)
+    company_id = Column(Integer, ForeignKey('companies.id'), nullable=True, index=True)
 
     def __init__(self, proforma, from_sale_type=NORMAL):
         self.proforma = proforma
         self.from_sale_type = from_sale_type
+        self.company_id = int(os.environ['COMPANY_ID'])
 
     proforma = relationship('SaleProforma', back_populates='expedition')
 
@@ -1587,6 +1694,7 @@ class ExpeditionLine(Base):
     spec = Column(String(50), nullable=False)
     showing_condition = Column(String(50), nullable=True)
     quantity = Column(Integer, nullable=False)
+    company_id = Column(Integer, ForeignKey('companies.id'), nullable=True, index=True)
 
     item = relationship('Item', uselist=False)
     expedition = relationship('Expedition', backref=backref('lines'))
@@ -1609,6 +1717,9 @@ class ExpeditionLine(Base):
         classname = self.__class__.__name__
         return f"{classname}(item_id={self.item_id}, condition={self.condition}, spec={self.spec})"
 
+    def __init__(self):
+        self.company_id = int(os.environ['COMPANY_ID'])
+
     __table_args__ = (
         UniqueConstraint('id', 'expedition_id'),
     )
@@ -1624,6 +1735,7 @@ class Reception(Base):
     created_on = Column(DateTime, default=datetime.now)
 
     auto = Column(Boolean, nullable=False, default=False)
+    company_id = Column(Integer, ForeignKey('companies.id'), nullable=True, index=True)
 
     @property
     def total_quantity(self):
@@ -1646,6 +1758,7 @@ class Reception(Base):
         self.proforma = proforma
         self.note = note
         self.auto = auto
+        self.company_id = int(os.environ['COMPANY_ID'])
 
     @property
     def partially_processed(self):
@@ -1684,6 +1797,11 @@ class ReceptionLine(Base):
     condition = Column(String(50), nullable=False)
     spec = Column(String(50), nullable=False)
     quantity = Column(Integer, nullable=False)
+    company_id = Column(Integer, ForeignKey('companies.id'), nullable=True, index=True)
+
+
+    def __init__(self):
+        self.company_id = int(os.environ['COMPANY_ID'])
 
     item = relationship('Item', uselist=False)
 
@@ -1729,6 +1847,7 @@ class ReceptionSerie(Base):
     serie = Column(String(50), nullable=False)
     condition = Column(String(50), nullable=False)
     spec = Column(String(50), nullable=False)
+    company_id = Column(Integer, ForeignKey('companies.id'), nullable=True, index=True)
 
     created_on = Column(DateTime, default=datetime.now)
 
@@ -1741,6 +1860,7 @@ class ReceptionSerie(Base):
         self.serie = serie
         self.condition = condition
         self.spec = spec
+        self.company_id = int(os.environ['COMPANY_ID'])
 
     @classmethod
     def from_excel(cls, serie, _1, description, condition, spec, _2, line):
@@ -1756,8 +1876,13 @@ class ExpeditionSerie(Base):
     line_id = Column(Integer, ForeignKey('expedition_lines.id'))
     serie = Column(String(50), nullable=False)
     created_on = Column(DateTime, default=datetime.now)
+    company_id = Column(Integer, ForeignKey('companies.id'), nullable=True, index=True)
 
     line = relationship('ExpeditionLine', backref=backref('series'))
+
+    def __init__(self):
+        self.company_id = int(os.environ['COMPANY_ID'])
+
 
     __table_args__ = (
         UniqueConstraint('id', 'line_id', 'serie'),
@@ -1786,9 +1911,14 @@ class Imei(Base):
     condition = Column(String(50))
     spec = Column(String(50))
     warehouse_id = Column(Integer, ForeignKey('warehouses.id'), nullable=False)
+    company_id = Column(Integer, ForeignKey('companies.id'), nullable=True, index=True)
 
     item = relationship('Item', uselist=False)
     warehouse = relationship('Warehouse', uselist=False)
+
+    def __init__(self):
+        self.company_id = int(os.environ['COMPANY_ID'])
+
 
 
 class ImeiMask(Base):
@@ -1800,10 +1930,14 @@ class ImeiMask(Base):
     spec = Column(String(50), nullable=False)
     warehouse_id = Column(Integer, ForeignKey('warehouses.id'), nullable=False)
     origin_id = Column(Integer, nullable=False)
+    company_id = Column(Integer, ForeignKey('companies.id'), nullable=True, index=True)
 
     item = relationship('Item', uselist=False)
     warehouse = relationship('Warehouse', uselist=False)
 
+
+    def __init__(self):
+        self.company_id = int(os.environ['COMPANY_ID'])
 
 @event.listens_for(PurchaseProformaLine, 'after_delete')
 def delete_dependant_advanced_sales(mapper, connection, target):
@@ -2032,12 +2166,14 @@ class SpecChange(Base):
     after = Column(String(50), nullable=False)
     comment = Column(String(50), nullable=True)
     created_on = Column(DateTime, default=datetime.now)
+    company_id = Column(Integer, ForeignKey('companies.id'), nullable=True, index=True)
 
     def __init__(self, sn, before, after, comment=None):
         self.sn = sn
         self.before = before
         self.after = after
         self.comment = comment
+        self.company_id = int(os.environ['COMPANY_ID'])
 
 
 class WarehouseChange(Base):
@@ -2049,12 +2185,14 @@ class WarehouseChange(Base):
     after = Column(String(50), nullable=False)
     comment = Column(String(50), nullable=True)
     created_on = Column(DateTime, default=datetime.now)
+    company_id = Column(Integer, ForeignKey('companies.id'), nullable=True, index=True)
 
     def __init__(self, sn, before, after, comment=None):
         self.sn = sn
         self.before = before
         self.after = after
         self.comment = comment
+        self.company_id = int(os.environ['COMPANY_ID'])
 
 
 class ConditionChange(Base):
@@ -2066,12 +2204,15 @@ class ConditionChange(Base):
     after = Column(String(50), nullable=False)
     created_on = Column(DateTime, default=datetime.now)
     comment = Column(String(50), nullable=True)
+    company_id = Column(Integer, ForeignKey('companies.id'), nullable=True, index=True)
 
     def __init__(self, sn, before, after, comment=None):
         self.sn = sn
         self.before = before
         self.after = after
         self.comment = comment
+        self.company_id = int(os.environ['COMPANY_ID'])
+
 
 
 class WhIncomingRma(Base):
@@ -2085,6 +2226,7 @@ class WhIncomingRma(Base):
     dumped = Column(Boolean, nullable=False, default=False)
 
     incoming_rma_id = Column(Integer, ForeignKey('incoming_rmas.id'), nullable=False)
+    company_id = Column(Integer, ForeignKey('companies.id'), nullable=True, index=True)
 
     incoming_rma = relationship('IncomingRma', back_populates='wh_incoming_rma')
 
@@ -2102,6 +2244,7 @@ class WhIncomingRma(Base):
 
     def __init__(self, incoming_rma):
         self.incoming_rma = incoming_rma
+        self.company_id = int(os.environ['COMPANY_ID'])
 
 
 class WhIncomingRmaLine(Base):
@@ -2121,6 +2264,7 @@ class WhIncomingRmaLine(Base):
     public_condition = Column(String(50), nullable=True)
     spec = Column(String(50), nullable=False)
     price = Column(Float(precision=32, decimal_return_scale=None), nullable=False)
+    company_id = Column(Integer, ForeignKey('companies.id'), nullable=True, index=True)
 
     item = relationship('Item', uselist=False)
 
@@ -2157,6 +2301,7 @@ class WhIncomingRmaLine(Base):
         self.spec = incoming_rma_line.spec
         self.price = incoming_rma_line.price
         self.public_condition = incoming_rma_line.public
+        self.company_id = int(os.environ['COMPANY_ID'])
 
         try:
             self.invoice_type = session.query(SaleInvoice.type) \
@@ -2212,6 +2357,7 @@ class CreditNoteLine(Base):
     price = Column(Float(precision=32, decimal_return_scale=None), nullable=False)
     tax = Column(Integer, nullable=False)
     sn = Column(String(100), nullable=False)
+    company_id = Column(Integer, ForeignKey('companies.id'), nullable=True, index=True)
 
     created_on = Column(DateTime, default=datetime.now)
 
@@ -2234,6 +2380,7 @@ class CreditNoteLine(Base):
         self.tax = 0
         self.price = -wh_line.price
         self.sn = wh_line.sn
+        self.company_id = int(os.environ['COMPANY_ID'])
 
     def __repr__(self):
         return f'item_id = {self.item_id}'
@@ -2246,12 +2393,17 @@ class IncomingRma(Base):
     id = Column(Integer, primary_key=True)
 
     date = Column(Date, nullable=True)
+    company_id = Column(Integer, ForeignKey('companies.id'), nullable=True, index=True)
 
     wh_incoming_rma = relationship(
 
         'WhIncomingRma', uselist=False, back_populates='incoming_rma'
 
     )
+
+    def __init__(self):
+        self.company_id = int(os.environ['COMPANY_ID'])
+
 
 
 class IncomingRmaLine(Base):
@@ -2282,6 +2434,7 @@ class IncomingRmaLine(Base):
     price = Column(Float(precision=32, decimal_return_scale=None), nullable=False)
     cust_id = Column(Integer, nullable=False)
     agent_id = Column(Integer, nullable=False)
+    company_id = Column(Integer, ForeignKey('companies.id'), nullable=True, index=True)
 
     incoming_rma = relationship(
         'IncomingRma',
@@ -2296,6 +2449,9 @@ class IncomingRmaLine(Base):
         s = f"{cls_name}(sn={self.sn})"
         return s
 
+
+    def __init__(self):
+        self.company_id = int(os.environ['COMPANY_ID'])
 
     @classmethod
     def from_sn(cls, sn):
@@ -2407,6 +2563,7 @@ class ManyManySales(Base):
 
     sale_id = Column(ForeignKey('sale_invoices.id'), nullable=False, primary_key=True)
     credit_id = Column(ForeignKey('sale_invoices.id'), nullable=False, primary_key=True)
+    company_id = Column(Integer, ForeignKey('companies.id'), nullable=True, index=True)
 
     fraction = Column(Float, nullable=False)
 
@@ -2414,6 +2571,7 @@ class ManyManySales(Base):
         self.sale_id = sale_id
         self.credit_id = credit_id
         self.fraction = fraction
+        self.company_id = int(os.environ['COMPANY_ID'])
 
     sale = relationship(
         'SaleInvoice',
@@ -2440,11 +2598,21 @@ class ViesRequest(Base):
     request_date = Column(Date, nullable=False)
     valid = Column(Boolean, nullable=False)
     fiscal_number = Column(String(50), nullable=False)
+    company_id = Column(Integer, ForeignKey('companies.id'), nullable=True, index=True)
 
     def __init__(self, request_date, valid, fiscal_number):
         self.request_date = request_date
         self.valid = valid
         self.fiscal_number = fiscal_number
+        self.company_id = int(os.environ['COMPANY_ID'])
+
+
+class Company(Base):
+
+    __tablename__ = 'companies'
+
+    id = Column(Integer, primary_key=True)
+    fiscal_name = Column(String(100), nullable=False, unique=True)
 
 
 def create_init_data():
@@ -2455,7 +2623,6 @@ def create_init_data():
     session.add(condition)
 
     session.commit()
-
 
 
 def correct_mask():
@@ -2475,22 +2642,6 @@ def correct_mask():
     except Exception as ex:
         session.rollback()
         raise
-
-
-def switch(company):
-    global Session, session
-    engine = create_engine(f'mysql+mysqlconnector://root:hnq#4506@localhost:3306/{company}')
-    Session = scoped_session(sessionmaker(bind=engine, autoflush=False))
-    session = Session()
-
-
-def company_name():
-    return 'Euromedia Investment Group'
-
-
-def year():
-    return '2022'
-
 
 
 # if __name__ == '__main__':

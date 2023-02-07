@@ -8145,11 +8145,34 @@ class InvoiceExpensesModel(BaseTable, QtCore.QAbstractTableModel):
 class SwitchModel(QtCore.QAbstractListModel):
 
 	def __init__(self):
-		pass
+		super().__init__()
+
+		self._dict = {
+			r.fiscal_name:r.id
+			for r in db.session.query(db.Company.fiscal_name, db.Company.id)
+		}
+
+		self._data = list(self._dict.keys())
+
 
 	def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
-		pass
+		if not index.isValid():
+			return
 
+		if role == Qt.DisplayRole:
+			return self._data[index.row()]
+
+	def rowCount(self, parent: QModelIndex = ...) -> int:
+		return len(self._data)
+
+
+	def switch(self, row):
+		fiscal_name = self._data[row]
+
+		# TODO: find a logo
+
+		os.environ['COMPANY_ID'] = str(self._dict[fiscal_name])
+		return fiscal_name
 
 def caches_clear():
 	get_avg_rate.cache_clear()

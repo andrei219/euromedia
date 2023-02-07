@@ -36,8 +36,10 @@ import purchase_proforma_form
 import reception_order
 import sale_proforma_form
 import documents_form
+
 from db import PurchaseProforma, PurchaseDocument, \
     SaleDocument, SaleProforma, correct_mask
+
 from models import SaleProformaModel, PurchaseProformaModel
 from pdfbuilder import build_document
 from ui_maingui import Ui_MainGui
@@ -1596,10 +1598,10 @@ class MainGui(Ui_MainGui, QMainWindow):
         Form(self).exec_()
 
     def tools_switch_handler(self):
-        # from switch_form import Form
-        # Form(self).exec_()
+        from switch_form import Form
+        Form(self).exec_()
 
-        QMessageBox.information(self, 'Info', 'Under Development')
+
 
     def tools_top_partners_handler(self):
 
