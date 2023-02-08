@@ -1,5 +1,7 @@
+import sqlalchemy.sql.expression
 from dropbox import secondary_emails
 from sqlalchemy import create_engine, event, insert, update, delete
+from sqlalchemy.engine import Engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.sql import func
 
@@ -2491,6 +2493,21 @@ def company_name():
 def year():
     return '2022'
 
+
+
+def append_type_to_log(s):
+    try:
+        with open('types.log', 'a') as f:
+            f.write(s + '\n')
+    except FileNotFoundError:
+        with open('types.log', 'w') as f:
+            f.write(s + '\n')
+
+
+@event.listens_for(Engine, "before_execute", retval=True)
+def before_execute(conn, clauseelement, multiparams, params, execution_options):
+    append_type_to_log(str(type(clauseelement)))
+    return clauseelement, multiparams, params
 
 
 # if __name__ == '__main__':
