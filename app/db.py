@@ -2495,20 +2495,6 @@ def year():
 
 
 
-def append_type_to_log(s):
-    try:
-        with open('types.log', 'a') as f:
-            f.write(s + '\n')
-    except FileNotFoundError:
-        with open('types.log', 'w') as f:
-            f.write(s + '\n')
-
-
-@event.listens_for(Engine, "before_execute", retval=True)
-def before_execute(conn, clauseelement, multiparams, params, execution_options):
-    append_type_to_log(str(type(clauseelement)))
-    return clauseelement, multiparams, params
-
 
 # if __name__ == '__main__':
 #
