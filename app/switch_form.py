@@ -4,6 +4,9 @@ from PyQt5.QtWidgets import QDialog, QMessageBox
 
 from models import SwitchModel
 
+
+import db
+
 class Form(Ui_Dialog, QDialog):
 
     def __init__(self, parent):

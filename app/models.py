@@ -8147,12 +8147,12 @@ class SwitchModel(QtCore.QAbstractListModel):
 	def __init__(self):
 		super().__init__()
 
-		self._dict = {
-			r.fiscal_name:r.id
-			for r in db.session.query(db.Company.fiscal_name, db.Company.id)
+		self.db_names = {
+			'Euromedia Investment Group S.L.': 'euromediadb',
+			'AT Capital LTD': 'capitaldb',
 		}
 
-		self._data = list(self._dict.keys())
+		self._data = list(self.db_names.keys())
 
 
 	def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
@@ -8168,11 +8168,9 @@ class SwitchModel(QtCore.QAbstractListModel):
 
 	def switch(self, row):
 		fiscal_name = self._data[row]
-
-		# TODO: find a logo
-
-		os.environ['COMPANY_ID'] = str(self._dict[fiscal_name])
+		db.switch_database(self.db_names[fiscal_name])
 		return fiscal_name
+
 
 def caches_clear():
 	get_avg_rate.cache_clear()
