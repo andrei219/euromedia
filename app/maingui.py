@@ -1632,7 +1632,7 @@ class MainGui(Ui_MainGui, QMainWindow):
 
             with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
 
-                smtp.login('andrei.officee@gmail.com', 'mohidohcvbztftyn')
+                smtp.login('andrei.officee@gmail.com', 'iqzvulytehkaprjw')
                 smtp.send_message(msg)
 
         except smtplib.SMTPAuthenticationError:

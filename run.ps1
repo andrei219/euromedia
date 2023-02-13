@@ -11,6 +11,9 @@ $env:APP_DATABASE='euromedia'
 
 git pull
 
-Start-Process $pythonPath .\app\run.py -RedirectStandardError ".\error.log" -NoNewWindow -Wait
+# Start-Process $pythonPath .\app\run.py -RedirectStandardError ".\error.log" -Append -NoNewWindow -Wait
+
+
+Start-Process $pythonPath .\app\run.py -RedirectStandardError ".\error.log" -NoNewWindow -Wait | Out-File -FilePath ".\error.log" -Append
 
 
