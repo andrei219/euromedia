@@ -14,12 +14,13 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
-        Dialog.resize(398, 343)
+        Dialog.resize(398, 315)
         self.groupBox = QtWidgets.QGroupBox(Dialog)
         self.groupBox.setGeometry(QtCore.QRect(20, 20, 361, 221))
         self.groupBox.setObjectName("groupBox")
         self.view = QtWidgets.QListView(self.groupBox)
         self.view.setGeometry(QtCore.QRect(0, 20, 361, 201))
+        self.view.setAlternatingRowColors(True)
         self.view.setObjectName("view")
         self.switch_ = QtWidgets.QPushButton(Dialog)
         self.switch_.setGeometry(QtCore.QRect(224, 255, 75, 23))

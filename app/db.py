@@ -1327,10 +1327,6 @@ class SaleInvoice(Base):
         return ', '.join(p.doc_repr for p in self.proformas)
 
     @property
-    def partner_object(self):
-        return self.proformas[0].partner_object
-
-    @property
     def ready(self):
         p = self.proformas[0]
         return 'Yes' if p.ready else 'No'
@@ -2483,8 +2479,13 @@ def year():
     return '2022'
 
 
-if __name__ == '__main__':
 
-    Base.metadata.create_all(engine)
+# if __name__ == '__main__':
+#
+#     engine = create_engine(f'mysql+mysqlconnector://root:hnq#4506@localhost:3306/atcapital')
+#     Session = scoped_session(sessionmaker(bind=engine, autoflush=False))
+#     session = Session()
+#     Base.metadata.create_all(engine)
+
 
 

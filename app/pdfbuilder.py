@@ -14,9 +14,69 @@ from importlib import reload
 
 # CONSTANTS:
 
-LOGO_RELATIVE_PATH = r'.\app\icons\docus_logo.png'
-LOGO_BANK_1 = r'.\app\icons\deutsche_logo.png'
-LOGO_BANK_2 = r'.\app\icons\wise_logo.png'
+# TODO: Parameterize for different databases
+
+
+from collections import defaultdict
+
+d = defaultdict(list)
+
+d['euromediadb'].append(r'.\app\icons\docus_logo.png')
+d['euromediadb'].append(r'.\app\icons\deutsche_logo.png')
+d['euromediadb'].append(r'.\app\icons\wise_logo.png')
+
+d['capitaldb'].append(r'.\app\icons\docus_logo.png')
+d['capitaldb'].append(r'.\app\icons\deutsche_logo.png')
+d['capitaldb'].append(r'.\app\icons\wise_logo.png')
+
+logos = d[db.current_database]
+
+name2db_map = {
+    'Euromedia Investment Group, S.L.': 'euromediadb',
+    'AT Capital, Ltd': 'capitaldb',
+}
+''' Declare the same map above but with the values reverse'''
+db2name_map = {v: k for k, v in name2db_map.items()}
+
+db2email_map = {
+    'euromediadb': 'administracion@euromediagroup.es',
+    'capitaldb': 'administracion@atcapital.es',
+}
+
+db2rma_email_map = {
+    'euromediadb': 'rma@euromediagroup.es',
+    'capitaldb': 'rma@atcapital.com'
+}
+
+def get_conditions():
+    return [
+        f'1 - All good remain property of {db2name_map[db.current_database]} until payment is received in full.',
+        f'2 - Goods will be released only after full amount is received by {db.db2name_map[db.current_database]}',
+        f'{db2name_map[db.current_database]} will not be liable of any delay incurred by airlines, freight',
+        f'      companies or customs department.',
+        f'4 - The used devices have 30 natural days functional warranty from the delivery date.',
+        f'5 - The used devices have 72 hours grading warranty from delivery date.',
+        f'6 - For Invoice Enquires: {db2email_map[db.current_database]}',
+]
+
+def get_rma_conditions():
+    return [
+        '                          RMA CONDITIONS               ',
+        f'1 - For RMA Enquires: {db2rma_email_map[db.current_database]}',
+        '2 - RMA requests will be answered within 48 hours from Monday to Friday.',
+        '3 - Before return any device, you must have our approval for each one.',
+        '4 - Approved devices must be sent back within 5 days.'
+    ]
+
+
+def get_logo_bank_1():
+    return logos[1]
+
+def get_logo_bank_2():
+    return logos[2]
+
+def get_logo():
+    return logos[0]
 
 BUYER_BASE = (21.99, 38.1)
 SUPPLIER_BASE = (21.99, 78.08)
@@ -312,6 +372,32 @@ class We:
 
         self.phone = '+34 633 333 973'
 
+    @classmethod
+    def from_actual_db(cls):
+        if db.current_database == 'euromediadb':
+            return cls()
+        else:
+            o = cls()
+            o.fiscal_name = 'Euromedia Invasdsadasdasdestment Group, S.L.'
+            o.billing_line1 = 'Calle Csdasdsadamino Real Nº22'
+            o.billing_line2 = 'Local asdsdBajo Izq.'
+            o.billing_city = 'Torrenasdte'
+            o.billing_postcode = '4asdasd6900'
+            o.billing_state = 'Valedsancia'
+            o.billing_country = 'Spdadain'
+            o.registerd = 'Registersadasded on 22/03/2016'
+            o.fiscal_number = 'B988asdsada15608'
+            o.vat = 'VAT Nº:ESB98815sdasdsad608'
+
+            o.shipping_line1 = 'Calle Gasda Nº22'
+            o.shipping_line2 = 'Pol. Insdasdd. Toll La Alberca'
+            o.shipping_city = 'Torrentasdasdae'
+            o.shipping_postcode = '469sdasd00'
+            o.shipping_state = 'Valenasdacasdasdia'
+            o.shipping_country = 'Spasdasdasin'
+
+            o.phone = '+34 633 333asdasd 973'
+            return o
 
 class TableData:
 
@@ -339,21 +425,6 @@ class TableData:
 class TotalsData:
 
     def __init__(self, document):
-
-        # if isinstance(document, SaleInvoice):
-        #     # TODO
-        #     pass
-        #
-        # elif isinstance(document, SaleProforma):
-        #     # TODO
-        #     pass
-        #
-        # elif isinstance(document, PurchaseInvoice):
-        #     lines = [line for proforma in document.proformas for line in proforma.lines]
-        #
-        # elif isinstance(document, PurchaseProforma):
-        #     lines = document.lines
-
         self.Total_excl_VAT = document.subtotal
         self.Total_VAT = document.tax
         self.Total = '{:,.2f}'.format(round(self.Total_excl_VAT + self.Total_VAT, 2))
@@ -374,6 +445,7 @@ class TotalsData:
         return iter(self.__dict__.items())
 
 
+
 class PDF(FPDF):
 
     def __init__(self, document):
@@ -384,27 +456,10 @@ class PDF(FPDF):
         super().__init__()
         self.document = document
         self.resolve_header_and_lines_repr(document)
-        self.we = We()
+        self.we = We.from_actual_db()
         self.table_data = TableData(document)
         self.totals_data = TotalsData(document)
 
-        self.conditions = [
-            '1 - All good remain property of Euromedia Investment Group, S.L. until payment is received in full.',
-            '2 - Goods will be released only after full amount is received by Euromedia Investment Group, S.L.',
-            '3 - Euromedia Investment Group, S.L. will not be liable of any delay incurred by airlines, freight',
-            '      companies or customs department.',
-            '4 - The used devices have 30 natural days functional warranty from the delivery date.',
-            '5 - The used devices have 72 hours grading warranty from delivery date.',
-            '6 - For Invoice Enquires: administracion@euromediagroup.es'
-        ]
-
-        self.rma_conditions = [
-            '                          RMA CONDITIONS               ',
-            '1 - For RMA Enquires: rma@euromediagroup.es',
-            '2 - RMA requests will be answered within 48 hours from Monday to Friday.',
-            '3 - Before return any device, you must have our approval for each one.',
-            '4 - Approved devices must be sent back within 5 days.'
-        ]
 
     def resolve_header_and_lines_repr(self, document):
 
@@ -455,7 +510,7 @@ class PDF(FPDF):
 
     def header(self, print_lines_header=True):
         self.set_xy(18.75, 13.53)
-        self.image(LOGO_RELATIVE_PATH, w=70, h=18.2)
+        self.image(get_logo(), w=70, h=18.2)
         self.set_font('Arial', 'B', 18)
         self.set_xy(127.5, 13.35)
         self.cell(74, 17, self.doc_header, 1, 0, 'C')
@@ -485,7 +540,7 @@ class PDF(FPDF):
 
     @property
     def conditions_y_increment(self):
-        return CONDITIONS_Y_INCREMENT * len(self.conditions) + 10
+        return CONDITIONS_Y_INCREMENT * len(get_conditions()) + 10
 
     def print_totals(self, with_line=True):
 
@@ -598,7 +653,7 @@ class PDF(FPDF):
         self.x = LEFT_MARGIN + 4
         self.y += Y_INCREMENT
         self.set_font('Arial', size=6)
-        for condition in self.conditions:
+        for condition in get_conditions():
             self.cell(0, txt=condition)
             self.x = LEFT_MARGIN + 4
             self.y += CONDITIONS_BETWEEN_Y_INCREMENT
@@ -614,7 +669,7 @@ class PDF(FPDF):
         self.set_font('Arial', size=6)
         self.y += 2
 
-        for condition in self.rma_conditions:
+        for condition in get_rma_conditions():
             self.cell(0, txt=condition)
             self.x = RMA_START_X_POSITION
             self.y += CONDITIONS_BETWEEN_Y_INCREMENT
@@ -624,10 +679,10 @@ class PDF(FPDF):
     def print_bank(self):
         self.x = BANK1_LOGO_X_POSITION
         self.y = self.last_condition_y_position + BANK_LOGO_Y_INCREMENT
-        self.image(LOGO_BANK_1, w=32.3, h=4.91)
+        self.image(get_logo_bank_1(), w=32.3, h=4.91)
         self.x = BANK2_LOGO_X_POSITION
         self.y = self.last_condition_y_position + BANK_LOGO_Y_INCREMENT
-        self.image(LOGO_BANK_2, w=20.42, h=4.91)
+        self.image(get_logo_bank_2(), w=20.42, h=4.91)
 
         y_absolute_position = self.y - -3
 
