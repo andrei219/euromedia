@@ -1,5 +1,4 @@
 import sqlalchemy.sql.expression
-from dropbox import secondary_emails
 from sqlalchemy import create_engine, event, insert, update, delete
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import sessionmaker, scoped_session
