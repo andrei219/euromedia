@@ -3979,7 +3979,7 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
 
 	def lines_against_stock(self, warehouse_id, lines):
 
-		Session = db.sessionmaker(bind=db.get_engine())
+		Session = db.sessionmaker(bind=db.engine)
 		with Session.begin() as session:
 
 			lines = set([line for line in lines if line.item_id is not None])
@@ -4226,7 +4226,7 @@ class IncomingStockModel(BaseTable, QtCore.QAbstractTableModel):
 
 	def lines_against_stock(self, warehouse_id, lines):
 
-		Session = db.sessionmaker(bind=db.get_engine())
+		Session = db.sessionmaker(bind=db.engine)
 		session = Session()
 
 		for stock in self.computeIncomingStock(

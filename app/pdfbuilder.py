@@ -401,7 +401,7 @@ class We:
             s = 'MOBIFYTEST'
         elif os.environ['APP_DATABASE'].lower() == 'realstate':
             s = 'REALSTATETEST'
-      
+
         o.fiscal_name = s
         o.billing_line1 = s
         o.billing_line2 = s
