@@ -1,5 +1,5 @@
 # coding: utf8
-
+import os
 from itertools import chain, cycle
 
 import db
@@ -21,48 +21,65 @@ from collections import defaultdict
 
 d = defaultdict(list)
 
-d['euromediadb'].append(r'.\app\icons\docus_logo.png')
-d['euromediadb'].append(r'.\app\icons\deutsche_logo.png')
-d['euromediadb'].append(r'.\app\icons\wise_logo.png')
+d['euromedia'].append(r'.\app\icons\docus_logo.png')
+d['euromedia'].append(r'.\app\icons\deutsche_logo.png')
+d['euromedia'].append(r'.\app\icons\wise_logo.png')
 
-d['capitaldb'].append(r'.\app\icons\docus_logo.png')
-d['capitaldb'].append(r'.\app\icons\deutsche_logo.png')
-d['capitaldb'].append(r'.\app\icons\wise_logo.png')
+d['capital'].append(r'.\app\icons\docus_logo.png')
+d['capital'].append(r'.\app\icons\deutsche_logo.png')
+d['capital'].append(r'.\app\icons\wise_logo.png')
 
-logos = d[db.current_database]
+d['realstate'].append(r'.\app\icons\docus_logo.png')
+d['realstate'].append(r'.\app\icons\deutsche_logo.png')
+d['realstate'].append(r'.\app\icons\wise_logo.png')
+
+d['mobify'].append(r'.\app\icons\docus_logo.png')
+d['mobify'].append(r'.\app\icons\deutsche_logo.png')
+d['mobify'].append(r'.\app\icons\wise_logo.png')
+
+
+
+logos = d[os.environ['APP_DATABASE']]
+
 
 name2db_map = {
-    'Euromedia Investment Group, S.L.': 'euromediadb',
-    'AT Capital, Ltd': 'capitaldb',
+    'Euromedia Investment Group, S.L.': 'euromedia',
+    'AT Capital, Ltd': 'capital',
+    'Euromedia Real Estate, S.L.': 'realstate',
+    'Mobify Ltd': 'mobify',
 }
 ''' Declare the same map above but with the values reverse'''
 db2name_map = {v: k for k, v in name2db_map.items()}
 
 db2email_map = {
-    'euromediadb': 'administracion@euromediagroup.es',
-    'capitaldb': 'administracion@atcapital.es',
+    'euromedia': 'administracion@euromediagroup.es',
+    'capital': 'administracion@atcapital.es',
+    'realstate': 'admin@realstate.es',
+    'mobify': 'admin@mobify.com'
 }
 
 db2rma_email_map = {
-    'euromediadb': 'rma@euromediagroup.es',
-    'capitaldb': 'rma@atcapital.com'
+    'euromedia': 'rma@euromediagroup.es',
+    'capital': 'rma@atcapital.com',
+    'realstate': 'rma@realstate.com',
+    'mobify': 'rma@mobify.com'
 }
 
 def get_conditions():
     return [
-        f'1 - All good remain property of {db2name_map[db.current_database]} until payment is received in full.',
-        f'2 - Goods will be released only after full amount is received by {db.db2name_map[db.current_database]}',
-        f'{db2name_map[db.current_database]} will not be liable of any delay incurred by airlines, freight',
+        f'1 - All good remain property of {db.db2name_map[os.environ["APP_DATABASE"]]} until payment is received in full.',
+        f'2 - Goods will be released only after full amount is received by {db.db2name_map[os.environ["APP_DATABASE"]]}',
+        f'{db2name_map[os.environ["APP_DATABASE"]]} will not be liable of any delay incurred by airlines, freight',
         f'      companies or customs department.',
         f'4 - The used devices have 30 natural days functional warranty from the delivery date.',
         f'5 - The used devices have 72 hours grading warranty from delivery date.',
-        f'6 - For Invoice Enquires: {db2email_map[db.current_database]}',
+        f'6 - For Invoice Enquires: {db2email_map[os.environ["APP_DATABASE"]]}',
 ]
 
 def get_rma_conditions():
     return [
         '                          RMA CONDITIONS               ',
-        f'1 - For RMA Enquires: {db2rma_email_map[db.current_database]}',
+        f'1 - For RMA Enquires: {db2rma_email_map[os.environ["APP_DATABASE"]]}',
         '2 - RMA requests will be answered within 48 hours from Monday to Friday.',
         '3 - Before return any device, you must have our approval for each one.',
         '4 - Approved devices must be sent back within 5 days.'
@@ -359,7 +376,7 @@ class We:
         self.billing_postcode = '46900'
         self.billing_state = 'Valencia'
         self.billing_country = 'Spain'
-        self.registerd = 'Registered on 22/03/2016'
+        self.registered = 'Registered on 22/03/2016'
         self.fiscal_number = 'B98815608'
         self.vat = 'VAT Nº:ESB98815608'
 
@@ -374,30 +391,38 @@ class We:
 
     @classmethod
     def from_actual_db(cls):
-        if db.current_database == 'euromediadb':
-            return cls()
-        else:
-            o = cls()
-            o.fiscal_name = 'Euromedia Invasdsadasdasdestment Group, S.L.'
-            o.billing_line1 = 'Calle Csdasdsadamino Real Nº22'
-            o.billing_line2 = 'Local asdsdBajo Izq.'
-            o.billing_city = 'Torrenasdte'
-            o.billing_postcode = '4asdasd6900'
-            o.billing_state = 'Valedsancia'
-            o.billing_country = 'Spdadain'
-            o.registerd = 'Registersadasded on 22/03/2016'
-            o.fiscal_number = 'B988asdsada15608'
-            o.vat = 'VAT Nº:ESB98815sdasdsad608'
-
-            o.shipping_line1 = 'Calle Gasda Nº22'
-            o.shipping_line2 = 'Pol. Insdasdd. Toll La Alberca'
-            o.shipping_city = 'Torrentasdasdae'
-            o.shipping_postcode = '469sdasd00'
-            o.shipping_state = 'Valenasdacasdasdia'
-            o.shipping_country = 'Spasdasdasin'
-
-            o.phone = '+34 633 333asdasd 973'
+        s = 'TEST FAILED'
+        o = cls()
+        if os.environ["APP_DATABASE"].lower() == 'euromedia':
             return o
+        elif os.environ["APP_DATABASE"].lower() == 'capital':
+            s = 'CAPITALTEST'
+        elif os.environ['APP_DATABASE'].lower() == 'mobify':
+            s = 'MOBIFYTEST'
+        elif os.environ['APP_DATABASE'].lower() == 'realstate':
+            s = 'REALSTATETEST'
+      
+        o.fiscal_name = s
+        o.billing_line1 = s
+        o.billing_line2 = s
+        o.billing_city = s
+        o.billing_postcode = s
+        o.billing_state = s
+        o.billing_country = s
+        o.registered = s
+        o.fiscal_number = s
+        o.vat = s
+
+        o.shipping_line1 = s
+        o.shipping_line2 = s
+        o.shipping_city = s
+        o.shipping_postcode = s
+        o.shipping_state = s
+        o.shipping_country = s
+        o.phone = s
+
+        return o
+
 
 class TableData:
 

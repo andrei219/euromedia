@@ -26,26 +26,44 @@ from datetime import timedelta
 
 from sqlalchemy import exists
 
-echo = os.environ['APP_ECHO'].lower() == 'true'
-database = os.environ['APP_DATABASE']
-
 if os.environ['APP_DEBUG'].lower() == 'false':
     host = '//andrei:hnq#4506@192.168.1.78:3306'
+    print('PRODUCTION SERVER')
 else:
     host = '//root:hnq#4506@localhost:3306'
+    print('LOCAL SERVER')
 
-engine = create_engine(f'mysql+mysqlconnector:{host}/{database}', echo=echo)
+engine = create_engine(f'mysql+mysqlconnector:{host}/{os.environ["APP_DATABASE"]}',
+                       echo=os.environ['APP_ECHO'].lower() == 'true')
 
 # from sale types:
 
 NORMAL, FAST, DEFINED = 0, 1, 2
 
+name2db_map = {
+    'Euromedia Investment Group, S.L.': 'euromedia',
+    'AT Capital, Ltd': 'capital',
+    'Euromedia Real Estate, S.L.': 'realstate',
+    'Mobify Ltd': 'mobify',
+}
+''' Declare the same map above but with the values reverse'''
+db2name_map = {v: k for k, v in name2db_map.items()}
 
 
 Session = scoped_session(sessionmaker(bind=engine, autoflush=False))
 session = Session()
 
 Base = declarative_base()
+
+def switch_database(fiscal_name):
+    global Session, session
+    os.environ['APP_DATABASE'] = name2db_map[fiscal_name]
+    engine = create_engine(f'mysql+mysqlconnector:{host}/{os.environ["APP_DATABASE"]}',
+                           echo=os.environ['APP_ECHO'].lower() == 'true')
+
+    Session = scoped_session(sessionmaker(bind=engine, autoflush=False))
+    session = Session()
+
 
 
 class Warehouse(Base):
@@ -2464,11 +2482,7 @@ def correct_mask():
         raise
 
 
-def switch(company):
-    global Session, session
-    engine = create_engine(f'mysql+mysqlconnector://root:hnq#4506@localhost:3306/{company}')
-    Session = scoped_session(sessionmaker(bind=engine, autoflush=False))
-    session = Session()
+
 
 
 def company_name():

@@ -8146,14 +8146,7 @@ class SwitchModel(QtCore.QAbstractListModel):
 
 	def __init__(self):
 		super().__init__()
-
-		self.db_names = {
-			'Euromedia Investment Group S.L.': 'euromediadb',
-			'AT Capital LTD': 'capitaldb',
-		}
-
-		self._data = list(self.db_names.keys())
-
+		self._data = list(db.name2db_map.keys())
 
 	def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
 		if not index.isValid():
@@ -8168,7 +8161,7 @@ class SwitchModel(QtCore.QAbstractListModel):
 
 	def switch(self, row):
 		fiscal_name = self._data[row]
-		db.switch_database(self.db_names[fiscal_name])
+		db.switch_database(fiscal_name)
 		return fiscal_name
 
 
