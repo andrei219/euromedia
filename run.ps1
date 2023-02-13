@@ -5,6 +5,7 @@ $pythonPath = ".\venv\Scripts\python.exe"
 
 $env:APP_DEBUG='false'
 $env:APP_ECHO='false'
+$env:APP_DATABASE='euromedia'
 
 .\venv\Scripts\Activate.ps1
 
