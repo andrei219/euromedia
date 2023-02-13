@@ -28,32 +28,22 @@ from datetime import timedelta
 from sqlalchemy import exists
 
 echo = os.environ['APP_ECHO'].lower() == 'true'
+database = os.environ['APP_DATABASE']
 
-engine = create_engine('mysql+mysqlconnector://andrei:hnq#4506@192.168.1.78:3306/appdb', echo=echo)
+if os.environ['APP_DEBUG'].lower() == 'false':
+    host = '//andrei:hnq#4506@192.168.1.78:3306'
+else:
+    host = '//root:hnq#4506@localhost:3306'
 
-dev_engine = create_engine('mysql+mysqlconnector://root:hnq#4506@localhost:3306/euromediadb', echo=echo)
-
+engine = create_engine(f'mysql+mysqlconnector:{host}/{database}', echo=echo)
 
 # from sale types:
 
 NORMAL, FAST, DEFINED = 0, 1, 2
 
 
-def get_engine():
-    try:
-        debug = os.environ['APP_DEBUG'] == 'TRUE'
-        if debug:
-            print('Debug Mode')
-        else:
-            print('Production Mode')
 
-        return dev_engine if debug else engine
-    except KeyError:
-        print('SET APP_DEBUG VARIABLE')
-        sys.exit()
-
-
-Session = scoped_session(sessionmaker(bind=get_engine(), autoflush=False))
+Session = scoped_session(sessionmaker(bind=engine, autoflush=False))
 session = Session()
 
 Base = declarative_base()
@@ -2494,14 +2484,8 @@ def year():
     return '2022'
 
 
+if __name__ == '__main__':
 
-
-# if __name__ == '__main__':
-#
-#     engine = create_engine(f'mysql+mysqlconnector://root:hnq#4506@localhost:3306/atcapital')
-#     Session = scoped_session(sessionmaker(bind=engine, autoflush=False))
-#     session = Session()
-#     Base.metadata.create_all(engine)
-
+    Base.metadata.create_all(engine)
 
 
