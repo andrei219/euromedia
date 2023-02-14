@@ -524,6 +524,10 @@ def match_doc_repr(doc_repr):
     return re.match(DOC_PATTERN, doc_repr)
 
 
+''' Simplify the method above '''
+def is_work_time():
+    return 9 < datetime.now().hour < 19
+
 
 
 

@@ -190,6 +190,8 @@ def dump_rma(candidates, xlsx_file_path):
         pass
 
 
+from utils import is_work_time
+
 class UpdateChecker(QThread):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -198,7 +200,9 @@ class UpdateChecker(QThread):
     def run(self):
         while True:
             self.check_updates()
-            time.sleep(300)
+            time.sleep(60 * 15)
+            if not is_work_time():
+                break
 
     def check_updates(self):
 
