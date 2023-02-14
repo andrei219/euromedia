@@ -1710,7 +1710,7 @@ class MainGui(Ui_MainGui, QMainWindow):
         event.accept()
         for w in self.opened_windows_instances:
             w.close()
-        self.update_checker.terminate()
+        # self.update_checker.terminate()
         clean_up_directories()
 
         self.close()
