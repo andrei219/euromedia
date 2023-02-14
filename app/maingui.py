@@ -198,7 +198,7 @@ class UpdateChecker(QThread):
     def run(self):
         while True:
             self.check_updates()
-            time.sleep(30)
+            time.sleep(300)
 
     def check_updates(self):
 
