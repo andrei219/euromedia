@@ -205,7 +205,8 @@ class UpdateChecker(QThread):
         from checkgit import check_update_available
         message = check_update_available()
         if message:
-            self.parent.statusBar.showMessage('Update available: ' + message)
+            self.parent.statusBar.showMessage('Update available: ' + message + '. Re-run the program to update.')
+            
 
 
 class MainGui(Ui_MainGui, QMainWindow):
