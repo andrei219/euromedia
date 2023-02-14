@@ -1,10 +1,12 @@
 import os
 import subprocess
+import time
 
 import tempfile
 from builtins import getattr
 from turtle import mode
 
+from PyQt5.QtCore import QThread, QTimer, QWaitCondition, QMutex
 from PyQt5.QtWidgets import (
     QMainWindow,
     QTableView,
@@ -162,9 +164,6 @@ def view_document_old(view, model):
     filename = get_prefix(model) + document.doc_repr + '.pdf'
     pdf = build_document(document)
 
-
-
-
     pdf.output(filename)
 
     subprocess.Popen((filename,), shell=True)
@@ -187,8 +186,26 @@ def dump_rma(candidates, xlsx_file_path):
 
         workbook.save(xlsx_file_path)
 
-    except: # If does not work, ignore completely
+    except: # If it does not work, ignore completely
         pass
+
+
+class UpdateChecker(QThread):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.parent = parent
+
+    def run(self):
+        while True:
+            self.check_updates()
+            time.sleep(30)
+
+    def check_updates(self):
+
+        from checkgit import check_update_available
+        message = check_update_available()
+        if message:
+            self.parent.statusBar.showMessage('Update available: ' + message)
 
 
 class MainGui(Ui_MainGui, QMainWindow):
@@ -199,6 +216,10 @@ class MainGui(Ui_MainGui, QMainWindow):
         self.setCentralWidget(self.main_tab)
 
         self.clipboard = ClipBoard(data='', form=self)
+
+        self.update_checker = UpdateChecker(parent=self)
+        self.update_checker.start()
+
 
         # For closing
         self.opened_windows_instances = set()
@@ -212,6 +233,7 @@ class MainGui(Ui_MainGui, QMainWindow):
         self.set_handlers()
 
         self.main_tab.currentChanged.connect(self.tab_changed)
+
 
     def export_documents(self, view, model, ask_directory=True):
         rows = {i.row() for i in view.selectedIndexes()}
@@ -1683,10 +1705,12 @@ class MainGui(Ui_MainGui, QMainWindow):
     # This is a dummy test change
 
     def closeEvent(self, event):
+        event.accept()
         for w in self.opened_windows_instances:
             w.close()
-
+        self.update_checker.terminate()
         clean_up_directories()
 
-        super().closeEvent(event)
+        self.close()
+
 
