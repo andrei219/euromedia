@@ -219,8 +219,8 @@ class MainGui(Ui_MainGui, QMainWindow):
 
         self.clipboard = ClipBoard(data='', form=self)
 
-        # self.update_checker = UpdateChecker(parent=self)
-        # self.update_checker.start()
+        self.update_checker = UpdateChecker(parent=self)
+        self.update_checker.start()
 
 
         # For closing
@@ -1656,7 +1656,7 @@ class MainGui(Ui_MainGui, QMainWindow):
 
             with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
 
-                smtp.login('andrei.officee@gmail.com', 'iqzvulytehkaprjw')
+                smtp.login('andrei.officee@gmail.com', os.environ['APP_MAIL_PASSWORD'])
                 smtp.send_message(msg)
 
         except smtplib.SMTPAuthenticationError:
@@ -1710,7 +1710,7 @@ class MainGui(Ui_MainGui, QMainWindow):
         event.accept()
         for w in self.opened_windows_instances:
             w.close()
-        # self.update_checker.terminate()
+        self.update_checker.terminate()
         clean_up_directories()
 
         self.close()

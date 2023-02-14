@@ -1,28 +1,31 @@
 import json
+import os
 
 import requests
 import subprocess
 
-user = 'andrei219'
+url = 'https://api.github.com/repos/{owner}/{repo}/commits'
+owner = 'andrei219'
+repo = 'euromedia'
 
 ''' Get the latest commit hash from github '''
 def get_latest_commit_hash_and_message():
-	url = f"https://api.github.com/users/{user}/events/public"
+	_url = url.format(owner=owner, repo=repo)
 
+	headers = {'Authorization': 'Token ' + os.environ['GITHUB_AUTH']}
 	try:
-		response = requests.get(url)
+
+		response = requests.get(_url, headers=headers)
+
 	except requests.exceptions.RequestException as e:
 		return None, None
 
 	if response.status_code == 200:
-		commit_hash = response.json()[0]['payload']['commits'][-1]['sha']
-		message = response.json()[0]['payload']['commits'][-1]['message']
-
-		return commit_hash, message
+		commit = response.json()[0]['sha']
+		message = response.json()[0]['commit']['message']
+		return commit, message
 
 	return None, None
-
-# Dummy test change
 
 def get_current_commit_hash():
 	""" Get the current commit hash from git """
@@ -36,16 +39,10 @@ def check_update_available():
 
 	if latest_commit_hash != current_commit_hash:
 		return message
-	else:
-		return None
-
 
 if __name__ == '__main__':
 
     print(get_latest_commit_hash_and_message())
     print(get_current_commit_hash())
-
-
-
 
 
