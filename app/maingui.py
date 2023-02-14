@@ -206,7 +206,8 @@ class UpdateChecker(QThread):
         message = check_update_available()
         if message:
             self.parent.statusBar.showMessage('Update available: ' + message + '. Re-run the program to update.')
-            
+
+# dummy test change
 
 
 class MainGui(Ui_MainGui, QMainWindow):
