@@ -219,8 +219,8 @@ class MainGui(Ui_MainGui, QMainWindow):
 
         self.clipboard = ClipBoard(data='', form=self)
 
-        self.update_checker = UpdateChecker(parent=self)
-        self.update_checker.start()
+        # self.update_checker = UpdateChecker(parent=self)
+        # self.update_checker.start()
 
 
         # For closing

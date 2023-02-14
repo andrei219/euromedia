@@ -20,6 +20,8 @@ def get_latest_commit_hash_and_message():
 
 		return commit_hash, message
 
+	return None, None
+
 # Dummy test change
 
 def get_current_commit_hash():
