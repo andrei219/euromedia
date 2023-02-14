@@ -20,6 +20,7 @@ def get_latest_commit_hash_and_message():
 
 		return commit_hash, message
 
+# Dummy test change
 
 def get_current_commit_hash():
 	""" Get the current commit hash from git """
