@@ -1,84 +1,77 @@
-import sys
-from PyQt5.QtCore import Qt, QModelIndex, QVariant, QAbstractItemModel
-from PyQt5.QtGui import QStandardItem
-from PyQt5.QtWidgets import QApplication, QTreeView, QMainWindow, QWidget
+from PyQt5 import QtCore
+from PyQt5.QtCore import Qt, QModelIndex, QVariant
+from PyQt5.QtGui import QStandardItem, QStandardItemModel
+from PyQt5.QtWidgets import QApplication, QTreeView, QMainWindow, QWidget, QVBoxLayout
 
-multiples = {4: [4, 8, 16, 20], 6: [6, 12, 18, 24], 8: [8, 16, 24, 32], 10: [10, 20, 30, 40]}
-
-class TreeModel(QAbstractItemModel):
-    def __init__(self, data, parent=None):
+class SaleProformaLineModel(QStandardItemModel):
+    def __init__(self, lines, parent=None):
         super().__init__(parent)
-        self.rootItem = QStandardItem('Root')
-        self.setupModelData(data)
+        self._groups = {}
+        for line in lines:
+            mix_id = line.mix_id
+            if mix_id not in self._groups:
+                group = QStandardItem(mix_id)
+                self.appendRow(group)
+                self._groups[mix_id] = group
+            item = QStandardItem()
+            item.setData(line.item_id, Qt.UserRole + 1)
+            item.setData(line.condition, Qt.UserRole + 2)
+            item.setData(line.spec, Qt.UserRole + 3)
+            item.setData(line.price, Qt.UserRole + 4)
+            item.setText(line.description)
+            self._groups[mix_id].appendRow(item)
 
-    def setupModelData(self, data):
-        for key in data:
-            parent = QStandardItem(str(key))
-            self.rootItem.appendRow(parent)
-            for value in data[key]:
-                child = QStandardItem(str(value))
-                parent.appendRow(child)
-
-    def index(self, row, column, parent=QModelIndex()):
-        if not self.hasIndex(row, column, parent):
-            return QModelIndex()
-        if not parent.isValid():
-            parentItem = self.rootItem
-        else:
-            parentItem = parent.internalPointer()
-        childItem = parentItem.child(row)
-        if childItem:
-            return self.createIndex(row, column, childItem)
-        else:
-            return QModelIndex()
-
-    def parent(self, index):
-        if not index.isValid():
-            return QModelIndex()
-        childItem = index.internalPointer()
-        parentItem = childItem.parent()
-        if parentItem == self.rootItem:
-            return QModelIndex()
-        return self.createIndex(parentItem.row(), 0, parentItem)
-
-    def rowCount(self, parent=QModelIndex()):
-        if parent.column() > 0:
-            return 0
-        if not parent.isValid():
-            parentItem = self.rootItem
-        else:
-            parentItem = parent.internalPointer()
-        return parentItem.rowCount()
-
-    def columnCount(self, parent=QModelIndex()):
-        return 1
-
-    def data(self, index, role):
-        if not index.isValid():
-            return QVariant()
-        item = index.internalPointer()
+    def data(self, index, role=Qt.DisplayRole):
         if role == Qt.DisplayRole:
-            return item.text()
-        return QVariant()
+            index = self.itemFromIndex(index)
+            return index.text()
 
-class TreeViewExample(QMainWindow):
-    def __init__(self):
+
+    def columnCount(self, parent: QtCore.QModelIndex = ...) -> int:
+        return 6
+
+
+class GroupedSalesWidget(QMainWindow):
+    def __init__(self, lines):
         super().__init__()
-        self.setGeometry(200, 200, 600, 400)
-        self.setWindowTitle("PyQt TreeView Example")
-        self.initUI()
-
-    def initUI(self):
-        self.model = TreeModel(multiples)
-        self.tree = QTreeView()
-        self.tree.setModel(self.model)
-        self.tree.setAnimated(False)
-        self.tree.setIndentation(20)
-        self.tree.setSortingEnabled(True)
-        self.setCentralWidget(self.tree)
+        self.setWindowTitle("Grouped Sales Widget")
+        self.setGeometry(100, 100, 400, 400)
+        central_widget = QWidget(self)
+        self.setCentralWidget(central_widget)
+        layout = QVBoxLayout(central_widget)
+        self.tree_view = QTreeView()
+        self.tree_view.setHeaderHidden(True)
+        self.tree_view.setModel(SaleProformaLineModel(lines))
+        layout.addWidget(self.tree_view)
 
 if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    ex = TreeViewExample()
-    ex.show()
-    sys.exit(app.exec_())
+    app = QApplication([])
+
+    from collections import namedtuple
+
+    Line = namedtuple('Line', ['item_id', 'description', 'condition', 'spec', 'price', 'mix_id'])
+
+    lines = [
+        Line('1', 'Item 1', 'New', 'Spec 1', 100, 'Mix 1'),
+        Line('2', 'Item 2', 'New', 'Spec 1', 100, 'Mix 1'),
+        Line('3', 'Item 3', 'New', 'Spec 1', 100, 'Mix 1'),
+        Line('4', 'Item 4', 'New', 'Spec 1', 100, 'Mix 1'),
+        Line('5', 'Item 5', 'New', 'Spec 1', 100, 'Mix 2'),
+        Line('6', 'Item 6', 'New', 'Spec 1', 100, 'Mix 2'),
+        Line('7', 'Item 7', 'New', 'Spec 1', 100, 'Mix 2'),
+        Line('8', 'Item 8', 'New', 'Spec 1', 100, 'Mix 2'),
+        Line('9', 'Item 9', 'New', 'Spec 1', 100, 'Mix 3'),
+        Line('10', 'Item 10', 'New', 'Spec 1', 100, 'Mix 3'),
+        Line('11', 'Item 11', 'New', 'Spec 1', 100, 'Mix 3'),
+        Line('12', 'Item 12', 'New', 'Spec 1', 100, 'Mix 4'),
+        Line('13', 'Item 13', 'New', 'Spec 1', 100, 'Mix 4'),
+        Line('14', 'Item 14', 'New', 'Spec 1', 100, 'Mix 4'),
+        Line('15', 'Item 15', 'New', 'Spec 1', 100, 'Mix 4'),
+    ]
+
+    widget = GroupedSalesWidget(lines)
+    widget.show()
+
+    app.exec_()
+
+

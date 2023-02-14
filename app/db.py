@@ -1479,6 +1479,43 @@ class AdvancedLine(Base):
                                cascade='delete-orphan, save-update, delete')
 
 
+''' Create a User class '''
+class User(Base):
+
+    __tablename__ = 'users'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(50), nullable=False)
+    email = Column(String(50), nullable=False)
+    password = Column(String(50), nullable=False)
+    created_at = Column(DateTime, default=datetime.datetime.now)
+    updated_at = Column(DateTime, default=datetime.datetime.now, onupdate=datetime.datetime.now)
+
+    def __init__(self, name, email, password):
+        self.name = name
+        self.email = email
+        self.password = password
+
+    def __repr__(self):
+        return '<User %r>' % (self.name)
+
+
+
+''' Create a function that validates email '''
+def validate_email(email):
+    if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
+        raise ValueError("Invalid email address")
+    return email
+
+
+''' Create a function that validates IBAN code'''
+def validate_iban(iban):
+    if not re.match(r"^[A-Z]{2}[0-9]{2}[A-Z0-9]{4}[0-9]{7}([A-Z0-9]?){0,16}$", iban):
+        raise ValueError("Invalid IBAN code")
+    return iban
+
+
+
 class AdvancedLineDefinition(Base):
 
     __tablename__ = 'advanced_lines_definition'
