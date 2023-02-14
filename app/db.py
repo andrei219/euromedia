@@ -64,11 +64,6 @@ def switch_database(fiscal_name):
     Session = scoped_session(sessionmaker(bind=engine, autoflush=False))
     session = Session()
 
-update_engine = create_engine(
-    'mysql+mysqlconnector://qahi944:Hnqs4506@qahi944.euromediagroup.es:3306/qahi944',
-    echo=os.environ['APP_ECHO'].lower() == 'true'
-)
-
 
 
 class Warehouse(Base):
