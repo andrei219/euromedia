@@ -26,15 +26,20 @@ from datetime import timedelta
 
 from sqlalchemy import exists
 
-if os.environ['APP_DEBUG'].lower() == 'false':
-    host = '//andrei:hnq#4506@192.168.1.78:3306'
-    print('PRODUCTION SERVER')
-else:
-    host = '//root:hnq#4506@localhost:3306'
-    print('LOCAL SERVER')
 
-engine = create_engine(f'mysql+mysqlconnector:{host}/{os.environ["APP_DATABASE"]}',
-                       echo=os.environ['APP_ECHO'].lower() == 'true')
+def get_db_url():
+    if os.environ['APP_DEBUG'].lower() == 'false':
+        host = '//andrei:hnq#4506@192.168.1.78:3306'
+        print('PRODUCTION SERVER')
+    else:
+        host = '//root:hnq#4506@localhost:3306'
+        print('LOCAL SERVER')
+
+    return f'mysql+mysqlconnector:{host}/{os.environ["APP_DATABASE"]}'
+
+
+engine = create_engine(get_db_url(), echo=os.environ['APP_ECHO'].lower() == 'true')
+
 
 # from sale types:
 
@@ -63,7 +68,6 @@ def switch_database(fiscal_name):
 
     Session = scoped_session(sessionmaker(bind=engine, autoflush=False))
     session = Session()
-
 
 
 class Warehouse(Base):
@@ -2127,6 +2131,9 @@ class WhIncomingRmaLine(Base):
     spec = Column(String(50), nullable=False)
     price = Column(Float(precision=32, decimal_return_scale=None), nullable=False)
 
+    target_condition = Column(String(50), nullable=False)
+
+
     item = relationship('Item', uselist=False)
 
     wh_incoming_rma = relationship(
@@ -2143,14 +2150,6 @@ class WhIncomingRmaLine(Base):
         s += f"why={self.why})"
         return s
 
-    # def __hash__(self):
-    #     return hash(self.sn)
-
-    # def __eq__(self, other):
-    #     # if self is None or other is None:
-    #     #     return super().__eq__(other)
-    #     #
-    #     return self.sn == other.sn
 
     def __init__(self, incoming_rma_line):
         self.sn = incoming_rma_line.sn
