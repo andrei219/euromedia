@@ -211,9 +211,6 @@ class UpdateChecker(QThread):
         if message:
             self.parent.statusBar.showMessage('Update available: ' + message + '. Re-run the program to update.')
 
-# dummy test change
-
-
 class MainGui(Ui_MainGui, QMainWindow):
 
     def __init__(self, parent=None):
@@ -948,10 +945,10 @@ class MainGui(Ui_MainGui, QMainWindow):
 
     def proformas_sales_docs_handler(self, invoice=None):
         # documents_form.Form(self, self.get_sale_proforma()).exec_()
-        pass
+        raise ValueError('Not implemented')
+
 
     def proformas_sales_toinv_handler(self):
-
         rows = {index.row() for index in self.proformas_sales_view.selectedIndexes()}
         if not rows:
             return
@@ -1642,7 +1639,7 @@ class MainGui(Ui_MainGui, QMainWindow):
         import smtplib
         from email.message import EmailMessage
 
-        file_path = os.path.abspath(os.path.join('error.log'))
+        file_path = os.path.abspath(os.path.join('.\last_error.log'))
 
         msg = EmailMessage()
 
@@ -1667,6 +1664,7 @@ class MainGui(Ui_MainGui, QMainWindow):
             QMessageBox.critical(self, 'Error', 'Authentication Error.')
 
         except FileNotFoundError:
+            raise
             QMessageBox.critical(self, 'Error', 'I could not find the error log.')
 
         except smtplib.SMTPException:

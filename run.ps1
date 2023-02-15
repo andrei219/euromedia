@@ -11,9 +11,13 @@ $env:APP_DATABASE='euromedia'
 
 git pull
 
-# Start-Process $pythonPath .\app\run.py -RedirectStandardError ".\error.log" -Append -NoNewWindow -Wait
+Copy-Item -Path "error.log" -Destination "last_error.log" -Force
+
+Start-Process $pythonPath .\app\run.py -RedirectStandardError ".\error.log"  -NoNewWindow -Wait
+
+# venv\Scripts\python.exe .\app\checkgit.py
 
 
-Start-Process $pythonPath .\app\run.py -RedirectStandardError ".\error.log" -NoNewWindow -Wait | Out-File -FilePath ".\error.log" -Append
+#Start-Process $pythonPath .\app\run.py -RedirectStandardError ".\error.log" -NoNewWindow -Wait | Out-File -FilePath ".\error.log" -Append
 
 
