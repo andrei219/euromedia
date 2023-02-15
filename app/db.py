@@ -44,7 +44,6 @@ def get_db_url():
 
 engine = create_engine(get_db_url(), echo=os.environ['APP_ECHO'].lower() == 'true')
 
-
 # from sale types:
 
 NORMAL, FAST, DEFINED = 0, 1, 2
@@ -2135,7 +2134,7 @@ class WhIncomingRmaLine(Base):
     spec = Column(String(50), nullable=False)
     price = Column(Float(precision=32, decimal_return_scale=None), nullable=False)
 
-    target_condition = Column(String(50), nullable=False)
+    target_condition = Column(String(50), nullable=True)
 
 
     item = relationship('Item', uselist=False)

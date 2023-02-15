@@ -8,7 +8,7 @@ from models import WhRmaIncomingLineModel
 
 from db import session
 
-from delegates import WhDelegate
+from delegates import WhRmaDelegate
 
 class Form(Ui_Form, QWidget):
 
@@ -19,7 +19,7 @@ class Form(Ui_Form, QWidget):
         self.parent = parent
 
         self.view.setModel(WhRmaIncomingLineModel(order.lines))
-        self.view.setItemDelegate(WhDelegate(self))
+        self.view.setItemDelegate(WhRmaDelegate(self))
 
         self.populate_form()
         self.set_view_config()

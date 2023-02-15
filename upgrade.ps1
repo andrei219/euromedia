@@ -3,7 +3,7 @@
 
 param(
     [string]$Environment = "dev",
-    [String]$Revision = $null
+    [String]$Revision = ""
 )
 
 if ($Environment -eq "dev") {
@@ -16,7 +16,7 @@ if ($Environment -eq "dev") {
 
 Write-Host "Running migration for Environment: $EnvironmentName"
 
-if ($Revision -eq $null) {
+if ($Revision.Trim() -eq "") {
     $Revision = "head"
 }
 
@@ -30,4 +30,8 @@ foreach ($database in $company_databases) {
     # run the migration
     alembic upgrade $Revision
 }
+
+# Sets the database to euroemdia
+$env:APP_DATABASE='euromedia'
+
 

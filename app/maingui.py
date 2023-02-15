@@ -1466,9 +1466,7 @@ class MainGui(Ui_MainGui, QMainWindow):
         self.whirma.show()
 
     def warehouse_incoming_rmas_tocn_handler(self):
-
         wh_rma_order = self.get_wh_incoming_rma_order()
-
         if not wh_rma_order:
             return
 
@@ -1482,10 +1480,6 @@ class MainGui(Ui_MainGui, QMainWindow):
             QMessageBox.critical(self, 'Error', "I did not found candidates for a new Credit Note")
             return
 
-        # from utils import get_open_file_path
-        # file_path = get_open_file_path(self)
-        # if not file_path:
-        #     return
 
         partner_id = wh_rma_order.incoming_rma.lines[0].cust_id
 
@@ -1495,7 +1489,6 @@ class MainGui(Ui_MainGui, QMainWindow):
 
         proforma = build_credit_note_and_commit(partner_id, agent_id, wh_rma_order, candidates)
 
-        # If None, no proforma was built because there was not candidates
         if not proforma:
             return
 
@@ -1505,9 +1498,9 @@ class MainGui(Ui_MainGui, QMainWindow):
             imei = db.Imei()
             imei.imei = line.sn
             imei.item_id = line.item_id
-            imei.condition = line.condition
             imei.spec = line.spec
             imei.warehouse_id = line.warehouse_id
+            imei.condition = line.target_condition
 
             db.session.add(imei)
 
