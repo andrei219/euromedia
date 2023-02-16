@@ -27,18 +27,11 @@ from datetime import timedelta
 from sqlalchemy import exists
 
 
-if os.environ['APP_DEBUG'].lower() == 'false':
-    print('PRODUCTION SERVER')
-else:
-    print('LOCAL SERVER')
-
-
 def get_db_url():
     if os.environ['APP_DEBUG'].lower() == 'false':
         host = '//andrei:hnq#4506@192.168.1.78:3306'
     else:
         host = '//root:hnq#4506@localhost:3306'
-
     return f'mysql+mysqlconnector:{host}/{os.environ["APP_DATABASE"]}'
 
 

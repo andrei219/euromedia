@@ -1,9 +1,22 @@
 
 # This script is used to launch the application on Windows.
 
+param(
+    [string]$Environment = "prod"
+)
+
 $pythonPath = ".\venv\Scripts\python.exe"
 
-$env:APP_DEBUG='false'
+if ($Environment -eq "dev") {
+    $env:APP_DEBUG='false'
+    $EnvironmentName = "Development"
+} else {
+    $env:APP_DEBUG='false'
+    $EnvironmentName = "Production"
+}
+
+Write-Host "Running application for Environment: $EnvironmentName"
+
 $env:APP_ECHO='false'
 $env:APP_DATABASE='euromedia'
 
