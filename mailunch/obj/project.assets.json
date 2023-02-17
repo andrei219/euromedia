@@ -13,11 +13,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Andrei\\Desktop\\projects\\euromedia\\mailunch\\mailunch.csproj",
+      "projectUniqueName": "C:\\Users\\Andrei\\Desktop\\Projects\\euromedia\\mailunch\\mailunch.csproj",
       "projectName": "mailunch",
-      "projectPath": "C:\\Users\\Andrei\\Desktop\\projects\\euromedia\\mailunch\\mailunch.csproj",
+      "projectPath": "C:\\Users\\Andrei\\Desktop\\Projects\\euromedia\\mailunch\\mailunch.csproj",
       "packagesPath": "C:\\Users\\Andrei\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Andrei\\Desktop\\projects\\euromedia\\mailunch\\obj\\",
+      "outputPath": "C:\\Users\\Andrei\\Desktop\\Projects\\euromedia\\mailunch\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\Andrei\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -51,7 +51,8 @@
           "net47",
           "net471",
           "net472",
-          "net48"
+          "net48",
+          "net481"
         ],
         "assetTargetFallback": true,
         "warn": true,
@@ -60,7 +61,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.302\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.103\\RuntimeIdentifierGraph.json"
       }
     }
   }

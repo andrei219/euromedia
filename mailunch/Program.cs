@@ -2,8 +2,10 @@
 using System.Runtime.InteropServices;
 using System.IO;
 using System.Collections.Generic;
+using System.Net.Mail;
+using System.Reflection;
 
-    class MAPI
+class MAPI
     {
         public bool AddRecipientTo(string email)
         {
@@ -231,9 +233,12 @@ using System.Collections.Generic;
         public int eIDSize;
         public IntPtr entryID;
     }
+
+
+
 class Utility
 {
-    public static void Main(String[] args)
+    public static void Main_old(String[] args)
     {
         String subject = null;
         String aux = null;
@@ -241,10 +246,10 @@ class Utility
         MAPI mapi = new MAPI();
 
         mapi.AddRecipientTo(args[1]);
+
         mapi.AddAttachment(args[2]);
 
         String doctype = args[0];
-
 
         switch (doctype)
         {
@@ -257,14 +262,14 @@ class Utility
             case "C":
                 subject = "Credit Note ";
                 break;
-
-
         }
 
         subject += new DirectoryInfo(args[2]).Name + " "; 
 
-
-        try{mapi.AddAttachment(args[3]);  andseries = "and series"; 
+        try {
+            
+            mapi.AddAttachment(args[3]);  
+            andseries = "and series"; 
         
         } catch (IndexOutOfRangeException) { 
         
@@ -280,4 +285,79 @@ class Utility
         mapi.SendMailPopup(subject, body);
 
     }
+
+
+
+    public static void Main(String[] args)
+    {
+        // Parematers:
+        // 0 - Document type (A, B, C) mandatory
+        // 1 - Recipient email address mandatory
+        // 2 - Recpient 2 email address optional
+        // 3 - Recpient n email address optional
+        // 4 - Document file name mandatory
+        // 5 - Document 2 file name optional
+
+        MAPI mapi = new MAPI(); 
+
+        List<String> recipients = new();
+
+        List<String> attachments = new(); 
+
+        String? subject = null;
+
+
+        // Parse args and set those data structures
+        String doc_type = args[0];
+        recipients.Add(args[1]);
+        for (int i = 2; i < args.Length; i++)
+            if (valid_email_address(args[i]))
+                recipients.Add(args[i]);
+            else
+                attachments.Add(args[i]);
+
+        foreach (String recipient in recipients)
+            mapi.AddRecipientTo(recipient);
+
+        foreach (String attachment in attachments)
+            mapi.AddAttachment(attachment);
+
+
+        switch (doc_type)
+        {
+            case "A":
+                subject = "Proforma ";
+                break;
+            case "B":
+                subject = "Invoice ";
+                break;
+            case "C":
+                subject = "Credit Note ";
+                break;
+        }
+
+        subject += new DirectoryInfo(attachments[0]).Name + " ";
+
+        String body = "Attached " + subject;
+
+        if (attachments.Count == 2)
+            body += " and series."; 
+
+        mapi.SendMailPopup(subject, body);
+
+    }
+
+    private static bool valid_email_address(String email){
+        
+        try
+        {
+            MailAddress m = new MailAddress(email);
+            return true;
+        }
+        catch (FormatException)
+        {
+            return false;
+        }
+    }
+    
 }

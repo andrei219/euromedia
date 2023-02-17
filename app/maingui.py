@@ -892,9 +892,9 @@ class MainGui(Ui_MainGui, QMainWindow):
         proforma = self.get_sale_proforma()
         if not proforma:
             return
-        from utils import get_email_recipient
-        recipient = get_email_recipient(proforma)
-        if not recipient:
+        from utils import get_email_recipients
+        recipients = get_email_recipients(proforma)
+        if not recipients:
             return
 
         from pdfbuilder import build_document
@@ -907,31 +907,7 @@ class MainGui(Ui_MainGui, QMainWindow):
 
         import subprocess
 
-        completed_subprocess = subprocess.run(['mailunch.exe', 'A', recipient, abs_path])
-
-
-    def proformas_sales_mail_handler_try(self):
-        proforma = self.get_sale_proforma()
-        if not proforma:
-            return
-        from utils import get_email_recipient
-        recipient = get_email_recipient(proforma)
-        if not recipient:
-            return
-        from pdfbuilder import build_document
-
-        with tempfile.TemporaryDirectory(dir=".") as tempdir:
-            pdf_object = build_document(proforma)
-            filename = f"{get_prefix(self.proformas_sales_model)}{proforma.doc_repr}.pdf"
-            filepath = os.path.abspath(os.path.join(tempdir, filename))
-            try:
-                p = subprocess.run(('mailunch.exe', 'A', recipient, filepath),
-                                   stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                                   stderr=subprocess.STDOUT)
-            except subprocess.CalledProcessError as err:
-                raise
-
-
+        subprocess.run(['mailunch.exe', 'A', *recipients, abs_path])
 
     def proformas_sales_payments_handler(self):
         proforma = self.get_sale_proforma()
@@ -1222,9 +1198,9 @@ class MainGui(Ui_MainGui, QMainWindow):
         invoice = self.get_sales_invoice()
         if not invoice:
             return
-        from utils import get_email_recipient
-        recipient = get_email_recipient(invoice)
-        if not recipient:
+        from utils import get_email_recipients
+        recipients = get_email_recipients(invoice)
+        if not recipients:
             return
 
         from models import export_invoices_sales_excel
@@ -1247,7 +1223,7 @@ class MainGui(Ui_MainGui, QMainWindow):
             generated = False
 
         import subprocess
-        args = ['mailunch.exe', recipient, path1]
+        args = ['mailunch.exe', *recipients, path1]
 
         if generated:
             args.append(path2)
@@ -1257,7 +1233,7 @@ class MainGui(Ui_MainGui, QMainWindow):
         else:
             args.insert(1, 'B')
 
-        completed_process = subprocess.run(args, shell=True)
+        subprocess.run(args, shell=True)
 
     def get_sales_invoice(self):
         return self.get_invoice(

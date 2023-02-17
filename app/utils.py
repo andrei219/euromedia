@@ -504,20 +504,15 @@ def get_country_code(name):
 def get_last_date(days):
     return datetime.today() - timedelta(days)
 
-
-def get_email_recipient(obj):
-    if isinstance(obj, (db.SaleInvoice, db.PurchaseInvoice)):
+def get_email_recipients(obj):
+    if isinstance(obj, db.SaleInvoice):
         contact_iter = iter(obj.proformas[0].partner.contacts)
     else:
         contact_iter = iter(obj.partner.contacts)
 
     PATTERN = r'([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+'
-    recipient = None
-    for contact in contact_iter:
-        if re.fullmatch(PATTERN, contact.email):
-            recipient = contact.email
-            break
-    return recipient
+    return [ contact.email for contact in contact_iter if re.match(PATTERN, contact.email)]
+
 
 def match_doc_repr(doc_repr):
     DOC_PATTERN = '^[1-6]\-0*\d+\Z'

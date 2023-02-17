@@ -8,7 +8,7 @@ param(
 $pythonPath = ".\venv\Scripts\python.exe"
 
 if ($Environment -eq "dev") {
-    $env:APP_DEBUG='false'
+    $env:APP_DEBUG='true'
     $EnvironmentName = "Development"
 } else {
     $env:APP_DEBUG='false'
@@ -27,10 +27,5 @@ git pull
 Copy-Item -Path "error.log" -Destination "last_error.log" -Force
 
 Start-Process $pythonPath .\app\run.py -RedirectStandardError ".\error.log"  -NoNewWindow -Wait
-
-# venv\Scripts\python.exe .\app\checkgit.py
-
-
-#Start-Process $pythonPath .\app\run.py -RedirectStandardError ".\error.log" -NoNewWindow -Wait | Out-File -FilePath ".\error.log" -Append
 
 
