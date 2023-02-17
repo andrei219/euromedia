@@ -44,3 +44,8 @@ sii/.vs/*
 mailunch/.vs/*
 mailunch\.vs\*
 
+
+mailunch/*
+!mailunch/bin/Debug/net6.0/
+
+.idea/*
