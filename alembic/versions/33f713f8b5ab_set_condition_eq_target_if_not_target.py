@@ -20,7 +20,7 @@ depends_on = None
 
 def upgrade() -> None:
     """ Irreversible migration. Original values cannot be preserved.
-    Backup created before running this upgrade.: """
+    Backup created before running this upgrade: 21022023 at 13:50. """
 
     Session = sessionmaker(bind=op.get_bind())
     session = Session()
