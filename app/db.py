@@ -2129,7 +2129,6 @@ class WhIncomingRmaLine(Base):
 
     target_condition = Column(String(50), nullable=True)
 
-
     item = relationship('Item', uselist=False)
 
     wh_incoming_rma = relationship(
