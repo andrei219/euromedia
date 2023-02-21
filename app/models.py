@@ -5954,6 +5954,11 @@ class WhRmaIncomingLineModel(BaseTable, QtCore.QAbstractTableModel):
 			elif column == self.TARGET_CONDITION:
 				return line.target_condition
 
+		elif role == Qt.BackgroundRole:
+			if column == self.TARGET_CONDITION:
+				''' Return yellow color '''
+				return QtGui.QColor(255, 255, 0)
+
 
 	def flags(self, index):
 
