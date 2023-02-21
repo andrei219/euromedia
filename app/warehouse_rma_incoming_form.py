@@ -18,7 +18,9 @@ class Form(Ui_Form, QWidget):
         self.order = order
         self.parent = parent
 
-        self.view.setModel(WhRmaIncomingLineModel(order.lines))
+        block_target = len(self.order.invoices) > 0
+
+        self.view.setModel(WhRmaIncomingLineModel(order.lines, block_target=block_target))
         self.view.setItemDelegate(WhRmaDelegate(self))
 
         self.populate_form()

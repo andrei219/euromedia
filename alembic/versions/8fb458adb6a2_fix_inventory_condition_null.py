@@ -39,7 +39,7 @@ def upgrade() -> None:
         session.query(Imei).filter(Imei.imei == imei).update({Imei.condition: condition})
 
     session.commit()
-    
+
 
 def downgrade() -> None:
     pass

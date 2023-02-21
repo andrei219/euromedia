@@ -5922,12 +5922,13 @@ class CreditNoteLineModel(BaseTable, QtCore.QAbstractTableModel):
 class WhRmaIncomingLineModel(BaseTable, QtCore.QAbstractTableModel):
 	SN, DESCRIPTION, CONDITION, SPEC, PROBLEM, ACCEPTED, WHY, WAREHOUSE, TARGET_CONDITION = 0, 1, 2, 3, 4, 5, 6, 7, 8
 
-	def __init__(self, lines):
+	def __init__(self, lines, block_target=False):
 		super().__init__()
 		self._headerData = ['SN/IMEI', 'Description', 'Condt.', 'Spec',
 		                    'Problem', 'Accepted(y/n/p)', 'Why', 'Target WH', 'Target Condt.']
 		self.name = 'lines'
 		self.lines = lines
+		self.block_target = block_target
 
 	def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
 		if not index.isValid():
@@ -5959,16 +5960,21 @@ class WhRmaIncomingLineModel(BaseTable, QtCore.QAbstractTableModel):
 				''' Return yellow color '''
 				return QtGui.QColor(255, 255, 0)
 
-
 	def flags(self, index):
-
 		if not index.isValid():
 			return Qt.ItemIsEnabled
-		if index.column() in (self.WHY, self.ACCEPTED, self.WAREHOUSE, self.TARGET_CONDITION):
+		editables = [self.WHY, self.ACCEPTED, self.WAREHOUSE]
+
+		if not self.block_target:
+			print('neeeeeeeveeer')
+			editables.append(self.TARGET_CONDITION)
+
+		if index.column() in editables:
 			return Qt.ItemFlags(super().flags(index) | Qt.ItemIsEditable)
 		else:
 			return Qt.ItemFlags(~Qt.ItemIsEditable)
 
+	''' Simplify the method above '''
 	def setData(self, index: QModelIndex, value: typing.Any, role: int = ...) -> bool:
 		if not index.isValid():
 			return False
