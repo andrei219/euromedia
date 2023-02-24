@@ -3778,6 +3778,8 @@ class StockEntry:
 
 	def __isub__(self, other):
 		self.quantity -= other.quantity
+		return self
+
 
 	def __hash__(self):
 		# None at the end of the list in able to make this hash
@@ -3844,6 +3846,7 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
 
 		imeis = {StockEntry(r.item_id, r.condition, r.spec, r.quantity) for r in query}
 
+
 		query = session.query(
 			db.ImeiMask.item_id, db.ImeiMask.condition,
 			db.ImeiMask.spec, func.count(db.ImeiMask.imei).label('quantity')
@@ -3880,6 +3883,7 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
 
 		sales = {StockEntry(r.item_id, r.condition, r.spec, r.quantity) for r in query}
 
+
 		query = session.query(
 			db.AdvancedLine.item_id,
 			db.AdvancedLine.condition,
@@ -3898,6 +3902,7 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
 		)
 
 		advanced_sales = {StockEntry(r.item_id, r.condition, r.spec, r.quantity) for r in query}
+
 
 		query = session.query(
 			db.ExpeditionLine.item_id,
@@ -3932,6 +3937,7 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
 			)
 
 		outputs = {StockEntry(r.item_id, r.condition, r.spec, r.quantity) for r in query}
+
 
 		query = session.query(
 			db.AdvancedLineDefinition.item_id,
@@ -3972,6 +3978,7 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
 					sale += advanced_sale
 					r.add(sale)
 		sales = r
+
 
 		stocks = self.resolve(imeis, imeis_mask, sales, outputs)
 
@@ -8198,31 +8205,9 @@ def caches_clear():
 
 if __name__ == '__main__':
 
-	dicts = [
-		{
-			'date': date.today(),
-			'all': r'C:\Users\Andrei\Desktop\TestCode',
-			'book_value': True,
-			'warehouse_id': None
-		},
-		{
-			'date': date(2022, 12, 12),
-			'all': None,
-			'book_value': True,
-			'warehouse_id': 2
-		},
-		{
-			'date': date(2022, 12, 12),
-			'all': None,
-			'book_value': False,
-			'warehouse_id': 2
-		}
-	]
+	desc = db.session.query(db.Item).where(db.Item.id == 29).first().clean_repr
+	print('desc=', desc)
+	model = StockModel(1, desc, None, None)
 
-	import time
-
-	for filters in dicts:
-		start = time.time()
-		model = WarehouseValueModel(filters)
-		print('Total Elapsed:', (time.time() - start) / 60)
-
+	for elm in model.stocks:
+		print(elm)

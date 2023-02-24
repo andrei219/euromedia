@@ -29,7 +29,6 @@ def reload_utils():
     utils = reload(utils)
 
 
-
 class Form(QDialog, Ui_Form):
 
     def __init__(self, parent, reception):
@@ -60,7 +59,6 @@ class Form(QDialog, Ui_Form):
         self.view.setSelectionBehavior(QTableView.SelectRows)
         self.view.setSelectionMode(QTableView.SingleSelection)
         self.view.setSortingEnabled(True)
-
 
     def disable_if_cancelled(self):
         if self.reception.proforma.cancelled:
