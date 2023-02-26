@@ -7094,7 +7094,7 @@ def do_sale_price(imei):
 		exp_line = exp.line
 		proforma_line = None
 
-		# We need several process for each type of lines sale contains hence the swich
+		# We need several process for each type of lines sale contains hence the switch
 		if proforma.credit_note_lines:  # Rma check, Provisional, We need to define how to process rma
 			return SaleRow()
 		# We need several processes for each type of lines sale contains hence the switch
@@ -7117,6 +7117,11 @@ def do_sale_price(imei):
 				break
 
 		if not proforma_line:
+			print('proforma=', proforma)
+			print('exp_line=', exp_line)
+
+			return SaleRow()
+
 			raise ValueError('Fatal error could not match warehouse with sale proforma')
 
 		avg_rate = get_avg_rate(proforma)
@@ -7368,6 +7373,9 @@ class OutputModel(BaseTable, QtCore.QAbstractTableModel):
 				query = query.where(db.SaleProforma.agent_id == agent_id)
 
 		append_registers(self, query=query)
+
+
+		print('len(self._registers): ', len(self._registers))
 
 		return self
 
