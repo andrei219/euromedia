@@ -35,7 +35,7 @@ directory_path = r'C:\Users\Andrei\Desktop\Reports'
 
 def main():
 	for month, period in periods.items():
-		model = OutputModel.by_period(_from=period.start, to=period.end)
+		model = OutputModel.by_period(_from=period.start, to=period.end, exclude_at_capital=True)
 		print(f'Model for month: {month} loaded')
 		getter = operator.attrgetter('sitem', 'scond', 'sspec', 'peuro', 'seuro')
 		data = []

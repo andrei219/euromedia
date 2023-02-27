@@ -7352,7 +7352,7 @@ class OutputModel(BaseTable, QtCore.QAbstractTableModel):
 		wb.save(file)
 
 	@classmethod
-	def by_period(cls, _from, to, _input=False, agent_id=None):
+	def by_period(cls, _from, to, _input=False, agent_id=None, exclude_at_capital=False):
 		self = cls()
 		if _input:
 			query = db.session.query(db.ReceptionSerie.serie).join(db.ReceptionLine). \
@@ -7360,11 +7360,18 @@ class OutputModel(BaseTable, QtCore.QAbstractTableModel):
 				where(db.PurchaseProforma.date >= _from,
 			          db.PurchaseProforma.date <= to)
 
+			if exclude_at_capital:
+				query = query.where(db.PurchaseProforma.partner_id != 19)
+				print(f'Period : {_from} - {to} At Capital Excluded?= {exclude_at_capital}')
 		else:
 			query = db.session.query(db.ExpeditionSerie.serie).join(db.ExpeditionLine). \
 				join(db.Expedition).join(db.SaleProforma). \
 				where(db.SaleProforma.date >= _from,
 			          db.SaleProforma.date <= to)
+
+			if exclude_at_capital:
+				query = query.where(db.SaleProforma.partner_id != 19)
+				print(f'Period : {_from} - {to} At Capital Excluded?= {exclude_at_capital}')
 
 		if agent_id:
 			if _input:
@@ -7372,7 +7379,9 @@ class OutputModel(BaseTable, QtCore.QAbstractTableModel):
 			else:
 				query = query.where(db.SaleProforma.agent_id == agent_id)
 
+
 		append_registers(self, query=query)
+
 
 
 		print('len(self._registers): ', len(self._registers))
