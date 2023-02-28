@@ -3,7 +3,8 @@
 
 param(
     [string]$Environment = "dev",
-    [String]$Revision = ""
+    [String]$Revision = "",
+    [String]$Branch = ""
 )
 
 if ($Environment -eq "dev") {
@@ -24,6 +25,7 @@ Write-Host "Running migration for Revision: $Revision"
 
 $company_databases = @('euromedia', 'capital', 'mobify', 'realstate')
 foreach ($database in $company_databases) {
+    $database = $database + "_$Branch"
     Write-Host "Updating database $database..."
     # set the environment variables
     $env:APP_DATABASE=$database

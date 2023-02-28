@@ -8209,6 +8209,9 @@ class SwitchModel(QtCore.QAbstractListModel):
 		return fiscal_name
 
 
+
+
+
 def caches_clear():
 	get_avg_rate.cache_clear()
 	get_purchase_expenses_breakdown.cache_clear()

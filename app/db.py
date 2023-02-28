@@ -13,7 +13,7 @@ from datetime import datetime
 from sqlalchemy import (
     Column, Integer, String, DateTime,
     ForeignKey, UniqueConstraint, SmallInteger, Boolean, LargeBinary,
-    Date, CheckConstraint, Float
+    Date, CheckConstraint, Float, Numeric
 )
 
 from sqlalchemy.ext.declarative import declarative_base
@@ -2450,6 +2450,47 @@ class ViesRequest(Base):
         self.fiscal_number = fiscal_number
 
 
+class Group(Base):
+
+    __tablename__ = 'groups'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(100), nullable=False, unique=True)
+
+class SubGroup(Base):
+
+    __tablename__ = 'subgroups'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(100), nullable=False, unique=True)
+    group_id = Column(ForeignKey('groups.id'), nullable=False)
+
+    group = relationship('Group', backref='subgroups')
+
+
+class Account(Base):
+
+    __tablename__ = 'accounts'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(100), nullable=False, unique=True)
+    subgroup_id = Column(ForeignKey('subgroups.id'), nullable=False)
+
+    subgroup = relationship('SubGroup', backref='accounts')
+
+
+class SubAccount(Base):
+
+    __tablename__ = 'subaccounts'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(100), nullable=False, unique=True)
+    account_id = Column(ForeignKey('accounts.id'), nullable=False)
+
+    account = relationship('Account', backref='subaccounts')
+
+
+
 def create_init_data():
     spec = Spec('Mix')
     condition = Condition('Mix')
@@ -2458,6 +2499,15 @@ def create_init_data():
     session.add(condition)
 
     session.commit()
+
+
+def create_chart_accounts():
+
+    accounts = {
+        ''
+    }
+
+    pass # TODO
 
 
 
@@ -2478,26 +2528,6 @@ def correct_mask():
     except Exception as ex:
         session.rollback()
         raise
-
-
-
-
-
-def company_name():
-    return 'Euromedia Investment Group'
-
-
-def year():
-    return '2022'
-
-
-
-# if __name__ == '__main__':
-#
-#     engine = create_engine(f'mysql+mysqlconnector://root:hnq#4506@localhost:3306/atcapital')
-#     Session = scoped_session(sessionmaker(bind=engine, autoflush=False))
-#     session = Session()
-#     Base.metadata.create_all(engine)
 
 
 
