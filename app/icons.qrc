@@ -1,5 +1,6 @@
 <!DOCTYPE RCC><RCC version="1.0">
-    <qresource> 
+    <qresource>
+        <file alias="accounting">.\\icons\\accounting.png</file>
         <file alias="user">.\\icons\\user.png</file>
         <file alais="view">.\\icons\\view.png</file>
         <file alias="export">.\\icons\\export.png</file>

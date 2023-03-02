@@ -55,6 +55,7 @@ from utils import (
 PASSWORD = '0010'
 
 PREFIXES = [
+
     'agents_',
     'partners_',
     'proformas_purchases_',
@@ -68,6 +69,7 @@ PREFIXES = [
     'tools_',
     'rmas_incoming_',
     'rmas_outgoing_',
+    'accounting_'
 ]
 
 ACTIONS = [
@@ -119,7 +121,8 @@ ACTIONS = [
     'switch',
     'top_partners',
     'owing',
-    'whatsapp'
+    'whatsapp',
+    'create_entry'
 ]
 
 
@@ -1640,6 +1643,12 @@ class MainGui(Ui_MainGui, QMainWindow):
             QMessageBox.critical(self, 'Error', 'Error sending the error log.')
         else:
             QMessageBox.information(self, 'Success', 'Successfully sent last error log.')
+
+    def accounting_create_entry_handler(self):
+
+        from journal_entry_form import Form
+        self.entry_form = Form()
+        self.entry_form.show()
 
     def tab_changed(self, index):
         db.session.commit()

@@ -36,7 +36,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>10</y>
+      <y>20</y>
       <width>1821</width>
       <height>861</height>
      </rect>
@@ -51,7 +51,7 @@
      <number>0</number>
     </property>
     <property name="currentIndex">
-     <number>7</number>
+     <number>8</number>
     </property>
     <property name="iconSize">
      <size>
@@ -8001,6 +8001,54 @@
       </property>
       <property name="toolButtonStyle">
        <enum>Qt::ToolButtonTextUnderIcon</enum>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="accounting_tab">
+     <attribute name="icon">
+      <iconset resource="../app/icons.qrc">
+       <normaloff>:/accounting</normaloff>:/accounting</iconset>
+     </attribute>
+     <attribute name="title">
+      <string>Accounting</string>
+     </attribute>
+     <widget class="QTableView" name="journals_view">
+      <property name="geometry">
+       <rect>
+        <x>180</x>
+        <y>80</y>
+        <width>1151</width>
+        <height>601</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">#journals_view {border-radius: 2px solid blue;} </string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_23">
+      <property name="geometry">
+       <rect>
+        <x>180</x>
+        <y>40</y>
+        <width>151</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Journal Entries</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="accounting_create_entry">
+      <property name="geometry">
+       <rect>
+        <x>40</x>
+        <y>80</y>
+        <width>101</width>
+        <height>41</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Create</string>
       </property>
      </widget>
     </widget>

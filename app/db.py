@@ -1,8 +1,8 @@
 import sqlalchemy.sql.expression
 from sqlalchemy import create_engine, event, insert, update, delete
-from sqlalchemy.engine import Engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.sql import func
+
 
 import sys
 import os
@@ -18,7 +18,6 @@ from sqlalchemy import (
 
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, backref
-
 import functools
 import operator
 
@@ -64,6 +63,9 @@ def switch_database(fiscal_name):
 
     Session = scoped_session(sessionmaker(bind=engine, autoflush=False))
     session = Session()
+
+
+
 
 
 class Warehouse(Base):
@@ -2450,45 +2452,76 @@ class ViesRequest(Base):
         self.fiscal_number = fiscal_number
 
 
-class Group(Base):
-
-    __tablename__ = 'groups'
-
-    id = Column(Integer, primary_key=True)
-    name = Column(String(100), nullable=False, unique=True)
-
-class SubGroup(Base):
-
-    __tablename__ = 'subgroups'
-
-    id = Column(Integer, primary_key=True)
-    name = Column(String(100), nullable=False, unique=True)
-    group_id = Column(ForeignKey('groups.id'), nullable=False)
-
-    group = relationship('Group', backref='subgroups')
-
-
 class Account(Base):
 
     __tablename__ = 'accounts'
 
     id = Column(Integer, primary_key=True)
-    name = Column(String(100), nullable=False, unique=True)
-    subgroup_id = Column(ForeignKey('subgroups.id'), nullable=False)
+    code = Column(String(50), nullable=False)
+    description = Column(String(50), nullable=False)
+    parent_id = Column(ForeignKey('accounts.id'), nullable=True)
 
-    subgroup = relationship('SubGroup', backref='accounts')
+    created_on = Column(DateTime, nullable=False, default=datetime.now)
+    updated_on = Column(DateTime, nullable=False, default=datetime.now, onupdate=datetime.now)
+
+    def __init__(self, code, description, parent_id=None):
+        self.code = code
+        self.description = description
+        self.parent_id = parent_id
+
+    def __repr__(self):
+        cls_name = self.__class__.__name__
+        return f"{cls_name}(code={self.code}, description={self.description}, parent_id={self.parent_id})"
 
 
-class SubAccount(Base):
+class Balance(Base):
 
-    __tablename__ = 'subaccounts'
+    __tablename__ = 'balances'
 
     id = Column(Integer, primary_key=True)
-    name = Column(String(100), nullable=False, unique=True)
+    date = Column(Date, nullable=False)
     account_id = Column(ForeignKey('accounts.id'), nullable=False)
+    amount = Column(Numeric(18, 4), nullable=False)
 
-    account = relationship('Account', backref='subaccounts')
+    created_on = Column(DateTime, nullable=False, default=datetime.now)
+    updated_on = Column(DateTime, nullable=False, default=datetime.now, onupdate=datetime.now)
 
+    account = relationship('Account', viewonly=True)
+
+
+class JournalHeaders(Base):
+
+    __tablename__ = 'journal_headers'
+
+    id = Column(Integer, primary_key=True)
+    date = Column(Date, nullable=False)
+    description = Column(String(255), nullable=False)
+    _type = Column(String(10), nullable=False)
+    invoice_id = Column(Integer, nullable=True)
+    auto = Column(Boolean, nullable=False, default=False)
+
+    created_on = Column(DateTime, nullable=False, default=datetime.now)
+    updated_on = Column(DateTime, nullable=False, default=datetime.now, onupdate=datetime.now)
+
+    __table_args__ = (
+        CheckConstraint(_type.in_(['sale', 'purchase', 'misc', 'payment', 'collection'])),
+    )
+
+
+class JournalEntry(Base):
+
+    __tablename__ = 'journal_entries'
+
+    id = Column(Integer, primary_key=True)
+    journal_header_id = Column(ForeignKey('journal_headers.id'), nullable=False)
+    account_id = Column(ForeignKey('accounts.id'), nullable=False)
+    amount = Column(Numeric(18, 4), nullable=False)
+
+    created_on = Column(DateTime, nullable=False, default=datetime.now)
+    updated_on = Column(DateTime, nullable=False, default=datetime.now, onupdate=datetime.now)
+
+    journal_header = relationship('JournalHeaders', viewonly=True)
+    account = relationship('Account', viewonly=True)
 
 
 def create_init_data():
@@ -2503,12 +2536,9 @@ def create_init_data():
 
 def create_chart_accounts():
 
-    accounts = {
-        ''
-    }
+
 
     pass # TODO
-
 
 
 def correct_mask():
