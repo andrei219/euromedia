@@ -2,7 +2,7 @@ import sys
 
 from db import session, Account
 
-accounts = {
+ACCOUNTS = {
 	1: {
 		'name': 'Financiación Básica',
 		'children': {
@@ -1681,12 +1681,17 @@ accounts = {
 }
 
 
-
-def save_accounts():
-	for group, elements in accounts:
-		session.
-
+def save_accounts(accounts, parent=None):
+	for group, accounts in accounts.items():
+		try:
+			account = Account(code=group, name=accounts['name'], parent=parent)
+			session.add(account)
+			save_accounts(accounts['children'], parent=account)
+		except (KeyError, TypeError):
+			continue
 
 
 if __name__ == '__main__':
-    pass
+
+	save_accounts(ACCOUNTS)
+	session.commit()

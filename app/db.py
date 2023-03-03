@@ -2458,20 +2458,22 @@ class Account(Base):
 
     id = Column(Integer, primary_key=True)
     code = Column(String(50), nullable=False)
-    description = Column(String(50), nullable=False)
+    name = Column(String(255), nullable=False)
     parent_id = Column(ForeignKey('accounts.id'), nullable=True)
 
     created_on = Column(DateTime, nullable=False, default=datetime.now)
     updated_on = Column(DateTime, nullable=False, default=datetime.now, onupdate=datetime.now)
 
-    def __init__(self, code, description, parent_id=None):
+    parent = relationship('Account', remote_side=[id])
+
+    def __init__(self, code, name, parent=None):
         self.code = code
-        self.description = description
-        self.parent_id = parent_id
+        self.name = name
+        self.parent = parent
 
     def __repr__(self):
         cls_name = self.__class__.__name__
-        return f"{cls_name}(code={self.code}, description={self.description}, parent_id={self.parent_id})"
+        return f"{cls_name}(code={self.code}, name={self.name}, parent_id={self.parent_id})"
 
 
 class Balance(Base):
@@ -2558,6 +2560,5 @@ def correct_mask():
     except Exception as ex:
         session.rollback()
         raise
-
 
 
