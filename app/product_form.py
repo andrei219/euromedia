@@ -8,7 +8,7 @@ from ui_product_form import Ui_ProductForm
 
 from models import ProductModel
 from utils import setCommonViewConfig
-
+from decimal import Decimal, InvalidOperation
 
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import select
@@ -41,14 +41,14 @@ class ProductForm(Ui_ProductForm, QDialog):
 
         from utils import setCompleter
 
-
         for field, data in [
             (self.mpn, {item.mpn for item in self.model}), 
             (self.manufacturer_line_edit, {item.manufacturer for item in self.model}), 
             (self.category_line_edit, {item.category for item in self.model}), 
             (self.model_line_edit, {item.model for item in self.model}), 
             (self.capacity_line_edit, {item.capacity for item in self.model}), 
-            (self.color_line_edit, {item.color for item in self.model}), 
+            (self.color_line_edit, {item.color for item in self.model}),
+            (self.weight, {str(item.weight) for item in self.model})
         ]: 
             setCompleter(field, data) 
 
@@ -59,6 +59,7 @@ class ProductForm(Ui_ProductForm, QDialog):
         self.model_line_edit.setText('')
         self.capacity_line_edit.setText('')
         self.color_line_edit.setText('')
+        self.weight.setText('')
 
     def keyPressEvent(self, event):
         
@@ -75,7 +76,7 @@ class ProductForm(Ui_ProductForm, QDialog):
         try:
             self.model.addItem(self.mpn.text(), self.manufacturer_line_edit.text(), self.category_line_edit.text(), \
                 self.model_line_edit.text(), self.capacity_line_edit.text(), \
-                    self.color_line_edit.text(), self.has_serie.isChecked())
+                    self.color_line_edit.text(), self.weight.text(), self.has_serie.isChecked())
             self.clearFields() 
             # self.product_view.resizeColumnsToContents() 
         except IntegrityError as e:
@@ -102,7 +103,11 @@ class ProductForm(Ui_ProductForm, QDialog):
         self.setUpCompleters()
 
     def validProduct(self):
-        
+        try:
+            Decimal(self.weight.text())
+        except InvalidOperation:
+            QMessageBox.critical(self, 'Error', 'Weight must be a number')
+            return False
 
         if not all((
             self.manufacturer_line_edit.text(), 
@@ -143,7 +148,7 @@ class ProductForm(Ui_ProductForm, QDialog):
             self.mpn.text().strip(), self.manufacturer_line_edit.text().strip(), self.category_line_edit.text().strip(),\
                 self.model_line_edit.text().strip(), self.capacity_line_edit.text().strip(),\
                     self.color_line_edit.text().strip(), self.has_serie.isChecked()
-        
+
         base = lambda item: (item.manufacturer, item.category, item.model) == (man, cat, mod) 
 
         if cap and not has_serie:

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>838</width>
-    <height>846</height>
+    <width>1090</width>
+    <height>872</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -54,21 +54,9 @@ font: 8pt &quot;Verdana&quot;;</string>
     <rect>
      <x>31</x>
      <y>63</y>
-     <width>741</width>
+     <width>991</width>
      <height>16</height>
     </rect>
-   </property>
-   <property name="minimumSize">
-    <size>
-     <width>741</width>
-     <height>16</height>
-    </size>
-   </property>
-   <property name="maximumSize">
-    <size>
-     <width>741</width>
-     <height>16</height>
-    </size>
    </property>
    <property name="orientation">
     <enum>Qt::Horizontal</enum>
@@ -78,8 +66,8 @@ font: 8pt &quot;Verdana&quot;;</string>
    <property name="geometry">
     <rect>
      <x>41</x>
-     <y>218</y>
-     <width>731</width>
+     <y>252</y>
+     <width>1001</width>
      <height>501</height>
     </rect>
    </property>
@@ -88,7 +76,7 @@ font: 8pt &quot;Verdana&quot;;</string>
    <property name="geometry">
     <rect>
      <x>31</x>
-     <y>174</y>
+     <y>208</y>
      <width>141</width>
      <height>16</height>
     </rect>
@@ -113,22 +101,10 @@ font: 8pt &quot;Verdana&quot;;</string>
    <property name="geometry">
     <rect>
      <x>31</x>
-     <y>196</y>
-     <width>741</width>
+     <y>230</y>
+     <width>1001</width>
      <height>16</height>
     </rect>
-   </property>
-   <property name="minimumSize">
-    <size>
-     <width>741</width>
-     <height>16</height>
-    </size>
-   </property>
-   <property name="maximumSize">
-    <size>
-     <width>741</width>
-     <height>16</height>
-    </size>
    </property>
    <property name="orientation">
     <enum>Qt::Horizontal</enum>
@@ -138,7 +114,7 @@ font: 8pt &quot;Verdana&quot;;</string>
    <property name="geometry">
     <rect>
      <x>40</x>
-     <y>730</y>
+     <y>764</y>
      <width>71</width>
      <height>19</height>
     </rect>
@@ -175,8 +151,8 @@ font: 8pt &quot;Verdana&quot;;</string>
   <widget class="QToolButton" name="cancel_tool_button">
    <property name="geometry">
     <rect>
-     <x>710</x>
-     <y>770</y>
+     <x>960</x>
+     <y>780</y>
      <width>71</width>
      <height>51</height>
     </rect>
@@ -216,23 +192,11 @@ font: 8pt &quot;Verdana&quot;;</string>
   <widget class="QToolButton" name="add_product_tool_button">
    <property name="geometry">
     <rect>
-     <x>620</x>
-     <y>160</y>
-     <width>107</width>
+     <x>846</x>
+     <y>170</y>
+     <width>131</width>
      <height>25</height>
     </rect>
-   </property>
-   <property name="minimumSize">
-    <size>
-     <width>107</width>
-     <height>25</height>
-    </size>
-   </property>
-   <property name="maximumSize">
-    <size>
-     <width>107</width>
-     <height>25</height>
-    </size>
    </property>
    <property name="styleSheet">
     <string notr="true">background:white;</string>
@@ -538,6 +502,56 @@ font: 8pt &quot;Verdana&quot;;</string>
    </property>
    <property name="checked">
     <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="weight">
+   <property name="geometry">
+    <rect>
+     <x>820</x>
+     <y>90</y>
+     <width>150</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>150</width>
+     <height>20</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>150</width>
+     <height>20</height>
+    </size>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_9">
+   <property name="geometry">
+    <rect>
+     <x>750</x>
+     <y>90</y>
+     <width>58</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>58</width>
+     <height>20</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>58</width>
+     <height>20</height>
+    </size>
+   </property>
+   <property name="text">
+    <string>Weight:</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
    </property>
   </widget>
  </widget>

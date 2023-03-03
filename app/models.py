@@ -1,4 +1,5 @@
 import csv
+import decimal
 import re
 import typing
 import math
@@ -2598,14 +2599,14 @@ class ActualLinesFromMixedModel(BaseTable, QtCore.QAbstractTableModel):
 
 
 class ProductModel(BaseTable, QtCore.QAbstractTableModel):
-	MPN, MANUFACTURER, CATEGORY, MODEL, CAPACITY, COLOR, HAS_SERIE = \
-		0, 1, 2, 3, 4, 5, 6
+	MPN, MANUFACTURER, CATEGORY, MODEL, CAPACITY, COLOR, WEIGHT, HAS_SERIE = \
+		0, 1, 2, 3, 4, 5, 6, 7
 
 	def __init__(self):
 
 		super().__init__()
 		self._headerData = ['MPN', 'Manufacturer', 'Category', 'Model',
-		                    'Capacity', 'Color', 'Has Serie']
+		                    'Capacity', 'Color', 'Weight', 'Has Serie']
 		self.name = 'items'
 		self.items = db.session.query(db.Item).all()
 
@@ -2618,17 +2619,18 @@ class ProductModel(BaseTable, QtCore.QAbstractTableModel):
 			return
 		else:
 			return {
-				self.__class__.MPN: item.mpn,
-				self.__class__.MANUFACTURER: item.manufacturer,
-				self.__class__.CATEGORY: item.category,
-				self.__class__.MODEL: item.model,
-				self.__class__.CAPACITY: item.capacity,
-				self.__class__.COLOR: item.color,
-				self.__class__.HAS_SERIE: 'Yes' if item.has_serie else 'No'
+				self.MPN: item.mpn,
+				self.MANUFACTURER: item.manufacturer,
+				self.CATEGORY: item.category,
+				self.MODEL: item.model,
+				self.CAPACITY: item.capacity,
+				self.COLOR: item.color,
+				self.HAS_SERIE: 'Yes' if item.has_serie else 'No',
+				self.WEIGHT: str(item.weight)
 			}.get(col)
 
-	def addItem(self, mpn, manufacturer, category, model, capacity, color, has_serie):
-		item = db.Item(mpn, manufacturer, category, model, capacity, color, has_serie)
+	def addItem(self, mpn, manufacturer, category, model, capacity, color, weight, has_serie):
+		item = db.Item(mpn, manufacturer, category, model, capacity, color, weight, has_serie)
 		db.session.add(item)
 		try:
 			db.session.commit()
@@ -2660,28 +2662,36 @@ class ProductModel(BaseTable, QtCore.QAbstractTableModel):
 		if role == Qt.EditRole:
 			row, column = index.row(), index.column()
 			item = self.items[row]
-			if column == self.__class__.MPN:
+			if column == self.MPN:
 				item.mpn = value
-			elif column == self.__class__.MANUFACTURER:
+			elif column == self.MANUFACTURER:
 				if not value.strip():
 					return False  # These specific fields cannot be empty
 				item.manufacturer = value
-			elif column == self.__class__.CATEGORY:
+			elif column == self.CATEGORY:
 				if not value.strip():
 					return False
 				item.category = value
-			elif column == self.__class__.MODEL:
+			elif column == self.MODEL:
 				if not value.strip():
 					return False
 				item.model = value
-			elif column == self.__class__.CAPACITY:
+			elif column == self.CAPACITY:
 				item.capacity = value
-			elif column == self.__class__.COLOR:
+			elif column == self.COLOR:
 				item.color = value
-			elif column == self.__class__.HAS_SERIE:
+			elif column == self.HAS_SERIE:
 				if value.lower() not in ('yes', 'no'):
 					return False
 				item.has_serie = True if value.lower() == 'yes' else False
+			elif column == self.WEIGHT:
+				try:
+					decimal.Decimal(value)
+				except decimal.InvalidOperation:
+					return False
+				else:
+					item.weight = value
+					return True
 			try:
 				db.session.commit()
 			except IntegrityError:  # UNIQUE VIOLATION
@@ -2697,13 +2707,14 @@ class ProductModel(BaseTable, QtCore.QAbstractTableModel):
 
 	def sort(self, section, order):
 		attr = {
-			self.__class__.MPN: 'mpn',
-			self.__class__.MANUFACTURER: 'manufacturer',
-			self.__class__.CATEGORY: 'category',
-			self.__class__.MODEL: 'model',
-			self.__class__.CAPACITY: 'capacity',
-			self.__class__.COLOR: 'color',
-			self.__class__.HAS_SERIE: 'has_serie'
+			self.MPN: 'mpn',
+			self.MANUFACTURER: 'manufacturer',
+			self.CATEGORY: 'category',
+			self.MODEL: 'model',
+			self.CAPACITY: 'capacity',
+			self.COLOR: 'color',
+			self.HAS_SERIE: 'has_serie',
+			self.WEIGHT: 'weight'
 		}.get(section)
 		if attr:
 			self.layoutAboutToBeChanged.emit()

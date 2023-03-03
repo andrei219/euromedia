@@ -13,7 +13,7 @@ from datetime import datetime
 from sqlalchemy import (
     Column, Integer, String, DateTime,
     ForeignKey, UniqueConstraint, SmallInteger, Boolean, LargeBinary,
-    Date, CheckConstraint, Float
+    Date, CheckConstraint, Float, Numeric
 )
 
 from sqlalchemy.ext.declarative import declarative_base
@@ -149,11 +149,13 @@ class Item(Base):
     color = Column(String(50))
     has_serie = Column(Boolean, default=False)
 
+    weight = Column(Numeric(10, 2), nullable=False, default=0)
+
     __table_args__ = (
         UniqueConstraint('mpn', 'manufacturer', 'category', 'model', 'capacity', 'color', name='uix_1'),
     )
 
-    def __init__(self, mpn, manufacturer, category, model, capacity, color,
+    def __init__(self, mpn, manufacturer, category, model, capacity, color, weight,
                  has_serie):
         self.mpn = mpn.strip()
         self.manufacturer = manufacturer.strip()
@@ -162,6 +164,7 @@ class Item(Base):
         self.capacity = capacity.strip()
         self.color = color.strip()
         self.has_serie = has_serie
+        self.weight = weight
 
     @property
     def clean_repr(self):
@@ -2460,7 +2463,6 @@ def create_init_data():
     session.commit()
 
 
-
 def correct_mask():
     for row in session.query(ImeiMask.origin_id).distinct():
 
@@ -2478,9 +2480,6 @@ def correct_mask():
     except Exception as ex:
         session.rollback()
         raise
-
-
-
 
 
 def company_name():
