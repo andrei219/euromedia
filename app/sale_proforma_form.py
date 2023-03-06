@@ -221,6 +221,14 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.description.editingFinished.connect(self.description_editing_finished)
         self.condition.editingFinished.connect(self.condition_editing_finished)
         self.spec.editingFinished.connect(self.spec_editing_finished)
+        self.sync.clicked.connect(self.sync_wh_handler)
+
+
+    def sync_wh_handler(self):
+        try:
+            self.lines_model.sync_with_warehouse()
+        except:
+            raise
 
     def prop_return_pressed(self):
 

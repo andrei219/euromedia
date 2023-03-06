@@ -774,6 +774,19 @@
      <string>External Doc.:</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="sync">
+    <property name="geometry">
+     <rect>
+      <x>900</x>
+      <y>150</y>
+      <width>141</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Sync with WH</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QGroupBox" name="groupBox_5">
    <property name="geometry">
@@ -1152,7 +1165,7 @@
      <x>730</x>
      <y>834</y>
      <width>201</width>
-     <height>136</height>
+     <height>165</height>
     </rect>
    </property>
    <layout class="QFormLayout" name="formLayout">

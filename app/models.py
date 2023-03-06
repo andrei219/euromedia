@@ -2400,6 +2400,8 @@ class SaleProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 		self.form = form
 		self._headerData = ['Description', 'Condition', 'Public Condt.(Editable)', 'Spec', \
 		                    'Ignoring Spec?(Editable)', 'Qty.', 'Price(Editable)', 'Subtotal', 'Tax(Editable)', 'Total']
+
+		self.proforma = proforma
 		self.organized_lines = OrganizedLines(proforma.lines)
 		self.name = 'organized_lines'
 
@@ -2541,18 +2543,15 @@ class SaleProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 		else:
 			return Qt.ItemFlags(~Qt.ItemIsEditable)
 
+	def sync_with_warehouse(self):
+		for pline in self.proforma.lines:
+			for eline in self.proforma.expedition.lines:
+				if pline == eline:
+					pline.quantity = eline.processed_series
+					eline.quantity = eline.processed_series
+					break
 
-def change_layout_and_flush(func):
-	wraps(func)
-
-	def wrapper(self, *args, **kwargs):
-		self.layoutAboutToBeChanged.emit()
-		r = func(self, *args, **kwargs)
-		db.session.flush()
-		self.layoutChanged.emit()
-		return r
-
-	return wrapper
+		db.session.commit()
 
 
 class ActualLinesFromMixedModel(BaseTable, QtCore.QAbstractTableModel):
@@ -3989,7 +3988,6 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
 					sale += advanced_sale
 					r.add(sale)
 		sales = r
-
 
 		stocks = self.resolve(imeis, imeis_mask, sales, outputs)
 

@@ -1,8 +1,9 @@
 import sqlalchemy.sql.expression
 from sqlalchemy import create_engine, event, insert, update, delete
 from sqlalchemy.engine import Engine
-from sqlalchemy.orm import sessionmaker, scoped_session
+from sqlalchemy.orm import sessionmaker, scoped_session, column_property
 from sqlalchemy.sql import func
+from sqlalchemy import select
 
 import sys
 import os
@@ -1588,6 +1589,25 @@ class Expedition(Base):
     )
 
 
+class ExpeditionSerie(Base):
+    __tablename__ = 'expedition_series'
+
+    id = Column(Integer, primary_key=True)
+    line_id = Column(Integer, ForeignKey('expedition_lines.id'))
+    serie = Column(String(50), nullable=False)
+    created_on = Column(DateTime, default=datetime.now)
+
+    line = relationship('ExpeditionLine', backref=backref('series'))
+
+    __table_args__ = (
+        UniqueConstraint('id', 'line_id', 'serie'),
+    )
+
+    def __repr__(self):
+        class_name = self.__class__.__name__
+        return f'{class_name}(id={self.id}, line_id={self.line_id}, serie={self.serie})'
+
+
 class ExpeditionLine(Base):
     __tablename__ = 'expedition_lines'
 
@@ -1602,6 +1622,12 @@ class ExpeditionLine(Base):
 
     item = relationship('Item', uselist=False)
     expedition = relationship('Expedition', backref=backref('lines'))
+
+    processed_series = column_property(
+        select(func.count(ExpeditionSerie.id)).where(
+            ExpeditionSerie.line_id == id
+        ).scalar_subquery()
+    )
 
     # Compatible with saleProformaLINE
     # Enable set operations
@@ -1761,33 +1787,6 @@ class ReceptionSerie(Base):
         return self
 
 
-class ExpeditionSerie(Base):
-    __tablename__ = 'expedition_series'
-
-    id = Column(Integer, primary_key=True)
-    line_id = Column(Integer, ForeignKey('expedition_lines.id'))
-    serie = Column(String(50), nullable=False)
-    created_on = Column(DateTime, default=datetime.now)
-
-    line = relationship('ExpeditionLine', backref=backref('series'))
-
-    __table_args__ = (
-        UniqueConstraint('id', 'line_id', 'serie'),
-    )
-
-    def __repr__(self):
-        class_name = self.__class__.__name__
-        return f'{class_name}(id={self.id}, line_id={self.line_id}, serie={self.serie})'
-
-        # def __eq__(self, other):
-    #     return (self.id, self.line_id, self.serie) == (other.id, other.line_id, other.serie)
-
-    # def __hash__(self):
-    #     return functools.reduce(
-    #         operator.xor,
-    #         (hash(x) for x in(self.id, self.line_id, self.serie)),
-    #         0
-    #     )
 
 
 class Imei(Base):
