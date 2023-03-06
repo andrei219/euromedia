@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>989</width>
-    <height>724</height>
+    <height>913</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -26,14 +26,19 @@
     <string/>
    </property>
   </widget>
-  <widget class="QLineEdit" name="lineEdit_3">
+  <widget class="QLineEdit" name="description">
    <property name="geometry">
     <rect>
-     <x>610</x>
-     <y>46</y>
-     <width>311</width>
-     <height>22</height>
+     <x>130</x>
+     <y>211</y>
+     <width>691</width>
+     <height>41</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>14</pointsize>
+    </font>
    </property>
   </widget>
   <widget class="QLabel" name="label_2">
@@ -117,8 +122,8 @@
   <widget class="QTableView" name="lines">
    <property name="geometry">
     <rect>
-     <x>40</x>
-     <y>160</y>
+     <x>50</x>
+     <y>350</y>
      <width>901</width>
      <height>411</height>
     </rect>
@@ -146,8 +151,8 @@
   <widget class="QToolButton" name="save">
    <property name="geometry">
     <rect>
-     <x>770</x>
-     <y>610</y>
+     <x>760</x>
+     <y>780</y>
      <width>81</width>
      <height>61</height>
     </rect>
@@ -178,8 +183,8 @@
   <widget class="QToolButton" name="exit">
    <property name="geometry">
     <rect>
-     <x>870</x>
-     <y>610</y>
+     <x>850</x>
+     <y>780</y>
      <width>71</width>
      <height>61</height>
     </rect>
