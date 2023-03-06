@@ -618,7 +618,7 @@ class MainGui(Ui_MainGui, QMainWindow):
         if indexes:
             index = indexes[0]
             try:
-                self.partnerModel.delete(index)
+                self.partners_model.delete(index)
                 self.partners_view.clearSelection()
             except IntegrityError as e:
                 QMessageBox.critical(self, "Error - Delete",
