@@ -223,7 +223,6 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.spec.editingFinished.connect(self.spec_editing_finished)
         self.sync.clicked.connect(self.sync_wh_handler)
 
-
     def sync_wh_handler(self):
         try:
             self.lines_model.sync_with_warehouse()
@@ -376,7 +375,6 @@ class Form(Ui_SalesProformaForm, QWidget):
                 if not has_certificate(partner_id):
                     QMessageBox.information(self, 'Information', 'This partner has no reseller certificate.')
 
-
     def proforma_to_form(self):
         p = self.proforma
 
@@ -491,6 +489,7 @@ class Form(Ui_SalesProformaForm, QWidget):
                 QMessageBox.critical(self, 'Error', 'Error adding free line')
                 raise
             else:
+                self.update_totals()
                 self.resize_lines_view()
 
     def delete_handler(self):
@@ -504,8 +503,8 @@ class Form(Ui_SalesProformaForm, QWidget):
                 self.set_stock_mv()
                 self.set_selected_stock_mv() 
 
-            self.lines_view.clearSelection() 
-            self.update_totals() 
+            self.lines_view.clearSelection()
+            self.update_totals()
             self.resize_lines_view()
 
     def resize_lines_view(self):
@@ -553,6 +552,11 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.description.setFocus(True)
 
     def save_handler(self):
+
+        # 1 . restore original __eq__ method
+        from db import SaleProformaLine, original_sale_proforma_line_eq
+        SaleProformaLine.__eq__ = original_sale_proforma_line_eq
+
         if not self._valid_header():
             return
         warehouse_id = utils.warehouse_id_map.get(self.warehouse.currentText())
@@ -589,14 +593,17 @@ class Form(Ui_SalesProformaForm, QWidget):
             self.model.add(self.proforma) 
 
     def closeEvent(self, event):
-        db.session.rollback()     
+        db.session.rollback()
 
     def update_totals(self):
-        self.total.setText(str(self.proforma.total_debt))
-        self.ptax.setText(str(self.proforma.tax))
+
+        self.proforma.lines = self.lines_model.lines
+
+        self.total.setText(str(self.lines_model.total))
+        self.ptax.setText(str(self.lines_model.tax))
         self.cn.setText(str(self.proforma.cn_total))
         self.pending.setText(str(self.proforma.owing))
-        self.subtotal.setText(str(self.proforma.subtotal))
+        self.subtotal.setText(str(self.lines_model.subtotal))
         self.quantity_label.setText('Qnt.: ' + str(self.lines_model.quantity))
 
     def _valid_header(self):

@@ -48,19 +48,24 @@ def check_vies(fiscal_number):
 
 
 def stock_type(stock):
-    id = stock if isinstance(stock, int) else stock.item_id
-    mpn, *_, cap, col, _ = dirty_map.inverse[id].split('|')
-    if mpn != '?':
-        return -1
-    if cap != '?' and col != '?':
-        return CAP_COL
-    elif cap == '?' and col != '?':
-        return ONLY_COL
-    elif cap != '?' and col == '?':
-        return ONLY_CAP
-    else:
-        return -1  # No mixing available
 
+    id = stock if isinstance(stock, int) else stock.item_id
+
+    try:
+        mpn, *_, cap, col, _ = dirty_map.inverse[id].split('|')
+    except KeyError:
+        return -1
+    else:
+        if mpn != '?':
+            return -1
+        if cap != '?' and col != '?':
+            return CAP_COL
+        elif cap == '?' and col != '?':
+            return ONLY_COL
+        elif cap != '?' and col == '?':
+            return ONLY_CAP
+        else:
+            return -1  # No mixing available
 
 def is_object_presisted(object):
     from sqlalchemy import inspect

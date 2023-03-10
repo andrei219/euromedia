@@ -153,8 +153,6 @@ def view_document(view, model):
         pdf_object.output(file.name)
         subprocess.Popen((file.name, ), shell=True)
 
-
-
 def view_document_old(view, model):
     ixs = view.selectedIndexes()
     if not ixs:

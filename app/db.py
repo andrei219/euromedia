@@ -889,9 +889,6 @@ class SaleProforma(Base):
         cls_name = self.__class__.__name__
         return f'{cls_name}(type={self.type}, number={self.number})'
 
-    def __repr__(self):
-        cls_name = self.__class__.__name__
-        return f'{cls_name}(id={self.id}, type={self.type}, number={self.number})'
 
     def __hash__(self):
         return functools.reduce(operator.xor, (hash(x) for x in (self.type, self.number)), 0)
@@ -1424,8 +1421,10 @@ class SaleProformaLine(Base):
 
     def __repr__(self):
         classname = self.__class__.__name__
-        return f"{classname}(item_id={self.item_id}, condition={self.condition}, spec={self.spec},mix_id={self.mix_id}, quantity={self.quantity})"
+        return f'{classname}(desc={self.description})'
 
+
+original_sale_proforma_line_eq = SaleProformaLine.__eq__
 
 class AdvancedLine(Base):
     __tablename__ = 'advanced_lines'

@@ -1617,6 +1617,11 @@ def build_expedition_line(line, expedition):
 
 
 def update_sale_warehouse(proforma):
+
+	# Restore the original __eq__ method
+	from db import SaleProformaLine, original_sale_proforma_line_eq
+	SaleProformaLine.__eq__ = original_sale_proforma_line_eq
+
 	if proforma.expedition is None:
 		return
 
@@ -2114,6 +2119,10 @@ class OrganizedLines:
 		self.instrumented_lines = lines
 		self.organized_lines = self.organize_lines(lines)
 
+		from db import SaleProformaLine
+
+		SaleProformaLine.__eq__ = lambda s, o: s.mix_id == o.mix_id
+
 	@property
 	def lines(self):
 		return self.instrumented_lines
@@ -2127,15 +2136,18 @@ class OrganizedLines:
 		update_stock_view = True
 		if j is None:
 			lines = self.organized_lines.pop(i)
+
 			for line in lines:
 				if line.item_id is None:  # exploit the run
 					update_stock_view = False
+
 				self.instrumented_lines.remove(line)
+
 		else:
 			line = self.organized_lines[i].pop(j)
 			self.instrumented_lines.remove(line)
 
-		self.organized_lines = [e for e in self.organized_lines if e]
+		self.organized_lines = [e for e in self.organized_lines if len(e) > 0]
 
 		db.session.flush()
 
@@ -2242,6 +2254,8 @@ class OrganizedLines:
 
 		self.instrumented_lines.extend(lines)
 
+		db.session.flush()
+
 	@staticmethod
 	def organize_lines(lines):
 		mix_ids = list(dict.fromkeys([line.mix_id for line in lines]))
@@ -2259,7 +2273,7 @@ class OrganizedLines:
 
 		diff_items = {line.item_id for line in lines}
 
-		# For free lines, ugly, but works and uses previous code hahah
+		# For free lines, ugly, but works and uses previous code
 		if diff_items == {None}:
 			line = lines[0]
 			return self.simple_line_repr(line, col)
@@ -2345,10 +2359,7 @@ class OrganizedLines:
 			lines.showing_condition = condition
 		return True
 
-	# Segun la nueva ultima actualizcion
-	# todas son iterables, el check sobra
-	# pero no vamos a testear eso ahora
-	# asi que lo dejamos asi .
+
 	def update_spec(self, row, spec):
 		spec = spec.lower()
 		flag = spec != 'no'
@@ -2398,7 +2409,7 @@ class SaleProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 	def __init__(self, proforma, form):
 		super().__init__()
 		self.form = form
-		self._headerData = ['Description', 'Condition', 'Public Condt.(Editable)', 'Spec', \
+		self._headerData = ['Description', 'Condition', 'Public Condt.(Editable)', 'Spec',\
 		                    'Ignoring Spec?(Editable)', 'Qty.', 'Price(Editable)', 'Subtotal', 'Tax(Editable)', 'Total']
 
 		self.proforma = proforma
@@ -2406,7 +2417,8 @@ class SaleProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 		self.name = 'organized_lines'
 
 	def data(self, index, role=Qt.DisplayRole):
-		if not index.isValid(): return
+		if not index.isValid():
+			return
 		row, column = index.row(), index.column()
 		if role == Qt.DisplayRole:
 			return self.organized_lines.repr(row, column)
@@ -2420,7 +2432,7 @@ class SaleProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 		self.layoutChanged.emit()
 
 	def get_price(self, row):
-		# Rememeber : Matrix Structure : [[...], [...], ...]
+		# Remember : Matrix Structure : [[...], [...], ...]
 		return self.organized_lines[row][0].price
 
 	@property
@@ -2444,6 +2456,7 @@ class SaleProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 		return round(self.tax + self.subtotal, 2)
 
 	def add(self, price, ignore_spec, tax, showing, *stocks, row=None):
+		self.layoutAboutToBeChanged.emit()
 		self.organized_lines.append(
 			price,
 			ignore_spec,
@@ -2454,6 +2467,7 @@ class SaleProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 		self.layoutChanged.emit()
 
 	def insert_free(self, description, quantity, price, tax):
+		self.layoutAboutToBeChanged.emit()
 		self.organized_lines.insert_free(
 			description,
 			quantity,
@@ -2463,8 +2477,10 @@ class SaleProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 		self.layoutChanged.emit()
 
 	def delete(self, i, j=None):
-		self.organized_lines.delete(i, j)
+		self.layoutAboutToBeChanged.emit()
+		update = self.organized_lines.delete(i, j)
 		self.layoutChanged.emit()
+		return update
 
 	def actual_lines_from_mixed(self, row):
 		try:
@@ -4784,28 +4800,23 @@ class WarehouseValueModel(BaseTable, QtCore.QAbstractTableModel):
 		warehouse_id = filters.get('warehouse_id')
 		book_value = filters.get('book_value')
 
-		print('filters=', filters)
 
 		from datetime import date
 		if _date == date.today():
 			print('today')
 			if warehouse_id:
-				print('Today and warehouse_id=', warehouse_id)
 				self.registers = ActualInventory.from_warehouse(warehouse_id).registers
 			else:
 				self.registers = ActualInventory.with_no_filters().registers
 
 		else:
-			print('not today.')
 			if warehouse_id:
-				print('not today and warehouse_id=', warehouse_id)
 				self.registers = HistoricalInventoryModel.from_warehouse(
 					cutoff_date=_date,
 					warehouse_id=warehouse_id
 				).registers
 
 			else:
-				print('not today and not warehouse_id')
 				self.registers = HistoricalInventoryModel.with_no_filters(cutoff_date=_date).registers
 
 		promoted = [CostRegister(r, book_value=book_value) for r in self.registers]
@@ -4838,7 +4849,6 @@ class WarehouseValueModel(BaseTable, QtCore.QAbstractTableModel):
 				wb.save(filepath)
 
 		else:
-			print('not all path')
 			self._data.extend(elm.as_tuple for elm in filter(lambda o: not utils.valid_uuid(o.imei), promoted))
 			uuid_group = sorted(list(filter(lambda o: utils.valid_uuid(o.imei), promoted)), key=key)
 			for key, group in groupby(uuid_group, key=key):
@@ -5982,7 +5992,6 @@ class WhRmaIncomingLineModel(BaseTable, QtCore.QAbstractTableModel):
 		editables = [self.WHY, self.ACCEPTED, self.WAREHOUSE]
 
 		if not self.block_target:
-			print('neeeeeeeveeer')
 			editables.append(self.TARGET_CONDITION)
 
 		if index.column() in editables:
@@ -7126,9 +7135,6 @@ def do_sale_price(imei):
 				break
 
 		if not proforma_line:
-			print('proforma=', proforma)
-			print('exp_line=', exp_line)
-
 			return SaleRow()
 
 			raise ValueError('Fatal error could not match warehouse with sale proforma')
@@ -7371,7 +7377,6 @@ class OutputModel(BaseTable, QtCore.QAbstractTableModel):
 
 			if exclude_at_capital:
 				query = query.where(db.PurchaseProforma.partner_id != 19)
-				print(f'Period : {_from} - {to} At Capital Excluded?= {exclude_at_capital}')
 		else:
 			query = db.session.query(db.ExpeditionSerie.serie).join(db.ExpeditionLine). \
 				join(db.Expedition).join(db.SaleProforma). \
@@ -7380,7 +7385,6 @@ class OutputModel(BaseTable, QtCore.QAbstractTableModel):
 
 			if exclude_at_capital:
 				query = query.where(db.SaleProforma.partner_id != 19)
-				print(f'Period : {_from} - {to} At Capital Excluded?= {exclude_at_capital}')
 
 		if agent_id:
 			if _input:
@@ -7390,10 +7394,6 @@ class OutputModel(BaseTable, QtCore.QAbstractTableModel):
 
 
 		append_registers(self, query=query)
-
-
-
-		print('len(self._registers): ', len(self._registers))
 
 		return self
 
