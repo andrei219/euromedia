@@ -2113,6 +2113,19 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 				yield pline
 
 
+def __my__eq__(self, other):
+	if self.id is not None and other.id is not None:
+		return self.id == other.id
+	elif self.description is not None and other.description is not None:
+		return self.description == other.description
+	else:
+		return all((
+			self.item_id == other.item_id,
+			self.condition == other.condition,
+			self.spec == other.spec
+		))
+
+
 class OrganizedLines:
 
 	def __init__(self, lines):
@@ -2121,7 +2134,7 @@ class OrganizedLines:
 
 		from db import SaleProformaLine
 
-		SaleProformaLine.__eq__ = lambda s, o: s.mix_id == o.mix_id
+		SaleProformaLine.__eq__ = __my__eq__
 
 	@property
 	def lines(self):
