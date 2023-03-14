@@ -2573,9 +2573,15 @@ class SaleProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 			return Qt.ItemFlags(~Qt.ItemIsEditable)
 
 	def sync_with_warehouse(self):
+
 		for pline in self.proforma.lines:
 			for eline in self.proforma.expedition.lines:
-				if pline == eline:
+
+				if all((
+					pline.item_id == eline.item_id,
+					pline.condition == eline.condition,
+					pline.spec == eline.spec
+				)):
 					pline.quantity = eline.processed_series
 					eline.quantity = eline.processed_series
 					break
