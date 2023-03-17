@@ -1,9 +1,5 @@
 	
 
-Sale proforma:
-
-	No se actualiza cantidades ni totales cuando va con el free line 	
- 	Se ralla cuando borras y pones lineas en la misma sesion.
-
+	Float -> Decimal	
 	
-	
+	Ventas: Quitar los pagos de las proformas ponerlos en las facturas.

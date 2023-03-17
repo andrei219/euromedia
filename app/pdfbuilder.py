@@ -436,7 +436,14 @@ class TableData:
         else:
             proforma = document
             self.Date = proforma.date.strftime('%d-%m-%Y')
-            self.Document_No = proforma.doc_repr
+
+            if isinstance(document, SaleProforma):
+                prefix = 'PI'
+            else:
+                prefix = 'PO'
+
+            self.Document_No = prefix + proforma.doc_repr
+
             self.External_Doc = proforma.external
 
         self.Agent = proforma.agent.fiscal_name.split()[0]

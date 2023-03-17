@@ -889,7 +889,6 @@ class SaleProforma(Base):
         cls_name = self.__class__.__name__
         return f'{cls_name}(type={self.type}, number={self.number})'
 
-
     def __hash__(self):
         return functools.reduce(operator.xor, (hash(x) for x in (self.type, self.number)), 0)
 
