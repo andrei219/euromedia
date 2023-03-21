@@ -1411,8 +1411,6 @@ class MainGui(Ui_MainGui, QMainWindow):
         try:
             self.rmas_incoming_model.to_warehouse(row)
         except ValueError as ex:
-            print('catched value error')
-            print(str(ex))
             QMessageBox.critical(self, 'Error', str(ex))
         else:
             QMessageBox.information(self, 'Error', 'RMA WH order created')
@@ -1454,7 +1452,6 @@ class MainGui(Ui_MainGui, QMainWindow):
             QMessageBox.critical(self, 'Error', "I did not found candidates for a new Credit Note")
             return
 
-
         partner_id = wh_rma_order.incoming_rma.lines[0].cust_id
 
         agent_id = wh_rma_order.incoming_rma.lines[0].agent_id
@@ -1468,13 +1465,17 @@ class MainGui(Ui_MainGui, QMainWindow):
 
         invoice = self.proformas_sales_model.build_invoice_from_proforma(proforma, wh_rma_order)
 
+        # Set credit note line -> invoice relationship
+        for line in proforma.credit_note_lines:
+            line.invoice_id = invoice.id
+
         for line in candidates:
             imei = db.Imei()
             imei.imei = line.sn
             imei.item_id = line.item_id
             imei.spec = line.spec
             imei.warehouse_id = line.warehouse_id
-            imei.condition = line.target_condition
+            imei.condition = line.target_condition or line.condition
 
             db.session.add(imei)
 

@@ -9,7 +9,7 @@ from collections import namedtuple
 from datetime import date
 from app.models import OutputModel
 from app.utils import parse_date
-import pandas as pd
+
 
 
 # This script will generate a report for any month from May 2022 to the current month

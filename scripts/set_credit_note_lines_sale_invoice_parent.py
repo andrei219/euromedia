@@ -1,7 +1,11 @@
 
+import sys, os
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'app')))
+
 
 from app.db import SaleProforma, session
-
 
 def set_relationship():
 	query = (
@@ -10,7 +14,8 @@ def set_relationship():
 	for proforma in query:
 		invoice_id = proforma.sale_invoice_id
 		for line in proforma.credit_note_lines:
-			line.invoice_id = invoice_id
+			if not line.invoice_id:
+				line.invoice_id = invoice_id
 
 	session.commit()
 

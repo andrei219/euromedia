@@ -2226,6 +2226,8 @@ class CreditNoteLine(Base):
         )
     )
 
+    invoice = relationship('SaleInvoice')
+
     item = relationship('Item', uselist=False)
 
     def __init__(self, wh_line):
