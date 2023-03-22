@@ -1433,7 +1433,7 @@ class AdvancedLine(Base):
     proforma_id = Column(Integer, ForeignKey('sale_proformas.id'))
     item_id = Column(Integer, ForeignKey('items.id'))
     mixed_description = Column(String(50))
-    free_description = Column(String(50))
+    free_description = Column(String(255))
     condition = Column(String(50))
     spec = Column(String(50))
     quantity = Column(Integer, nullable=False, default=1)
