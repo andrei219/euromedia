@@ -58,5 +58,6 @@
         <file alias="inventory">.\\icons\\inventory.png</file>
         <file alias="home">.\\icons\\home.png</file>
         <file alias="background">.\\icons\\background.jpg</file>
+        <file alias="journal_entries">.\\icons\\journal_entries.png</file>
     </qresource>
 </RCC>

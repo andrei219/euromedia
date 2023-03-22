@@ -55,7 +55,6 @@ from utils import (
 PASSWORD = '0010'
 
 PREFIXES = [
-
     'agents_',
     'partners_',
     'proformas_purchases_',
@@ -69,7 +68,8 @@ PREFIXES = [
     'tools_',
     'rmas_incoming_',
     'rmas_outgoing_',
-    'accounting_'
+    'journal_entries_',
+    'banking_transactions_'
 ]
 
 ACTIONS = [
@@ -122,7 +122,7 @@ ACTIONS = [
     'top_partners',
     'owing',
     'whatsapp',
-    'create_entry'
+    'new_entry'
 ]
 
 
@@ -155,7 +155,6 @@ def view_document(view, model):
     with tempfile.NamedTemporaryFile('wb', dir='.', delete=False, suffix='.pdf') as file:
         pdf_object.output(file.name)
         subprocess.Popen((file.name, ), shell=True)
-
 
 
 def view_document_old(view, model):

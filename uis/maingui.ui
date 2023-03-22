@@ -8012,44 +8012,71 @@
      <attribute name="title">
       <string>Accounting</string>
      </attribute>
-     <widget class="QTableView" name="journals_view">
+     <widget class="QTabWidget" name="tabWidget">
       <property name="geometry">
        <rect>
-        <x>140</x>
-        <y>80</y>
-        <width>1621</width>
-        <height>601</height>
+        <x>0</x>
+        <y>0</y>
+        <width>1831</width>
+        <height>781</height>
        </rect>
       </property>
-      <property name="styleSheet">
-       <string notr="true">#journals_view {border-radius: 2px solid blue;} </string>
+      <property name="currentIndex">
+       <number>0</number>
       </property>
-     </widget>
-     <widget class="QLabel" name="label_23">
-      <property name="geometry">
-       <rect>
-        <x>140</x>
-        <y>50</y>
-        <width>151</width>
-        <height>16</height>
-       </rect>
+      <property name="iconSize">
+       <size>
+        <width>32</width>
+        <height>32</height>
+       </size>
       </property>
-      <property name="text">
-       <string>Journal Entries</string>
+      <property name="documentMode">
+       <bool>true</bool>
       </property>
-     </widget>
-     <widget class="QPushButton" name="accounting_create_entry">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>70</y>
-        <width>101</width>
-        <height>41</height>
-       </rect>
+      <property name="tabsClosable">
+       <bool>false</bool>
       </property>
-      <property name="text">
-       <string>Create</string>
+      <property name="tabBarAutoHide">
+       <bool>false</bool>
       </property>
+      <widget class="QWidget" name="journal_entries">
+       <attribute name="icon">
+        <iconset resource="../app/icons.qrc">
+         <normaloff>:/journal_entries</normaloff>:/journal_entries</iconset>
+       </attribute>
+       <attribute name="title">
+        <string>Journal Entries</string>
+       </attribute>
+       <widget class="QTableView" name="tableView">
+        <property name="geometry">
+         <rect>
+          <x>40</x>
+          <y>40</y>
+          <width>1421</width>
+          <height>621</height>
+         </rect>
+        </property>
+       </widget>
+      </widget>
+      <widget class="QWidget" name="banking_transactions">
+       <attribute name="icon">
+        <iconset resource="../app/icons.qrc">
+         <normaloff>:/bank</normaloff>:/bank</iconset>
+       </attribute>
+       <attribute name="title">
+        <string>Banking Transactions</string>
+       </attribute>
+       <widget class="QTableView" name="tableView_2">
+        <property name="geometry">
+         <rect>
+          <x>40</x>
+          <y>40</y>
+          <width>1421</width>
+          <height>621</height>
+         </rect>
+        </property>
+       </widget>
+      </widget>
      </widget>
     </widget>
    </widget>

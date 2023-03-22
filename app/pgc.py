@@ -1691,6 +1691,10 @@ def save_accounts(accounts, parent=None):
 			continue
 
 
+def create_initial_balance():
+	pass
+
+
 if __name__ == '__main__':
 
 	save_accounts(ACCOUNTS)

@@ -8202,7 +8202,6 @@ class SwitchModel(QtCore.QAbstractListModel):
 	def rowCount(self, parent: QModelIndex = ...) -> int:
 		return len(self._data)
 
-
 	def switch(self, row):
 		fiscal_name = self._data[row]
 		db.switch_database(fiscal_name)
@@ -8220,7 +8219,6 @@ class JournalModel(BaseTable, QtCore.QAbstractTableModel):
 		query = (
 			select
 		)
-
 
 
 
