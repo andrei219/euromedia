@@ -491,7 +491,7 @@
        </rect>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <property name="iconSize">
        <size>
@@ -3118,7 +3118,7 @@
        </font>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <property name="iconSize">
        <size>
@@ -8047,7 +8047,7 @@
        <attribute name="title">
         <string>Journal Entries</string>
        </attribute>
-       <widget class="QTableView" name="tableView">
+       <widget class="QTableView" name="journal_entries_view">
         <property name="geometry">
          <rect>
           <x>40</x>
@@ -8055,6 +8055,88 @@
           <width>1421</width>
           <height>621</height>
          </rect>
+        </property>
+       </widget>
+       <widget class="QToolButton" name="journal_entries_new">
+        <property name="geometry">
+         <rect>
+          <x>40</x>
+          <y>670</y>
+          <width>70</width>
+          <height>60</height>
+         </rect>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>70</width>
+          <height>60</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>70</width>
+          <height>60</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>New</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../app/icons.qrc">
+          <normaloff>:/new</normaloff>:/new</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>40</width>
+          <height>40</height>
+         </size>
+        </property>
+        <property name="toolButtonStyle">
+         <enum>Qt::ToolButtonTextUnderIcon</enum>
+        </property>
+        <property name="autoRaise">
+         <bool>true</bool>
+        </property>
+       </widget>
+       <widget class="QToolButton" name="journal_entries_delete">
+        <property name="geometry">
+         <rect>
+          <x>114</x>
+          <y>672</y>
+          <width>70</width>
+          <height>60</height>
+         </rect>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>70</width>
+          <height>60</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>70</width>
+          <height>60</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Delete</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../app/icons.qrc">
+          <normaloff>:/delete</normaloff>:/delete</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>40</width>
+          <height>40</height>
+         </size>
+        </property>
+        <property name="toolButtonStyle">
+         <enum>Qt::ToolButtonTextUnderIcon</enum>
+        </property>
+        <property name="autoRaise">
+         <bool>true</bool>
         </property>
        </widget>
       </widget>
@@ -8066,7 +8148,7 @@
        <attribute name="title">
         <string>Banking Transactions</string>
        </attribute>
-       <widget class="QTableView" name="tableView_2">
+       <widget class="QTableView" name="banking_transactions_view">
         <property name="geometry">
          <rect>
           <x>40</x>

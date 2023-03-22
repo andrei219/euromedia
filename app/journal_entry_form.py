@@ -15,10 +15,6 @@ class Form(Ui_Form, QWidget):
 		super().__init__()
 		self.setupUi(self)
 
-		data = [f'{r.code} - {r.name}' for r in session.query(Account)]
-
-		setCompleter(self.description, data)
-
 		self.save.clicked.connect(self.save_handler)
 
 	def save_handler(self):

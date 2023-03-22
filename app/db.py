@@ -2491,9 +2491,9 @@ class Balance(Base):
     account = relationship('Account', viewonly=True)
 
 
-class JournalHeaders(Base):
+class JournalEntry(Base):
 
-    __tablename__ = 'journal_headers'
+    __tablename__ = 'journal_entries'
 
     id = Column(Integer, primary_key=True)
     date = Column(Date, nullable=False)
@@ -2510,20 +2510,29 @@ class JournalHeaders(Base):
     )
 
 
-class JournalEntry(Base):
+class JournalEntryLine(Base):
 
-    __tablename__ = 'journal_entries'
+    __tablename__ = 'journal_entry_lines'
 
     id = Column(Integer, primary_key=True)
-    journal_header_id = Column(ForeignKey('journal_headers.id'), nullable=False)
+    journal_entry_id = Column(ForeignKey('journal_entries.id'), nullable=False)
     account_id = Column(ForeignKey('accounts.id'), nullable=False)
-    amount = Column(Numeric(18, 4), nullable=False)
+    debit = Column(Numeric(18, 4), nullable=False, default=0)
+    credit = Column(Numeric(18, 4), nullable=False, default=0)
+    description = Column(String(255), nullable=False)
 
     created_on = Column(DateTime, nullable=False, default=datetime.now)
     updated_on = Column(DateTime, nullable=False, default=datetime.now, onupdate=datetime.now)
 
-    journal_header = relationship('JournalHeaders', viewonly=True)
     account = relationship('Account', viewonly=True)
+
+    journal_entry = relationship(
+        'JournalEntry',
+        backref=backref(
+            'lines', cascade='delete-orphan, delete, save-update'
+        )
+    )
+
 
 
 def create_init_data():
@@ -2534,13 +2543,6 @@ def create_init_data():
     session.add(condition)
 
     session.commit()
-
-
-def create_chart_accounts():
-
-
-
-    pass # TODO
 
 
 def correct_mask():

@@ -315,7 +315,16 @@ class MainGui(Ui_MainGui, QMainWindow):
                 if last_field.text() == '':
                     last = 366
 
-        if prefix == 'agents_':
+        if prefix == 'banking_transactions_':
+            self.banking_transactions_model = models.BankingTransactionModel()
+            self.banking_transactions_view.setModel(self.banking_transactions_model)
+
+        elif prefix == 'journal_entries_':
+            self.journal_entries = models.JournalEntriesModel()
+            self.journal_entries_view.setModel(self.journal_entries)
+
+
+        elif prefix == 'agents_':
             self.agents_model = models.AgentModel(search_key=search_key)
             self.agents_view.setModel(self.agents_model)
             setCommonViewConfig(self.agents_view)
@@ -1598,7 +1607,6 @@ class MainGui(Ui_MainGui, QMainWindow):
         Form(self).exec_()
 
 
-
     def tools_top_partners_handler(self):
 
         from top_partners_form import Form
@@ -1643,11 +1651,20 @@ class MainGui(Ui_MainGui, QMainWindow):
         else:
             QMessageBox.information(self, 'Success', 'Successfully sent last error log.')
 
-    def accounting_create_entry_handler(self):
+    def journal_entries_new_handler(self):
 
         from journal_entry_form import Form
         self.entry_form = Form()
         self.entry_form.show()
+
+
+    def journal_entries_delete_handler(self):
+        print('delete pressed')
+
+
+    def journal_entries_double_click_handler(self, index):
+        print('double clicked')
+
 
     def tab_changed(self, index):
         db.session.commit()
