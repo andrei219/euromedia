@@ -8228,14 +8228,36 @@ class JournalEntryLineModel(BaseTable, QtCore.QAbstractTableModel):
 
 class BankingTransactionModel(BaseTable, QtCore.QAbstractTableModel):
 
-	ID, DESCRIPTION, TRANSACTION_DATE, VALUE_DATE, AMOUNT, POSTED = 0, 1, 2, 3, 4, 5
+	ID, SOURCE, DESCRIPTION, TRANSACTION_DATE, VALUE_DATE, AMOUNT, POSTED = 0, 1, 2, 3, 4, 5, 7
 
 	def __init__(self):
 		super().__init__()
 		self.name = 'banking_transactions'
-		self.banking_transactions = []
+		self.banking_transactions = db.session.query(db.BankingTransaction).all()
 
 		self._headerData = ['ID', 'Description', 'Transaction Date', 'Value Date', 'Amount', 'Posted']
+
+	def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
+		if not index.isValid():
+			return
+
+		row, col = index.row(), index.column()
+		banking_transaction = self.banking_transactions[row]
+		if role == Qt.DisplayRole:
+			return [
+				banking_transaction.id,
+				banking_transaction.source,
+				banking_transaction.description,
+				banking_transaction.transaction_date.strftime('%d/%m/%Y'),
+				banking_transaction.value_date.strftime('%d/%m/%Y'),
+				banking_transaction.amount,
+				'Yes' if banking_transaction.posted else 'No'
+			][col]
+		elif role == Qt.DecorationRole:
+			if col in (self.TRANSACTION_DATE, self.VALUE_DATE):
+				return QtGui.QIcon(':\calendar')
+			elif col == self.POSTED:
+				return QtGui.QColor('green') if banking_transaction.posted else QtGui.QColor('red')
 
 
 def caches_clear():

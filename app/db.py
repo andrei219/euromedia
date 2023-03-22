@@ -2452,6 +2452,23 @@ class ViesRequest(Base):
         self.fiscal_number = fiscal_number
 
 
+class BankingTransaction(Base):
+
+    __tablename__ = 'banking_transactions'
+
+    id = Column(Integer, primary_key=True)
+    journal_entry_id = Column(ForeignKey('journal_entries.id'), nullable=False)
+
+    source = Column(String(50), nullable=False)
+    description = Column(String(255), nullable=False)
+    transaction_date = Column(Date, nullable=False)
+    value_date = Column(Date, nullable=False)
+    amount = Column(Numeric(18, 4), nullable=False)
+    posted = Column(Boolean, nullable=False)
+
+    journal_entry = relationship('JournalEntry', backref='banking_transaction', uselist=False)
+
+
 class Account(Base):
 
     __tablename__ = 'accounts'
@@ -2490,6 +2507,10 @@ class Balance(Base):
 
     account = relationship('Account', viewonly=True)
 
+# Type can be in ['sale', 'purchase', 'misc', 'payment', 'collection', 'income'l, 'expense']
+# But it also can contain other types, like 'sale_return', 'purchase_return', 'sale_credit', 'purchase_credit'
+# These types are used to identify the type of the journal entry
+# And they will be defined in advance in the database
 
 class JournalEntry(Base):
 
@@ -2498,15 +2519,19 @@ class JournalEntry(Base):
     id = Column(Integer, primary_key=True)
     date = Column(Date, nullable=False)
     description = Column(String(255), nullable=False)
-    _type = Column(String(10), nullable=False)
-    invoice_id = Column(Integer, nullable=True)
+    type = Column(String(100), nullable=False)
+    related_id = Column(Integer, nullable=True)
     auto = Column(Boolean, nullable=False, default=False)
 
     created_on = Column(DateTime, nullable=False, default=datetime.now)
     updated_on = Column(DateTime, nullable=False, default=datetime.now, onupdate=datetime.now)
 
     __table_args__ = (
-        CheckConstraint(_type.in_(['sale', 'purchase', 'misc', 'payment', 'collection'])),
+        CheckConstraint(type.in_([
+            'sale', 'purchase', 'misc', 'payment',
+            'collection', 'income', 'expense',
+            'sale_return', 'purchase_return'
+        ])),
     )
 
 
@@ -2532,7 +2557,6 @@ class JournalEntryLine(Base):
             'lines', cascade='delete-orphan, delete, save-update'
         )
     )
-
 
 
 def create_init_data():
