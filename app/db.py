@@ -1368,7 +1368,7 @@ class SaleProformaLine(Base):
     mix_id = Column(String(36), nullable=True)
 
     # No stock related line
-    description = Column(String(100))
+    description = Column(String(255))
 
     condition = Column(String(50))
     showing_condition = Column(String(50))
