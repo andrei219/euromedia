@@ -2507,7 +2507,7 @@ class Balance(Base):
 
     account = relationship('Account', viewonly=True)
 
-# Type can be in ['sale', 'purchase', 'misc', 'payment', 'collection', 'income'l, 'expense']
+# Type can be in ['sale', 'purchase', 'misc', 'payment', 'collection', 'income', 'expense']
 # But it also can contain other types, like 'sale_return', 'purchase_return', 'sale_credit', 'purchase_credit'
 # These types are used to identify the type of the journal entry
 # And they will be defined in advance in the database
@@ -2519,7 +2519,7 @@ class JournalEntry(Base):
     id = Column(Integer, primary_key=True)
     date = Column(Date, nullable=False)
     description = Column(String(255), nullable=False)
-    type = Column(String(100), nullable=False)
+    related_type = Column(String(100), nullable=False)
     related_id = Column(Integer, nullable=True)
     auto = Column(Boolean, nullable=False, default=False)
 
@@ -2527,7 +2527,7 @@ class JournalEntry(Base):
     updated_on = Column(DateTime, nullable=False, default=datetime.now, onupdate=datetime.now)
 
     __table_args__ = (
-        CheckConstraint(type.in_([
+        CheckConstraint(related_type.in_([
             'sale', 'purchase', 'misc', 'payment',
             'collection', 'income', 'expense',
             'sale_return', 'purchase_return'
