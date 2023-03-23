@@ -1533,6 +1533,9 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
 		next_num = get_next_num(db.PurchaseInvoice, any_proforma.type, any_proforma.date.year)
 		invoice = db.PurchaseInvoice(any_proforma.type, next_num)
 
+		invoice.date = any_proforma.date
+		invoice.eta = any_proforma.eta
+
 		for row in rows:
 			proforma = self.proformas[row]
 			proforma.invoice = invoice
