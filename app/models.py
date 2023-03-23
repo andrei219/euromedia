@@ -6874,7 +6874,8 @@ candidates = [
 	'courier',
 	'freight',
 	'freigth',
-	'service fee'
+	'service fee',
+	'Auto/Imported',
 
 ]
 
@@ -7201,7 +7202,7 @@ def do_sale_price(imei):
 			sship=shipping_delta,
 			sterm=terms_delta,
 			sexpenses=remaining_expense_delta,
-			stotal=euro + shipping_delta + terms_delta - remaining_expense_delta
+			stotal=euro - shipping_delta + terms_delta - remaining_expense_delta
 		)
 
 
@@ -7410,7 +7411,6 @@ class OutputModel(BaseTable, QtCore.QAbstractTableModel):
 				query = query.where(db.PurchaseProforma.agent_id == agent_id)
 			else:
 				query = query.where(db.SaleProforma.agent_id == agent_id)
-
 
 		append_registers(self, query=query)
 

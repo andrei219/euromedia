@@ -68,3 +68,5 @@ class Form(Ui_Form, QDialog):
 
         self.model.add(date, amount, self.info.text(), proforma)
         self.clear_fields()
+
+    

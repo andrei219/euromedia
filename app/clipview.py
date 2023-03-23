@@ -40,17 +40,19 @@ class ClipView(QTableView):
 class ClipLineEdit(QLineEdit):
 
     def mousePressEvent(self, e: QtGui.QMouseEvent) -> None:
-        print('Mosuse Press event catched')
         if e.button() == Qt.RightButton:
             app = PyQt5.QtCore.QCoreApplication.instance()
             global_text = app.clipboard().text()
             if global_text:
-                print
                 self.setText(global_text)
             else:
                 local_text = ClipBoard()
                 if local_text:
-                    self.setText(local_text)
+                    try:
+                        self.setText(local_text)
+                    except TypeError:
+                        pass
+
         else:
             super().mousePressEvent(e)
 
