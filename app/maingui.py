@@ -303,6 +303,7 @@ class MainGui(Ui_MainGui, QMainWindow):
     def set_mv(self, prefix, search_key=None, filters=None, last=10):
         from utils import setCommonViewConfig
         from delegates import WarningEditDelegate
+        from delegates import JournalEntryTypeDelegate
 
         try:
             last_field = getattr(self, prefix + 'last')
@@ -322,7 +323,9 @@ class MainGui(Ui_MainGui, QMainWindow):
         elif prefix == 'journal_entries_':
             self.journal_entries = models.JournalEntriesModel()
             self.journal_entries_view.setModel(self.journal_entries)
-
+            self.journal_entries_view.resizeColumnToContents(0)
+            self.journal_entries_view.resizeColumnToContents(5)
+            self.journal_entries_view.setItemDelegate(JournalEntryTypeDelegate(self.journal_entries_view))
 
         elif prefix == 'agents_':
             self.agents_model = models.AgentModel(search_key=search_key)
@@ -346,7 +349,6 @@ class MainGui(Ui_MainGui, QMainWindow):
                 models.PurchaseProformaModel(filters=filters, search_key=search_key, last=last)
             self.proformas_purchases_view.setModel(self.proformas_purchases_model)
 
-            # Inmediately after setting model you need to put this code
             self.proformas_purchases_view.selectionModel(). \
                 selectionChanged.connect(self.proformas_purchases_selection_changed)
 
@@ -374,7 +376,6 @@ class MainGui(Ui_MainGui, QMainWindow):
             self.invoices_purchases_view.resizeColumnToContents(4)
             self.invoices_purchases_view.resizeColumnToContents(13)
 
-
         elif prefix == 'invoices_sales_':
             self.invoices_sales_model = \
                 models.SaleInvoiceModel(filters=filters, search_key=search_key, last=last)
@@ -395,7 +396,6 @@ class MainGui(Ui_MainGui, QMainWindow):
             self.invoices_sales_view.setAlternatingRowColors(True)
 
             self.invoices_sales_view.resizeColumnsToContents()
-
 
         elif prefix == 'proformas_sales_':
 
@@ -421,7 +421,6 @@ class MainGui(Ui_MainGui, QMainWindow):
             self.proformas_sales_view.resizeColumnsToContents()
 
             correct_mask()
-
 
         elif prefix == 'warehouse_receptions_':
             self.warehouse_receptions_model = \
@@ -884,7 +883,6 @@ class MainGui(Ui_MainGui, QMainWindow):
             return
         from partner_or_agent_form import Dialog
         Dialog(self, proforma).exec_()
-
 
     def proformas_sales_export_handler(self):
         # Don't need the object, but signals if one is   selected
@@ -1654,17 +1652,21 @@ class MainGui(Ui_MainGui, QMainWindow):
     def journal_entries_new_handler(self):
 
         from journal_entry_form import Form
-        self.entry_form = Form()
+        self.entry_form = Form(parent_form=self)
         self.entry_form.show()
 
-
     def journal_entries_delete_handler(self):
+
         print('delete pressed')
 
-
     def journal_entries_double_click_handler(self, index):
-        print('double clicked')
-
+        from journal_entry_form import Form
+        print('self=', self)
+        self.entry_form = Form(
+            entry=self.journal_entries_view.model()[index.row()],
+            parent_form=self
+        )
+        self.entry_form.show()
 
     def tab_changed(self, index):
         db.session.commit()

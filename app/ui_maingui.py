@@ -2406,6 +2406,8 @@ class Ui_MainGui(object):
         self.journal_entries.setObjectName("journal_entries")
         self.journal_entries_view = QtWidgets.QTableView(self.journal_entries)
         self.journal_entries_view.setGeometry(QtCore.QRect(40, 40, 1421, 621))
+        self.journal_entries_view.setAlternatingRowColors(True)
+        self.journal_entries_view.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
         self.journal_entries_view.setObjectName("journal_entries_view")
         self.journal_entries_new = QtWidgets.QToolButton(self.journal_entries)
         self.journal_entries_new.setGeometry(QtCore.QRect(40, 670, 70, 60))

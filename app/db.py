@@ -2,6 +2,8 @@ import sqlalchemy.sql.expression
 from sqlalchemy import create_engine, event, insert, update, delete
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.sql import func
+from sqlalchemy import not_
+
 
 
 import sys
@@ -25,6 +27,7 @@ from datetime import timedelta
 
 from sqlalchemy import exists
 
+import functools
 
 def get_db_url():
     if os.environ['APP_DEBUG'].lower() == 'false':
@@ -63,9 +66,6 @@ def switch_database(fiscal_name):
 
     Session = scoped_session(sessionmaker(bind=engine, autoflush=False))
     session = Session()
-
-
-
 
 
 class Warehouse(Base):
@@ -150,6 +150,8 @@ class Item(Base):
     capacity = Column(String(50))
     color = Column(String(50))
     has_serie = Column(Boolean, default=False)
+
+    weight = Column(Numeric(10, 2), nullable=False, default=0)
 
     __table_args__ = (
         UniqueConstraint('mpn', 'manufacturer', 'category', 'model', 'capacity', 'color', name='uix_1'),
@@ -2492,6 +2494,25 @@ class Account(Base):
         cls_name = self.__class__.__name__
         return f"{cls_name}(code={self.code}, name={self.name}, parent_id={self.parent_id})"
 
+    @staticmethod
+    @functools.cache
+    def get_map():
+        from bidict import bidict
+        accounts = bidict()
+
+        sql = """
+            SELECT * FROM ACCOUNTS
+            WHERE NOT EXISTS (
+                SELECT 1 FROM ACCOUNTS AS A WHERE A.PARENT_ID = ACCOUNTS.ID
+            )
+        """
+
+        leaf_accounts = session.execute(sql).fetchall()
+
+        for account in leaf_accounts:
+            accounts[f'{account.code} - {account.name}'] = account.id
+        return accounts
+
 
 class Balance(Base):
 
@@ -2512,28 +2533,49 @@ class Balance(Base):
 # These types are used to identify the type of the journal entry
 # And they will be defined in advance in the database
 
+
+import enum
+from sqlalchemy import Enum
+class AutoEnum(enum.Enum):
+    auto_no = 'auto_no'
+    auto_semi = 'auto_semi'
+    auto_yes = 'auto_yes'
+
 class JournalEntry(Base):
 
     __tablename__ = 'journal_entries'
+
+    RELATED_TYPES = [
+        'sale', 'purchase', 'misc', 'payment', 'collection',
+        'income', 'expense','sale_return', 'purchase_return'
+    ]
 
     id = Column(Integer, primary_key=True)
     date = Column(Date, nullable=False)
     description = Column(String(255), nullable=False)
     related_type = Column(String(100), nullable=False)
     related_id = Column(Integer, nullable=True)
-    auto = Column(Boolean, nullable=False, default=False)
+    auto = Column(Enum(AutoEnum), nullable=False, default=AutoEnum.auto_no)
 
     created_on = Column(DateTime, nullable=False, default=datetime.now)
     updated_on = Column(DateTime, nullable=False, default=datetime.now, onupdate=datetime.now)
 
     __table_args__ = (
-        CheckConstraint(related_type.in_([
-            'sale', 'purchase', 'misc', 'payment',
-            'collection', 'income', 'expense',
-            'sale_return', 'purchase_return'
-        ])),
+        CheckConstraint(related_type.in_(RELATED_TYPES)),
     )
 
+    @classmethod
+    def dummy(cls):
+        o = cls()
+        o.date = datetime.now().date()
+        o.description = 'dummy'
+        o.related_type = 'sale'
+        o.auto = AutoEnum.auto_no
+        return o
+
+    def __repr__(self):
+        clsname = self.__class__.__name__
+        return f"{clsname}(id={self.id}, date={self.date}, description={self.description}, related_type={self.related_type}, related_id={self.related_id})"
 
 class JournalEntryLine(Base):
 
@@ -2549,13 +2591,28 @@ class JournalEntryLine(Base):
     created_on = Column(DateTime, nullable=False, default=datetime.now)
     updated_on = Column(DateTime, nullable=False, default=datetime.now, onupdate=datetime.now)
 
-    account = relationship('Account', viewonly=True)
+    account = relationship('Account', viewonly=True, lazy='select')
+
+    def __init__(self):
+        super().__init__()
+        self.debit = 0
+        self.credit = 0
+        self.description = ''
+
+    def __repr__(self):
+        cls_name = self.__class__.__name__
+        return f"{cls_name}(account_id={self.account_id}, debit={self.debit}, credit={self.credit}, description={self.description})"
 
     journal_entry = relationship(
         'JournalEntry',
         backref=backref(
             'lines', cascade='delete-orphan, delete, save-update'
         )
+    )
+
+    __table_args__ = (
+        CheckConstraint("debit != 0 OR credit != 0", name='non_zero_debit_or_credit'),
+        CheckConstraint("debit = 0 OR credit = 0", name='not_both_debit_and_credit'),
     )
 
 
@@ -2586,5 +2643,6 @@ def correct_mask():
     except Exception as ex:
         session.rollback()
         raise
+
 
 
