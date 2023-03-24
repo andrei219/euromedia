@@ -25,6 +25,9 @@
    <property name="text">
     <string/>
    </property>
+   <property name="alignment">
+    <set>Qt::AlignCenter</set>
+   </property>
   </widget>
   <widget class="QLabel" name="label_2">
    <property name="geometry">
@@ -192,6 +195,9 @@
     </item>
     <item>
      <widget class="QLineEdit" name="id">
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
       <property name="readOnly">
        <bool>true</bool>
       </property>
@@ -275,6 +281,9 @@
    <property name="text">
     <string/>
    </property>
+   <property name="alignment">
+    <set>Qt::AlignCenter</set>
+   </property>
   </widget>
   <widget class="QLineEdit" name="type">
    <property name="geometry">
@@ -287,6 +296,9 @@
    </property>
    <property name="text">
     <string/>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignCenter</set>
    </property>
   </widget>
   <widget class="QLabel" name="label_5">
@@ -313,6 +325,9 @@
    </property>
    <property name="text">
     <string/>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignCenter</set>
    </property>
    <property name="readOnly">
     <bool>true</bool>
@@ -352,6 +367,9 @@
      <width>41</width>
      <height>22</height>
     </rect>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignCenter</set>
    </property>
    <property name="readOnly">
     <bool>true</bool>
