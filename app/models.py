@@ -8231,28 +8231,20 @@ class JournalEntriesModel(BaseTable, QtCore.QAbstractTableModel):
 		self.name = 'entries'
 		self.entries = InstrumentedList(db.session, db.session.query(db.JournalEntry).all())
 
-		# debits_subquery = (
-		# 	db.session.query(func.sum(db.JournalEntryLine.debit))
-		# 	.where(db.JournalEntryLine.journal_entry_id == db.JournalEntry.id)
-		# 	.scalar_subquery().label('debit')
-		# )
-		#
-		# q = db.session.query(db.JournalEntry, debits_subquery)
-		# self._data = [(entry, 0 if balance is None else balance) for entry, balance in q.all()]
-
 	def __getitem__(self, item):
 		return self.entries[item]
 
 	def removeRows(self, position, rows=1, index=QModelIndex()) -> bool:
 		self.beginRemoveRows(QModelIndex(), position, position +rows -1)
-		self._data
+		self.entries.pop(position)
+		self.endRemoveRows()
+		return True
 
 	def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
 		if not index.isValid():
 			return
 		row, col = index.row(), index.column()
 		entry = self.entries[row]
-
 		if role == Qt.DisplayRole:
 			if col == self.ID:
 				return str(entry.id).zfill(6)
@@ -8298,24 +8290,26 @@ class JournalEntriesModel(BaseTable, QtCore.QAbstractTableModel):
 		if not index.isValid():
 			return False
 		row, col = index.row(), index.column()
-		entry, _ = self._data[row]
+		entry = self.entries[row]
 		if role == Qt.EditRole:
 			if col == self.DESCRIPTION:
 				entry.description = value
+				db.session.commit()
 				return True
 			elif col == self.TYPE:
 				if value not in db.JournalEntry.RELATED_TYPES:
 					return False
 				entry.related_type = value
+				db.session.commit()
 				return True
 			elif col == self.DATE:
 				try:
 					entry.date = datetime.strptime(value, '%d%m%Y')
 				except ValueError:
 					return False
+				db.session.commit()
 				return True
 
-			db.session.commit()
 
 class JournalEntryLineModel(BaseTable, QtCore.QAbstractTableModel):
 
@@ -8362,11 +8356,11 @@ class JournalEntryLineModel(BaseTable, QtCore.QAbstractTableModel):
 		line = self.lines[index.row()]
 		if role == Qt.EditRole:
 			if index.column() == self.ACCOUNT:
-				if value not in db.Account.get_map().keys():
+				if value not in db.Account.get_leaf_accounts_map().keys():
 					return False
 				else:
 					line.account = db.session.query(db.Account).where(
-						db.Account.id == db.Account.get_map()[value]
+						db.Account.id == db.Account.get_leaf_accounts_map()[value]
 					).one()
 					line.account_id = line.account.id
 					return True

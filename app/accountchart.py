@@ -1681,20 +1681,3 @@ ACCOUNTS = {
 }
 
 
-def save_accounts(accounts, parent=None):
-	for group, accounts in accounts.items():
-		try:
-			account = Account(code=group, name=accounts['name'], parent=parent)
-			session.add(account)
-			save_accounts(accounts['children'], parent=account)
-		except (KeyError, TypeError):
-			continue
-
-
-def create_initial_balance():
-	pass
-
-if __name__ == '__main__':
-
-	save_accounts(ACCOUNTS)
-	session.commit()

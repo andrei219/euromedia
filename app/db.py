@@ -2460,6 +2460,7 @@ class BankingTransaction(Base):
 
     id = Column(Integer, primary_key=True)
     journal_entry_id = Column(ForeignKey('journal_entries.id'), nullable=False)
+    bank_id = Column(ForeignKey('bank_accounts.id'), nullable=False)
 
     source = Column(String(50), nullable=False)
     description = Column(String(255), nullable=False)
@@ -2475,15 +2476,25 @@ class Account(Base):
 
     __tablename__ = 'accounts'
 
+    RELATED_TYPES = ['partner', 'bank_account']
+
     id = Column(Integer, primary_key=True)
     code = Column(String(50), nullable=False)
     name = Column(String(255), nullable=False)
     parent_id = Column(ForeignKey('accounts.id'), nullable=True)
 
+    related_type = Column(String(50), nullable=True)
+    related_id = Column(Integer, nullable=True)
+
     created_on = Column(DateTime, nullable=False, default=datetime.now)
     updated_on = Column(DateTime, nullable=False, default=datetime.now, onupdate=datetime.now)
 
     parent = relationship('Account', remote_side=[id])
+
+    __table_args__ = (
+        CheckConstraint(related_type.in_(RELATED_TYPES)),
+        UniqueConstraint('code', 'parent_id', name='code_parent_unique'),
+    )
 
     def __init__(self, code, name, parent=None):
         self.code = code
@@ -2496,7 +2507,7 @@ class Account(Base):
 
     @staticmethod
     @functools.cache
-    def get_map():
+    def get_leaf_accounts_map():
         from bidict import bidict
         accounts = bidict()
 
@@ -2541,6 +2552,12 @@ class AutoEnum(enum.Enum):
     auto_semi = 'auto_semi'
     auto_yes = 'auto_yes'
 
+# Recuerda que en este tipo de relaciones polimórficas
+# el tipo decide hacia donde apunta la relación.
+# Por ejemplo, si el tipo es 'sale', entonces el id apunta a la tabla de ventas
+# Si el tipo es 'payment', entonces el id apunta a la tabla de pagos
+# y asi sucesivamente
+
 class JournalEntry(Base):
 
     __tablename__ = 'journal_entries'
@@ -2562,6 +2579,7 @@ class JournalEntry(Base):
 
     __table_args__ = (
         CheckConstraint(related_type.in_(RELATED_TYPES)),
+        UniqueConstraint('related_type', 'related_id', name='related_type_id_unique'),
     )
 
     @classmethod
@@ -2614,6 +2632,19 @@ class JournalEntryLine(Base):
         CheckConstraint("debit != 0 OR credit != 0", name='non_zero_debit_or_credit'),
         CheckConstraint("debit = 0 OR credit = 0", name='not_both_debit_and_credit'),
     )
+
+class BankAccount(Base):
+
+    __tablename__ = 'bank_accounts'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(255), nullable=False)
+    iban = Column(String(255), nullable=False)
+
+    def __init__(self, name, iban):
+        super().__init__()
+        self.name = name
+        self.iban = iban
 
 
 def create_init_data():

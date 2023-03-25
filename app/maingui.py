@@ -1656,7 +1656,10 @@ class MainGui(Ui_MainGui, QMainWindow):
         self.entry_form.show()
 
     def journal_entries_delete_handler(self):
-        print('delete pressed')
+        index = self.journal_entries_view.currentIndex()
+        if not index.isValid():
+            return
+        self.journal_entries_view.model().removeRow(index.row())
 
     def journal_entries_double_click_handler(self, index):
         from journal_entry_form import Form

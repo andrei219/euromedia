@@ -77,6 +77,7 @@ class Form(Ui_Form, QWidget):
 		except ValueError as e:
 			QMessageBox.critical(self, 'Error', str(e))
 			session.rollback()
+			session.add(self.entry)
 
 	def populate_form(self):
 
@@ -119,7 +120,7 @@ class Form(Ui_Form, QWidget):
 
 		self.entry.related_type = self.type.text()
 
-		self.entry.lines = self.model.lines
+		# self.entry.lines = self.model.lines
 
 	def set_error_flag(self):
 		lines = self.model.lines

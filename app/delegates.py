@@ -53,7 +53,7 @@ class AccountDelegate(QItemDelegate):
 
     def createEditor(self, parent, option, index) -> QWidget:
         if index.column() == self.ACCOUNT:
-            return create_completer(parent, Account.get_map().keys())
+            return create_completer(parent, Account.get_leaf_accounts_map().keys())
         return super().createEditor(parent, option, index)
 
 class WarningEditDelegate(QItemDelegate):

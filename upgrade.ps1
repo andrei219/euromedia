@@ -34,7 +34,7 @@ foreach ($database in $company_databases) {
 }
 
 # Sets the database to euroemdia
-$env:APP_DATABASE='euromedia'
+$env:APP_DATABASE='euromedia' + "_$Branch"
 
 # Sets environment to debug mode
 $env:APP_DEBUG='TRUE'
