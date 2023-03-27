@@ -8271,8 +8271,8 @@ class RepairsModel(BaseTable, QtCore.QAbstractTableModel):
 		if role == Qt.DisplayRole:
 			return [
 				repair.sn,
-				repair.item,
-				repair.partner,
+				repair.item.clean_repr,
+				repair.partner.fiscal_name,
 				repair.date.strftime('%d/%m/%Y'),
 				repair.description,
 				repair.cost

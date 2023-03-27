@@ -2,6 +2,7 @@
 
 from ui_repairs_form import Ui_Form
 from PyQt5.QtWidgets import QDialog, QMessageBox
+from PyQt5.QtCore import Qt
 
 from db import session
 from models import RepairsModel
@@ -20,7 +21,6 @@ class Form(Ui_Form, QDialog):
 
 		self.set_handlers()
 
-
 	def set_handlers(self):
 		self.save.clicked.connect(self.save_handler)
 		self.exit.clicked.connect(self.exit_handler)
@@ -38,8 +38,25 @@ class Form(Ui_Form, QDialog):
 		session.rollback()
 		self.close()
 
+	def keyPressEvent(self, event) -> None:
+		if self.view.hasFocus():
+			if event.modifiers() & Qt.QControlModifier:
+				if event.key() == Qt.Key_N:
+					self.add_handler()
+				elif event.key() == Qt.Key_D:
+					self.remove_handler()
+		super().keyPressEvent(event)
+
 	def add_handler(self):
-		print('add')
+		row = self.model.rowCount()
+		self.model.insertRow(row)
+		index = self.model.index(row, 0)
+		self.view.setCurrentIndex(index)
+		self.view.edit(index)
 
 	def remove_handler(self):
-		pass 
+		index = self.view.currentIndex()
+		if not index.isValid():
+			return
+		self.model.removeRow(index.row())
+
