@@ -80,7 +80,6 @@ class Form(Ui_Form, QWidget):
 			session.add(self.entry)
 
 	def populate_form(self):
-
 		try:
 			self.id.setText(str(self.entry.id or '').zfill(6))
 			if self.entry.id is None:

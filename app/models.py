@@ -4775,28 +4775,22 @@ class WarehouseValueModel(BaseTable, QtCore.QAbstractTableModel):
 		warehouse_id = filters.get('warehouse_id')
 		book_value = filters.get('book_value')
 
-		print('filters=', filters)
 
 		from datetime import date
 		if _date == date.today():
-			print('today')
 			if warehouse_id:
-				print('Today and warehouse_id=', warehouse_id)
 				self.registers = ActualInventory.from_warehouse(warehouse_id).registers
 			else:
 				self.registers = ActualInventory.with_no_filters().registers
 
 		else:
-			print('not today.')
 			if warehouse_id:
-				print('not today and warehouse_id=', warehouse_id)
 				self.registers = HistoricalInventoryModel.from_warehouse(
 					cutoff_date=_date,
 					warehouse_id=warehouse_id
 				).registers
 
 			else:
-				print('not today and not warehouse_id')
 				self.registers = HistoricalInventoryModel.with_no_filters(cutoff_date=_date).registers
 
 		promoted = [CostRegister(r, book_value=book_value) for r in self.registers]
@@ -4829,7 +4823,6 @@ class WarehouseValueModel(BaseTable, QtCore.QAbstractTableModel):
 				wb.save(filepath)
 
 		else:
-			print('not all path')
 			self._data.extend(elm.as_tuple for elm in filter(lambda o: not utils.valid_uuid(o.imei), promoted))
 			uuid_group = sorted(list(filter(lambda o: utils.valid_uuid(o.imei), promoted)), key=key)
 			for key, group in groupby(uuid_group, key=key):
@@ -5973,7 +5966,6 @@ class WhRmaIncomingLineModel(BaseTable, QtCore.QAbstractTableModel):
 		editables = [self.WHY, self.ACCEPTED, self.WAREHOUSE]
 
 		if not self.block_target:
-			print('neeeeeeeveeer')
 			editables.append(self.TARGET_CONDITION)
 
 		if index.column() in editables:
@@ -7117,8 +7109,6 @@ def do_sale_price(imei):
 				break
 
 		if not proforma_line:
-			print('proforma=', proforma)
-			print('exp_line=', exp_line)
 
 			return SaleRow()
 
@@ -7362,7 +7352,6 @@ class OutputModel(BaseTable, QtCore.QAbstractTableModel):
 
 			if exclude_at_capital:
 				query = query.where(db.PurchaseProforma.partner_id != 19)
-				print(f'Period : {_from} - {to} At Capital Excluded?= {exclude_at_capital}')
 		else:
 			query = db.session.query(db.ExpeditionSerie.serie).join(db.ExpeditionLine). \
 				join(db.Expedition).join(db.SaleProforma). \
@@ -7371,7 +7360,6 @@ class OutputModel(BaseTable, QtCore.QAbstractTableModel):
 
 			if exclude_at_capital:
 				query = query.where(db.SaleProforma.partner_id != 19)
-				print(f'Period : {_from} - {to} At Capital Excluded?= {exclude_at_capital}')
 
 		if agent_id:
 			if _input:
@@ -7381,10 +7369,6 @@ class OutputModel(BaseTable, QtCore.QAbstractTableModel):
 
 
 		append_registers(self, query=query)
-
-
-
-		print('len(self._registers): ', len(self._registers))
 
 		return self
 
@@ -8392,7 +8376,6 @@ class JournalEntryLineModel(BaseTable, QtCore.QAbstractTableModel):
 		line = db.JournalEntryLine()
 		self.lines.insert(position, line)
 		self.endInsertRows()
-		print('insert_rows:', self.lines)
 		return True
 
 	def removeRows(self, position, rows=1, index=QModelIndex()):

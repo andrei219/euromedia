@@ -29,11 +29,14 @@ from sqlalchemy import exists
 
 import functools
 
-def get_db_url():
+def get_host():
     if os.environ['APP_DEBUG'].lower() == 'false':
-        host = '//andrei:hnq#4506@192.168.1.78:3306'
+        return '//andrei:hnq#4506@192.168.1.78:3306'
     else:
-        host = '//root:hnq#4506@localhost:3306'
+        return '//root:hnq#4506@localhost:3306'
+
+def get_db_url():
+    host = get_host()
     return f'mysql+mysqlconnector:{host}/{os.environ["APP_DATABASE"]}'
 
 
@@ -61,6 +64,7 @@ Base = declarative_base()
 def switch_database(fiscal_name):
     global Session, session
     os.environ['APP_DATABASE'] = name2db_map[fiscal_name]
+    host = get_host()
     engine = create_engine(f'mysql+mysqlconnector:{host}/{os.environ["APP_DATABASE"]}',
                            echo=os.environ['APP_ECHO'].lower() == 'true')
 
@@ -1372,7 +1376,7 @@ class SaleProformaLine(Base):
     mix_id = Column(String(36), nullable=True)
 
     # No stock related line
-    description = Column(String(100))
+    description = Column(String(255))
 
     condition = Column(String(50))
     showing_condition = Column(String(50))
@@ -1435,7 +1439,7 @@ class AdvancedLine(Base):
     proforma_id = Column(Integer, ForeignKey('sale_proformas.id'))
     item_id = Column(Integer, ForeignKey('items.id'))
     mixed_description = Column(String(50))
-    free_description = Column(String(50))
+    free_description = Column(String(255))
     condition = Column(String(50))
     spec = Column(String(50))
     quantity = Column(Integer, nullable=False, default=1)
@@ -2496,10 +2500,13 @@ class Account(Base):
         UniqueConstraint('code', 'parent_id', name='code_parent_unique'),
     )
 
-    def __init__(self, code, name, parent=None):
+    def __init__(self, code, name, related_type=None, related_id=None, parent=None):
         self.code = code
         self.name = name
         self.parent = parent
+        self.related_type = related_type
+        self.related_id = related_id
+
 
     def __repr__(self):
         cls_name = self.__class__.__name__
