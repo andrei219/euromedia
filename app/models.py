@@ -8239,6 +8239,27 @@ class SwitchModel(QtCore.QAbstractListModel):
 		db.switch_database(fiscal_name)
 		return fiscal_name
 
+class InstrumentedList(list):
+
+	def pop(self, index):
+		item = super().pop(index)
+		db.session.delete(item)
+		db.session.flush()
+		return item
+
+
+class RepairsModel(BaseTable, QtCore.QAbstractTableModel):
+
+	SN, ITEM, PARTNER, DATE, DESCRIPTION, COST = 0, 1, 2, 3, 4, 5
+
+	def __init__(self):
+		super().__init__()
+		self._headerData = [
+			'SN', 'Item', 'Partner', 'Date', 'Description', 'Cost'
+		]
+		self.name = 'repairs'
+		self.repairs = InstrumentedList(db.session.query(db.Repair).all())
+
 
 def caches_clear():
 	get_avg_rate.cache_clear()

@@ -2494,22 +2494,25 @@ class Repair(Base):
     __tablename__ = 'repairs'
 
     id = Column(Integer, primary_key=True)
+    sn = Column(String(50), nullable=False)
     item_id = Column(ForeignKey('items.id'), nullable=False)
     partner_id = Column(ForeignKey('partners.id'), nullable=False)
     date = Column(Date, nullable=False)
     description = Column(String(255), nullable=False)
     cost = Column(Numeric(18, 4), nullable=False)
+
     item = relationship('Item', viewonly=True)
     partner = relationship('Partner', viewonly=True)
 
+    def __init__(self):
+        super().__init__()
+        self.sn = None
+        self.item_id = None
+        self.partner_id = None
+        self.date = None
+        self.description = None
+        self.cost = None
 
-
-# if __name__ == '__main__':
-#
-#     engine = create_engine(f'mysql+mysqlconnector://root:hnq#4506@localhost:3306/atcapital')
-#     Session = scoped_session(sessionmaker(bind=engine, autoflush=False))
-#     session = Session()
-#     Base.metadata.create_all(engine)
 
 
 
