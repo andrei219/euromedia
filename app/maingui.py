@@ -119,7 +119,9 @@ ACTIONS = [
     'switch',
     'top_partners',
     'owing',
-    'whatsapp'
+    'whatsapp',
+    'repairs',
+    'discounts',
 ]
 
 
@@ -1594,12 +1596,8 @@ class MainGui(Ui_MainGui, QMainWindow):
         from switch_form import Form
         Form(self).exec_()
 
-
-
     def tools_top_partners_handler(self):
-
         from top_partners_form import Form
-
         Form(self).exec_()
 
     ''' Function skeleton that sends a mail message with a error.log file attached'''
@@ -1632,13 +1630,18 @@ class MainGui(Ui_MainGui, QMainWindow):
             QMessageBox.critical(self, 'Error', 'Authentication Error.')
 
         except FileNotFoundError:
-            raise
             QMessageBox.critical(self, 'Error', 'I could not find the error log.')
 
         except smtplib.SMTPException:
             QMessageBox.critical(self, 'Error', 'Error sending the error log.')
         else:
             QMessageBox.information(self, 'Success', 'Successfully sent last error log.')
+
+    def tools_repairs_handler(self):
+        print('repairs')
+
+    def tools_discounts_handler(self):
+        print('discounts')
 
     def tab_changed(self, index):
         db.session.commit()

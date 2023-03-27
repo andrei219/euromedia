@@ -2489,6 +2489,20 @@ def year():
     return '2022'
 
 
+class Repair(Base):
+
+    __tablename__ = 'repairs'
+
+    id = Column(Integer, primary_key=True)
+    item_id = Column(ForeignKey('items.id'), nullable=False)
+    partner_id = Column(ForeignKey('partners.id'), nullable=False)
+    date = Column(Date, nullable=False)
+    description = Column(String(255), nullable=False)
+    cost = Column(Numeric(18, 4), nullable=False)
+    item = relationship('Item', viewonly=True)
+    partner = relationship('Partner', viewonly=True)
+
+
 
 # if __name__ == '__main__':
 #
