@@ -2501,15 +2501,15 @@ class Repair(Base):
     description = Column(String(255), nullable=False)
     cost = Column(Numeric(18, 4), nullable=False)
 
-    item = relationship('Item', viewonly=True)
-    partner = relationship('Partner', viewonly=True)
+    item = relationship('Item', uselist=False)
+    partner = relationship('Partner', uselist=False)
 
     def __init__(self):
         super().__init__()
         self.sn = None
         self.item_id = None
         self.partner_id = None
-        self.date = None
+        self.date = datetime.today()
         self.description = None
         self.cost = None
 

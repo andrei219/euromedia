@@ -32,7 +32,7 @@ class Ui_Form(object):
         self.add.setGeometry(QtCore.QRect(40, 610, 93, 28))
         self.add.setObjectName("add")
         self.remove = QtWidgets.QPushButton(Form)
-        self.remove.setGeometry(QtCore.QRect(150, 610, 93, 28))
+        self.remove.setGeometry(QtCore.QRect(150, 610, 101, 28))
         self.remove.setObjectName("remove")
         self.exit = QtWidgets.QPushButton(Form)
         self.exit.setGeometry(QtCore.QRect(1050, 650, 93, 28))
@@ -48,7 +48,7 @@ class Ui_Form(object):
         _translate = QtCore.QCoreApplication.translate
         Form.setWindowTitle(_translate("Form", "Dialog"))
         self.label.setText(_translate("Form", "Repairs"))
-        self.add.setText(_translate("Form", "Add"))
-        self.remove.setText(_translate("Form", "Delete"))
+        self.add.setText(_translate("Form", "Add (Ctrl+n)"))
+        self.remove.setText(_translate("Form", "Delete (Ctrl+d)"))
         self.exit.setText(_translate("Form", "Exit"))
         self.save.setText(_translate("Form", "Save"))

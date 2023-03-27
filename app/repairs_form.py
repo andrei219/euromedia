@@ -12,7 +12,7 @@ from delegates import RepairDelegate
 class Form(Ui_Form, QDialog):
 
 	def __init__(self, parent=None):
-		super().__init__()
+		super().__init__(parent=parent)
 		self.setupUi(self)
 
 		self.model = RepairsModel()
@@ -29,7 +29,7 @@ class Form(Ui_Form, QDialog):
 
 	def save_handler(self):
 		if self.model.valid:
-			self.model.save()
+			session.commit()
 			self.close()
 		else:
 			QMessageBox.warning(self, 'Warning', 'Please fill all required fields')
@@ -40,7 +40,7 @@ class Form(Ui_Form, QDialog):
 
 	def keyPressEvent(self, event) -> None:
 		if self.view.hasFocus():
-			if event.modifiers() & Qt.QControlModifier:
+			if event.modifiers() & Qt.ControlModifier:
 				if event.key() == Qt.Key_N:
 					self.add_handler()
 				elif event.key() == Qt.Key_D:

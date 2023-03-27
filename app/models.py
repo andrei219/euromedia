@@ -8243,7 +8243,6 @@ class InstrumentedList(list):
 	def pop(self, index):
 		item = super().pop(index)
 		db.session.delete(item)
-		db.session.flush()
 		return item
 
 
@@ -8253,9 +8252,7 @@ class RepairsModel(BaseTable, QtCore.QAbstractTableModel):
 
 	def __init__(self):
 		super().__init__()
-		self._headerData = [
-			'SN', 'Item', 'Partner', 'Date', 'Description', 'Cost'
-		]
+		self._headerData = ['SN', 'Item', 'Partner', 'Date', 'Description', 'Cost']
 		self.name = 'repairs'
 		self.repairs = InstrumentedList(db.session.query(db.Repair).all())
 
@@ -8269,10 +8266,19 @@ class RepairsModel(BaseTable, QtCore.QAbstractTableModel):
 		row, col = index.row(), index.column()
 		repair = self.repairs[row]
 		if role == Qt.DisplayRole:
+			try:
+				clean_repr = repair.item.clean_repr
+			except AttributeError:
+				clean_repr = ''
+			try:
+				partner = repair.partner.fiscal_name
+			except AttributeError:
+				partner = ''
+
 			return [
 				repair.sn,
-				repair.item.clean_repr,
-				repair.partner.fiscal_name,
+				clean_repr,
+				partner,
 				repair.date.strftime('%d/%m/%Y'),
 				repair.description,
 				repair.cost
@@ -8282,6 +8288,7 @@ class RepairsModel(BaseTable, QtCore.QAbstractTableModel):
 		self.beginInsertRows(parent, row, row + count - 1)
 		self.repairs.insert(row, db.Repair())
 		self.endInsertRows()
+		db.session.flush()
 		return True
 
 	def removeRows(self, row: int, count: int, parent: QModelIndex = ...) -> bool:
@@ -8336,10 +8343,6 @@ class RepairsModel(BaseTable, QtCore.QAbstractTableModel):
 		if not index.isValid():
 			return Qt.NoItemFlags
 		return Qt.ItemIsEditable | Qt.ItemIsEnabled | Qt.ItemIsSelectable
-
-	def save(self):
-		db.session.commit()
-
 
 def caches_clear():
 	get_avg_rate.cache_clear()
