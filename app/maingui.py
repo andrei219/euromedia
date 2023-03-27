@@ -1638,7 +1638,8 @@ class MainGui(Ui_MainGui, QMainWindow):
             QMessageBox.information(self, 'Success', 'Successfully sent last error log.')
 
     def tools_repairs_handler(self):
-        print('repairs')
+        from repairs_form import Form
+        Form(parent=self).exec_()
 
     def tools_discounts_handler(self):
         print('discounts')

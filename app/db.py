@@ -2513,6 +2513,45 @@ class Repair(Base):
         self.description = None
         self.cost = None
 
+    @property
+    def valid(self):
+        return all((
+            self.sn,
+            self.item_id,
+            self.partner_id,
+            self.date,
+            self.description,
+            self.cost
+        ))
+
+
+if __name__ == '__main__':
+
+    from datetime import datetime
+    """ Save several repairs  objects as tests """
+    repair = Repair()
+    repair.sn = '1234567890'
+    repair.item_id = 1
+    repair.partner_id = 1
+    repair.date = datetime.now()
+    repair.description = 'Test'
+    repair.cost = 10.00
+    session.add(repair)
+    session.commit()
+
+    repair = Repair()
+    repair.sn = '1234567891'
+    repair.item_id = 1
+    repair.partner_id = 1
+    repair.date = datetime.now()
+    repair.description = 'Test'
+    repair.cost = 10.00
+    session.add(repair)
+    session.commit()
+
+
+
+
 
 
 

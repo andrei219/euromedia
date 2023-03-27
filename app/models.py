@@ -8233,7 +8233,6 @@ class SwitchModel(QtCore.QAbstractListModel):
 	def rowCount(self, parent: QModelIndex = ...) -> int:
 		return len(self._data)
 
-
 	def switch(self, row):
 		fiscal_name = self._data[row]
 		db.switch_database(fiscal_name)
@@ -8259,6 +8258,87 @@ class RepairsModel(BaseTable, QtCore.QAbstractTableModel):
 		]
 		self.name = 'repairs'
 		self.repairs = InstrumentedList(db.session.query(db.Repair).all())
+
+	@property
+	def valid(self):
+		return all(r.valid for r in self.repairs)
+
+	def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
+		if not index.isValid():
+			return
+		row, col = index.row(), index.column()
+		repair = self.repairs[row]
+		if role == Qt.DisplayRole:
+			return [
+				repair.sn,
+				repair.item,
+				repair.partner,
+				repair.date.strftime('%d/%m/%Y'),
+				repair.description,
+				repair.cost
+			][col]
+
+	def insertRows(self, row: int, count: int, parent: QModelIndex = ...) -> bool:
+		self.beginInsertRows(parent, row, row + count - 1)
+		self.repairs.insert(row, db.Repair())
+		self.endInsertRows()
+		return True
+
+	def removeRows(self, row: int, count: int, parent: QModelIndex = ...) -> bool:
+		self.beginRemoveRows(parent, row, row + count - 1)
+		self.repairs.pop(row)
+		self.endRemoveRows()
+		return True
+
+	def setData(self, index: QModelIndex, value: typing.Any, role: int = ...) -> bool:
+
+		from utils import description_id_map, partner_id_map
+
+		if not index.isValid():
+			return False
+		row, col = index.row(), index.column()
+		repair = self.repairs[row]
+		if role == Qt.EditRole:
+			if col == self.SN:
+				repair.sn = value
+			elif col == self.ITEM:
+				try:
+					repair.item_id = description_id_map[value]
+					# repair.item = db.session.query(db.Item).where(db.Item.id == repair.item_id).one()
+					return True
+				except KeyError:
+					return False
+			elif col == self.PARTNER:
+				try:
+					repair.partner_id = partner_id_map[value]
+					return True
+				except KeyError:
+					return False
+			elif col == self.DATE:
+				try:
+					repair.date = datetime.strptime(value, '%d%m%Y')
+					return True
+				except ValueError:
+					return False
+			elif col == self.DESCRIPTION:
+				repair.description = value
+			elif col == self.COST:
+				try:
+					repair.cost = decimal.Decimal(value)
+					return True
+				except decimal.InvalidOperation:
+					return False
+			return False
+
+		return False
+
+	def flags(self, index: QModelIndex) -> Qt.ItemFlags:
+		if not index.isValid():
+			return Qt.NoItemFlags
+		return Qt.ItemIsEditable | Qt.ItemIsEnabled | Qt.ItemIsSelectable
+
+	def save(self):
+		db.session.commit()
 
 
 def caches_clear():
