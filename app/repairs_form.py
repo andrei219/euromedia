@@ -20,6 +20,7 @@ class Form(Ui_Form, QDialog):
 
 		self.set_handlers()
 
+
 	def set_handlers(self):
 		self.save.clicked.connect(self.save_handler)
 		self.exit.clicked.connect(self.exit_handler)
@@ -33,8 +34,6 @@ class Form(Ui_Form, QDialog):
 		else:
 			QMessageBox.warning(self, 'Warning', 'Please fill all required fields')
 
-
-
 	def exit_handler(self):
 		session.rollback()
 		self.close()
@@ -43,4 +42,4 @@ class Form(Ui_Form, QDialog):
 		print('add')
 
 	def remove_handler(self):
-		print('remove')
+		pass 
