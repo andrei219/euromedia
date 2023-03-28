@@ -1,6 +1,7 @@
 from PyQt5 import QtCore
 
-from PyQt5.QtWidgets import QWidget, QCompleter, QLineEdit, QItemDelegate
+from PyQt5.QtWidgets import QWidget, QCompleter, QLineEdit, \
+    QItemDelegate, QStyledItemDelegate
 
 from PyQt5.QtCore import Qt
 

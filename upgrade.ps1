@@ -28,7 +28,6 @@ if ($Revision.Trim() -eq "") {
 Write-Host "Running migration for Revision: $Revision"
 
 
-
 $company_databases = @('euromedia', 'capital', 'mobify', 'realstate')
 foreach ($database in $company_databases) {
     $database = $database + $Branch
