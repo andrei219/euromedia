@@ -15,6 +15,10 @@ if ($Environment -eq "dev") {
     $EnvironmentName = "Production"
 }
 
+if ($Branch.Trim() -ne "") {
+    $Branch = "_$Branch"
+}
+
 Write-Host "Running migration for Environment: $EnvironmentName"
 
 if ($Revision.Trim() -eq "") {
@@ -23,9 +27,11 @@ if ($Revision.Trim() -eq "") {
 
 Write-Host "Running migration for Revision: $Revision"
 
+
+
 $company_databases = @('euromedia', 'capital', 'mobify', 'realstate')
 foreach ($database in $company_databases) {
-    $database = $database + "_$Branch"
+    $database = $database + $Branch
     Write-Host "Updating database $database..."
     # set the environment variables
     $env:APP_DATABASE=$database
@@ -34,7 +40,7 @@ foreach ($database in $company_databases) {
 }
 
 # Sets the database to euroemdia
-$env:APP_DATABASE='euromedia' + "_$Branch"
+$env:APP_DATABASE='euromedia' + $Branch
 
 # Sets environment to debug mode
 $env:APP_DEBUG='TRUE'
