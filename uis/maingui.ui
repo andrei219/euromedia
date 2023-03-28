@@ -51,7 +51,7 @@
      <number>0</number>
     </property>
     <property name="currentIndex">
-     <number>8</number>
+     <number>7</number>
     </property>
     <property name="iconSize">
      <size>
@@ -8003,7 +8003,7 @@
        <enum>Qt::ToolButtonTextUnderIcon</enum>
       </property>
      </widget>
-     <widget class="QToolButton" name="tools_facks_2">
+     <widget class="QToolButton" name="tools_repairs">
       <property name="geometry">
        <rect>
         <x>940</x>
@@ -8037,7 +8037,7 @@
        <enum>Qt::ToolButtonTextUnderIcon</enum>
       </property>
      </widget>
-     <widget class="QToolButton" name="tools_switch_2">
+     <widget class="QToolButton" name="tools_discounts">
       <property name="geometry">
        <rect>
         <x>940</x>
@@ -8059,7 +8059,41 @@
        <string notr="true">background:lightgray; </string>
       </property>
       <property name="text">
-       <string>Switch </string>
+       <string>Discounts</string>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>50</width>
+        <height>50</height>
+       </size>
+      </property>
+      <property name="toolButtonStyle">
+       <enum>Qt::ToolButtonTextUnderIcon</enum>
+      </property>
+     </widget>
+     <widget class="QToolButton" name="tools_clean_database">
+      <property name="geometry">
+       <rect>
+        <x>720</x>
+        <y>360</y>
+        <width>120</width>
+        <height>60</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>MS Shell Dlg 2</family>
+        <pointsize>10</pointsize>
+        <weight>50</weight>
+        <italic>false</italic>
+        <bold>false</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background:lightgray; </string>
+      </property>
+      <property name="text">
+       <string>Clean Database</string>
       </property>
       <property name="iconSize">
        <size>

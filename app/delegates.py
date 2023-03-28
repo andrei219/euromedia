@@ -36,7 +36,7 @@ class WhRmaDelegate(QItemDelegate):
     WAREHOUSE, TARGET_CONDITION = 7, 8
 
     def __init__(self, parent=None):
-        super(WhRmaDelegate, self).__init__(parent)
+        super().__init__(parent)
 
     def createEditor(self, parent, option, index) -> QWidget:
         if index.column() == self.WAREHOUSE:

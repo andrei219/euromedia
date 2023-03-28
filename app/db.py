@@ -7,7 +7,7 @@ from sqlalchemy.sql import func
 from sqlalchemy import not_
 
 
-from sqlalchemy import select
+from sqlalchemy import select, or_
 
 import sys
 import os
@@ -2768,6 +2768,23 @@ class Discount(Base):
         self.item_id = None
         self.discount = None
 
+
+def clean_database():
+    cleaned = False
+    sales = session.query(SaleProforma).where(
+        or_(
+            SaleProforma.type == None,
+            SaleProforma.number == None
+        )
+    )
+
+    for sale in sales:
+        session.delete(sale)
+        cleaned = True
+
+    session.commit()
+
+    return cleaned
 
 if __name__ == '__main__':
 

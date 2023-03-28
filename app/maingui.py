@@ -126,6 +126,7 @@ ACTIONS = [
     'whatsapp',
     'repairs',
     'discounts',
+    'clean_database'
 ]
 
 
@@ -1396,11 +1397,12 @@ class MainGui(Ui_MainGui, QMainWindow):
             )
 
     def warehouse_expeditions_dhl_handler(self):
-        from dhl import Form
-        expedition = self.get_expedition(self.warehouse_expeditions_view, self.warehouse_expeditions_model)
-        if expedition is None:
-            return
-        Form(self, expedition).exec_()
+        # from dhl import Form
+        # expedition = self.get_expedition(self.warehouse_expeditions_view, self.warehouse_expeditions_model)
+        # if expedition is None:
+        #     return
+        # Form(self, expedition).exec_()
+        pass
 
 
     def warehouse_expeditions_delete_handler(self):
@@ -1663,6 +1665,13 @@ class MainGui(Ui_MainGui, QMainWindow):
         from discount_form import Form
         Form(parent=self).exec_()
 
+    def tools_clean_database_handler(self):
+        from db import clean_database
+
+        if clean_database():
+            QMessageBox.information(self, 'Success', 'Database cleaned successfully.')
+        else:
+            QMessageBox.information(self, 'Information', 'Nothing to clean.')
 
     def journal_entries_new_handler(self):
 
