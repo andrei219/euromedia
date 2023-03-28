@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1863</width>
-    <height>878</height>
+    <height>883</height>
    </rect>
   </property>
   <property name="font">
@@ -7992,6 +7992,74 @@
       </property>
       <property name="text">
        <string>Mail last error</string>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>50</width>
+        <height>50</height>
+       </size>
+      </property>
+      <property name="toolButtonStyle">
+       <enum>Qt::ToolButtonTextUnderIcon</enum>
+      </property>
+     </widget>
+     <widget class="QToolButton" name="tools_facks_2">
+      <property name="geometry">
+       <rect>
+        <x>940</x>
+        <y>180</y>
+        <width>120</width>
+        <height>60</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>MS Shell Dlg 2</family>
+        <pointsize>10</pointsize>
+        <weight>50</weight>
+        <italic>false</italic>
+        <bold>false</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background:lightgray; </string>
+      </property>
+      <property name="text">
+       <string>Repairs</string>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>50</width>
+        <height>50</height>
+       </size>
+      </property>
+      <property name="toolButtonStyle">
+       <enum>Qt::ToolButtonTextUnderIcon</enum>
+      </property>
+     </widget>
+     <widget class="QToolButton" name="tools_switch_2">
+      <property name="geometry">
+       <rect>
+        <x>940</x>
+        <y>260</y>
+        <width>120</width>
+        <height>60</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>MS Shell Dlg 2</family>
+        <pointsize>10</pointsize>
+        <weight>50</weight>
+        <italic>false</italic>
+        <bold>false</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background:lightgray; </string>
+      </property>
+      <property name="text">
+       <string>Switch </string>
       </property>
       <property name="iconSize">
        <size>

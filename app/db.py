@@ -775,7 +775,6 @@ class PurchaseInvoice(Base):
         elif values == {None}:
             return ''
 
-
     @property
     def inwh(self):
         if all(p.reception is not None for p in self.proformas):
@@ -794,6 +793,9 @@ class PurchaseInvoice(Base):
     def partner_object(self):
         return self.proformas[0].partner
 
+    @property
+    def doc_repr_year(self):
+        return f'{self.doc_repr}:{self.date.year}'
 
 class PurchasePayment(Base):
 
@@ -2489,13 +2491,118 @@ def year():
     return '2022'
 
 
+class Repair(Base):
 
-# if __name__ == '__main__':
-#
-#     engine = create_engine(f'mysql+mysqlconnector://root:hnq#4506@localhost:3306/atcapital')
-#     Session = scoped_session(sessionmaker(bind=engine, autoflush=False))
-#     session = Session()
-#     Base.metadata.create_all(engine)
+    __tablename__ = 'repairs'
+
+    id = Column(Integer, primary_key=True)
+    sn = Column(String(50), nullable=False)
+    item_id = Column(ForeignKey('items.id'), nullable=False)
+    partner_id = Column(ForeignKey('partners.id'), nullable=False)
+    date = Column(Date, nullable=False)
+    description = Column(String(255), nullable=False)
+    cost = Column(Numeric(18, 4), nullable=False)
+
+    item = relationship('Item', uselist=False)
+    partner = relationship('Partner', uselist=False)
+
+    def __init__(self):
+        super().__init__()
+        self.sn = None
+        self.item_id = None
+        self.partner_id = None
+        self.date = datetime.today().date()
+        self.description = None
+        self.cost = None
+
+    @property
+    def valid(self):
+        return all((
+            self.sn,
+            self.item_id,
+            self.partner_id,
+            self.date,
+            self.description,
+            self.cost
+        ))
+
+    def __repr__(self):
+        cls_name = self.__class__.__name__
+        return f"{cls_name}(sn={self.sn}, item_id={self.item_id}, partner_id={self.partner_id}, " \
+               f"date={self.date}, description={self.description}, cost={self.cost})"
+
+class Discount(Base):
+
+    __tablename__ = 'discounts'
+
+    id = Column(Integer, primary_key=True)
+    sn = Column(String(50), nullable=False)
+    invoice_id = Column(ForeignKey('purchase_invoices.id'), nullable=False)
+    item_id = Column(ForeignKey('items.id'), nullable=False)
+    discount = Column(Numeric(18, 4), nullable=False)
+
+    item = relationship('Item', uselist=False)
+    invoice = relationship('PurchaseInvoice', uselist=False)
+
+    @property
+    def valid(self):
+        return all((
+            self.sn,
+            self.invoice_id,
+            self.item_id,
+            self.discount
+        ))
+
+    def __repr__(self):
+        cls_name = self.__class__.__name__
+        return f"{cls_name}(sn={self.sn}, item_id={self.item_id}, discount={self.discount})"
+
+    def __init__(self):
+        super().__init__()
+        self.sn = None
+        self.invoice_id = None
+        self.item_id = None
+        self.discount = None
+
+
+if __name__ == '__main__':
+
+    """Create initial data  for testing purposes"""
+    discount1 = Discount()
+    discount1.sn = '1234567890'
+    discount1.invoice_id = 1
+    discount1.item_id = 1
+    discount1.discount = 10.0
+
+    discount2 = Discount()
+    discount2.sn = '1234567890'
+    discount2.invoice_id = 1
+    discount2.item_id = 1
+    discount2.discount = 10.0
+
+    discount3 = Discount()
+    discount3.sn = '1234567890'
+    discount3.invoice_id = 1
+    discount3.item_id = 1
+    discount3.discount = 10.0
+
+    discount4 = Discount()
+    discount4.sn = '1234567890'
+    discount4.invoice_id = 1
+    discount4.item_id = 1
+    discount4.discount = 10.0
+
+    session.add(discount1)
+    session.add(discount2)
+    session.add(discount3)
+    session.add(discount4)
+
+    session.commit()
+
+
+
+
+
 
 
 

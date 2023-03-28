@@ -26,7 +26,6 @@ from PyQt5.QtCore import Qt
 from sqlalchemy.exc import InvalidRequestError, NoResultFound
 from sqlalchemy import func
 from sqlalchemy import or_, and_
-from sqlalchemy.exc import IntegrityError
 
 import pyVies.api as vies
 
@@ -8233,11 +8232,239 @@ class SwitchModel(QtCore.QAbstractListModel):
 	def rowCount(self, parent: QModelIndex = ...) -> int:
 		return len(self._data)
 
-
 	def switch(self, row):
 		fiscal_name = self._data[row]
 		db.switch_database(fiscal_name)
 		return fiscal_name
+
+class InstrumentedList(list):
+
+	def pop(self, index):
+		item = super().pop(index)
+		try:
+			db.session.delete(item)
+		except InvalidRequestError:
+			''' Remove item from session '''
+			db.session.expunge(item)
+
+		return item
+
+	def insert(self, index, item):
+		super().insert(index, item)
+		db.session.add(item)
+
+
+class RepairsModel(BaseTable, QtCore.QAbstractTableModel):
+
+	SN, ITEM, PARTNER, DATE, DESCRIPTION, COST = 0, 1, 2, 3, 4, 5
+
+	def __init__(self):
+		super().__init__()
+		self._headerData = ['SN', 'Item', 'Partner', 'Date', 'Description', 'Cost']
+		self.name = 'repairs'
+		self.repairs = InstrumentedList(db.session.query(db.Repair).all())
+
+	@property
+	def valid(self):
+		return all(r.valid for r in self.repairs)
+
+	def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
+		if not index.isValid():
+			return
+		row, col = index.row(), index.column()
+		repair = self.repairs[row]
+		if role == Qt.DisplayRole:
+			try:
+				clean_repr = repair.item.clean_repr
+			except AttributeError:
+				clean_repr = ''
+			try:
+				partner = repair.partner.fiscal_name
+			except AttributeError:
+				partner = ''
+
+			return [
+				repair.sn,
+				clean_repr,
+				partner,
+				repair.date.strftime('%d/%m/%Y'),
+				repair.description or '',
+				str(repair.cost or 0)
+			][col]
+		elif role == Qt.DecorationRole:
+			if col == self.DATE:
+				return QtGui.QIcon(':\calendar')
+			elif col == self.PARTNER:
+				return QtGui.QIcon(':\partners')
+
+	def insertRows(self, row: int, count: int, parent: QModelIndex = ...) -> bool:
+		self.beginInsertRows(parent, row, row + count - 1)
+		self.repairs.insert(row, db.Repair())
+		self.endInsertRows()
+		return True
+
+	def removeRows(self, row: int, count: int, parent: QModelIndex = ...) -> bool:
+		self.beginRemoveRows(parent, row, row + count - 1)
+		self.repairs.pop(row)
+		self.endRemoveRows()
+		return True
+
+	def setData(self, index: QModelIndex, value: typing.Any, role: int = ...) -> bool:
+
+		from utils import description_id_map, partner_id_map
+
+		if not index.isValid():
+			return False
+		row, col = index.row(), index.column()
+		repair = self.repairs[row]
+		if role == Qt.EditRole:
+			if col == self.SN:
+				repair.sn = value
+			elif col == self.ITEM:
+				try:
+					repair.item_id = description_id_map[value]
+					repair.item = db.session.query(db.Item).where(db.Item.id == repair.item_id).one()
+					return True
+				except KeyError:
+					return False
+			elif col == self.PARTNER:
+				try:
+					repair.partner_id = partner_id_map[value]
+					repair.partner = db.session.query(db.Partner).where(db.Partner.id == repair.partner_id).one()
+					return True
+				except KeyError:
+					return False
+			elif col == self.DATE:
+				try:
+					repair.date = datetime.strptime(value, '%d%m%Y').date()
+					return True
+				except ValueError:
+					return False
+			elif col == self.DESCRIPTION:
+				repair.description = value
+			elif col == self.COST:
+				try:
+					repair.cost = decimal.Decimal(value)
+					return True
+				except decimal.InvalidOperation:
+					return False
+			return False
+
+		return False
+
+	def flags(self, index: QModelIndex) -> Qt.ItemFlags:
+		if not index.isValid():
+			return Qt.NoItemFlags
+		return Qt.ItemIsEditable | Qt.ItemIsEnabled | Qt.ItemIsSelectable
+
+	def sort(self, column: int, order: Qt.SortOrder = ...) -> None:
+		self.layoutAboutToBeChanged.emit()
+		attr = {self.DATE: 'date', self.COST: 'cost'}.get(column)
+		if attr:
+			reverse = order == Qt.AscendingOrder
+			self.layoutAboutToBeChanged.emit()
+			self.repairs.sort(key=operator.attrgetter(attr), reverse=reverse)
+			self.layoutChanged.emit()
+
+class DiscountModel(BaseTable, QtCore.QAbstractTableModel):
+
+	SN, INVOICE, ITEM, PARTNER, DISCOUNT = 0, 1, 2, 3, 4
+
+	def __init__(self):
+		super().__init__()
+		self._headerData = ['SN', 'Invoice', 'Item', 'Partner', 'Discount']
+		self.name = 'discounts'
+		self.discounts = InstrumentedList(db.session.query(db.Discount).all())
+
+	@property
+	def valid(self):
+		return all(d.valid for d in self.discounts)
+
+	def editable_columns(self):
+		return self.SN, self.DISCOUNT
+
+	def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
+		if not index.isValid():
+			return
+		row, col = index.row(), index.column()
+		discount = self.discounts[row]
+		if role == Qt.DisplayRole:
+			try:
+				clean_repr = discount.item.clean_repr
+			except AttributeError:
+				clean_repr = ''
+			try:
+				partner = discount.invoice.partner_name
+			except AttributeError:
+				partner = ''
+			try:
+				invoice = discount.invoice.doc_repr_year
+			except AttributeError:
+				invoice = ''
+
+			return [
+				discount.sn,
+				invoice,
+				clean_repr,
+				partner,
+				str(discount.discount or 0)
+			][col]
+		elif role == Qt.DecorationRole:
+			if col == self.PARTNER:
+				return QtGui.QIcon(':\partners')
+
+	def setData(self, index: QModelIndex, value: typing.Any, role: int = ...) -> bool:
+		if not index.isValid():
+			return False
+		row, col = index.row(), index.column()
+		discount = self.discounts[row]
+		if role == Qt.EditRole:
+			if col == self.SN:
+				try:
+					reception_serie = (
+						db.session.query(db.ReceptionSerie)
+						.where(db.ReceptionSerie.serie == value).all()[-1]
+					)
+				except IndexError:
+					return False
+
+				if not reception_serie:
+					return False
+
+				discount.sn = value
+				discount.invoice_id = reception_serie.line.reception.proforma.invoice_id
+				discount.invoice = db.session.query(db.PurchaseInvoice).where(db.PurchaseInvoice.id == discount.invoice_id).one()
+
+				discount.item_id = reception_serie.line.item_id
+				discount.item = db.session.query(db.Item).where(db.Item.id == discount.item_id).one()
+				return True
+
+			elif col == self.DISCOUNT:
+				try:
+					discount.discount = decimal.Decimal(value)
+					return True
+				except decimal.InvalidOperation:
+					return False
+		return False
+
+	def insertRows(self, row: int, count: int, parent: QModelIndex = ...) -> bool:
+		self.beginInsertRows(parent, row, row + count - 1)
+		self.discounts.insert(row, db.Discount())
+		self.endInsertRows()
+		return True
+
+	def removeRows(self, row: int, count: int, parent: QModelIndex = ...) -> bool:
+		self.beginRemoveRows(parent, row, row + count - 1)
+		self.discounts.pop(row)
+		self.endRemoveRows()
+		return True
+
+	def flags(self, index: QModelIndex) -> Qt.ItemFlags:
+		if not index.isValid():
+			return Qt.NoItemFlags
+		if index.column() in self.editable_columns():
+			return Qt.ItemIsEditable | Qt.ItemIsEnabled | Qt.ItemIsSelectable
+		return Qt.ItemIsEnabled | Qt.ItemIsSelectable
 
 
 def caches_clear():
