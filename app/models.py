@@ -26,7 +26,6 @@ from PyQt5.QtCore import Qt
 from sqlalchemy.exc import InvalidRequestError, NoResultFound
 from sqlalchemy import func
 from sqlalchemy import or_, and_
-from sqlalchemy.exc import IntegrityError
 
 import pyVies.api as vies
 
@@ -8242,8 +8241,15 @@ class InstrumentedList(list):
 
 	def pop(self, index):
 		item = super().pop(index)
-		db.session.delete(item)
+		try:
+			db.session.delete(item)
+		except InvalidRequestError:
+			print('raised')
 		return item
+
+	def insert(self, index, item):
+		super().insert(index, item)
+		db.session.add(item)
 
 
 class RepairsModel(BaseTable, QtCore.QAbstractTableModel):
@@ -8280,15 +8286,19 @@ class RepairsModel(BaseTable, QtCore.QAbstractTableModel):
 				clean_repr,
 				partner,
 				repair.date.strftime('%d/%m/%Y'),
-				repair.description,
-				repair.cost
+				repair.description or '',
+				str(repair.cost or 0)
 			][col]
+		elif role == Qt.DecorationRole:
+			if col == self.DATE:
+				return QtGui.QIcon(':\calendar')
+			elif col == self.PARTNER:
+				return QtGui.QIcon(':\partner')
 
 	def insertRows(self, row: int, count: int, parent: QModelIndex = ...) -> bool:
 		self.beginInsertRows(parent, row, row + count - 1)
 		self.repairs.insert(row, db.Repair())
 		self.endInsertRows()
-		db.session.flush()
 		return True
 
 	def removeRows(self, row: int, count: int, parent: QModelIndex = ...) -> bool:
@@ -8311,19 +8321,20 @@ class RepairsModel(BaseTable, QtCore.QAbstractTableModel):
 			elif col == self.ITEM:
 				try:
 					repair.item_id = description_id_map[value]
-					# repair.item = db.session.query(db.Item).where(db.Item.id == repair.item_id).one()
+					repair.item = db.session.query(db.Item).where(db.Item.id == repair.item_id).one()
 					return True
 				except KeyError:
 					return False
 			elif col == self.PARTNER:
 				try:
 					repair.partner_id = partner_id_map[value]
+					repair.partner = db.session.query(db.Partner).where(db.Partner.id == repair.partner_id).one()
 					return True
 				except KeyError:
 					return False
 			elif col == self.DATE:
 				try:
-					repair.date = datetime.strptime(value, '%d%m%Y')
+					repair.date = datetime.strptime(value, '%d%m%Y').date()
 					return True
 				except ValueError:
 					return False
@@ -8343,6 +8354,17 @@ class RepairsModel(BaseTable, QtCore.QAbstractTableModel):
 		if not index.isValid():
 			return Qt.NoItemFlags
 		return Qt.ItemIsEditable | Qt.ItemIsEnabled | Qt.ItemIsSelectable
+
+	def sort(self, column: int, order: Qt.SortOrder = ...) -> None:
+		self.layoutAboutToBeChanged.emit()
+		attr = {self.DATE: 'date', self.COST: 'cost'}.get(column)
+		if attr:
+			reverse = order == Qt.AscendingOrder
+			self.layoutAboutToBeChanged.emit()
+			self.repairs.sort(key=operator.attrgetter(attr), reverse=reverse)
+			self.layoutChanged.emit()
+
+
 
 def caches_clear():
 	get_avg_rate.cache_clear()

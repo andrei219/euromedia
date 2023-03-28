@@ -19,6 +19,9 @@ class Form(Ui_Form, QDialog):
 		self.view.setModel(self.model)
 		self.view.setItemDelegate(RepairDelegate(parent=self))
 
+		self.view.setColumnWidth(1, 300)
+		self.view.setColumnWidth(2, 300)
+
 		self.set_handlers()
 
 	def set_handlers(self):
@@ -30,6 +33,7 @@ class Form(Ui_Form, QDialog):
 	def save_handler(self):
 		if self.model.valid:
 			session.commit()
+			QMessageBox.information(self, 'Success', 'Data saved successfully')
 			self.close()
 		else:
 			QMessageBox.warning(self, 'Warning', 'Please fill all required fields')

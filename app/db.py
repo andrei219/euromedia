@@ -2509,7 +2509,7 @@ class Repair(Base):
         self.sn = None
         self.item_id = None
         self.partner_id = None
-        self.date = datetime.today()
+        self.date = datetime.today().date()
         self.description = None
         self.cost = None
 
@@ -2523,6 +2523,23 @@ class Repair(Base):
             self.description,
             self.cost
         ))
+
+    def __repr__(self):
+        cls_name = self.__class__.__name__
+        return f"{cls_name}(sn={self.sn}, item_id={self.item_id}, partner_id={self.partner_id}, " \
+               f"date={self.date}, description={self.description}, cost={self.cost})"
+
+class Discount(Base):
+
+    __tablename__ = 'discounts'
+
+    id = Column(Integer, primary_key=True)
+    invoice_id = Column(ForeignKey('purchase_invoices.id'), nullable=False)
+
+    sn = Column(String(50), nullable=False)
+    item_id = Column(ForeignKey('items.id'), nullable=False)
+    discount = Column(Numeric(18, 4), nullable=False)
+    
 
 
 if __name__ == '__main__':

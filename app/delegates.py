@@ -26,6 +26,7 @@ class RepairDelegate(QStyledItemDelegate):
             return create_completer(parent, description_id_map.keys())
         elif index.column() == self.PARTNER:
             return create_completer(parent, partner_id_map.keys())
+        return super().createEditor(parent, option, index)
 
 class WhRmaDelegate(QItemDelegate):
 
