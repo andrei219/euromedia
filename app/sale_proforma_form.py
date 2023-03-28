@@ -565,7 +565,7 @@ class Form(Ui_SalesProformaForm, QWidget):
             lines = [
                 line
                 for line in self.model
-                if not utils.is_object_presisted(line)
+                if not utils.is_object_persisted(line)
             ]
             if self.stock_model.lines_against_stock(warehouse_id, lines):
                 QMessageBox.critical(
@@ -589,7 +589,7 @@ class Form(Ui_SalesProformaForm, QWidget):
 
     def save_template(self):
 
-        if not utils.is_object_presisted(self.proforma):
+        if not utils.is_object_persisted(self.proforma):
             self.model.add(self.proforma) 
 
     def closeEvent(self, event):
