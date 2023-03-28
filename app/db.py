@@ -1,8 +1,12 @@
 import sqlalchemy.sql.expression
 from sqlalchemy import create_engine, event, insert, update, delete
+from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import sessionmaker, scoped_session, column_property
 from sqlalchemy.sql import func
+from sqlalchemy import not_
+
+
 from sqlalchemy import select
 
 import sys
@@ -19,7 +23,6 @@ from sqlalchemy import (
 
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, backref
-
 import functools
 import operator
 
@@ -27,12 +30,16 @@ from datetime import timedelta
 
 from sqlalchemy import exists
 
+import functools
+
+def get_host():
+    if os.environ['APP_DEBUG'].lower() == 'false':
+        return '//andrei:hnq#4506@192.168.1.78:3306'
+    else:
+        return '//root:hnq#4506@localhost:3306'
 
 def get_db_url():
-    if os.environ['APP_DEBUG'].lower() == 'false':
-        host = '//andrei:hnq#4506@192.168.1.78:3306'
-    else:
-        host = '//root:hnq#4506@localhost:3306'
+    host = get_host()
     return f'mysql+mysqlconnector:{host}/{os.environ["APP_DATABASE"]}'
 
 
@@ -60,6 +67,7 @@ Base = declarative_base()
 def switch_database(fiscal_name):
     global Session, session
     os.environ['APP_DATABASE'] = name2db_map[fiscal_name]
+    host = get_host()
     engine = create_engine(f'mysql+mysqlconnector:{host}/{os.environ["APP_DATABASE"]}',
                            echo=os.environ['APP_ECHO'].lower() == 'true')
 
@@ -2454,6 +2462,202 @@ class ViesRequest(Base):
         self.fiscal_number = fiscal_number
 
 
+class BankingTransaction(Base):
+
+    __tablename__ = 'banking_transactions'
+
+    id = Column(Integer, primary_key=True)
+    journal_entry_id = Column(ForeignKey('journal_entries.id'), nullable=False)
+    bank_id = Column(ForeignKey('bank_accounts.id'), nullable=False)
+
+    source = Column(String(50), nullable=False)
+    description = Column(String(255), nullable=False)
+    transaction_date = Column(Date, nullable=False)
+    value_date = Column(Date, nullable=False)
+    amount = Column(Numeric(18, 4), nullable=False)
+    posted = Column(Boolean, nullable=False)
+
+    journal_entry = relationship('JournalEntry', backref='banking_transaction', uselist=False)
+
+
+class Account(Base):
+
+    __tablename__ = 'accounts'
+
+    RELATED_TYPES = ['partner', 'bank_account']
+
+    id = Column(Integer, primary_key=True)
+    code = Column(String(50), nullable=False)
+    name = Column(String(255), nullable=False)
+    parent_id = Column(ForeignKey('accounts.id'), nullable=True)
+
+    related_type = Column(String(50), nullable=True)
+    related_id = Column(Integer, nullable=True)
+
+    created_on = Column(DateTime, nullable=False, default=datetime.now)
+    updated_on = Column(DateTime, nullable=False, default=datetime.now, onupdate=datetime.now)
+
+    parent = relationship('Account', remote_side=[id])
+
+    __table_args__ = (
+        CheckConstraint(related_type.in_(RELATED_TYPES)),
+        UniqueConstraint('code', 'parent_id', name='code_parent_unique'),
+    )
+
+    def __init__(self, code, name, related_type=None, related_id=None, parent=None):
+        self.code = code
+        self.name = name
+        self.parent = parent
+        self.related_type = related_type
+        self.related_id = related_id
+
+
+    def __repr__(self):
+        cls_name = self.__class__.__name__
+        return f"{cls_name}(code={self.code}, name={self.name}, parent_id={self.parent_id})"
+
+    @staticmethod
+    @functools.cache
+    def get_leaf_accounts_map():
+        from bidict import bidict
+        accounts = bidict()
+
+        sql = """
+            SELECT * FROM ACCOUNTS
+            WHERE NOT EXISTS (
+                SELECT 1 FROM ACCOUNTS AS A WHERE A.PARENT_ID = ACCOUNTS.ID
+            )
+        """
+
+        leaf_accounts = session.execute(sql).fetchall()
+
+        for account in leaf_accounts:
+            accounts[f'{account.code} - {account.name}'] = account.id
+        return accounts
+
+
+class Balance(Base):
+
+    __tablename__ = 'balances'
+
+    id = Column(Integer, primary_key=True)
+    date = Column(Date, nullable=False)
+    account_id = Column(ForeignKey('accounts.id'), nullable=False)
+    amount = Column(Numeric(18, 4), nullable=False)
+
+    created_on = Column(DateTime, nullable=False, default=datetime.now)
+    updated_on = Column(DateTime, nullable=False, default=datetime.now, onupdate=datetime.now)
+
+    account = relationship('Account', viewonly=True)
+
+# Type can be in ['sale', 'purchase', 'misc', 'payment', 'collection', 'income', 'expense']
+# But it also can contain other types, like 'sale_return', 'purchase_return', 'sale_credit', 'purchase_credit'
+# These types are used to identify the type of the journal entry
+# And they will be defined in advance in the database
+
+
+import enum
+from sqlalchemy import Enum
+class AutoEnum(enum.Enum):
+    auto_no = 'auto_no'
+    auto_semi = 'auto_semi'
+    auto_yes = 'auto_yes'
+
+# Recuerda que en este tipo de relaciones polimórficas
+# el tipo decide hacia donde apunta la relación.
+# Por ejemplo, si el tipo es 'sale', entonces el id apunta a la tabla de ventas
+# Si el tipo es 'payment', entonces el id apunta a la tabla de pagos
+# y asi sucesivamente
+
+class JournalEntry(Base):
+
+    __tablename__ = 'journal_entries'
+
+    RELATED_TYPES = [
+        'sale', 'purchase', 'misc', 'payment', 'collection',
+        'income', 'expense','sale_return', 'purchase_return'
+    ]
+
+    id = Column(Integer, primary_key=True)
+    date = Column(Date, nullable=False)
+    description = Column(String(255), nullable=False)
+    related_type = Column(String(100), nullable=False)
+    related_id = Column(Integer, nullable=True)
+    auto = Column(Enum(AutoEnum), nullable=False, default=AutoEnum.auto_no)
+
+    created_on = Column(DateTime, nullable=False, default=datetime.now)
+    updated_on = Column(DateTime, nullable=False, default=datetime.now, onupdate=datetime.now)
+
+    __table_args__ = (
+        CheckConstraint(related_type.in_(RELATED_TYPES)),
+        UniqueConstraint('related_type', 'related_id', name='related_type_id_unique'),
+    )
+
+    @classmethod
+    def dummy(cls):
+        o = cls()
+        o.date = datetime.now().date()
+        o.description = 'dummy'
+        o.related_type = 'sale'
+        o.auto = AutoEnum.auto_no
+        return o
+
+    def __repr__(self):
+        clsname = self.__class__.__name__
+        return f"{clsname}(id={self.id}, date={self.date}, description={self.description}, related_type={self.related_type}, related_id={self.related_id})"
+
+class JournalEntryLine(Base):
+
+    __tablename__ = 'journal_entry_lines'
+
+    id = Column(Integer, primary_key=True)
+    journal_entry_id = Column(ForeignKey('journal_entries.id'), nullable=False)
+    account_id = Column(ForeignKey('accounts.id'), nullable=False)
+    debit = Column(Numeric(18, 4), nullable=False, default=0)
+    credit = Column(Numeric(18, 4), nullable=False, default=0)
+    description = Column(String(255), nullable=False)
+
+    created_on = Column(DateTime, nullable=False, default=datetime.now)
+    updated_on = Column(DateTime, nullable=False, default=datetime.now, onupdate=datetime.now)
+
+    account = relationship('Account', viewonly=True, lazy='select')
+
+    def __init__(self):
+        super().__init__()
+        self.debit = 0
+        self.credit = 0
+        self.description = ''
+
+    def __repr__(self):
+        cls_name = self.__class__.__name__
+        return f"{cls_name}(account_id={self.account_id}, debit={self.debit}, credit={self.credit}, description={self.description})"
+
+    journal_entry = relationship(
+        'JournalEntry',
+        backref=backref(
+            'lines', cascade='delete-orphan, delete, save-update'
+        )
+    )
+
+    __table_args__ = (
+        CheckConstraint("debit != 0 OR credit != 0", name='non_zero_debit_or_credit'),
+        CheckConstraint("debit = 0 OR credit = 0", name='not_both_debit_and_credit'),
+    )
+
+class BankAccount(Base):
+
+    __tablename__ = 'bank_accounts'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(255), nullable=False)
+    iban = Column(String(255), nullable=False)
+
+    def __init__(self, name, iban):
+        super().__init__()
+        self.name = name
+        self.iban = iban
+
+
 def create_init_data():
     spec = Spec('Mix')
     condition = Condition('Mix')
@@ -2598,6 +2802,8 @@ if __name__ == '__main__':
     session.add(discount4)
 
     session.commit()
+
+
 
 
 

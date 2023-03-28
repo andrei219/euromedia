@@ -67,10 +67,21 @@ def stock_type(stock):
         else:
             return -1  # No mixing available
 
-def is_object_presisted(object):
+def is_object_persisted(object):
     from sqlalchemy import inspect
     inspector = inspect(object)
     return inspector.persistent
+
+
+def get_accounts_map():
+    accounts = bidict()
+    from sqlalchemy import exists
+    has_child = exists().where(db.Account.parent_id == db.Account.id)
+    leaf_accounts = db.session.query(db.Account).where(~has_child).all()
+    for account in leaf_accounts:
+        accounts[f'{account.code} - {account.name}'] = account.id
+
+    return accounts
 
 
 def mixing_compatible(o, p):
@@ -95,6 +106,8 @@ specs = {s.description for s in db.session.query(db.Spec.description)}
 conditions = {c.description for c in db.session.query(db.Condition.description)}
 partner_id_map = mymap(db.Partner)
 agent_id_map = mymap(db.Agent)
+accounts_map = get_accounts_map()
+
 
 courier_id_map = bidict({
     c.description: c.id

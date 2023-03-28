@@ -68,6 +68,8 @@ PREFIXES = [
     'tools_',
     'rmas_incoming_',
     'rmas_outgoing_',
+    'journal_entries_',
+    'banking_transactions_'
 ]
 
 ACTIONS = [
@@ -120,6 +122,8 @@ ACTIONS = [
     'top_partners',
     'owing',
     'whatsapp',
+    'new_entry'
+    'whatsapp',
     'repairs',
     'discounts',
 ]
@@ -154,6 +158,8 @@ def view_document(view, model):
     with tempfile.NamedTemporaryFile('wb', dir='.', delete=False, suffix='.pdf') as file:
         pdf_object.output(file.name)
         subprocess.Popen((file.name, ), shell=True)
+
+
 
 def view_document_old(view, model):
     ixs = view.selectedIndexes()
@@ -300,7 +306,7 @@ class MainGui(Ui_MainGui, QMainWindow):
 
     def set_mv(self, prefix, search_key=None, filters=None, last=10):
         from utils import setCommonViewConfig
-        from delegates import WarningEditDelegate
+        from delegates import WarningEditDelegate, JournalEntryTypeDelegate
 
         try:
             last_field = getattr(self, prefix + 'last')
@@ -313,7 +319,18 @@ class MainGui(Ui_MainGui, QMainWindow):
                 if last_field.text() == '':
                     last = 366
 
-        if prefix == 'agents_':
+        if prefix == 'banking_transactions_':
+            self.banking_transactions_model = models.BankingTransactionModel()
+            self.banking_transactions_view.setModel(self.banking_transactions_model)
+
+        elif prefix == 'journal_entries_':
+            self.journal_entries = models.JournalEntriesModel()
+            self.journal_entries_view.setModel(self.journal_entries)
+            self.journal_entries_view.resizeColumnToContents(0)
+            self.journal_entries_view.resizeColumnToContents(5)
+            self.journal_entries_view.setItemDelegate(JournalEntryTypeDelegate(self.journal_entries_view))
+
+        elif prefix == 'agents_':
             self.agents_model = models.AgentModel(search_key=search_key)
             self.agents_view.setModel(self.agents_model)
             setCommonViewConfig(self.agents_view)
@@ -618,7 +635,7 @@ class MainGui(Ui_MainGui, QMainWindow):
         if indexes:
             index = indexes[0]
             try:
-                self.partners_model.delete(index)
+                self.partnerModel.delete(index)
                 self.partners_view.clearSelection()
             except IntegrityError as e:
                 QMessageBox.critical(self, "Error - Delete",
@@ -1413,6 +1430,8 @@ class MainGui(Ui_MainGui, QMainWindow):
         try:
             self.rmas_incoming_model.to_warehouse(row)
         except ValueError as ex:
+            print('catched value error')
+            print(str(ex))
             QMessageBox.critical(self, 'Error', str(ex))
         else:
             QMessageBox.information(self, 'Error', 'RMA WH order created')
@@ -1454,6 +1473,7 @@ class MainGui(Ui_MainGui, QMainWindow):
             QMessageBox.critical(self, 'Error', "I did not found candidates for a new Credit Note")
             return
 
+
         partner_id = wh_rma_order.incoming_rma.lines[0].cust_id
 
         agent_id = wh_rma_order.incoming_rma.lines[0].agent_id
@@ -1467,17 +1487,13 @@ class MainGui(Ui_MainGui, QMainWindow):
 
         invoice = self.proformas_sales_model.build_invoice_from_proforma(proforma, wh_rma_order)
 
-        # Set credit note line -> invoice relationship
-        for line in proforma.credit_note_lines:
-            line.invoice_id = invoice.id
-
         for line in candidates:
             imei = db.Imei()
             imei.imei = line.sn
             imei.item_id = line.item_id
             imei.spec = line.spec
             imei.warehouse_id = line.warehouse_id
-            imei.condition = line.target_condition or line.condition
+            imei.condition = line.target_condition
 
             db.session.add(imei)
 
@@ -1596,6 +1612,7 @@ class MainGui(Ui_MainGui, QMainWindow):
         from switch_form import Form
         Form(self).exec_()
 
+
     def tools_top_partners_handler(self):
         from top_partners_form import Form
         Form(self).exec_()
@@ -1630,6 +1647,7 @@ class MainGui(Ui_MainGui, QMainWindow):
             QMessageBox.critical(self, 'Error', 'Authentication Error.')
 
         except FileNotFoundError:
+            raise
             QMessageBox.critical(self, 'Error', 'I could not find the error log.')
 
         except smtplib.SMTPException:
@@ -1645,6 +1663,26 @@ class MainGui(Ui_MainGui, QMainWindow):
         from discount_form import Form
         Form(parent=self).exec_()
 
+
+    def journal_entries_new_handler(self):
+
+        from journal_entry_form import Form
+        self.entry_form = Form(parent_form=self)
+        self.entry_form.show()
+
+    def journal_entries_delete_handler(self):
+        index = self.journal_entries_view.currentIndex()
+        if not index.isValid():
+            return
+        self.journal_entries_view.model().removeRow(index.row())
+
+    def journal_entries_double_click_handler(self, index):
+        from journal_entry_form import Form
+        self.entry_form = Form(
+            entry=self.journal_entries_view.model()[index.row()],
+            parent_form=self
+        )
+        self.entry_form.show()
 
     def tab_changed(self, index):
         db.session.commit()
