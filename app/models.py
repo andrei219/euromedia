@@ -8293,7 +8293,7 @@ class RepairsModel(BaseTable, QtCore.QAbstractTableModel):
 			if col == self.DATE:
 				return QtGui.QIcon(':\calendar')
 			elif col == self.PARTNER:
-				return QtGui.QIcon(':\partner')
+				return QtGui.QIcon(':\partners')
 
 	def insertRows(self, row: int, count: int, parent: QModelIndex = ...) -> bool:
 		self.beginInsertRows(parent, row, row + count - 1)
@@ -8364,6 +8364,80 @@ class RepairsModel(BaseTable, QtCore.QAbstractTableModel):
 			self.repairs.sort(key=operator.attrgetter(attr), reverse=reverse)
 			self.layoutChanged.emit()
 
+class DiscountModel(BaseTable, QtCore.QAbstractTableModel):
+
+	SN, INVOICE, ITEM, PARTNER, DISCOUNT = 0, 1, 2, 3, 4
+
+	def __init__(self):
+		super().__init__()
+		self._headerData = ['SN', 'Invoice', 'Item', 'Partner', 'Discount']
+		self.name = 'discounts'
+		self.discounts = InstrumentedList(db.session.query(db.Discount).all())
+
+	@property
+	def valid(self):
+		return all(d.valid for d in self.discounts)
+
+	def editable_columns(self):
+		return self.SN, self.DISCOUNT
+
+	def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
+		if not index.isValid():
+			return
+		row, col = index.row(), index.column()
+		discount = self.discounts[row]
+		if role == Qt.DisplayRole:
+			try:
+				clean_repr = discount.item.clean_repr
+			except AttributeError:
+				clean_repr = ''
+			try:
+				partner = discount.invoice.partner_name
+			except AttributeError:
+				partner = ''
+			try:
+				invoice = discount.invoice.doc_repr_year
+			except AttributeError:
+				invoice = ''
+
+			return [
+				discount.sn,
+				invoice,
+				clean_repr,
+				partner,
+				str(discount.discount or 0)
+			][col]
+		elif role == Qt.DecorationRole:
+			if col == self.PARTNER:
+				return QtGui.QIcon(':\partners')
+
+	def setData(self, index: QModelIndex, value: typing.Any, role: int = ...) -> bool:
+		if not index.isValid():
+			return False
+		row, col = index.row(), index.column()
+		discount = self.discounts[row]
+		if role == Qt.EditRole:
+			if col == self.SN:
+				pass
+
+	def insertRows(self, row: int, count: int, parent: QModelIndex = ...) -> bool:
+		self.beginInsertRows(parent, row, row + count - 1)
+		self.discounts.insert(row, db.Discount())
+		self.endInsertRows()
+		return True
+
+	def removeRows(self, row: int, count: int, parent: QModelIndex = ...) -> bool:
+		self.beginRemoveRows(parent, row, row + count - 1)
+		self.discounts.pop(row)
+		self.endRemoveRows()
+		return True
+
+	def flags(self, index: QModelIndex) -> Qt.ItemFlags:
+		if not index.isValid():
+			return Qt.NoItemFlags
+		if index.column() in self.editable_columns():
+			return Qt.ItemIsEditable | Qt.ItemIsEnabled | Qt.ItemIsSelectable
+		return Qt.ItemIsEnabled | Qt.ItemIsSelectable
 
 
 def caches_clear():
