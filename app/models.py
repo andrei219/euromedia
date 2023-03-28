@@ -8418,7 +8418,14 @@ class DiscountModel(BaseTable, QtCore.QAbstractTableModel):
 		discount = self.discounts[row]
 		if role == Qt.EditRole:
 			if col == self.SN:
-				pass
+				reception_serie = (
+					db.session.query(db.ReceptionSerie)
+					.where(db.ReceptionSerie.serie == value).all()[-1]
+				)
+				if not reception_serie:
+					return False
+
+
 
 	def insertRows(self, row: int, count: int, parent: QModelIndex = ...) -> bool:
 		self.beginInsertRows(parent, row, row + count - 1)

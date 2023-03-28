@@ -1642,7 +1642,9 @@ class MainGui(Ui_MainGui, QMainWindow):
         Form(parent=self).exec_()
 
     def tools_discounts_handler(self):
-        print('discounts')
+        from discount_form import Form
+        Form(parent=self).exec_()
+
 
     def tab_changed(self, index):
         db.session.commit()

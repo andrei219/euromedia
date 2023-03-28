@@ -6,7 +6,6 @@ from PyQt5.QtCore import Qt
 
 from db import session
 from models import DiscountModel
-from delegates import RepairDelegate
 
 
 class Form(Ui_Form, QDialog):
