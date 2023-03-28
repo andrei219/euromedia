@@ -5,6 +5,8 @@ from PyQt5.QtWidgets import QWidget, QCompleter, QLineEdit, \
 
 from PyQt5.QtCore import Qt
 
+from db import Account, JournalEntry
+
 from utils import warehouse_id_map, description_id_map, partner_id_map
 from utils import conditions
 
@@ -29,23 +31,6 @@ class RepairDelegate(QStyledItemDelegate):
             return create_completer(parent, partner_id_map.keys())
         return super().createEditor(parent, option, index)
 
-class WhRmaDelegate(QItemDelegate):
-
-    WAREHOUSE, TARGET_CONDITION = 7, 8
-
-    def __init__(self, parent=None):
-        super(WhRmaDelegate, self).__init__(parent)
-from db import Account, JournalEntry
-
-
-def create_completer(parent, items):
-    editor = QLineEdit(parent)
-    completer = QCompleter(items)
-    completer.setCaseSensitivity(Qt.CaseInsensitive)
-    completer.setFilterMode(Qt.MatchContains)
-    editor.setCompleter(completer)
-    return editor
-
 
 class WhRmaDelegate(QItemDelegate):
     WAREHOUSE, TARGET_CONDITION = 7, 8
@@ -55,7 +40,7 @@ class WhRmaDelegate(QItemDelegate):
 
     def createEditor(self, parent, option, index) -> QWidget:
         if index.column() == self.WAREHOUSE:
-            return self.create_completer(parent, warehouse_id_map.keys())
+            return create_completer(parent, warehouse_id_map.keys())
         elif index.column() == self.TARGET_CONDITION:
             return create_completer(parent, conditions)
         return super().createEditor(parent, option, index)
@@ -71,7 +56,6 @@ class JournalEntryTypeDelegate(QItemDelegate):
         if index.column() == self.TYPE:
             return create_completer(parent, JournalEntry.RELATED_TYPES)
         return super().createEditor(parent, option, index)
-
 
 class AccountDelegate(QItemDelegate):
     ACCOUNT = 0
