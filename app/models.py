@@ -23,7 +23,7 @@ from PyQt5 import QtGui
 from PyQt5.QtCore import QModelIndex
 from PyQt5.QtCore import Qt
 
-from sqlalchemy.exc import InvalidRequestError, NoResultFound
+from sqlalchemy.exc import InvalidRequestError, NoResultFound, IntegrityError
 from sqlalchemy import func
 from sqlalchemy import or_, and_
 
