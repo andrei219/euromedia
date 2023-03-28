@@ -8260,7 +8260,7 @@ class RepairsModel(BaseTable, QtCore.QAbstractTableModel):
 
 	def __init__(self):
 		super().__init__()
-		self._headerData = ['SN', 'Item', 'Partner', 'Date', 'Description', 'Cost']
+		self._headerData = ['SN', 'Item', 'Repairer', 'Date', 'Description', 'Cost']
 		self.name = 'repairs'
 		self.repairs = InstrumentedList(db.session.query(db.Repair).all())
 
