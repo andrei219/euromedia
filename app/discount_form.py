@@ -17,8 +17,10 @@ class Form(Ui_Form, QDialog):
 		self.model = DiscountModel()
 		self.view.setModel(self.model)
 
-		self.view.setColumnWidth(1, 300)
+		self.view.setColumnWidth(0, 200)
+		self.view.setColumnWidth(1, 180)
 		self.view.setColumnWidth(2, 300)
+		self.view.setColumnWidth(3, 300)
 
 		self.set_handlers()
 

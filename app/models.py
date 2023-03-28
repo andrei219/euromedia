@@ -8244,7 +8244,9 @@ class InstrumentedList(list):
 		try:
 			db.session.delete(item)
 		except InvalidRequestError:
-			print('raised')
+			''' Remove item from session '''
+			db.session.expunge(item)
+
 		return item
 
 	def insert(self, index, item):
@@ -8418,14 +8420,32 @@ class DiscountModel(BaseTable, QtCore.QAbstractTableModel):
 		discount = self.discounts[row]
 		if role == Qt.EditRole:
 			if col == self.SN:
-				reception_serie = (
-					db.session.query(db.ReceptionSerie)
-					.where(db.ReceptionSerie.serie == value).all()[-1]
-				)
+				try:
+					reception_serie = (
+						db.session.query(db.ReceptionSerie)
+						.where(db.ReceptionSerie.serie == value).all()[-1]
+					)
+				except IndexError:
+					return False
+
 				if not reception_serie:
 					return False
 
+				discount.sn = value
+				discount.invoice_id = reception_serie.line.reception.proforma.invoice_id
+				discount.invoice = db.session.query(db.PurchaseInvoice).where(db.PurchaseInvoice.id == discount.invoice_id).one()
 
+				discount.item_id = reception_serie.line.item_id
+				discount.item = db.session.query(db.Item).where(db.Item.id == discount.item_id).one()
+				return True
+
+			elif col == self.DISCOUNT:
+				try:
+					discount.discount = decimal.Decimal(value)
+					return True
+				except decimal.InvalidOperation:
+					return False
+		return False
 
 	def insertRows(self, row: int, count: int, parent: QModelIndex = ...) -> bool:
 		self.beginInsertRows(parent, row, row + count - 1)
