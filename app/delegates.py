@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import QStyledItemDelegate, QWidget, QCompleter, QLineEdit,
 from PyQt5.QtWidgets import QComboBox
 from PyQt5.QtCore import Qt
 
-from utils import description_id_map, partner_id_map
+from utils import description_id_map, partner_id_map, warehouse_id_map
 from utils import conditions
 
 
