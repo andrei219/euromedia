@@ -989,6 +989,9 @@ class MainGui(Ui_MainGui, QMainWindow):
             self.proformas_purchases_view.clearSelection()
 
         except IntegrityError as ex:
+
+            raise
+
             if ex.orig.args[0] == 1048:
                 d = 'Invoice' if invoice else 'Proforma'
                 QMessageBox.critical(
@@ -1475,7 +1478,6 @@ class MainGui(Ui_MainGui, QMainWindow):
             QMessageBox.critical(self, 'Error', "I did not found candidates for a new Credit Note")
             return
 
-
         partner_id = wh_rma_order.incoming_rma.lines[0].cust_id
 
         agent_id = wh_rma_order.incoming_rma.lines[0].agent_id
@@ -1488,6 +1490,9 @@ class MainGui(Ui_MainGui, QMainWindow):
             return
 
         invoice = self.proformas_sales_model.build_invoice_from_proforma(proforma, wh_rma_order)
+
+        for line in proforma.credit_note_lines:
+            line.invoice_id = invoice.id
 
         for line in candidates:
             imei = db.Imei()

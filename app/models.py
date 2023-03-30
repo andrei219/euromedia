@@ -5998,7 +5998,8 @@ class WhRmaIncomingLineModel(BaseTable, QtCore.QAbstractTableModel):
 			elif column == self.SPEC:
 				return line.spec
 			elif column == self.TARGET_CONDITION:
-				return line.target_condition or line.condition
+				return line.target_condition
+
 
 		elif role == Qt.BackgroundRole:
 			if column == self.TARGET_CONDITION:

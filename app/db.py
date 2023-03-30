@@ -2159,7 +2159,6 @@ class WhIncomingRmaLine(Base):
         s += f"why={self.why})"
         return s
 
-
     def __init__(self, incoming_rma_line):
         self.sn = incoming_rma_line.sn
         self.problem = incoming_rma_line.problem
@@ -2169,7 +2168,9 @@ class WhIncomingRmaLine(Base):
         self.condition = incoming_rma_line.condition
         self.spec = incoming_rma_line.spec
         self.price = incoming_rma_line.price
+        self.target_condition = incoming_rma_line.condition
         self.public_condition = incoming_rma_line.public
+
 
         try:
             self.invoice_type = session.query(SaleInvoice.type) \
