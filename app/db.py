@@ -1631,12 +1631,10 @@ class ExpeditionLine(Base):
     item = relationship('Item', uselist=False)
     expedition = relationship('Expedition', backref=backref('lines'))
 
-    processed_series = column_property(
-        select(func.count(ExpeditionSerie.id)).where(
-            ExpeditionSerie.line_id == id
-        ).scalar_subquery()
-    )
-
+    @property
+    def processed_series(self):
+        return session.query(func.count(ExpeditionSerie.id)).where(ExpeditionSerie.line_id == self.id).scalar()
+        
     # Compatible with saleProformaLINE
     # Enable set operations
     # Remember operation with sale proforma line:
