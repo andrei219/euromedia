@@ -22,8 +22,6 @@ __pycache__\*.pyd
 **/__pycache__/
 **\__pycache__\
 
-
-
 *\__pycache__\*.pyc
 */__pycache__/*.pyc
 
@@ -44,7 +42,6 @@ sii/.vs/*
 mailunch/.vs/*
 mailunch\.vs\*
 
-
 mailunch/*
 !mailunch/bin/Debug/net6.0/
 
@@ -52,7 +49,6 @@ mailunch/*
 
 ./vs
 .\vs
-
 
 brother 
 sii 
