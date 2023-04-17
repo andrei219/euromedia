@@ -20,6 +20,7 @@ from utils import parse_date, get_next_num
 MESSAGE = "This presale is only for incoming stock \n {}. For others stocks create new presale"
 
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.sql import text
 
 def reload_utils():
     global utils
@@ -45,6 +46,7 @@ class Form(Ui_Form, QWidget):
 
         self.type_filter = None
         self.number_filter = None
+
 
     def init_template(self):
         self.proforma = db.SaleProforma()
@@ -133,7 +135,6 @@ class Form(Ui_Form, QWidget):
             spec=spec,
             type=self.type_filter,
             number=self.number_filter
-
         )
 
         self.stock_view.setModel(self.stock_model)
@@ -259,7 +260,6 @@ class Form(Ui_Form, QWidget):
             if not has_certificate(partner_id):
                 QMessageBox.information(self, 'Information', 'This partner has no reseller certificate.')
 
-
     def insert_handler(self):
         from free_line_form import Dialog
         dialog = Dialog(self)
@@ -364,7 +364,30 @@ class EditableForm(Form):
         self.proforma_to_form()
         self.warehouse.setEnabled(False)
         self.disable_if_cancelled()
-        self.set_stock_message(empty=not self.lines_model)
+
+        self.set_global_filters_and_stock_message()
+
+    def set_global_filters_and_stock_message(self):
+        type, number = db.session.execute(
+            text(
+                """
+                    select `type`, `number`
+                    from purchase_proformas inner join purchase_proforma_lines
+                    on purchase_proformas.id = purchase_proforma_lines.proforma_id
+                    where purchase_proforma_lines.id in (
+                        select origin_id from advanced_lines where proforma_id = :proforma_id
+                    )
+                """
+            ),
+            params = {'proforma_id': self.proforma.id}
+        ).first()
+
+        self.type_filter = type
+        self.number_filter = number
+        self.stock_message.setText(
+            'Stock for proforma {}-{} is shown'.format(type, number)
+        )
+        self.stock_message.setStyleSheet('background-color:"#FF7F7F"')
 
     def init_template(self):
         # This method is empty but is part of the template pattern
@@ -374,7 +397,6 @@ class EditableForm(Form):
         # Proforma object with a new one populated with Nones
         # and raising AttributeErrors
         pass
-
 
     def save_template(self):
         update_sale_warehouse(self.proforma)
