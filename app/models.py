@@ -27,6 +27,7 @@ from sqlalchemy.exc import InvalidRequestError, NoResultFound
 from sqlalchemy import func
 from sqlalchemy import or_, and_
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.sql import text
 
 import pyVies.api as vies
 
@@ -3263,9 +3264,19 @@ class SerieModel(QtCore.QAbstractListModel):
 				where(db.Expedition.id == self.expedition.id)
 		}
 
+	def serie_present_in_dependant_purchase(self, serie):
+		return db.session.execute(
+			db.purchase_level_query,
+			params={'proforma_id': self.expedition.proforma_id, 'serie': serie}
+		).scalar()
+
 	def add(self, line, _serie):
 		if _serie in self:
 			raise SeriePresentError
+
+		if self.serie_present_in_dependant_purchase(_serie):
+			from exceptions import SeriePresentAtPurchaseSpace
+			raise SeriePresentAtPurchaseSpace
 
 		serie = db.ExpeditionSerie()
 		serie.serie = _serie

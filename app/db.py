@@ -74,6 +74,21 @@ def switch_database(fiscal_name):
     Session = scoped_session(sessionmaker(bind=engine, autoflush=False))
     session = Session()
 
+purchase_level_query = """
+    SELECT EXISTS (
+    SELECT 1 FROM reception_series
+    INNER JOIN reception_lines ON reception_lines.id = reception_series.line_id
+    INNER JOIN receptions ON receptions.id = reception_lines.reception_id
+    INNER JOIN purchase_proformas ON purchase_proformas.id = receptions.proforma_id
+    INNER JOIN purchase_proforma_lines ON purchase_proforma_lines.proforma_id = purchase_proformas.id
+    WHERE purchase_proforma_lines.id IN (
+        SELECT origin_id
+        FROM advanced_lines
+        INNER JOIN sale_proformas ON sale_proformas.id = advanced_lines.proforma_id
+        WHERE sale_proformas.id = :proforma_id
+    ) AND reception_series.serie = :serie
+) AS result;
+"""
 
 class Warehouse(Base):
 

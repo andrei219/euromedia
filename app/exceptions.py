@@ -31,3 +31,8 @@ class NotExistingStockInMask(Exception):
 
 class AutomaticReceptionDeleteError(Exception):
     pass
+
+
+class SeriePresentAtPurchaseSpace(Exception):
+    pass
+

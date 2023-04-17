@@ -1,4 +1,4 @@
-                    
+
 from PyQt5.QtWidgets import QDialog, QMessageBox,\
     QAbstractItemView
 from PyQt5.QtCore import QItemSelectionModel
@@ -9,6 +9,7 @@ import utils
 from exceptions import LineCompletedError
 from exceptions import SeriePresentError
 from exceptions import NotExistingStockInMask
+from exceptions import SeriePresentAtPurchaseSpace
 from sqlalchemy.exc import IntegrityError
 from exceptions import NotExistingStockOutput
 
@@ -124,6 +125,9 @@ class Form(Ui_ExpeditionForm, QDialog):
 
             except ValueError as ex:
                 QMessageBox.critical(self, 'Error', str(ex))
+            except SeriePresentAtPurchaseSpace:
+                mss = 'This SN is already processed for this purchase in other sale.'
+                QMessageBox.critical(self, 'Error', mss)
 
             self.imei.clear()
 
