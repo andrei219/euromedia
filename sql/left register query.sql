@@ -36,6 +36,8 @@ delete from purchase_expenses where amount = 0;
 # Delete orphan lines:
 delete from purchase_proforma_lines where proforma_id is null;
 
+
+
 drop temporary table if exists temp_purchase_expenses; # proforma_id, total_expenses
 drop temporary table if exists temp_purchase_payments; # proforma_id, total_paid, total_paid_rated, average
 drop temporary table if exists temp_purchase_devices; # proforma_id, devices
@@ -329,39 +331,42 @@ create temporary table temp_sale_devices as
 
 # Now the final results:
 
-# Left side:
+# # Left side:
+# create temporary table left_side_base as
+#     select
+#         temp_purchase_series.proforma_id                                                                                  as 'proforma_id',
+#         temp_purchase_repr.doc_repr                                                                                       as 'Document',
+#         temp_purchase_repr.date                                                                                           as 'Date',
+#         temp_purchase_partners.partner_name                                                                               as 'Partner',
+#         temp_items.clean_repr                                                                                             as 'Description',
+#         temp_purchase_series.`condition`                                                                                  as 'Condition',
+#         temp_purchase_series.`spec`                                                                                       as 'Spec',
+#         IF(average_rate != 1, temp_purchase_series.price * average_rate, 'Unknown') as 'USD',
+#         temp_purchase_series.price/temp_purchase_payments.average_rate as 'EUR',
+#         average_rate as 'Average Rate',
+#         case
+#             when total_debt - total_paid < 1 then 'Paid'
+#             when total_paid = 0 then 'Not Paid'
+#             else 'Partially Paid'
+#         end as 'Financial Status',
+#         temp_purchase_expenses.total_expenses/temp_purchase_devices.number_of_devices/temp_purchase_payments.average_rate as 'Expenses',
+#         temp_purchase_series.price/temp_purchase_payments.average_rate as 'Cost',
+#
+#         temp_purchase_series.serie                                                                                        as 'Serie'
+#     from temp_purchase_series
+#         inner join temp_purchase_repr on temp_purchase_series.proforma_id = temp_purchase_repr.proforma_id
+#         inner join temp_purchase_partners on temp_purchase_series.proforma_id = temp_purchase_partners.proforma_id
+#         inner join temp_purchase_devices on temp_purchase_series.proforma_id = temp_purchase_devices.proforma_id
+#         inner join temp_items on temp_purchase_series.item_id = temp_items.id
+#         inner join temp_purchase_expenses on temp_purchase_series.proforma_id = temp_purchase_expenses.proforma_id
+#         inner join temp_purchase_debt on temp_purchase_series.proforma_id = temp_purchase_debt.proforma_id
+#         inner join temp_purchase_payments on temp_purchase_series.proforma_id = temp_purchase_payments.proforma_id
+#         where temp_purchase_series.serie is not null;
+
+
 create temporary table left_side_base as
     select
-        temp_purchase_series.proforma_id                                                                                  as 'proforma_id',
-        temp_purchase_repr.doc_repr                                                                                       as 'Document',
-        temp_purchase_repr.date                                                                                           as 'Date',
-        temp_purchase_partners.partner_name                                                                               as 'Partner',
-        temp_items.clean_repr                                                                                             as 'Description',
-        temp_purchase_series.`condition`                                                                                  as 'Condition',
-        temp_purchase_series.`spec`                                                                                       as 'Spec',
-        IF(average_rate != 1, temp_purchase_series.price * average_rate, 'Unknown') as 'USD',
-        temp_purchase_series.price/temp_purchase_payments.average_rate as 'EUR',
-        average_rate as 'Average Rate',
-        case
-            when total_debt - total_paid < 1 then 'Paid'
-            when total_paid = 0 then 'Not Paid'
-            else 'Partially Paid'
-        end as 'Financial Status',
-        temp_purchase_expenses.total_expenses/temp_purchase_devices.number_of_devices/temp_purchase_payments.average_rate as 'Expenses',
-        temp_purchase_series.price/temp_purchase_payments.average_rate as 'Cost',
+        temp_purchas
 
-        temp_purchase_series.serie                                                                                        as 'Serie'
-    from temp_purchase_series
-        inner join temp_purchase_repr on temp_purchase_series.proforma_id = temp_purchase_repr.proforma_id
-        inner join temp_purchase_partners on temp_purchase_series.proforma_id = temp_purchase_partners.proforma_id
-        inner join temp_purchase_devices on temp_purchase_series.proforma_id = temp_purchase_devices.proforma_id
-        inner join temp_items on temp_purchase_series.item_id = temp_items.id
-        inner join temp_purchase_expenses on temp_purchase_series.proforma_id = temp_purchase_expenses.proforma_id
-        inner join temp_purchase_debt on temp_purchase_series.proforma_id = temp_purchase_debt.proforma_id
-        inner join temp_purchase_payments on temp_purchase_series.proforma_id = temp_purchase_payments.proforma_id
-        where temp_purchase_series.serie is not null;
-
-
-# Right Side (Sale):
 
 
