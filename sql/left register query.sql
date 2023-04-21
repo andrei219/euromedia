@@ -364,9 +364,7 @@ create temporary table temp_sale_devices as
 #         where temp_purchase_series.serie is not null;
 
 
-create temporary table left_side_base as
-    select
-        temp_purchas
+
 
 
 
