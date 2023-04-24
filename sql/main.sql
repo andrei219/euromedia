@@ -30,11 +30,8 @@ drop temporary table if exists temp_purchase_currency_rate; # proforma_id, cur(c
 drop temporary table if exists left_numbered;
 drop table if exists left_side_base; # proforma_id, serie, expenses_eur, expenses_inv, cost, currency, rate
 
-
-
 delete from purchase_payments where amount=0;
 delete from purchase_expenses where amount=0;
-
 
 create temporary table if not exists temp_purchase_partners as
     select
@@ -169,7 +166,6 @@ create table if not exists left_side_base as
         inner join temp_purchase_currency_rate on temp_purchase_currency_rate.proforma_id = temp_purchase_series_cost.proforma_id
         inner join temp_purchase_devices on temp_purchase_devices.proforma_id = temp_purchase_series_cost.proforma_id;
 
-
 drop temporary table if exists temp_sale_partners;
 drop temporary table if exists temp_sale_expenses_eur;
 drop temporary table if exists temp_sale_income_inv;
@@ -201,7 +197,7 @@ create temporary table if not exists temp_sale_expenses_eur as
     inner join sale_proformas
     on sale_proformas.id = sale_expenses.proforma_id
     where agent_id=5
-    group by proforma_id ;
+    group by proforma_id;
 
 create temporary table if not exists temp_sale_income_inv as
     select
