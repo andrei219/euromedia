@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<data>
+<row>
+  <id>1</id>
+  <cliente_id>1</cliente_id>
+  <anio>2023</anio>
+  <mes>1</mes>
+  <importe>1000.00</importe>
+</row>
+<row>
+  <id>2</id>
+  <cliente_id>2</cliente_id>
+  <anio>2023</anio>
+  <mes>2</mes>
+  <importe>2000.00</importe>
+</row>
+<row>
+  <id>3</id>
+  <cliente_id>3</cliente_id>
+  <anio>2023</anio>
+  <mes>3</mes>
+  <importe>3000.00</importe>
+</row>
+<row>
+  <id>4</id>
+  <cliente_id>4</cliente_id>
+  <anio>2023</anio>
+  <mes>4</mes>
+  <importe>1000.00</importe>
+</row>
+<row>
+  <id>5</id>
+  <cliente_id>5</cliente_id>
+  <anio>2023</anio>
+  <mes>1</mes>
+  <importe>2000.00</importe>
+</row>
+<row>
+  <id>6</id>
+  <cliente_id>6</cliente_id>
+  <anio>2023</anio>
+  <mes>2</mes>
+  <importe>3000.00</importe>
+</row>
+<row>
+  <id>7</id>
+  <cliente_id>7</cliente_id>
+  <anio>2023</anio>
+  <mes>3</mes>
+  <importe>1000.00</importe>
+</row>
+<row>
+  <id>8</id>
+  <cliente_id>8</cliente_id>
+  <anio>2023</anio>
+  <mes>4</mes>
+  <importe>2000.00</importe>
+</row>
+<row>
+  <id>9</id>
+  <cliente_id>9</cliente_id>
+  <anio>2023</anio>
+  <mes>1</mes>
+  <importe>3000.00</importe>
+</row>
+<row>
+  <id>10</id>
+  <cliente_id>10</cliente_id>
+  <anio>2023</anio>
+  <mes>2</mes>
+  <importe>1000.00</importe>
+</row>
+</data>

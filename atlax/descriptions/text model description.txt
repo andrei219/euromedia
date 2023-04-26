@@ -1,0 +1,123 @@
+main: schema
+    + tables
+        clasificaciones: table
+            + columns
+                id: INTEGER NN
+                desc: VARCHAR(255) NN
+            + keys
+                #1: PK (id)
+        clientes: table
+            + columns
+                id: INTEGER NN
+                sociedad_id: INTEGER NN
+                condicion_id: INTEGER
+                clasificacion_id: INTEGER
+                forma_pago_id: INTEGER
+                nif: VARCHAR(32) NN
+                razons: VARCHAR(255) NN
+            + keys
+                #1: PK (id)
+            + foreign-keys
+                #1: foreign key (sociedad_id) -> sociedades (id)
+                #2: foreign key (condicion_id) -> condiciones_pago_cobro (id)
+                #3: foreign key (clasificacion_id) -> clasificaciones (id)
+                #4: foreign key (forma_pago_id) -> formas_pago_cobro (id)
+        condiciones_pago_cobro: table
+            + columns
+                id: INTEGER NN
+                desc: VARCHAR(64) NN
+            + keys
+                #1: PK (id)
+        direcciones: table
+            + columns
+                id: INTEGER NN
+                cliente_id: INTEGER NN
+                tdireccion: SMALLINT NN
+                domicilio: VARCHAR(255) NN
+                ciudad: VARCHAR(255) NN
+                prov: VARCHAR(255) NN
+                pais: VARCHAR(255) NN
+            + keys
+                #1: PK (id)
+            + foreign-keys
+                #1: foreign key (cliente_id) -> clientes (id)
+            + checks
+                #1: check (tdireccion in (0, 1))
+        formas_pago_cobro: table
+            + columns
+                id: INTEGER NN
+                desc: VARCHAR(255) NN
+            + keys
+                #1: PK (id)
+        partidas_abiertas: table
+            + columns
+                id: INTEGER NN
+                cliente_id: INTEGER NN
+                numero_documento: VARCHAR(64) NN
+                fecha_emision: DATE NN
+                fecha_vencimiento: DATE NN
+                importe: NUMERIC(18,2) NN
+                tdoc: VARCHAR(32) NN
+            + indices
+                #1: unique (id, numero_documento)
+            + keys
+                #1: PK (id, numero_documento) (underlying index #1)
+            + foreign-keys
+                #1: foreign key (cliente_id) -> clientes (id)
+        partidas_compensadas: table
+            + columns
+                id: INTEGER NN
+                cliente_id: INTEGER NN
+                forma_pago_id: INTEGER NN
+                numero_documento: VARCHAR(64) NN
+                fecha_emision: DATE NN
+                fecha_vencimiento: DATE NN
+                fecha_compensacion: DATE NN
+                importe: NUMERIC(18,2) NN
+                tdoc: VARCHAR(32) NN
+            + keys
+                #1: PK (id)
+            + foreign-keys
+                #1: foreign key (cliente_id) -> clientes (id)
+                #2: foreign key (forma_pago_id) -> formas_pago_cobro (id)
+        partidas_compensadas_anuladas: table
+            + columns
+                id: INTEGER NN
+                partida_compensada_id: INTEGER NN
+                fecha_inv: DATE NN
+                fecha_creacion: DATE NN
+            + keys
+                #1: PK (id)
+            + foreign-keys
+                #1: foreign key (partida_compensada_id) -> partidas_compensadas (id)
+        plazos: table
+            + columns
+                id: INTEGER NN
+                condicion_id: INTEGER
+                forma_pago_id: INTEGER
+                dias: INTEGER NN
+                porc: NUMERIC(18,2) NN
+            + keys
+                #1: PK (id)
+            + foreign-keys
+                #1: foreign key (condicion_id) -> condiciones_pago_cobro (id)
+                #2: foreign key (forma_pago_id) -> formas_pago_cobro (id)
+        resumen_ventas: table
+            + columns
+                id: INTEGER NN
+                cliente_id: INTEGER NN
+                anio: INTEGER NN
+                mes: INTEGER NN
+                importe: NUMERIC(18,2) NN
+            + keys
+                #1: PK (id)
+            + foreign-keys
+                #1: foreign key (cliente_id) -> clientes (id)
+        sociedades: table
+            + columns
+                id: INTEGER NN
+                razons: VARCHAR(255) NN
+                nif: VARCHAR(9) NN
+                codmoneda: VARCHAR(3) NN
+            + keys
+                #1: PK (id)

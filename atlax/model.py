@@ -8,10 +8,12 @@ from sqlalchemy import create_engine, Column, Integer, \
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker, backref
 
+from itertools import cycle
+
 Base = declarative_base()
 
 
-engine = create_engine('sqlite:///atlax/atlax inicial.db')
+engine = create_engine('sqlite:///atlax/sample.db')
 
 Session = sessionmaker(bind=engine)
 session = Session()
@@ -25,6 +27,8 @@ class Sociedad(Base):
 	nif = Column(String(9), nullable=False)
 	codmoneda = Column(String(3), nullable=False)
 
+	def __repr__(self):
+		return '<Sociedad %s>' % self.razons
 
 class Clasificacion(Base):
 
@@ -32,6 +36,9 @@ class Clasificacion(Base):
 
 	id = Column(Integer, primary_key=True)
 	desc = Column(String(255), nullable=False)
+
+	def __repr__(self):
+		return '<Clasificacion %s>' % self.desc
 
 
 class FormasPagoCobro(Base):
@@ -41,6 +48,9 @@ class FormasPagoCobro(Base):
 	id = Column(Integer, primary_key=True)
 	desc = Column(String(255), nullable=False)
 
+	def __repr__(self):
+		return '<FormaPagoCobro %s>' % self.desc
+
 
 class CondicionesPagoCobro(Base):
 
@@ -48,6 +58,9 @@ class CondicionesPagoCobro(Base):
 
 	id = Column(Integer, primary_key=True)
 	desc = Column(String(64), nullable=False)
+
+	def __repr__(self):
+		return '<CondicionPagoCobro %s>' % self.desc
 
 class Plazo(Base):
 
@@ -63,6 +76,8 @@ class Plazo(Base):
 	forma_pago = relationship('FormasPagoCobro', uselist=False)
 	condicion = relationship('CondicionesPagoCobro', backref=backref('plazos', uselist=True))
 
+	def __repr__(self):
+		return '<Plazo %s>' % self.dias
 
 class Cliente(Base):
 
@@ -82,6 +97,8 @@ class Cliente(Base):
 
 	sociedad = relationship('Sociedad', backref=backref('clientes', uselist=True))
 
+	def __repr__(self):
+		return '<Cliente %s>' % self.razons
 
 class Direccion(Base):
 
@@ -106,6 +123,9 @@ class Direccion(Base):
 		self.ciudad = ciudad
 		self.prov = prov
 		self.pais = pais
+
+	def __repr__(self):
+		return '<Direccion %s>' % self.domicilio
 
 	__table_args__ = (
 		CheckConstraint('tdireccion in (0, 1)'),
@@ -172,13 +192,14 @@ class ResumenVentas(Base):
 
 	cliente = relationship('Cliente', uselist=False)
 
+	def __repr__(self):
+		return '<ResumenVentas %s>' % self.importe
+
 
 ''' Function that generates random strings of lenght 9. First is letter, then digits'''
 def generate_random_nif():
 	import random, string
 	return random.choice(string.ascii_letters) + ''.join(random.choice(string.digits) for _ in range(8))
-
-
 
 ''' Function that creates sample data for these relations using Faker library. Also links the relationships '''
 def create_sample_data():
@@ -250,11 +271,31 @@ def create_sample_data():
 		)
 
 
-if __name__ == '__main__':
-	Base.metadata.create_all(engine)
-	create_sample_data()
+def create_resumen_ventas():
+
+	clients = session.query(Cliente).all()
+
+	for client, anio, mes, importe in zip(
+		clients,
+		cycle([2023]),
+		cycle(range(1, 5)),
+		cycle([1000, 2000, 3000])
+	):
+		resumen = ResumenVentas()
+		resumen.cliente = client
+		resumen.anio = anio
+		resumen.mes = mes
+		resumen.importe = importe
+
+		session.add(resumen)
+
 	session.commit()
 
+def export_as_xml():
+	pass
 
+if __name__ == '__main__':
+
+	create_resumen_ventas()
 
 

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<data>
+<row>
+  <id>1</id>
+  <condicion_id>1</condicion_id>
+  <forma_pago_id>1</forma_pago_id>
+  <dias>0</dias>
+  <porc>100.00</porc>
+</row>
+</data>
