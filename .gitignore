@@ -52,3 +52,6 @@ mailunch/*
 
 brother 
 sii 
+
+.\sqlcmd.txt
+./sqlcmd.txt

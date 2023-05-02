@@ -1,6 +1,11 @@
 
 use euromedia;
 
+set @`from` = '2023-01-01';
+set @to = '2023-03-31';
+set @agent_id = 5;
+
+
 drop temporary table if exists temp_items; # id, clean_repr
 
 CREATE TEMPORARY TABLE if not exists temp_items AS
@@ -38,7 +43,7 @@ create temporary table if not exists temp_purchase_partners as
         purchase_proformas.id as proforma_id,
         partners.fiscal_name as partner_name
     from purchase_proformas inner join partners on purchase_proformas.partner_id = partners.id
-    where purchase_proformas.agent_id = 5;
+    where purchase_proformas.agent_id = @agent_id;
 
 create temporary table if not exists temp_purchase_expenses_eur as
     select
@@ -55,7 +60,7 @@ create temporary table if not exists temp_purchase_expenses_inv as
         sum(quantity * price) as expenses_inv
     from purchase_proforma_lines
     inner join purchase_proformas on purchase_proforma_lines.proforma_id = purchase_proformas.id
-    where `condition` is null and agent_id = 5
+    where `condition` is null and agent_id=@agent_id
     group by proforma_id;
 
 create temporary table if not exists temp_purchase_payments as
@@ -66,7 +71,7 @@ create temporary table if not exists temp_purchase_payments as
     from purchase_payments
     inner join purchase_proformas
     on purchase_payments.proforma_id = purchase_proformas.id
-    where agent_id = 5
+    where agent_id=@agent_id
     group by proforma_id;
 
 create temporary table if not exists temp_purchase_devices as
@@ -76,7 +81,7 @@ create temporary table if not exists temp_purchase_devices as
     from purchase_proforma_lines
     inner join purchase_proformas on purchase_proforma_lines.proforma_id = purchase_proformas.id
     where `condition` is not null
-    and agent_id = 5
+    and agent_id=@agent_id
     group by proforma_id;
 
 create temporary table if not exists temp_purchase_debt as
@@ -85,16 +90,25 @@ create temporary table if not exists temp_purchase_debt as
         sum(quantity * price * ( 1 + tax/100)) as debt
     from purchase_proforma_lines inner join purchase_proformas
     on purchase_proforma_lines.proforma_id = purchase_proformas.id
-    where agent_id = 5
+    where agent_id=@agent_id
     group by proforma_id;
 
-create temporary table if not exists temp_purchase_repr AS
-select
-    id as proforma_id,
-    concat(type, '-', lpad(number, 6, '0')) as doc_repr,
-    date_format(date, '%d/%m/%Y') as date
-FROM purchase_proformas
-WHERE agent_id = 5;
+
+create temporary table if not exists temp_purchase_repr as
+    select
+        po.id as proforma_id,
+        case
+            when pi.type is not null then concat('FR ', pi.type, '-', lpad(pi.number, 6, '0'))
+            when pi.type is null then concat('PR ', po.type, '-', lpad(po.number, 6, '0'))
+        end as doc_repr,
+        case
+            when pi.date is not null then date_format(pi.date, '%d/%m/%Y')
+            when pi.date is null then date_format(po.date, '%d/%m/%Y')
+        end as date
+    from purchase_proformas po
+    left join purchase_invoices pi on po.invoice_id = pi.id
+    inner join partners on po.partner_id = partners.id;
+
 
 create temporary table temp_purchase_lines as
     select
@@ -106,7 +120,7 @@ create temporary table temp_purchase_lines as
         purchase_proforma_lines.price as price
     from purchase_proforma_lines
     inner join purchase_proformas on purchase_proforma_lines.proforma_id = purchase_proformas.id
-    where purchase_proforma_lines.`condition` is not null and agent_id = 5;
+    where purchase_proforma_lines.`condition` is not null and agent_id=@agent_id;
 
 create temporary table temp_purchase_series as
     select
@@ -120,7 +134,7 @@ create temporary table temp_purchase_series as
     inner join reception_lines on reception_series.line_id = reception_lines.id
     inner join receptions on reception_lines.reception_id = receptions.id
     inner join purchase_proformas on receptions.proforma_id = purchase_proformas.id
-    where purchase_proformas.agent_id = 5;
+    where purchase_proformas.agent_id=@agent_id;
 
 create temporary table temp_purchase_series_cost as
     select temp_purchase_lines.proforma_id as proforma_id, serie, price as cost
@@ -147,7 +161,7 @@ create temporary table if not exists temp_purchase_currency_rate as
     from purchase_proformas
         left join temp_purchase_payments on temp_purchase_payments.proforma_id = purchase_proformas.id
         left join temp_purchase_debt on temp_purchase_debt.proforma_id = purchase_proformas.id
-    where agent_id = 5;
+    where agent_id=@agent_id;
 
 create table if not exists left_side_base as
     select
@@ -187,7 +201,7 @@ create temporary table if not exists temp_sale_partners as
         fiscal_name
     from sale_proformas
     inner join partners on sale_proformas.partner_id = partners.id
-    where sale_proformas.agent_id = 5;
+    where sale_proformas.agent_id=@agent_id;
 
 create temporary table if not exists temp_sale_expenses_eur as
     select
@@ -196,7 +210,7 @@ create temporary table if not exists temp_sale_expenses_eur as
     from sale_expenses
     inner join sale_proformas
     on sale_proformas.id = sale_expenses.proforma_id
-    where agent_id=5
+    where agent_id=@agent_id
     group by proforma_id;
 
 create temporary table if not exists temp_sale_income_inv as
@@ -206,7 +220,7 @@ create temporary table if not exists temp_sale_income_inv as
     from sale_proforma_lines
     inner join sale_proformas
     on sale_proforma_lines.proforma_id = sale_proformas.id
-    where agent_id = 5 and description is not null
+    where agent_id=@agent_id and description is not null
     group by proforma_id
     having income_inv > 0
     union all
@@ -216,7 +230,7 @@ create temporary table if not exists temp_sale_income_inv as
     from advanced_lines
     inner join sale_proformas
     on advanced_lines.proforma_id = sale_proformas.id
-    where free_description is not null and agent_id=5
+    where free_description is not null and agent_id=@agent_id
     group by proforma_id
     having income_inv > 0;
 
@@ -228,7 +242,7 @@ create temporary table if not exists temp_sale_payments as
     from sale_payments
     inner join sale_proformas
     on sale_payments.proforma_id = sale_proformas.id
-    where agent_id=5
+    where agent_id=@agent_id
     group by proforma_id
     having paid > 0;
 
@@ -244,7 +258,7 @@ create temporary table if not exists temp_sale_stock_lines as
     from sale_proforma_lines
     inner join sale_proformas
     on sale_proforma_lines.proforma_id = sale_proformas.id
-    where agent_id=5 and sale_proforma_lines.item_id is not null
+    where agent_id=@agent_id and sale_proforma_lines.item_id is not null
     union all
     select
         advanced_lines.proforma_id,
@@ -256,7 +270,7 @@ create temporary table if not exists temp_sale_stock_lines as
     from advanced_lines
     inner join sale_proformas
     on sale_proformas.id = advanced_lines.proforma_id
-    where agent_id = 5 and free_description is null
+    where agent_id=@agent_id and free_description is null
     union all
     select
         advanced_lines.proforma_id,
@@ -269,7 +283,7 @@ create temporary table if not exists temp_sale_stock_lines as
     inner join advanced_lines
     on advanced_lines_definition.line_id = advanced_lines.id
     inner join sale_proformas on advanced_lines.proforma_id = sale_proformas.id
-    where agent_id=5;
+    where agent_id=@agent_id;
 
 create temporary table if not exists temp_sale_devices as
     # First part already filtered above.
@@ -285,7 +299,7 @@ create temporary table if not exists temp_sale_devices as
     from credit_note_lines
     inner join sale_proformas on
         credit_note_lines.proforma_id = sale_proformas.id
-    where agent_id=5
+    where agent_id=@agent_id
     group by proforma_id;
 
 # Pre-orders and Normal Sales. We dont need credit notes here.
@@ -296,7 +310,7 @@ create temporary table if not exists temp_sale_debt as
     from sale_proforma_lines
     inner join sale_proformas
     on sale_proforma_lines.proforma_id = sale_proformas.id
-    where agent_id=5
+    where agent_id=@agent_id
     union all
     select
         proforma_id,
@@ -304,16 +318,27 @@ create temporary table if not exists temp_sale_debt as
     from advanced_lines
     inner join sale_proformas
     on sale_proformas.id=advanced_lines.proforma_id
-    where agent_id=5
+    where agent_id=@agent_id
     group by proforma_id;
+
 
 create temporary table if not exists temp_sale_repr as
     select
-        id as proforma_id,
-        concat(type, '-', lpad(number, 6, '0')) as doc_repr,
-        date_format(date, '%d/%m/%Y') as date
-    from sale_proformas
-    where agent_id=5;
+        sp.id as proforma_id,
+        case
+            when si.type is not null then concat('FR ', si.type, '-', lpad(si.number, 6, '0'))
+            when si.type is null then concat('PR ', sp.type, '-', lpad(sp.number, 6, '0'))
+        end as doc_repr,
+        case
+            when si.type is not null then date_format(si.date, '%d/%m/%Y')
+            when si.type is null then date_format(sp.date, '%d/%m/%Y')
+        end as date
+
+    from sale_proformas sp
+        inner join sale_invoices si on sp.sale_invoice_id=si.id
+
+    where agent_id=@agent_id and si.date >= @`from` and si.date <= @to;
+
 
 create temporary table if not exists temp_sale_series as
     select
@@ -326,8 +351,12 @@ create temporary table if not exists temp_sale_series as
     inner join expedition_lines on expedition_series.line_id = expedition_lines.id
     inner join expeditions on expedition_lines.expedition_id = expeditions.id
     inner join sale_proformas on expeditions.proforma_id = sale_proformas.id
-    where agent_id=5
-    and date(expedition_series.created_on) > '2023-01-01';
+    inner join sale_invoices on sale_proformas.sale_invoice_id = sale_invoices.id
+    where
+        agent_id=@agent_id and
+        sale_invoices.date >= @`from` and
+        sale_invoices.date <= @to;
+
 
 create temporary table if not exists temp_sale_series_income as
     select
@@ -350,9 +379,7 @@ create temporary table if not exists temp_sale_series_income as
         from credit_note_lines
         inner join sale_proformas
         on sale_proformas.id = credit_note_lines.proforma_id
-        where agent_id=5;
-
-
+        where agent_id=@agent_id;
 
 # Can generate duplicates:
 # A = all proforma_ids
@@ -371,7 +398,7 @@ create temporary table if not exists temp_sale_currency_rate as
     from sale_proformas
         left join temp_sale_payments on temp_sale_payments.proforma_id=sale_proformas.id
         left join temp_sale_debt on temp_sale_debt.proforma_id = sale_proformas.id
-    where agent_id=5
+    where agent_id=@agent_id
     union
         select
             proforma_id,
@@ -447,7 +474,7 @@ create temporary table if not exists harvest as
 
 
 select
-    temp_purchase_repr.doc_repr as 'Proforma',
+    temp_purchase_repr.doc_repr as 'Document',
     temp_purchase_repr.date as date,
     result.purchase_serie as serie,
     round(result.purchase_expenses_eur, 2) as expenses_eur,
@@ -455,7 +482,7 @@ select
     round(result.cost, 2) as cost,
     result.purchase_currency as cur,
     result.purchase_rate as rate,
-    temp_sale_repr.doc_repr as 'Proforma',
+    temp_sale_repr.doc_repr as 'Document',
     temp_sale_repr.date as date,
     result.sale_serie as serie,
     round(result.income, 2) as income,
