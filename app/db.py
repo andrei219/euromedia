@@ -1318,7 +1318,12 @@ class SaleInvoice(Base):
 
     @property
     def partner_object(self):
-        return self.proformas[0].partner
+        try:
+            return self.proformas[0].partner
+        except IndexError:
+            print('Invoice=', self.id, self.doc_repr, self.date)
+            raise
+
 
     @property
     def sent(self):

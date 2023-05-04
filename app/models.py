@@ -8703,4 +8703,13 @@ def caches_clear():
 
 if __name__ == '__main__':
 
-	m = JournalEntriesModel()
+	m = FucksModel()
+	m._fucks = [
+		Fuck(1, 11, 12),
+		Fuck(2, 210, 265),
+		Fuck(3, 4, 5),
+		Fuck(4, 96, 126)
+	]
+
+	m.export(2023)
+
