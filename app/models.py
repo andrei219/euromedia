@@ -7742,7 +7742,6 @@ class FucksModel(BaseTable, QtCore.QAbstractTableModel):
 			os.mkdir(path)
 			return path
 
-
 class Tupable:
 
 	@property

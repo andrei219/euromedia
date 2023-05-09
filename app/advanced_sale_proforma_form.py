@@ -368,7 +368,8 @@ class EditableForm(Form):
         self.set_global_filters_and_stock_message()
 
     def set_global_filters_and_stock_message(self):
-        type, number = db.session.execute(
+        try:
+            type, number = db.session.execute(
             text(
                 """
                     select `type`, `number`
@@ -378,16 +379,24 @@ class EditableForm(Form):
                         select origin_id from advanced_lines where proforma_id = :proforma_id
                     )
                 """
-            ),
-            params = {'proforma_id': self.proforma.id}
-        ).first()
+                ),
+                params={'proforma_id': self.proforma.id}
+            ).first()
 
-        self.type_filter = type
-        self.number_filter = number
-        self.stock_message.setText(
-            'Stock for proforma {}-{} is shown'.format(type, number)
-        )
-        self.stock_message.setStyleSheet('background-color:"#FF7F7F"')
+        except TypeError:
+            # Raises when no lines are created
+            # or when only free lines are created.
+
+            self.type_filter = None
+            self.number_filter = None
+            # Ignore
+        else:
+            self.type_filter = type
+            self.number_filter = number
+            self.stock_message.setText(
+                'Stock for proforma {}-{} is shown'.format(type, number)
+            )
+            self.stock_message.setStyleSheet('background-color:"#FF7F7F"')
 
     def init_template(self):
         # This method is empty but is part of the template pattern
