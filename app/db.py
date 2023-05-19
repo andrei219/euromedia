@@ -811,7 +811,6 @@ class PurchaseInvoice(Base):
     def origin_proformas(self):
         return ', '.join(p.doc_repr for p in self.proformas)
 
-
     @property
     def partner_object(self):
         return self.proformas[0].partner

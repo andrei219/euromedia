@@ -429,6 +429,7 @@ class TableData:
     def __init__(self, document):
 
         if isinstance(document, (SaleInvoice, PurchaseInvoice)):
+            self.origin_proformas = document.origin_proformas
             proforma = document.proformas[0]
             self.Date = document.date.strftime('%d-%m-%Y')
             self.Document_No = document.doc_repr
@@ -606,6 +607,18 @@ class PDF(FPDF):
         self.x = LEFT_MARGIN
 
     def print_additional(self):
+
+        # Add origin proformas if invoiced:
+        if hasattr(self.table_data, 'origin_proformas'):
+            self.y += 10
+            self.set_font('Arial', 'B', size=10)
+            self.cell(0, txt=f'Proformas:')
+            self.x = LEFT_MARGIN + 4
+            self.y += Y_INCREMENT
+            self.set_font('Arial', size=8)
+            self.cell(0, txt=self.table_data.origin_proformas)
+
+        self.x = LEFT_MARGIN
         self.y += 10
         self.set_font('Arial', 'B', size=10)
 
@@ -627,8 +640,6 @@ class PDF(FPDF):
     def print_terms(self):
         self.x = LEFT_MARGIN
         self.y += 5
-
-        name, doc_type = None, None
 
         if isinstance(self.document, (SaleProforma, PurchaseProforma)):
             name = 'Proforma'
@@ -813,6 +824,10 @@ class PDF(FPDF):
         x, y = TABLE_START
         self.set_xy(x, y)
         for key, value in chain(self.table_data, [('Page', str(self.page_no()) + ' of {nb}')]):
+
+            if key == 'origin_proformas':
+                continue
+
             text = key.replace('_', ' ') + ':'
             self.cell(w=TABLE_LEFT_INCRMENT, h=TABLE_DOWN_INCREMENT, border=True, align='R', txt=text)
             self.set_x(x + TABLE_LEFT_INCRMENT)
