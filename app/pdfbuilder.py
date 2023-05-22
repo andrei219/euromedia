@@ -612,7 +612,7 @@ class PDF(FPDF):
         if hasattr(self.table_data, 'origin_proformas'):
             self.y += 10
             self.set_font('Arial', 'B', size=10)
-            self.cell(0, txt=f'Proformas:')
+            self.cell(0, txt=f'From Proformas:')
             self.x = LEFT_MARGIN + 4
             self.y += Y_INCREMENT
             self.set_font('Arial', size=8)
