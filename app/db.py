@@ -174,12 +174,15 @@ class Item(Base):
     has_serie = Column(Boolean, default=False)
 
     weight = Column(Numeric(10, 2), nullable=False, default=0)
+    battery_weight = Column(Numeric(10, 2), nullable=False, default=0)
 
     __table_args__ = (
-        UniqueConstraint('mpn', 'manufacturer', 'category', 'model', 'capacity', 'color', name='uix_1'),
+        UniqueConstraint('mpn', 'manufacturer', 'category',
+                         'model', 'capacity', 'color', name='uix_1'),
     )
 
     def __init__(self, mpn, manufacturer, category, model, capacity, color, weight,
+                 battery_weight,
                  has_serie):
         self.mpn = mpn.strip()
         self.manufacturer = manufacturer.strip()
@@ -189,6 +192,7 @@ class Item(Base):
         self.color = color.strip()
         self.has_serie = has_serie
         self.weight = weight
+        self.battery_weight = battery_weight
 
     @property
     def clean_repr(self):

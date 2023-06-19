@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1090</width>
+    <width>1347</width>
     <height>872</height>
    </rect>
   </property>
@@ -67,7 +67,7 @@ font: 8pt &quot;Verdana&quot;;</string>
     <rect>
      <x>41</x>
      <y>252</y>
-     <width>1001</width>
+     <width>1231</width>
      <height>501</height>
     </rect>
    </property>
@@ -102,7 +102,7 @@ font: 8pt &quot;Verdana&quot;;</string>
     <rect>
      <x>31</x>
      <y>230</y>
-     <width>1001</width>
+     <width>1251</width>
      <height>16</height>
     </rect>
    </property>
@@ -151,7 +151,7 @@ font: 8pt &quot;Verdana&quot;;</string>
   <widget class="QToolButton" name="cancel_tool_button">
    <property name="geometry">
     <rect>
-     <x>960</x>
+     <x>1190</x>
      <y>780</y>
      <width>71</width>
      <height>51</height>
@@ -552,6 +552,44 @@ font: 8pt &quot;Verdana&quot;;</string>
    </property>
    <property name="alignment">
     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_10">
+   <property name="geometry">
+    <rect>
+     <x>740</x>
+     <y>120</y>
+     <width>121</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Battery Weight:</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="battery_weight">
+   <property name="geometry">
+    <rect>
+     <x>870</x>
+     <y>120</y>
+     <width>150</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>150</width>
+     <height>20</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>150</width>
+     <height>20</height>
+    </size>
    </property>
   </widget>
  </widget>

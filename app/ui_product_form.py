@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_ProductForm(object):
     def setupUi(self, ProductForm):
         ProductForm.setObjectName("ProductForm")
-        ProductForm.resize(1090, 872)
+        ProductForm.resize(1347, 872)
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(":/new"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         ProductForm.setWindowIcon(icon)
@@ -32,7 +32,7 @@ class Ui_ProductForm(object):
         self.line.setFrameShadow(QtWidgets.QFrame.Sunken)
         self.line.setObjectName("line")
         self.product_view = QtWidgets.QTableView(ProductForm)
-        self.product_view.setGeometry(QtCore.QRect(41, 252, 1001, 501))
+        self.product_view.setGeometry(QtCore.QRect(41, 252, 1231, 501))
         self.product_view.setObjectName("product_view")
         self.label_7 = QtWidgets.QLabel(ProductForm)
         self.label_7.setGeometry(QtCore.QRect(31, 208, 141, 16))
@@ -40,7 +40,7 @@ class Ui_ProductForm(object):
         self.label_7.setMaximumSize(QtCore.QSize(141, 16))
         self.label_7.setObjectName("label_7")
         self.line_2 = QtWidgets.QFrame(ProductForm)
-        self.line_2.setGeometry(QtCore.QRect(31, 230, 1001, 16))
+        self.line_2.setGeometry(QtCore.QRect(31, 230, 1251, 16))
         self.line_2.setFrameShape(QtWidgets.QFrame.HLine)
         self.line_2.setFrameShadow(QtWidgets.QFrame.Sunken)
         self.line_2.setObjectName("line_2")
@@ -56,7 +56,7 @@ class Ui_ProductForm(object):
         self.delete_tool_button.setAutoRaise(True)
         self.delete_tool_button.setObjectName("delete_tool_button")
         self.cancel_tool_button = QtWidgets.QToolButton(ProductForm)
-        self.cancel_tool_button.setGeometry(QtCore.QRect(960, 780, 71, 51))
+        self.cancel_tool_button.setGeometry(QtCore.QRect(1190, 780, 71, 51))
         self.cancel_tool_button.setMinimumSize(QtCore.QSize(71, 51))
         self.cancel_tool_button.setMaximumSize(QtCore.QSize(71, 51))
         icon2 = QtGui.QIcon()
@@ -149,6 +149,15 @@ class Ui_ProductForm(object):
         self.label_9.setMaximumSize(QtCore.QSize(58, 20))
         self.label_9.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_9.setObjectName("label_9")
+        self.label_10 = QtWidgets.QLabel(ProductForm)
+        self.label_10.setGeometry(QtCore.QRect(740, 120, 121, 20))
+        self.label_10.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_10.setObjectName("label_10")
+        self.battery_weight = QtWidgets.QLineEdit(ProductForm)
+        self.battery_weight.setGeometry(QtCore.QRect(870, 120, 150, 20))
+        self.battery_weight.setMinimumSize(QtCore.QSize(150, 20))
+        self.battery_weight.setMaximumSize(QtCore.QSize(150, 20))
+        self.battery_weight.setObjectName("battery_weight")
 
         self.retranslateUi(ProductForm)
         self.cancel_tool_button.clicked.connect(ProductForm.close) # type: ignore
@@ -180,4 +189,5 @@ class Ui_ProductForm(object):
         self.label_6.setText(_translate("ProductForm", "Color:"))
         self.has_serie.setText(_translate("ProductForm", "Has SN/IMEI"))
         self.label_9.setText(_translate("ProductForm", "Weight:"))
+        self.label_10.setText(_translate("ProductForm", "Battery Weight:"))
 import icons_rc

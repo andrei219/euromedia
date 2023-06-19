@@ -1,19 +1,16 @@
 
-from PyQt5.QtCore import QStringListModel, Qt
-from PyQt5.QtWidgets import QCompleter, QMessageBox, QTableView
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QMessageBox, QTableView
 
 from PyQt5.QtWidgets import QDialog
 
 from ui_product_form import Ui_ProductForm
 
 from models import ProductModel
-from utils import setCommonViewConfig
 from decimal import Decimal, InvalidOperation
 
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy import select
 
-from db import session, Item
 
 class ProductForm(Ui_ProductForm, QDialog):
 
@@ -34,8 +31,7 @@ class ProductForm(Ui_ProductForm, QDialog):
         self.product_view.setAlternatingRowColors(True)
         self.product_view.setSelectionBehavior(QTableView.SelectRows)
 
-
-        self.setUpCompleters() 
+        self.setUpCompleters()
 
     def setUpCompleters(self):
 
@@ -48,8 +44,9 @@ class ProductForm(Ui_ProductForm, QDialog):
             (self.model_line_edit, {item.model for item in self.model}), 
             (self.capacity_line_edit, {item.capacity for item in self.model}), 
             (self.color_line_edit, {item.color for item in self.model}),
-            (self.weight, {str(item.weight) for item in self.model})
-        ]: 
+            (self.weight, {str(item.weight) for item in self.model}),
+            (self.battery_weight, {str(item.battery_weight) for item in self.model}),
+        ]:
             setCompleter(field, data) 
 
     def clearFields(self):
@@ -60,6 +57,7 @@ class ProductForm(Ui_ProductForm, QDialog):
         self.capacity_line_edit.setText('')
         self.color_line_edit.setText('')
         self.weight.setText('')
+        self.battery_weight.clear()
 
     def keyPressEvent(self, event):
         
@@ -74,10 +72,12 @@ class ProductForm(Ui_ProductForm, QDialog):
         if not self.validProduct():
             return 
         try:
-            self.model.addItem(self.mpn.text(), self.manufacturer_line_edit.text(), self.category_line_edit.text(), \
+            self.model.addItem(self.mpn.text(), self.manufacturer_line_edit.text(),
+                               self.category_line_edit.text(), \
                 self.model_line_edit.text(), self.capacity_line_edit.text(), \
-                    self.color_line_edit.text(), self.weight.text(), self.has_serie.isChecked())
-            self.clearFields() 
+                    self.color_line_edit.text(), self.weight.text(), self.battery_weight.text(), self.has_serie.isChecked())
+
+            self.clearFields()
             # self.product_view.resizeColumnsToContents() 
         except IntegrityError as e:
             code = e.orig.args[0] 
@@ -99,7 +99,6 @@ class ProductForm(Ui_ProductForm, QDialog):
                 if code == 1451:
                     QMessageBox.critical(self, 'Error - Update', 'That product has data associated')
 
-
         self.setUpCompleters()
 
     def validProduct(self):
@@ -107,6 +106,12 @@ class ProductForm(Ui_ProductForm, QDialog):
             Decimal(self.weight.text())
         except InvalidOperation:
             QMessageBox.critical(self, 'Error', 'Weight must be a number')
+            return False
+
+        try:
+            Decimal(self.battery_weight.text())
+        except InvalidOperation:
+            QMessageBox.critical(self, 'Error', 'Battery weight must be a number')
             return False
 
         if not all((

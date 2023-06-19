@@ -2637,14 +2637,14 @@ class ActualLinesFromMixedModel(BaseTable, QtCore.QAbstractTableModel):
 
 
 class ProductModel(BaseTable, QtCore.QAbstractTableModel):
-	MPN, MANUFACTURER, CATEGORY, MODEL, CAPACITY, COLOR, WEIGHT, HAS_SERIE = \
-		0, 1, 2, 3, 4, 5, 6, 7
+	MPN, MANUFACTURER, CATEGORY, MODEL, CAPACITY, COLOR, WEIGHT,BATTERY_WEIGHT,  HAS_SERIE = \
+		0, 1, 2, 3, 4, 5, 6, 7, 8
 
 	def __init__(self):
 
 		super().__init__()
 		self._headerData = ['MPN', 'Manufacturer', 'Category', 'Model',
-		                    'Capacity', 'Color', 'Weight', 'Has Serie']
+		                    'Capacity', 'Color', 'Weight', 'Battery Weight', 'Has Serie']
 		self.name = 'items'
 		self.items = db.session.query(db.Item).all()
 
@@ -2664,11 +2664,12 @@ class ProductModel(BaseTable, QtCore.QAbstractTableModel):
 				self.CAPACITY: item.capacity,
 				self.COLOR: item.color,
 				self.HAS_SERIE: 'Yes' if item.has_serie else 'No',
-				self.WEIGHT: str(item.weight)
+				self.WEIGHT: str(item.weight),
+				self.BATTERY_WEIGHT: str(item.battery_weight)
 			}.get(col)
 
-	def addItem(self, mpn, manufacturer, category, model, capacity, color, weight, has_serie):
-		item = db.Item(mpn, manufacturer, category, model, capacity, color, weight, has_serie)
+	def addItem(self, mpn, manufacturer, category, model, capacity, color, weight, battery_weight, has_serie):
+		item = db.Item(mpn, manufacturer, category, model, capacity, color, weight, battery_weight, has_serie)
 		db.session.add(item)
 		try:
 			db.session.commit()
@@ -2730,6 +2731,15 @@ class ProductModel(BaseTable, QtCore.QAbstractTableModel):
 				else:
 					item.weight = value
 					return True
+
+			elif column == self.BATTERY_WEIGHT:
+				try:
+					decimal.Decimal(value)
+				except decimal.InvalidOperation:
+					return False
+				else:
+					item.battery_weight = value
+					return True
 			try:
 				db.session.commit()
 			except IntegrityError:  # UNIQUE VIOLATION
@@ -2752,7 +2762,8 @@ class ProductModel(BaseTable, QtCore.QAbstractTableModel):
 			self.CAPACITY: 'capacity',
 			self.COLOR: 'color',
 			self.HAS_SERIE: 'has_serie',
-			self.WEIGHT: 'weight'
+			self.WEIGHT: 'weight',
+			self.BATTERY_WEIGHT: 'battery_weight'
 		}.get(section)
 		if attr:
 			self.layoutAboutToBeChanged.emit()
