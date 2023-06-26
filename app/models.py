@@ -571,6 +571,9 @@ class PartnerModel(QtCore.QAbstractTableModel):
 		}.get(col)
 
 
+class ShippingAddressModel(QtCore.QAbstractTableModel):
+	pass
+
 class PartnerContactModel(QtCore.QAbstractTableModel):
 	NAME, POSITION, PHONE, EMAIL, NOTE = 0, 1, 2, 3, 4
 

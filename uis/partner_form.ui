@@ -52,7 +52,7 @@
     <rect>
      <x>20</x>
      <y>90</y>
-     <width>1471</width>
+     <width>901</width>
      <height>16</height>
     </rect>
    </property>
@@ -63,7 +63,7 @@
   <widget class="QWidget" name="layoutWidget_2">
    <property name="geometry">
     <rect>
-     <x>820</x>
+     <x>760</x>
      <y>110</y>
      <width>316</width>
      <height>24</height>
@@ -122,7 +122,7 @@
     <rect>
      <x>490</x>
      <y>290</y>
-     <width>91</width>
+     <width>81</width>
      <height>61</height>
     </rect>
    </property>
@@ -348,9 +348,9 @@
    <property name="geometry">
     <rect>
      <x>590</x>
-     <y>210</y>
-     <width>451</width>
-     <height>261</height>
+     <y>220</y>
+     <width>891</width>
+     <height>241</height>
     </rect>
    </property>
    <property name="styleSheet">
@@ -365,171 +365,14 @@
    <property name="checkable">
     <bool>false</bool>
    </property>
-   <widget class="QLineEdit" name="shipment_postcode_line_edit">
+   <widget class="QTableView" name="shipping_view">
     <property name="geometry">
      <rect>
-      <x>110</x>
-      <y>150</y>
-      <width>111</width>
-      <height>22</height>
+      <x>0</x>
+      <y>20</y>
+      <width>891</width>
+      <height>221</height>
      </rect>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_14">
-    <property name="geometry">
-     <rect>
-      <x>50</x>
-      <y>180</y>
-      <width>35</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>State:</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_15">
-    <property name="geometry">
-     <rect>
-      <x>50</x>
-      <y>30</y>
-      <width>51</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Address:</string>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="shipment_state_line_edit">
-    <property name="geometry">
-     <rect>
-      <x>110</x>
-      <y>180</y>
-      <width>191</width>
-      <height>22</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_16">
-    <property name="geometry">
-     <rect>
-      <x>40</x>
-      <y>210</y>
-      <width>51</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Country:</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_17">
-    <property name="geometry">
-     <rect>
-      <x>30</x>
-      <y>150</y>
-      <width>62</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Post Code:</string>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="shipment_address_line_edit">
-    <property name="geometry">
-     <rect>
-      <x>110</x>
-      <y>30</y>
-      <width>261</width>
-      <height>22</height>
-     </rect>
-    </property>
-    <property name="minimumSize">
-     <size>
-      <width>241</width>
-      <height>22</height>
-     </size>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-    <property name="maxLength">
-     <number>35</number>
-    </property>
-    <property name="alignment">
-     <set>Qt::AlignCenter</set>
-    </property>
-    <property name="placeholderText">
-     <string>Max 35 characters</string>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="shipment_address2_line_edit">
-    <property name="geometry">
-     <rect>
-      <x>110</x>
-      <y>70</y>
-      <width>261</width>
-      <height>22</height>
-     </rect>
-    </property>
-    <property name="minimumSize">
-     <size>
-      <width>241</width>
-      <height>22</height>
-     </size>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-    <property name="maxLength">
-     <number>35</number>
-    </property>
-    <property name="alignment">
-     <set>Qt::AlignCenter</set>
-    </property>
-    <property name="placeholderText">
-     <string>Max 35 characters</string>
-    </property>
-   </widget>
-   <widget class="QComboBox" name="shipemnt_country_combobox">
-    <property name="geometry">
-     <rect>
-      <x>110</x>
-      <y>210</y>
-      <width>231</width>
-      <height>22</height>
-     </rect>
-    </property>
-    <property name="editable">
-     <bool>true</bool>
-    </property>
-    <property name="insertPolicy">
-     <enum>QComboBox::NoInsert</enum>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="shipment_city_line_edit">
-    <property name="geometry">
-     <rect>
-      <x>274</x>
-      <y>150</y>
-      <width>137</width>
-      <height>22</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_13">
-    <property name="geometry">
-     <rect>
-      <x>241</x>
-      <y>150</y>
-      <width>26</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>City:</string>
     </property>
    </widget>
   </widget>
@@ -554,7 +397,7 @@
     <rect>
      <x>20</x>
      <y>510</y>
-     <width>1371</width>
+     <width>1471</width>
      <height>16</height>
     </rect>
    </property>
@@ -565,10 +408,10 @@
   <widget class="QGroupBox" name="groupBox_3">
    <property name="geometry">
     <rect>
-     <x>1060</x>
-     <y>211</y>
+     <x>1140</x>
+     <y>10</y>
      <width>331</width>
-     <height>261</height>
+     <height>191</height>
     </rect>
    </property>
    <property name="title">
@@ -580,8 +423,8 @@
    <widget class="QLabel" name="label_22">
     <property name="geometry">
      <rect>
-      <x>70</x>
-      <y>40</y>
+      <x>30</x>
+      <y>30</y>
       <width>43</width>
       <height>16</height>
      </rect>
@@ -593,8 +436,8 @@
    <widget class="QSpinBox" name="credit_days_spinbox">
     <property name="geometry">
      <rect>
-      <x>120</x>
-      <y>40</y>
+      <x>80</x>
+      <y>30</y>
       <width>92</width>
       <height>20</height>
      </rect>
@@ -621,8 +464,8 @@
    <widget class="QLabel" name="label_23">
     <property name="geometry">
      <rect>
-      <x>60</x>
-      <y>80</y>
+      <x>20</x>
+      <y>60</y>
       <width>55</width>
       <height>16</height>
      </rect>
@@ -634,8 +477,8 @@
    <widget class="QDoubleSpinBox" name="credit_amount_spinbox">
     <property name="geometry">
      <rect>
-      <x>120</x>
-      <y>80</y>
+      <x>80</x>
+      <y>60</y>
       <width>91</width>
       <height>22</height>
      </rect>
@@ -656,8 +499,8 @@
    <widget class="QRadioButton" name="dolar_radiobutton">
     <property name="geometry">
      <rect>
-      <x>220</x>
-      <y>80</y>
+      <x>200</x>
+      <y>30</y>
       <width>34</width>
       <height>20</height>
      </rect>
@@ -669,8 +512,8 @@
    <widget class="QRadioButton" name="euro_radiobutton">
     <property name="geometry">
      <rect>
-      <x>270</x>
-      <y>80</y>
+      <x>250</x>
+      <y>30</y>
       <width>31</width>
       <height>20</height>
      </rect>
@@ -683,7 +526,7 @@
     <property name="geometry">
      <rect>
       <x>50</x>
-      <y>180</y>
+      <y>130</y>
       <width>59</width>
       <height>16</height>
      </rect>
@@ -696,7 +539,7 @@
     <property name="geometry">
      <rect>
       <x>110</x>
-      <y>140</y>
+      <y>100</y>
       <width>190</width>
       <height>81</height>
      </rect>
@@ -1080,8 +923,8 @@
     <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:7.8pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:7.8pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
    <property name="cursorWidth">
     <number>3</number>
@@ -1209,8 +1052,8 @@ p, li { white-space: pre-wrap; }
   <widget class="QToolButton" name="bank_button">
    <property name="geometry">
     <rect>
-     <x>1240</x>
-     <y>120</y>
+     <x>840</x>
+     <y>10</y>
      <width>91</width>
      <height>71</height>
     </rect>
@@ -1257,6 +1100,52 @@ p, li { white-space: pre-wrap; }
     <string>Has Reseller Certificate</string>
    </property>
   </widget>
+  <widget class="QToolButton" name="shipping_delete">
+   <property name="geometry">
+    <rect>
+     <x>1450</x>
+     <y>470</y>
+     <width>31</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="icon">
+    <iconset resource="../app/icons.qrc">
+     <normaloff>:/delete</normaloff>:/delete</iconset>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonTextUnderIcon</enum>
+   </property>
+   <property name="autoRaise">
+    <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QToolButton" name="shipping_add">
+   <property name="geometry">
+    <rect>
+     <x>1390</x>
+     <y>470</y>
+     <width>31</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="icon">
+    <iconset resource="../app/icons.qrc">
+     <normaloff>:/new</normaloff>:/new</iconset>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonTextUnderIcon</enum>
+   </property>
+   <property name="autoRaise">
+    <bool>true</bool>
+   </property>
+  </widget>
  </widget>
  <tabstops>
   <tabstop>active_checkbox</tabstop>
@@ -1272,12 +1161,6 @@ p, li { white-space: pre-wrap; }
   <tabstop>billing_state_line_edit</tabstop>
   <tabstop>billing_country_combobox</tabstop>
   <tabstop>copy_address_button</tabstop>
-  <tabstop>shipment_address_line_edit</tabstop>
-  <tabstop>shipment_address2_line_edit</tabstop>
-  <tabstop>shipment_postcode_line_edit</tabstop>
-  <tabstop>shipment_city_line_edit</tabstop>
-  <tabstop>shipment_state_line_edit</tabstop>
-  <tabstop>shipemnt_country_combobox</tabstop>
   <tabstop>credit_days_spinbox</tabstop>
   <tabstop>credit_amount_spinbox</tabstop>
   <tabstop>dolar_radiobutton</tabstop>

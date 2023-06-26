@@ -324,6 +324,8 @@ class Partner(Base):
     has_certificate = Column(Boolean, nullable=False, default=False)
 
     agent = relationship('Agent', uselist=False)
+    addresses = relationship('PartnerAddress', backref='partner')
+
 
     accounts = relationship('PartnerAccount', backref='partner', cascade='delete-orphan, save-update, delete')
 
@@ -406,6 +408,20 @@ class PartnerAccount(Base):
 
 
 RED, GREEN, YELLOW, ORANGE = '#FF7F7F', '#90EE90', '#FFFF66', '#FFD580'
+
+
+class ShippingAddress(Base):
+
+    __tablename__ = 'shipping_addresses'
+
+    id = Column(Integer, primary_key=True)
+    partner_id = Column(Integer, ForeignKey('partners.id'), nullable=False)
+    line1 = Column(String(50), nullable=False)
+    line2 = Column(String(50), nullable=False)
+    city = Column(String(50), nullable=False)
+    state = Column(String(50), nullable=False)
+    zipcode = Column(String(50), nullable=False)
+    country = Column(String(50), nullable=False)
 
 
 class PurchaseProforma(Base):
