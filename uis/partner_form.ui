@@ -122,7 +122,7 @@
     <rect>
      <x>490</x>
      <y>290</y>
-     <width>81</width>
+     <width>101</width>
      <height>61</height>
     </rect>
    </property>
@@ -347,7 +347,7 @@
   <widget class="QGroupBox" name="groupBox_2">
    <property name="geometry">
     <rect>
-     <x>590</x>
+     <x>620</x>
      <y>220</y>
      <width>891</width>
      <height>241</height>
@@ -373,6 +373,12 @@
       <width>891</width>
       <height>221</height>
      </rect>
+    </property>
+    <property name="selectionMode">
+     <enum>QAbstractItemView::SingleSelection</enum>
+    </property>
+    <property name="selectionBehavior">
+     <enum>QAbstractItemView::SelectRows</enum>
     </property>
    </widget>
   </widget>
@@ -1002,6 +1008,12 @@ p, li { white-space: pre-wrap; }
      <width>931</width>
      <height>171</height>
     </rect>
+   </property>
+   <property name="selectionMode">
+    <enum>QAbstractItemView::SingleSelection</enum>
+   </property>
+   <property name="selectionBehavior">
+    <enum>QAbstractItemView::SelectRows</enum>
    </property>
   </widget>
   <widget class="QCheckBox" name="active_checkbox">

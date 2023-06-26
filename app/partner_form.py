@@ -4,9 +4,9 @@ from PyQt5.QtCore import Qt
 
 from ui_partner_form import Ui_Partner_Form
 
-from db import Partner, PartnerDocument, Agent, engine, Courier 
+from db import Partner, Agent, ShippingAddress
 
-from models import PartnerContactModel
+from models import PartnerContactModel, ShippingAddressModel
 
 
 import utils
@@ -28,8 +28,7 @@ class PartnerForm(Ui_Partner_Form, QWidget):
         self.view = view 
 
         self.billing_country_combobox.addItems(utils.countries) 
-        self.shipemnt_country_combobox.addItems(utils.countries)
-        
+
         self.active_checkbox.setFocus()
         self.re_checkbox.setEnabled(False)
         self.re_checkbox.setEnabled(False)
@@ -51,18 +50,24 @@ class PartnerForm(Ui_Partner_Form, QWidget):
             self.they_pay_we_ship_radiobutton.setChecked(True)
             self.disableDocuments() 
             self.partner = Partner() 
-            self.shipemnt_country_combobox.setCurrentText('Spain')
             self.billing_country_combobox.setCurrentText('Spain')
 
         self.setUpContactView(self.partner.contacts)
-        
-    def copyAddress(self):
-        self.shipment_address_line_edit.setText(self.billing_address1_line_edit.text())
-        self.shipment_address2_line_edit.setText(self.billing_address2_line_edit.text())
-        self.shipment_postcode_line_edit.setText(self.billing_postcode_line_edit.text())
-        self.shipment_state_line_edit.setText(self.billing_state_line_edit.text())
-        self.shipment_city_line_edit.setText(self.billing_city_line_edit.text())
-        self.shipemnt_country_combobox.setCurrentText(self.billing_country_combobox.currentText())
+        self.set_up_shipping_view(self.partner.shipping_addresses)
+
+    def copy_address(self):
+
+        self.partner.shipping_addresses.append(
+            ShippingAddress(
+                line1=self.billing_address1_line_edit.text(),
+                line2=self.billing_address2_line_edit.text(),
+                city=self.billing_city_line_edit.text(),
+                state=self.billing_state_line_edit.text(),
+                zipcode=self.billing_postcode_line_edit.text(),
+                country=self.billing_country_combobox.currentText()
+            )
+        )
+        self.set_up_shipping_view(self.partner.shipping_addresses)
 
     def enablecheckboxs(self, text):
         if text == 'Spain':
@@ -86,6 +91,10 @@ class PartnerForm(Ui_Partner_Form, QWidget):
             QMessageBox.critical(self, 'Partner', 'Vesi, Sin espacio el fiscal number!')
             return
 
+        if not self.shipping_model.valid:
+            QMessageBox.critical(self, 'Partner', 'Shipping address is not valid! Fill all fields!')
+            return
+
         if self.mode == PartnerForm.EDITABLE_MODE:
             self.formToPartner() 
             try:
@@ -93,8 +102,9 @@ class PartnerForm(Ui_Partner_Form, QWidget):
                 QMessageBox.information(self, 'Partner - Update', 'Partner Updated Successfully')
                 self.close() 
             except:
-                db.session.rollback() 
+                db.session.rollback()
                 QMessageBox.critical(self, 'Partner - Update ', ' Error Updating Partner')
+                raise
 
         elif self.mode == PartnerForm.NEW_MODE:
             self.formToPartner() 
@@ -105,8 +115,8 @@ class PartnerForm(Ui_Partner_Form, QWidget):
                 self.enableDocuments() 
                 QMessageBox.information(self, 'Partner - Update', 'Partner Created Successfully')                
             except:
-                raise 
                 QMessageBox.critical(self, 'Partner - Update', ' Error Updating Partner')
+                raise
 
     def addContact(self):
         row = self.contact_view.model().rowCount()
@@ -123,23 +133,23 @@ class PartnerForm(Ui_Partner_Form, QWidget):
         self.contact_view.model().removeRows(row)
         self.contact_view.resizeColumnsToContents() 
 
-    def keyPressEvent(self, event):
-        if self.contact_view.hasFocus():
-            if event.modifiers() & Qt.ControlModifier:
-                if event.key() == Qt.Key_N:
-                    self.addContact() 
-                elif event.key() == Qt.Key_D:
-                    self.removeContact() 
-        elif self.copy_address_button.hasFocus():
-            if event.key() == Qt.Key_Return:
-                self.copyAddress() 
-        elif self.active_checkbox.hasFocus():
-            if event.key() == Qt.Key_Return and self.active_checkbox.isChecked():
-                self.active_checkbox.setChecked(False)
-            else:
-                self.active_checkbox.setChecked(True)
-        else:
-            super().keyPressEvent(event) 
+    # def keyPressEvent(self, event):
+    #     if self.contact_view.hasFocus():
+    #         if event.modifiers() & Qt.ControlModifier:
+    #             if event.key() == Qt.Key_N:
+    #                 self.addContact()
+    #             elif event.key() == Qt.Key_D:
+    #                 self.removeContact()
+    #     elif self.copy_address_button.hasFocus():
+    #         if event.key() == Qt.Key_Return:
+    #             self.copyAddress()
+    #     elif self.active_checkbox.hasFocus():
+    #         if event.key() == Qt.Key_Return and self.active_checkbox.isChecked():
+    #             self.active_checkbox.setChecked(False)
+    #         else:
+    #             self.active_checkbox.setChecked(True)
+    #     else:
+    #         super().keyPressEvent(event)
                 
     def formToPartner(self):
         self.partner.active = self.active_checkbox.isChecked()
@@ -153,12 +163,7 @@ class PartnerForm(Ui_Partner_Form, QWidget):
         self.partner.billing_city = self.billing_city_line_edit.text()
         self.partner.billing_state = self.billing_state_line_edit.text()
         self.partner.billing_country = self.billing_country_combobox.currentText()
-        self.partner.shipping_line1 = self.shipment_address_line_edit.text()
-        self.partner.shipping_line2 = self.shipment_address2_line_edit.text()
-        self.partner.shipping_postcode = self.shipment_postcode_line_edit.text()
-        self.partner.shipping_state = self.shipment_state_line_edit.text()
-        self.partner.shipping_city = self.shipment_city_line_edit.text()
-        self.partner.shipping_country = self.shipemnt_country_combobox.currentText()
+
         self.partner.has_certificate = self.has_certificate.isChecked()
         
         try:
@@ -196,13 +201,7 @@ class PartnerForm(Ui_Partner_Form, QWidget):
         self.billing_state_line_edit.setText(self.partner.billing_state)
         self.billing_country_combobox.setCurrentText(self.partner.billing_country)
         self.billing_city_line_edit.setText(self.partner.billing_city)
-        self.shipment_address_line_edit.setText(self.partner.shipping_line1)
-        self.shipment_address2_line_edit.setText(self.partner.shipping_line2)
-        self.shipment_postcode_line_edit.setText(self.partner.shipping_postcode)
-        self.shipment_state_line_edit.setText(self.partner.shipping_state)
-        self.shipment_city_line_edit.setText(self.partner.shipping_city)
-        self.shipemnt_country_combobox.setCurrentText(self.partner.shipping_country)
-        
+
         self.credit_amount_spinbox.setValue(self.partner.amount_credit_limit)
         self.credit_days_spinbox.setValue(self.partner.days_credit_limit)
 
@@ -220,13 +219,15 @@ class PartnerForm(Ui_Partner_Form, QWidget):
         self.re_checkbox.setChecked(self.partner.re)
         self.has_certificate.setChecked(self.partner.has_certificate)
 
-
     def setUpContactView(self, contacts):
         self.contact_model = PartnerContactModel(self.contact_view, contacts)
         self.contact_view.setModel(self.contact_model)
-        self.contact_view.setSelectionBehavior(QTableView.SelectRows)
-        self.contact_view.setSelectionMode(QTableView.SingleSelection)
-        self.contact_view.resizeColumnsToContents() 
+        self.contact_view.resizeColumnsToContents()
+
+    def set_up_shipping_view(self, addresses):
+        self.shipping_model = ShippingAddressModel(self.shipping_view, addresses)
+        self.shipping_view.setModel(self.shipping_model)
+        self.shipping_view.resizeColumnsToContents()
 
     def disableDocuments(self):
         self.docs_button.setToolTip('Save partner to enable attaching documents and contact people')
@@ -238,16 +239,31 @@ class PartnerForm(Ui_Partner_Form, QWidget):
         self.docs_button.setEnabled(True)
 
     def setUpHandlers(self):
-        self.copy_address_button.clicked.connect(self.copyAddress)
+        self.copy_address_button.clicked.connect(self.copy_address)
         self.billing_country_combobox.currentTextChanged.connect(self.enablecheckboxs)
-        self.shipemnt_country_combobox.currentTextChanged.connect(self.enablecheckboxs) 
         self.add_row_button.clicked.connect(self.addContact)
         self.delete_row_button.clicked.connect(self.removeContact)
         self.docs_button.clicked.connect(self.docsButtonHandler)
         self.save_button.clicked.connect(self.saveButtonHandler)
-        self.bank_button.clicked.connect(self.bank_button_handler) 
+        self.bank_button.clicked.connect(self.bank_button_handler)
+        self.shipping_add.clicked.connect(self.add_shipping_address)
+        self.shipping_delete.clicked.connect(self.remove_shipping_address)
 
-    
+    def add_shipping_address(self):
+        row = self.shipping_view.model().rowCount()
+        self.shipping_view.model().insertRow(row)
+        index = self.shipping_view.model().index(row, 0)
+        self.shipping_view.setCurrentIndex(index)
+        self.shipping_view.edit(index)
+
+    def remove_shipping_address(self):
+        index = self.shipping_view.currentIndex()
+        if not index.isValid():
+            return
+        row = index.row()
+        self.shipping_view.model().removeRows(row)
+        self.shipping_view.resizeColumnsToContents()
+
     def bank_button_handler(self):
         import bank_form 
         bank_form.Dialog(self, self.partner).exec_()

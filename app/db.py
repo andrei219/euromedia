@@ -324,10 +324,9 @@ class Partner(Base):
     has_certificate = Column(Boolean, nullable=False, default=False)
 
     agent = relationship('Agent', uselist=False)
-    addresses = relationship('PartnerAddress', backref='partner')
-
 
     accounts = relationship('PartnerAccount', backref='partner', cascade='delete-orphan, save-update, delete')
+    shipping_addresses = relationship('ShippingAddress', backref='partner', cascade='delete-orphan, save-update, delete')
 
     __table_args__ = (
         CheckConstraint('fiscal_name != ""', name='no_empty_partner_fiscal_name'),
@@ -406,9 +405,7 @@ class PartnerAccount(Base):
         self.bank_routing = bank_routing
         self.currency = currency
 
-
 RED, GREEN, YELLOW, ORANGE = '#FF7F7F', '#90EE90', '#FFFF66', '#FFD580'
-
 
 class ShippingAddress(Base):
 
@@ -422,6 +419,13 @@ class ShippingAddress(Base):
     state = Column(String(50), nullable=False)
     zipcode = Column(String(50), nullable=False)
     country = Column(String(50), nullable=False)
+
+    @property
+    def valid(self):
+        return all((self.line1, self.line2, self.city, self.state, self.zipcode, self.country))
+
+    def __repr__(self):
+        return '<ShippingAddress %s>' % self.id
 
 
 class PurchaseProforma(Base):

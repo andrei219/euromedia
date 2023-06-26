@@ -66,7 +66,6 @@ class BaseTable:
 		return len(getattr(self, self.name))
 
 
-
 def computeCreditAvailable(partner_id):
 	max_credit = db.session.query(db.Partner.amount_credit_limit). \
 		where(db.Partner.id == partner_id).scalar()
@@ -570,9 +569,79 @@ class PartnerModel(QtCore.QAbstractTableModel):
 			PartnerModel.ACTIVE: 'YES' if partner.active else 'NO'
 		}.get(col)
 
+from db import ShippingAddress
+from typing import List
+class ShippingAddressModel(BaseTable, QtCore.QAbstractTableModel):
+	LINE1, LINE2, CITY, STATE, ZIP, COUNTRY = 0, 1, 2, 3, 4, 5
 
-class ShippingAddressModel(QtCore.QAbstractTableModel):
-	pass
+	def __init__(self, view, addresses):
+		super().__init__()
+		self.view = view
+		self.addresses: List[ShippingAddress] = addresses
+		self.name = 'addresses'
+		self._headerData = ['Line 1', 'Line 2', 'City', 'State', 'Zip', 'Country']
+
+	def data(self, index, role=Qt.DisplayRole):
+		if not index.isValid():
+			return
+		row, col = index.row(), index.column()
+		if role == Qt.DisplayRole:
+			return {
+				self.LINE1: self.addresses[row].line1,
+				self.LINE2: self.addresses[row].line2,
+				self.CITY: self.addresses[row].city,
+				self.STATE: self.addresses[row].state,
+				self.ZIP: self.addresses[row].zipcode,
+				self.COUNTRY: self.addresses[row].country
+			}.get(col)
+
+	def setData(self, index: QModelIndex, value: typing.Any, role: int = ...) -> bool:
+		if not index.isValid():
+			return False
+		
+		row, col = index.row(), index.column()
+		if role == Qt.EditRole:
+			address = self.addresses[row]
+			if col == self.LINE1:
+				address.line1 = value
+			elif col == self.LINE2:
+				address.line2 = value
+			elif col == self.CITY:
+				address.city = value
+			elif col == self.STATE:
+				address.state = value
+			elif col == self.COUNTRY:
+				address.country = value
+			elif col == self.ZIP:
+				address.zipcode = value
+			else:
+				return False
+			self.dataChanged.emit(index, index)
+			return True
+		return False
+
+	def insertRow(self, position, rows=1, index=QModelIndex()) -> bool:
+		self.beginInsertRows(QModelIndex(), position, position + rows - 1)
+		address = db.ShippingAddress()
+		self.addresses.insert(position, address)
+		self.endInsertRows()
+		return True
+
+	def removeRows(self, position, rows=1, index=QModelIndex()) -> bool:
+		self.beginRemoveRows(QModelIndex(), position, position + rows - 1)
+		self.addresses.pop(position)
+		self.endRemoveRows()
+		return True
+
+	def flags(self, index):
+		if not index.isValid():
+			return Qt.ItemIsEnabled
+		return Qt.ItemFlags(super().flags(index) | Qt.ItemIsEditable)
+
+	@property
+	def valid(self):
+		return all(e.valid for e in self.addresses)
+
 
 class PartnerContactModel(QtCore.QAbstractTableModel):
 	NAME, POSITION, PHONE, EMAIL, NOTE = 0, 1, 2, 3, 4
@@ -8668,6 +8737,7 @@ class JournalEntryLineModel(BaseTable, QtCore.QAbstractTableModel):
 		self.lines.pop(position)
 		self.endRemoveRows()
 		return True
+
 
 class BankingTransactionModel(BaseTable, QtCore.QAbstractTableModel):
 

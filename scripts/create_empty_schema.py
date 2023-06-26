@@ -36,7 +36,6 @@ if __name__ == '__main__':
 	parser.add_argument('dbname2', help='Name of the second database')
 	args = parser.parse_args()
 
-
 	if args.host1 == 'dev':
 		original_host = '//root:hnq#4506@localhost:3306'
 	elif args.host1 == 'prod':
