@@ -304,14 +304,6 @@ class Partner(Base):
     isp = Column(Boolean, default=False)
     re = Column(Boolean, default=False)
 
-    # Addresses:
-    shipping_line1 = Column(String(50))
-    shipping_line2 = Column(String(50))
-
-    shipping_city = Column(String(50))
-    shipping_state = Column(String(50))
-    shipping_country = Column(String(50))
-    shipping_postcode = Column(String(50))
 
     billing_line1 = Column(String(50))
     billing_line2 = Column(String(50))
