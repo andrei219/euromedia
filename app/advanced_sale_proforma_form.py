@@ -22,6 +22,9 @@ MESSAGE = "This presale is only for incoming stock \n {}. For others stocks crea
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.sql import text
 
+
+from sale_proforma_form import log
+
 def reload_utils():
     global utils
     from importlib import reload
@@ -47,6 +50,36 @@ class Form(Ui_Form, QWidget):
         self.type_filter = None
         self.number_filter = None
 
+        self.address_id_map = None
+
+    @log
+    def build_address_map_and_init_combo(self, partner_id=None):
+        if partner_id is None:
+            partner_id = self.proforma.partner_id
+
+        # clear previous data
+        self.shipping_address.clear()
+
+        # build address map
+        self.address_id_map = utils.get_address_id_map(partner_id=partner_id)
+
+        # init combo
+        self.shipping_address.addItems(self.address_id_map.keys())
+
+        try:
+            self.shipping_address.setCurrentText(
+                self.address_id_map.inverse[self.proforma.shipping_address_id]
+            )
+        except KeyError:
+            pass
+
+        def handler(address):
+            try:
+                self.proforma.shipping_address_id = self.address_id_map[address]
+            except KeyError:
+                pass
+
+        self.shipping_address.currentTextChanged.connect(handler)
 
     def init_template(self):
         self.proforma = db.SaleProforma()
@@ -113,6 +146,8 @@ class Form(Ui_Form, QWidget):
         self.we_pay_we_ship.setChecked(p.we_pay_we_ship)
         self.note.setText(p.note)
         self.external.setText(p.external)
+
+        self.shipping_address.setCurrentText(self.address_id_map.inverse[p.shipping_address_id])
 
     def set_stock_mv(self):
         warehouse_id = utils.warehouse_id_map.get(
@@ -260,6 +295,8 @@ class Form(Ui_Form, QWidget):
             if not has_certificate(partner_id):
                 QMessageBox.information(self, 'Information', 'This partner has no reseller certificate.')
 
+        self.build_address_map_and_init_combo(partner_id=partner_id)
+
     def insert_handler(self):
         from free_line_form import Dialog
         dialog = Dialog(self)
@@ -348,6 +385,9 @@ class Form(Ui_Form, QWidget):
         self.proforma.note = self.note.toPlainText()[0:255]
         self.proforma.external = self.external.text()
 
+        self.proforma.shipping_address_id = self.address_id_map[self.shipping_address.currentText()]
+
+
     def clear_filters(self):
         self.description.clear()
         self.spec.clear()
@@ -360,6 +400,7 @@ class EditableForm(Form):
         reload_utils()
         self.proforma = proforma
         super().__init__(parent, view)
+        self.build_address_map_and_init_combo()
         self.update_totals()
         self.proforma_to_form()
         self.warehouse.setEnabled(False)

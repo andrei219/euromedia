@@ -67,6 +67,15 @@ def stock_type(stock):
         else:
             return -1  # No mixing available
 
+
+def get_address_id_map(partner_id):
+    return bidict({
+        ', '.join((a.line1, a.zipcode, a.state, a.city)): a.id
+        for a in db.session.query(db.ShippingAddress).join(db.Partner)
+        .where(db.Partner.id == partner_id)
+    })
+
+
 def is_object_persisted(object):
     from sqlalchemy import inspect
     inspector = inspect(object)

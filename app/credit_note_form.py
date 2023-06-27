@@ -19,6 +19,7 @@ class Form(Ui_Form, QWidget):
 
     def __init__(self, parent, proforma, is_invoice=False):
         super(Form, self).__init__()
+        self.parent = parent
         self.setupUi(self)
         self.is_invoice = is_invoice
         self.proforma = proforma
@@ -27,6 +28,8 @@ class Form(Ui_Form, QWidget):
         self.set_view_config()
         self.setCombos()
         self.save.clicked.connect(self.save_handler)
+
+        self.build_address_map_and_init_combo()
         self.set_form()
 
         if self.is_invoice:
@@ -37,6 +40,23 @@ class Form(Ui_Form, QWidget):
             self.where_applied_total.setVisible(False)
             self.where_applied_title.setVisible(False)
             self.where_applied_view.setVisible(False)
+
+    def build_address_map_and_init_combo(self):
+
+        self.address_id_map = utils.get_address_id_map(self.proforma.partner_id)
+        self.shipping_address.addItems(self.address_id_map.keys())
+        try:
+            self.shipping_address.setCurrentText(self.address_id_map.inverse[self.proforma.shipping_address_id])
+        except KeyError:
+            pass
+
+        def handler(address):
+            try:
+                self.proforma.shipping_address_id = self.address_id_map[address]
+            except KeyError:
+                pass
+
+        self.shipping_address.currentTextChanged.connect(handler)
 
     def set_handlers(self):
         self.save.clicked.connect(self.save_handler)
@@ -59,7 +79,6 @@ class Form(Ui_Form, QWidget):
             raise
         else:
             QMessageBox.information(self, 'Success', 'Credit note updated successfully')
-
 
     def set_view_config(self):
         self.view.setSelectionBehavior(QTableView.SelectRows)
@@ -96,6 +115,8 @@ class Form(Ui_Form, QWidget):
         self.proforma_tax.setText(str(self.model.tax))
         self.subtotal_proforma.setText(str(self.model.subtotal))
 
+        self.shipping_address.setCurrentText(self.address_id_map.inverse[p.shipping_address_id])
+
     def set_proforma(self):
         if self.is_invoice:
             self.proforma.invoice.type = int(self.type.currentText())
@@ -117,6 +138,10 @@ class Form(Ui_Form, QWidget):
         self.proforma.tracking = self.tracking.text()
         self.proforma.external = self.external.text()
         self.proforma.note = self.note.toPlainText()
+
+        self.proforma.shipping_address_id = self.address_id_map[self.shipping_address.currentText()]
+
+
 
 
 

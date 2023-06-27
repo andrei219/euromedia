@@ -425,7 +425,9 @@ class ShippingAddress(Base):
         return all((self.line1, self.line2, self.city, self.state, self.zipcode, self.country))
 
     def __repr__(self):
-        return '<ShippingAddress %s>' % self.id
+        return '<ShippingAddress(%s, %s, %s, %s, %s, %s, %s)>' %\
+            (self.id, self.line1, self.line2, self.city,
+             self.state, self.zipcode, self.country)
 
 
 class PurchaseProforma(Base):
@@ -1412,6 +1414,11 @@ class SaleInvoice(Base):
     @property
     def partner_id(self):
         return self.proformas[0].partner.id
+
+    @property
+    def shipping_address(self):
+        return self.proformas[0].shipping_address
+
 
 
 class SaleProformaLine(Base):

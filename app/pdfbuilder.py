@@ -38,9 +38,11 @@ d['mobify'].append(r'.\app\icons\deutsche_logo.png')
 d['mobify'].append(r'.\app\icons\wise_logo.png')
 
 
-
 logos = d[os.environ['APP_DATABASE']]
 
+# When working with database branch, no logos are found for testing:
+if not logos:
+    logos = d['euromedia']
 
 name2db_map = {
     'Euromedia Investment Group, S.L.': 'euromedia',
@@ -67,19 +69,20 @@ db2rma_email_map = {
 
 def get_conditions():
     return [
-        f'1 - All good remain property of {db.db2name_map[os.environ["APP_DATABASE"]]} until payment is received in full.',
-        f'2 - Goods will be released only after full amount is received by {db.db2name_map[os.environ["APP_DATABASE"]]}',
-        f'{db2name_map[os.environ["APP_DATABASE"]]} will not be liable of any delay incurred by airlines, freight',
+        f'1 - All good remain property of {db.db2name_map.get(os.environ["APP_DATABASE"], "x")} until payment is received in full.',
+
+        f'2 - Goods will be released only after full amount is received by {db.db2name_map.get(os.environ["APP_DATABASE"], "x")}',
+        f'{db.db2name_map.get(os.environ["APP_DATABASE"], "")} will not be liable of any delay incurred by airlines, freight',
         f'      companies or customs department.',
         f'4 - The used devices have 30 natural days functional warranty from the delivery date.',
         f'5 - The used devices have 72 hours grading warranty from delivery date.',
-        f'6 - For Invoice Enquires: {db2email_map[os.environ["APP_DATABASE"]]}',
+        f'6 - For Invoice Enquires: {db.db2name_map.get(os.environ["APP_DATABASE"], "x")}',
 ]
 
 def get_rma_conditions():
     return [
         '                          RMA CONDITIONS               ',
-        f'1 - For RMA Enquires: {db2rma_email_map[os.environ["APP_DATABASE"]]}',
+        f'1 - For RMA Enquires: {db2rma_email_map.get(os.environ["APP_DATABASE"], "x")}',
         '2 - RMA requests will be answered within 48 hours from Monday to Friday.',
         '3 - Before return any device, you must have our approval for each one.',
         '4 - Approved devices must be sent back within 5 days.'
@@ -88,6 +91,7 @@ def get_rma_conditions():
 
 def get_logo_bank_1():
     return logos[1]
+
 
 def get_logo_bank_2():
     return logos[2]
@@ -548,7 +552,6 @@ class PDF(FPDF):
         self.set_xy(127.5, 13.35)
         self.cell(74, 17, self.doc_header, 1, 0, 'C')
 
-
         self.print_buyer()
         self.print_supplier()
         self.print_delivery_address()
@@ -793,18 +796,44 @@ class PDF(FPDF):
     def print_delivery_address(self):
         partner = self.we if self.we_buy else self.document.partner_object
         x, y = DELIVERY_ADDRESS_BASE
-        self.print_helper(partner, x, y, header='DELIVERY ADDRESS:')
+
+        # handling added feature multiple delivery addresses
+
+        if isinstance(self.document, (SaleProforma, SaleInvoice)):
+            print('self.document=', self.document)
+            print('self.address=', self.document.shipping_address)
+
+            address = self.document.shipping_address
+            for e in [
+                partner.fiscal_name,
+                address.line1,
+                address.line2,
+                ' '.join([address.zipcode, address.city, address.state]),
+                address.country,
+                'VAT Nº: ' + partner.fiscal_number
+            ]:
+                print('for loop address')
+                y += 4
+                self.set_xy(x, y)
+                self.cell(0, txt=e)
+
+        else:
+            print('else branch reached')
+            self.print_helper(partner, x, y, header='DELIVERY ADDRESS:')
 
     def print_helper(self, partner, x, y, *, header):
+        print(f'print_helper({partner}, {x}, {y}, {header})')
         self.set_xy(x, y)
         self.set_font('Arial', 'B', size=12)
         self.cell(0, txt=header)
         self.set_font('Arial', size=10)
 
         if header == 'DELIVERY ADDRESS:':
+            print('Delivery address branch reached')
             prefix = 'shipping_'
         else:
             prefix = 'billing_'
+
         for element in [
             partner.fiscal_name,
             getattr(partner, prefix + 'line1'),

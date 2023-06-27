@@ -203,16 +203,8 @@ class Form(Ui_SalesProformaForm, QWidget):
             partner_id = self.proforma.partner_id
 
         self.shipping_address.clear()
-
-        self.address_id_map = bidict({
-            ', '.join((a.line1, a.zipcode, a.state, a.city)): a.id
-            for a in db.session.query(db.ShippingAddress).join(db.Partner)
-            .where(db.Partner.id == partner_id)
-        })
-
+        self.address_id_map = utils.get_address_id_map(partner_id=partner_id)
         self.shipping_address.addItems(self.address_id_map.keys())
-
-        print('address_id_map', self.address_id_map)
 
         try:
             self.shipping_address.setCurrentText(
@@ -265,7 +257,6 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.condition.editingFinished.connect(self.condition_editing_finished)
         self.spec.editingFinished.connect(self.spec_editing_finished)
         self.sync.clicked.connect(self.sync_wh_handler)
-
 
     def sync_wh_handler(self):
         try:
