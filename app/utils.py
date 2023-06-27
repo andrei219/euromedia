@@ -118,6 +118,7 @@ warehouse_id_map = bidict({
     for w in db.session.query(db.Warehouse.description, db.Warehouse.id).order_by(db.Warehouse.id)
 })
 
+
 import uuid
 
 

@@ -913,6 +913,8 @@ class SaleProforma(Base):
     agent_id = Column(Integer, ForeignKey('agents.id'))
     sale_invoice_id = Column(Integer, ForeignKey('sale_invoices.id'))
 
+    shipping_address_id = Column(Integer, ForeignKey('shipping_addresses.id'))
+
     credit_amount = Column(Float(precision=32, decimal_return_scale=None), default=0.0)
     credit_days = Column(Integer, default=0)
     tracking = Column(String(50))
@@ -928,6 +930,7 @@ class SaleProforma(Base):
     invoice = relationship('SaleInvoice', backref=backref('proformas'), lazy='joined')
 
     expedition = relationship('Expedition', uselist=False, back_populates='proforma')
+    shipping_address = relationship('ShippingAddress', uselist=False)
 
     warning = Column(String(255), nullable=True)
 

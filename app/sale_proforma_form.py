@@ -26,6 +26,8 @@ from sqlalchemy.exc import IntegrityError
 
 from utils import get_next_num, parse_date
 
+from bidict import bidict
+
 class StockBase:
 
     def __init__(self, filters, warehouse_id, form):
@@ -143,6 +145,16 @@ class Completer:
                 self.stock_base.conditions.union({'Mix'}) 
             )
 
+from functools import wraps
+from typing import Dict, Any, Tuple
+def log(func):
+    @wraps(func)
+    def wrapper(*args: Tuple[Any], **kwargs: Dict[str, Any]) -> Any:
+        print(func.__name__, args, kwargs)
+        # noinspection PyTypeChecker
+        return func(*args, **kwargs)
+    return wrapper
+
 
 class Form(Ui_SalesProformaForm, QWidget):
 
@@ -181,12 +193,43 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.lines_view.resizeColumnToContents(0)
         self.lines_view.resizeColumnToContents(2)
 
+        self.address_id_map = None
+
+    @log
+    def build_address_map_and_init_combo(self, partner_id=None):
+        # Populate addresses for partner
+
+        if partner_id is None:
+            partner_id = self.proforma.partner_id
+
+        self.shipping_address.clear()
+
+        self.address_id_map = bidict({
+            ', '.join((a.line1, a.zipcode, a.state, a.city)): a.id
+            for a in db.session.query(db.ShippingAddress).join(db.Partner)
+            .where(db.Partner.id == partner_id)
+        })
+
+        self.shipping_address.addItems(self.address_id_map.keys())
+
+        print('address_id_map', self.address_id_map)
+
+        try:
+            self.shipping_address.setCurrentText(
+                self.address_id_map.inverse[self.proforma.shipping_address_id]
+            )
+        except KeyError:
+            pass
+
+        # Associate the handler after init. Otherwise, conflict.
+        self.shipping_address.currentTextChanged.connect(self.shipping_address_changed)
 
     def adjust_view(self):
         self.view.resizeColumnToContents(2)
         self.view.resizeColumnToContents(3)
 
     def init_template(self):
+
         self.proforma = db.SaleProforma() 
 
         warehouse_id = utils.warehouse_id_map.get(self.warehouse.currentText())
@@ -222,6 +265,7 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.condition.editingFinished.connect(self.condition_editing_finished)
         self.spec.editingFinished.connect(self.spec_editing_finished)
         self.sync.clicked.connect(self.sync_wh_handler)
+
 
     def sync_wh_handler(self):
         try:
@@ -279,7 +323,6 @@ class Form(Ui_SalesProformaForm, QWidget):
             spec = None 
 
         self.filters.set(description, condition, spec)
-
 
         self.condition.setFocus(True)
 
@@ -341,6 +384,7 @@ class Form(Ui_SalesProformaForm, QWidget):
     def set_partner_completer(self):
         utils.setCompleter(self.partner, utils.partner_id_map.keys())
 
+    @log
     def partner_search(self):
 
         partner = self.partner.text()
@@ -375,6 +419,16 @@ class Form(Ui_SalesProformaForm, QWidget):
                 if not has_certificate(partner_id):
                     QMessageBox.information(self, 'Information', 'This partner has no reseller certificate.')
 
+            self.build_address_map_and_init_combo(partner_id=partner_id)
+
+    @log
+    def shipping_address_changed(self, new_address):
+        try:
+            self.proforma.shipping_address_id = self.address_id_map[new_address]
+        except KeyError:
+            pass
+
+    @log
     def proforma_to_form(self):
         p = self.proforma
 
@@ -396,6 +450,8 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.they_pay_they_ship.setChecked(p.they_pay_they_ship)
         self.we_pay_we_ship.setChecked(p.we_pay_we_ship)
         self.note.setText(p.note)
+
+        self.shipping_address.setCurrentText(self.address_id_map.inverse[p.shipping_address_id])
 
     def lines_view_clicked_handler(self, index):
         self.set_selected_stock_mv() 
@@ -641,6 +697,9 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.proforma.tracking = self.tracking.text()
         self.proforma.note = self.note.toPlainText()[0:255]
 
+        self.proforma.shipping_address_id = self.address_id_map[self.shipping_address.currentText()]
+
+
     def clear_filters(self):
         self.description.clear()
         self.spec.clear()
@@ -653,9 +712,11 @@ class EditableForm(Form):
         self.proforma = proforma
 
         super().__init__(parent, view)
+        self.build_address_map_and_init_combo()
         self.update_totals()
         self.disable_warehouse()
         self.proforma_to_form()
+
 
     def init_template(self): 
         self.filters = Filters(self.proforma.warehouse_id, self)
