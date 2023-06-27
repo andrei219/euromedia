@@ -799,8 +799,6 @@ class PDF(FPDF):
         # handling added feature multiple delivery addresses
 
         if isinstance(self.document, (SaleProforma, SaleInvoice)):
-            print('self.document=', self.document)
-            print('self.address=', self.document.shipping_address)
 
             self.set_xy(x, y)
             self.set_font('Arial', 'B', size=12)
@@ -816,24 +814,20 @@ class PDF(FPDF):
                 address.country,
                 'VAT Nº: ' + partner.fiscal_number
             ]:
-                print('for loop address')
                 y += 4
                 self.set_xy(x, y)
                 self.cell(0, txt=e)
 
         else:
-            print('else branch reached')
             self.print_helper(partner, x, y, header='DELIVERY ADDRESS:')
 
     def print_helper(self, partner, x, y, *, header):
-        print(f'print_helper({partner}, {x}, {y}, {header})')
         self.set_xy(x, y)
         self.set_font('Arial', 'B', size=12)
         self.cell(0, txt=header)
         self.set_font('Arial', size=10)
 
         if header == 'DELIVERY ADDRESS:':
-            print('Delivery address branch reached')
             prefix = 'shipping_'
         else:
             prefix = 'billing_'
