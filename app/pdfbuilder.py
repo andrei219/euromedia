@@ -796,12 +796,16 @@ class PDF(FPDF):
     def print_delivery_address(self):
         partner = self.we if self.we_buy else self.document.partner_object
         x, y = DELIVERY_ADDRESS_BASE
-
         # handling added feature multiple delivery addresses
 
         if isinstance(self.document, (SaleProforma, SaleInvoice)):
             print('self.document=', self.document)
             print('self.address=', self.document.shipping_address)
+
+            self.set_xy(x, y)
+            self.set_font('Arial', 'B', size=12)
+            self.cell(0, txt='DELIVERY ADDRESS:')
+            self.set_font('Arial', size=10)
 
             address = self.document.shipping_address
             for e in [
