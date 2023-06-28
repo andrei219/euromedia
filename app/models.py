@@ -3320,7 +3320,6 @@ def change_layout_and_commit(func):
 	return wrapper
 
 
-
 class SerieModel(QtCore.QAbstractListModel):
 	## OOOOOO branch dhl
 	def __init__(self, line, expedition):
@@ -6633,6 +6632,11 @@ def build_credit_note_and_commit(partner_id, agent_id, order, candidates):
 	proforma.cancelled = False
 	proforma.agent_id = agent_id
 	proforma.courier_id = 1
+	proforma.shipping_address_id = (
+		db.session.query(db.ShippingAddress)
+		.where(db.ShippingAddress.partner_id == partner_id)
+		.first().id
+	)
 
 	text = ''
 
