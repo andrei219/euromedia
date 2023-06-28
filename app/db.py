@@ -90,6 +90,19 @@ purchase_level_query = """
 ) AS result;
 """
 
+
+pair_processed_query = """
+   select exists(
+    select 
+        expedition_series.serie as serie_expedicion,
+        reception_series.serie  as serie_reception
+    from expedition_series inner join reception_series
+    on reception_series.serie = expedition_series.serie and 
+    reception_series.created_on = expedition_series.created_on
+    where expedition_series.serie = :serie) as result;
+"""
+
+
 class Warehouse(Base):
 
     __tablename__ = 'warehouses'

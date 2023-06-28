@@ -482,7 +482,6 @@ class PartnerModel(QtCore.QAbstractTableModel):
 					db.Partner.fiscal_number.contains(search_key),
 					db.Partner.trading_name.contains(search_key),
 					db.Partner.billing_country.contains(search_key),
-					db.Partner.shipping_country.contains(search_key),
 				)
 			)
 
@@ -3321,9 +3320,6 @@ def change_layout_and_commit(func):
 	return wrapper
 
 
-def expedition_series_contains(serie):
-	return db.session.query(exists().where(db.ExpeditionSerie.serie == serie)).scalar()
-
 
 class SerieModel(QtCore.QAbstractListModel):
 	## OOOOOO branch dhl
@@ -5246,6 +5242,23 @@ class SpecListModel(QtCore.QAbstractListModel):
 			raise
 
 
+from sqlalchemy import text
+pair_query = text(
+	"""
+		select exists(
+            select 
+	            expedition_series.serie as serie_expedicion,
+	            reception_series.serie  as serie_reception
+	        from expedition_series inner join reception_series
+	        on reception_series.serie = expedition_series.serie and 
+	        reception_series.created_on = expedition_series.created_on
+	        where expedition_series.serie = :serie) as result;
+""")
+
+
+def has_sister_serie(serie):
+	return db.session.execute(pair_query, {'serie': serie}).scalar()
+
 class ReceptionSeriesModel:
 
 	def __init__(self, reception):
@@ -5255,6 +5268,9 @@ class ReceptionSeriesModel:
 			where(db.Reception.id == reception.id).all()
 
 	def add(self, line, serie, description, condition, spec):
+
+		if has_sister_serie(serie):
+			raise ValueError('Serie already processed in expedition, please check there.')
 
 		if serie.lower() in [o.serie.lower() for o in self.reception_series]:
 			raise ValueError('Serie already processed in this reception order')
@@ -5328,9 +5344,8 @@ class ReceptionSeriesModel:
 		delete_targets = [r for r in self.reception_series if r.serie in series]
 		# Prevent deleting:
 		if self.reception.auto and \
-				any(expedition_series_contains(serie.serie) for serie in delete_targets):
-			from exceptions import AutomaticReceptionDeleteError
-			raise AutomaticReceptionDeleteError
+				any(has_sister_serie(serie.serie) for serie in delete_targets):
+			raise ValueError('Serie already processed in expedition, please check there.')
 
 		for t in delete_targets:
 			db.session.delete(t)

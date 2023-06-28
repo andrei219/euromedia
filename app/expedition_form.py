@@ -131,7 +131,6 @@ class Form(Ui_ExpeditionForm, QDialog):
 
             self.imei.clear()
 
-
     def get_dependant_purchase(self):
 
         origin_id = self.expedition.proforma.advanced_lines[0].origin_id

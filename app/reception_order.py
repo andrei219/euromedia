@@ -29,6 +29,16 @@ def reload_utils():
     utils = reload(utils)
 
 
+from functools import wraps
+def prevent_pair_processed(handler):
+    @wraps(handler)
+    def wrapper(self, *args, **kwargs):
+
+        return handler(self)
+    return wrapper
+
+
+
 class Form(QDialog, Ui_Form):
 
     def __init__(self, parent, reception):
@@ -223,9 +233,11 @@ class Form(QDialog, Ui_Form):
 
     def commit_handler(self):
 
-        if self.reception.auto:
-            QMessageBox.critical(self, 'Error', "Can't update here. Go to associated expedition.")
-            return
+      #  if self.reception.auto:
+      #      QMessageBox.critical(self, 'Error', "Can't update here. Go to associated expedition.")
+      #      return
+
+        sn = self.sn.text()
 
         if self.imei_check.isChecked():
             from pyvalidator import is_imei
@@ -256,8 +268,6 @@ class Form(QDialog, Ui_Form):
             index = self.view.model().index(len(self.view.model()), 3)
             self.view.setCurrentIndex(index)
 
-
-
         else:
             if not self.sn.text(): 
                 QMessageBox.critical(self, 'Error', 'Empty SN/IMEI')
@@ -273,7 +283,6 @@ class Form(QDialog, Ui_Form):
             except IntegrityError:
                 QMessageBox.critical(self, 'Error', 'That Imei/SN already exists')
     
-
         self.update_group_model()
         self.update_overflow_condition() 
         self.total_processed.setText(str(len(self.rs_model)))
@@ -345,8 +354,7 @@ class Form(QDialog, Ui_Form):
     def delete_handler(self):
         try:
             if self.all.isChecked():
-
-                    self.rs_model.delete(self.snlist.model().series)
+                self.rs_model.delete(self.snlist.model().series)
             else:
                 indexes = self.snlist.selectedIndexes()
                 if not indexes:
@@ -358,12 +366,9 @@ class Form(QDialog, Ui_Form):
                     ]
                 )
 
-        except AutomaticReceptionDeleteError:
-            QMessageBox.critical(self, 'Error', "Can't delete this serie. It was entered automatically")
+        except ValueError as ex:
+            QMessageBox.critical(self, 'Error', str(ex))
             return
-
-        except:
-            raise
 
         try:
             description, condition, spec, _ = self.get_selected_group()
