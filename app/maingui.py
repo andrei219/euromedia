@@ -969,8 +969,9 @@ class MainGui(Ui_MainGui, QMainWindow):
         except ValueError as ex:
             QMessageBox.critical(self, 'Error', str(ex))
         except (api.ViesValidationError, api.ViesError, api.ViesHTTPError) as ex:
-            if QMessageBox.question(self, 'Error validating IVA.', 'I could not validate IVA number. Build invoice '
-                                                                   'anyway?', QMessageBox.Yes | QMessageBox.No) == QMessageBox.Yes:
+            if QMessageBox.question(self, 'Error validating IVA.',
+                                    'I could not validate IVA number. Build invoice '
+                                   'anyway?', QMessageBox.Yes | QMessageBox.No) == QMessageBox.Yes:
                 model.associateInvoice(rows, bypass_vies=True)
 
         else:
@@ -989,8 +990,6 @@ class MainGui(Ui_MainGui, QMainWindow):
             self.proformas_purchases_view.clearSelection()
 
         except IntegrityError as ex:
-
-            raise
 
             if ex.orig.args[0] == 1048:
                 d = 'Invoice' if invoice else 'Proforma'
