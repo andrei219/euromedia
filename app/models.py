@@ -2018,14 +2018,18 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 
 		if not bypass_vies:
 			number, country = any_proforma.partner.fiscal_number, any_proforma.partner.billing_country
-			try:
-				request = vies.Vies().request(number)
-				if request.valid:
-					register = db.ViesRequest(request.requestDate, request.valid, number)
-					db.session.add(register)
 
-			except (vies.ViesValidationError, vies.ViesError, vies.ViesHTTPError):
-				raise
+			from utils import get_country_code
+			code = get_country_code(country)
+			if number.startswith(code):
+				try:
+					request = vies.Vies().request(number)
+					if request.valid:
+						register = db.ViesRequest(request.requestDate, request.valid, number)
+						db.session.add(register)
+
+				except (vies.ViesValidationError, vies.ViesError, vies.ViesHTTPError):
+					raise
 
 		next_num = get_next_num(db.SaleInvoice, any_proforma.type, any_proforma.date.year)
 
