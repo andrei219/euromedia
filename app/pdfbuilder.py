@@ -22,7 +22,7 @@ from collections import defaultdict
 d = defaultdict(list)
 
 d['euromedia'].append(r'.\app\icons\docus_logo.png')
-d['euromedia'].append(r'.\app\icons\deutsche_logo.png')
+d['euromedia'].append(r'.\app\icons\sabadell_logo.png')
 d['euromedia'].append(r'.\app\icons\wise_logo.png')
 
 d['capital'].append(r'.\app\icons\docus_logo.png')
@@ -138,7 +138,7 @@ BANK1_LOGO_X_POSITION = 27
 BANK2_LOGO_X_POSITION = 128
 BANK_LOGO_Y_INCREMENT = 10
 BANK_TEXT_Y_INCREMENT = 2.5
-BANK1_TEXT_X_POSITION = 64
+BANK1_TEXT_X_POSITION = 55
 BANK2_TEXT_X_POSITION = 153
 RMA_START_X_POSITION = 125
 BANK_TEXT_Y_CONDITION_RELATIVE_INCREMENT = 9
@@ -725,7 +725,7 @@ class PDF(FPDF):
     def print_bank(self):
         self.x = BANK1_LOGO_X_POSITION
         self.y = self.last_condition_y_position + BANK_LOGO_Y_INCREMENT
-        self.image(get_logo_bank_1(), w=32.3, h=4.91)
+        self.image(get_logo_bank_1(), w=21.7, h=4.91)
         self.x = BANK2_LOGO_X_POSITION
         self.y = self.last_condition_y_position + BANK_LOGO_Y_INCREMENT
         self.image(get_logo_bank_2(), w=20.42, h=4.91)
@@ -738,10 +738,10 @@ class PDF(FPDF):
 
         self.set_font('Arial', size=7, style='b')
         for t in [
-            'Bank: Deutsche Bank, S.A.E.',
+            'Bank: Banco de Sabadell, S.A.',
             'Currency: EUR',
-            'IBAN: ES63 0019 0511 4840 1017 6011',
-            'SWIFT/BIC: DEUTESBBXXX'
+            'IBAN: ES58 0081 1296 7700 0132 0242',
+            'SWIFT/BIC: BSABESBBXXX'
         ]:
             self.x = BANK1_TEXT_X_POSITION
             self.cell(0, txt=t)
