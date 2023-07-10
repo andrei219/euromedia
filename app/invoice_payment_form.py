@@ -10,6 +10,7 @@ from models import InvoicePaymentModel
 from utils import today_date, parse_date
 
 
+from delegates import  PaymentsDelegate
 
 class Form(Ui_Form, QDialog):
 

@@ -7,7 +7,7 @@ from ui_partner_form import Ui_Partner_Form
 from db import Partner, Agent, ShippingAddress
 
 from models import PartnerContactModel, ShippingAddressModel
-
+from delegates import AddressEditDelegate
 
 import utils
 
@@ -226,6 +226,7 @@ class PartnerForm(Ui_Partner_Form, QWidget):
 
     def set_up_shipping_view(self, addresses):
         self.shipping_model = ShippingAddressModel(self.shipping_view, addresses)
+        self.shipping_view.setItemDelegate(AddressEditDelegate())
         self.shipping_view.setModel(self.shipping_model)
         self.shipping_view.resizeColumnsToContents()
 

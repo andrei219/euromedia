@@ -82,3 +82,20 @@ class WarningEditDelegate(QItemDelegate):
     def setEditorData(self, editor: QWidget, index: QtCore.QModelIndex) -> None:
         if index.column() == self.column:
             editor.setText(index.data(Qt.DisplayRole))
+
+
+class AddressEditDelegate(QItemDelegate):
+
+    def __init__(self, *, parent=None):
+        super().__init__(parent=parent)
+
+    def createEditor(self, parent, option, index):
+        return QLineEdit(parent)
+
+    def setEditorData(self, editor: QLineEdit, index):
+        editor.setText(str(index.data(Qt.DisplayRole)))
+
+class PaymentsDelegate(AddressEditDelegate):
+    pass
+
+
