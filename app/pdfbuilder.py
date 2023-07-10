@@ -171,6 +171,12 @@ def dot_comma_number_repr(str_number):
     return str_number.replace('.', ',').replace(',', '.', count)
 
 
+def string_truthy(s):
+    try:
+        return bool(s.strip())
+    except AttributeError:
+        return False
+
 class LinePDFRepr:
 
     def __init__(self):
@@ -480,7 +486,6 @@ class TotalsData:
 
     def __iter__(self):
         return iter(self.__dict__.items())
-
 
 
 class PDF(FPDF):
@@ -798,6 +803,7 @@ class PDF(FPDF):
         x, y = DELIVERY_ADDRESS_BASE
         # handling added feature multiple delivery addresses
 
+
         if isinstance(self.document, (SaleProforma, SaleInvoice)):
 
             self.set_xy(x, y)
@@ -806,14 +812,14 @@ class PDF(FPDF):
             self.set_font('Arial', size=10)
 
             address = self.document.shipping_address
-            for e in [
+            for e in filter(string_truthy, [
                 partner.fiscal_name,
                 address.line1,
                 address.line2,
                 ' '.join([address.zipcode, address.city, address.state]),
                 address.country,
                 'VAT Nº: ' + partner.fiscal_number
-            ]:
+            ]):
                 y += 4
                 self.set_xy(x, y)
                 self.cell(0, txt=e)
