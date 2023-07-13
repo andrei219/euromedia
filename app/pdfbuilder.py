@@ -380,8 +380,8 @@ class We:
 
     def __init__(self):
         self.fiscal_name = 'Euromedia Investment Group, S.L.'
-        self.billing_line1 = 'Calle Camino Real Nº22'
-        self.billing_line2 = 'Local Bajo Izq.'
+        self.billing_line1 = 'Calle G Nº22'
+        self.billing_line2 = "Pol. Toll-l'Alberca"
         self.billing_city = 'Torrente'
         self.billing_postcode = '46900'
         self.billing_state = 'Valencia'
