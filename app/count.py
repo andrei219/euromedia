@@ -3,7 +3,8 @@
 from random import randint
 
 if __name__ == '__main__':
-    count = 0 
+    count = 0
+    word_count = 0
     import os 
     for file in os.listdir():
         if not file.startswith('ui_') and file.endswith('.py') and '_rc' not in file or \
@@ -12,13 +13,15 @@ if __name__ == '__main__':
                 lines = [line.strip('\n ') for line in fp if line]
                 for line in lines:
                     if line:
+                        word_count += len(line.split(" "))
                         count += 1
 
     print('Code written:', count, 'lines.')
+    print('Words:', word_count)
     guis_files = [file for file in os.listdir() if file.startswith('ui_')]
+
     print('Guis designed:', len(guis_files), end='')
     print('.')
-
 
     l = [i for i in range(10)]
     def partailize(numbers, target):

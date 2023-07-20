@@ -82,8 +82,6 @@ class Register:
         return f"{self.rank:10}{self.partner:40}{self.subtotal:20}{self.tax:20}{self.total:20}"
 
 
-
-
 from itertools import groupby
 
 
@@ -132,8 +130,8 @@ class PDFContent:
         for i, element in enumerate(self.registers, start=1):
             setattr(element, 'rank', str(i))
 
-
-        for e in self.registers: e.format()
+        for e in self.registers:
+            e.format()
 
 class Form(Ui_Dialog, QDialog):
 
@@ -143,8 +141,16 @@ class Form(Ui_Dialog, QDialog):
 
         utils.setCompleter(self.partner, tuple(utils.partner_id_map.keys()) + ('All', ))
 
+        self._init_from_to_fields()
+
         self._export.clicked.connect(self.export_handler)
         self.view.clicked.connect(self.view_handler)
+
+
+
+    def _init_from_to_fields(self):
+        self.to.setText(datetime.today().strftime('%d%m%Y'))
+        self._from.setText(f'0101{datetime.now().year}')
 
     def _build_report(self):
         try:
@@ -168,7 +174,6 @@ class Form(Ui_Dialog, QDialog):
         else:
             pdf_document.output(file_path)
             QMessageBox.information(self, 'Information', 'Report built and exported successfully')
-
 
     def view_handler(self):
         try:

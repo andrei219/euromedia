@@ -29,10 +29,10 @@
   <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>
-     <x>155</x>
+     <x>120</x>
      <y>30</y>
-     <width>201</width>
-     <height>21</height>
+     <width>281</width>
+     <height>31</height>
     </rect>
    </property>
    <property name="font">
@@ -56,7 +56,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>01102022</string>
+    <string/>
    </property>
   </widget>
   <widget class="QLineEdit" name="to">
@@ -69,7 +69,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>30102022</string>
+    <string/>
    </property>
   </widget>
   <widget class="QLabel" name="label_2">
@@ -77,8 +77,8 @@
     <rect>
      <x>230</x>
      <y>80</y>
-     <width>47</width>
-     <height>13</height>
+     <width>71</width>
+     <height>16</height>
     </rect>
    </property>
    <property name="font">
