@@ -126,7 +126,8 @@ ACTIONS = [
     'whatsapp',
     'repairs',
     'discounts',
-    'clean_database'
+    'clean_database',
+    'agent_fees'
 ]
 
 
@@ -1676,6 +1677,10 @@ class MainGui(Ui_MainGui, QMainWindow):
             QMessageBox.information(self, 'Success', 'Database cleaned successfully.')
         else:
             QMessageBox.information(self, 'Information', 'Nothing to clean.')
+
+    def tools_agent_fees_handler(self):
+        from agent_fees import Form
+        Form(parent=self).exec_()
 
     def journal_entries_new_handler(self):
 
