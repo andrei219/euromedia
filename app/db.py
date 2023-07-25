@@ -261,6 +261,16 @@ class Agent(Base):
     from_profit = Column(Float(precision=32, decimal_return_scale=None), default=1.0, nullable=False)
     from_turnover = Column(Float(precision=32, decimal_return_scale=None), default=1.0, nullable=False)
     fixed_perpiece = Column(Float(precision=32, decimal_return_scale=None), default=1.0, nullable=False)
+
+    from_profit_purchase = Column(Boolean, default=False, nullable=False)
+    from_profit_sale = Column(Boolean, default=False, nullable=False)
+
+    from_turnover_purchase = Column(Boolean, default=False, nullable=False)
+    from_turnover_sale = Column(Boolean, default=False, nullable=False)
+
+    fixed_perpiece_purchase = Column(Boolean, default=False, nullable=False)
+    fixed_perpiece_sale = Column(Boolean, default=False, nullable=False)
+
     bank_name = Column(String(50))
     iban = Column(String(50))
     swift = Column(String(50))

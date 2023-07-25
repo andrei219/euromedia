@@ -264,8 +264,8 @@ font: 8pt &quot;Verdana&quot;;</string>
     <rect>
      <x>42</x>
      <y>401</y>
-     <width>1005</width>
-     <height>74</height>
+     <width>1042</width>
+     <height>82</height>
     </rect>
    </property>
    <layout class="QGridLayout" name="gridLayout">
@@ -519,8 +519,8 @@ font: 8pt &quot;Verdana&quot;;</string>
     <rect>
      <x>40</x>
      <y>241</y>
-     <width>234</width>
-     <height>100</height>
+     <width>249</width>
+     <height>103</height>
     </rect>
    </property>
    <layout class="QFormLayout" name="formLayout_7">
@@ -732,10 +732,10 @@ font: 8pt &quot;Verdana&quot;;</string>
   <widget class="QLabel" name="label_3">
    <property name="geometry">
     <rect>
-     <x>437</x>
+     <x>419</x>
      <y>122</y>
-     <width>73</width>
-     <height>16</height>
+     <width>91</width>
+     <height>20</height>
     </rect>
    </property>
    <property name="text">
@@ -776,7 +776,7 @@ font: 8pt &quot;Verdana&quot;;</string>
   <widget class="QLineEdit" name="phone_number_line_edit">
    <property name="geometry">
     <rect>
-     <x>98</x>
+     <x>110</x>
      <y>148</y>
      <width>281</width>
      <height>20</height>
@@ -798,10 +798,10 @@ font: 8pt &quot;Verdana&quot;;</string>
   <widget class="QLabel" name="label_2">
    <property name="geometry">
     <rect>
-     <x>34</x>
+     <x>21</x>
      <y>122</y>
-     <width>58</width>
-     <height>16</height>
+     <width>71</width>
+     <height>20</height>
     </rect>
    </property>
    <property name="text">
@@ -814,10 +814,10 @@ font: 8pt &quot;Verdana&quot;;</string>
   <widget class="QLabel" name="label_4">
    <property name="geometry">
     <rect>
-     <x>34</x>
+     <x>21</x>
      <y>148</y>
-     <width>58</width>
-     <height>16</height>
+     <width>71</width>
+     <height>20</height>
     </rect>
    </property>
    <property name="text">
@@ -830,10 +830,10 @@ font: 8pt &quot;Verdana&quot;;</string>
   <widget class="QLabel" name="label_6">
    <property name="geometry">
     <rect>
-     <x>863</x>
+     <x>843</x>
      <y>148</y>
-     <width>51</width>
-     <height>16</height>
+     <width>71</width>
+     <height>20</height>
     </rect>
    </property>
    <property name="text">
@@ -846,8 +846,8 @@ font: 8pt &quot;Verdana&quot;;</string>
   <widget class="QLineEdit" name="fiscal_number_line_edit">
    <property name="geometry">
     <rect>
-     <x>98</x>
-     <y>122</y>
+     <x>110</x>
+     <y>120</y>
      <width>281</width>
      <height>20</height>
     </rect>
@@ -892,6 +892,84 @@ font: 8pt &quot;Verdana&quot;;</string>
      <width>150</width>
      <height>20</height>
     </rect>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="from_profit_purchase">
+   <property name="geometry">
+    <rect>
+     <x>309</x>
+     <y>265</y>
+     <width>101</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Purchase</string>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="from_profit_sale">
+   <property name="geometry">
+    <rect>
+     <x>439</x>
+     <y>265</y>
+     <width>101</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Sale</string>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="from_turnover_purchase">
+   <property name="geometry">
+    <rect>
+     <x>310</x>
+     <y>294</y>
+     <width>101</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Purchase</string>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="from_turnover_sale">
+   <property name="geometry">
+    <rect>
+     <x>440</x>
+     <y>295</y>
+     <width>101</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Sale</string>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="fixed_per_piece_purchase">
+   <property name="geometry">
+    <rect>
+     <x>310</x>
+     <y>323</y>
+     <width>101</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Purchase</string>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="fixed_per_piece_sale">
+   <property name="geometry">
+    <rect>
+     <x>441</x>
+     <y>323</y>
+     <width>101</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Sale</string>
    </property>
   </widget>
  </widget>
