@@ -146,8 +146,6 @@ class Form(Ui_Dialog, QDialog):
         self._export.clicked.connect(self.export_handler)
         self.view.clicked.connect(self.view_handler)
 
-
-
     def _init_from_to_fields(self):
         self.to.setText(datetime.today().strftime('%d%m%Y'))
         self._from.setText(f'0101{datetime.now().year}')
