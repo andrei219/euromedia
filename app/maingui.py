@@ -231,6 +231,7 @@ class MainGui(Ui_MainGui, QMainWindow):
         self.update_checker = UpdateChecker(parent=self)
         self.update_checker.start()
 
+        self.main_tab.setTabVisible(8, False)  # Hide accounting tab
 
         # For closing
         self.opened_windows_instances = set()

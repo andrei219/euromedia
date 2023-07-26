@@ -180,6 +180,7 @@ class AgentModel(QtCore.QAbstractTableModel):
 			return Qt.ItemIsEnabled
 		return super().flags(index) | Qt.ItemIsEditable
 
+
 	def add(self, agent):
 		db.session.add(agent)
 		try:

@@ -1,11 +1,10 @@
 
 
 from PyQt5.QtWidgets import QWidget, QMessageBox
-from PyQt5.QtCore import QModelIndex
 
 from ui_agentgui import Ui_AgentGui
 
-from db import Agent, AgentDocument
+from db import Agent
 
 import utils
 
@@ -47,7 +46,6 @@ class AgentGui(QWidget, Ui_AgentGui):
         f = Form(self, self.agent)
         f.exec_()
 
-
     def saveButtonHandler(self): 
         if self.mode == AgentGui.NEW_MODE:
             self.formToAgent() 
@@ -60,16 +58,15 @@ class AgentGui(QWidget, Ui_AgentGui):
                 QMessageBox.information(self, 'Agent - Create ', 'Agent Created Successfully')
 
             except:
-                # raise
-                QMessageBox.critical(self, 'Agent - Update ','Fields fiscal name, name and email are mandatory' )  
+                QMessageBox.critical(self, 'Agent - Update ','Fields fiscal name, name and email are mandatory' )
 
         elif self.mode == AgentGui.EDITABLE_MODE:
             try:
                 self.formToAgent() 
-                self.model.update(self.agent)
-                QMessageBox.information(self, 'Agent - Update ', 'Agent updated successfully') 
+                QMessageBox.information(self, 'Agent - Update ', 'Agent updated successfully')
             except:
                 QMessageBox.critical(self, 'Agent - Update', 'Fields fiscal name, name and email are mandatory')
+                raise
     
     def formToAgent(self):
             self.agent.fiscal_name = self.fiscal_name_line_edit.text()
@@ -92,6 +89,13 @@ class AgentGui(QWidget, Ui_AgentGui):
             self.agent.bank_state = self.state_line_edit.text()
             self.agent.bank_country = self.bank_country_combobox.currentText()  
             self.agent.bank_routing = self.routing.text()
+
+            self.agent.from_profit_purchase = self.from_profit_purchase.isChecked()
+            self.agent.from_profit_sale = self.from_profit_sale.isChecked()
+            self.agent.from_turnover_purchase = self.from_turnover_purchase.isChecked()
+            self.agent.from_turnover_sale = self.from_turnover_sale.isChecked()
+            self.agent.fixed_perpiece_purchase = self.fixed_per_piece_purchase.isChecked()
+            self.agent.fixed_perpiece_sale = self.fixed_per_piece_sale.isChecked()
 
     def agentToForm(self):
         self.agent_code_line_edit.setText(str(self.agent.id))
@@ -128,6 +132,13 @@ class AgentGui(QWidget, Ui_AgentGui):
             self.bank_country_combobox.setCurrentText(self.agent.bank_country)
         if self.agent.bank_routing:
             self.routing.setText(self.agent.bank_routing)
+
+        self.from_profit_purchase.setChecked(self.agent.from_profit_purchase)
+        self.from_profit_sale.setChecked(self.agent.from_profit_sale)
+        self.from_turnover_purchase.setChecked(self.agent.from_turnover_purchase)
+        self.from_turnover_sale.setChecked(self.agent.from_turnover_sale)
+        self.fixed_per_piece_purchase.setChecked(self.agent.fixed_perpiece_purchase)
+        self.fixed_per_piece_sale.setChecked(self.agent.fixed_perpiece_sale)
 
     def closeEvent(self, event):
         try:
