@@ -7507,7 +7507,7 @@
        <rect>
         <x>510</x>
         <y>100</y>
-        <width>120</width>
+        <width>121</width>
         <height>60</height>
        </rect>
       </property>
@@ -7524,9 +7524,9 @@
      <widget class="QPushButton" name="tools_change_warehouse">
       <property name="geometry">
        <rect>
-        <x>290</x>
+        <x>289</x>
         <y>100</y>
-        <width>120</width>
+        <width>121</width>
         <height>60</height>
        </rect>
       </property>

@@ -34,6 +34,16 @@ class Form(Ui_Dialog, QDialog):
         self.model = AgentModel()
         self.view.setModel(self.model)
 
+        self.title.setStyleSheet(
+            """
+                text-decoration: none; 
+                font-size: 30px; 
+                font-weight: bold; 
+                font-style: italic; 
+                
+            """
+        )
+
         self._export.clicked.connect(self.export_handler)
         self._init_from_to_fields()
 
@@ -47,13 +57,13 @@ class Form(Ui_Dialog, QDialog):
 
 if __name__ == '__main__':
 
-    for agent in session.query(Agent):
-        print('agent=', agent)
-        agent.from_profit_purchase = True
-        agent.from_profit_sale = True
-        agent.from_turnover_purchase = True
-        agent.from_turnover_sale = True
-        agent.fixed_perpiece_purchase = True
-        agent.fixed_perpiece_sale = True
+    from sqlalchemy import text, create_engine
+    from db import get_db_url
 
-    session.commit()
+    with open(r'.\sql\main.sql', "r") as file:
+        statement = text(file.read())
+
+    engine = create_engine(get_db_url())
+
+    with engine.connect() as conn:
+        conn.execute(statement)

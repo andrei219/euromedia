@@ -472,6 +472,8 @@ create temporary table if not exists harvest as
     from result
     group by sale_serie;
 
+select * from harvest;
+
 
 select
     temp_purchase_repr.doc_repr as 'Document',
@@ -497,3 +499,6 @@ from result
     left join temp_purchase_repr on temp_purchase_repr.proforma_id=result.purchase_proforma_id
     order by result.sale_serie, result.partition;
 
+
+create view as
+select * from agents where id<2 ;

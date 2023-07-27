@@ -246,7 +246,6 @@ class MainGui(Ui_MainGui, QMainWindow):
 
         self.main_tab.currentChanged.connect(self.tab_changed)
 
-
     def export_documents(self, view, model, ask_directory=True):
         rows = {i.row() for i in view.selectedIndexes()}
         if not rows:
