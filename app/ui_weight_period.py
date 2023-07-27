@@ -46,4 +46,4 @@ class Ui_Dialog(object):
         self.label.setText(_translate("Dialog", "Start:"))
         self.label_2.setText(_translate("Dialog", "End:"))
         self.export_.setText(_translate("Dialog", "Export"))
-        self.cancel.setText(_translate("Dialog", "Cancel"))
+        self.cancel.setText(_translate("Dialog", "Exit"))

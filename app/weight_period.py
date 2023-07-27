@@ -132,6 +132,9 @@ class Form(Ui_Dialog, QDialog):
 
 		self.save_data(file_path, from_, to)
 
+		QMessageBox.information(self, 'Info', f'Saved to {file_path}')
+		
+
 	@staticmethod
 	def save_data(file_path, from_, to):
 		wb = openpyxl.Workbook()
