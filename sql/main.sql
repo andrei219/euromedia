@@ -500,5 +500,3 @@ from result
     order by result.sale_serie, result.partition;
 
 
-create view as
-select * from agents where id<2 ;

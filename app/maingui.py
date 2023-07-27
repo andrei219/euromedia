@@ -4,9 +4,8 @@ import time
 
 import tempfile
 from builtins import getattr
-from turtle import mode
 
-from PyQt5.QtCore import QThread, QTimer, QWaitCondition, QMutex
+from PyQt5.QtCore import QThread
 from PyQt5.QtWidgets import (
     QMainWindow,
     QTableView,
@@ -127,7 +126,8 @@ ACTIONS = [
     'repairs',
     'discounts',
     'clean_database',
-    'agent_fees'
+    'agent_fees',
+    'weights'
 ]
 
 
@@ -1681,6 +1681,10 @@ class MainGui(Ui_MainGui, QMainWindow):
     def tools_agent_fees_handler(self):
         from agent_fees import Form
         Form(parent=self).exec_()
+
+    def tools_weights_handler(self):
+        import weight_period
+        weight_period.Form(parent=self).exec_()
 
     def journal_entries_new_handler(self):
 

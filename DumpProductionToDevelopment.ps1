@@ -14,7 +14,7 @@ foreach  ($database in $company_databases) {
     Write-Host "Dumping production database $database..."
     # set the environment variables
     $env:APP_DATABASE=$database
-    mysqldump.exe --user=andrei --host=192.168.1.78 --password=hnq#4506 "$($env:APP_DATABASE)"`
+    mysqldump.exe --routines --triggers --user=andrei --host=192.168.1.78 --password=hnq#4506 "$($env:APP_DATABASE)"`
     | mysql --user=root --password=hnq#4506 --host=localhost "$($env:APP_DATABASE)"
     write-host "---------------------------------------------------"
 }
