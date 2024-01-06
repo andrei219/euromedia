@@ -66,7 +66,7 @@ class Form(Ui_InvoiceForm, QWidget):
         except ValueError:
             return
         else:
-            _next = get_next_num(self.cls, int(type), d.year)
+            _next = get_next_num(self.cls, int(type))
             self.number_line_edit.setText(str(_next).zfill(6))
 
     def setCombos(self):

@@ -1603,7 +1603,7 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
 
 		any_proforma = self.proformas[row]
 
-		next_num = get_next_num(db.PurchaseInvoice, any_proforma.type, any_proforma.date.year)
+		next_num = get_next_num(db.PurchaseInvoice, any_proforma.type)
 		invoice = db.PurchaseInvoice(any_proforma.type, next_num)
 
 		invoice.date = any_proforma.date
@@ -1990,7 +1990,7 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 			raise
 
 	def build_invoice_from_proforma(self, proforma, wh_order):
-		_next = get_next_num(db.SaleInvoice, proforma.type, proforma.date.year)
+		_next = get_next_num(db.SaleInvoice, proforma.type)
 		proforma.invoice = db.SaleInvoice(proforma.type, _next)
 		proforma.invoice.wh_incoming_rma_id = wh_order.id
 		db.session.commit()
@@ -2032,7 +2032,7 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 				except (vies.ViesValidationError, vies.ViesError, vies.ViesHTTPError):
 					raise
 
-		next_num = get_next_num(db.SaleInvoice, any_proforma.type, any_proforma.date.year)
+		next_num = get_next_num(db.SaleInvoice, any_proforma.type)
 
 		invoice = db.SaleInvoice(any_proforma.type, next_num)
 
@@ -6624,7 +6624,7 @@ def build_credit_note_and_commit(partner_id, agent_id, order, candidates):
 	proforma = db.SaleProforma()
 	proforma.type = order.lines[0].invoice_type
 
-	proforma.number = get_next_num(db.SaleProforma, proforma.type, date.today().year)
+	proforma.number = get_next_num(db.SaleProforma, proforma.type)
 
 	proforma.partner_id = partner_id
 	proforma.warehouse_id = None

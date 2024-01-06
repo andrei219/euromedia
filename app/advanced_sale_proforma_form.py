@@ -88,7 +88,7 @@ class Form(Ui_Form, QWidget):
         self.date.setText(date.today().strftime('%d%m%Y'))
         self.type.setCurrentText('1')
         self.number.setText(
-            str(get_next_num(db.SaleProforma, 1, date.today().year)).zfill(6)
+            str(get_next_num(db.SaleProforma, 1)).zfill(6)
         )
 
     def set_handlers(self):
@@ -322,7 +322,7 @@ class Form(Ui_Form, QWidget):
         except ValueError:
             return
         else:
-            _next = get_next_num(db.SaleProforma, int(type), d.year)
+            _next = get_next_num(db.SaleProforma, int(type))
             self.number.setText(str(_next).zfill(6))
 
     def save_handler(self):

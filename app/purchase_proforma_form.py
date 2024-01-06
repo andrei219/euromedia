@@ -56,7 +56,7 @@ class Form(Ui_PurchaseProformaForm, QWidget):
             except ValueError:
                 return
             else:
-                _next = get_next_num(db.PurchaseProforma, int(type), d.year)
+                _next = get_next_num(db.PurchaseProforma, int(type))
                 self.number_line_edit.setText(str(_next).zfill(6))
 
         self.partner_line_edit.setFocus()

@@ -233,9 +233,10 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.type.setCurrentText('1')
 
         self.typeChanged(1)
+		
+        # Only for new form.
 
         self.warehouse.currentTextChanged.connect(self.warehouse_changed)
-        # Solo interesa en formulario nuevo
 
         warehouse_id = utils.warehouse_id_map[self.warehouse.currentText()]
 
@@ -357,11 +358,11 @@ class Form(Ui_SalesProformaForm, QWidget):
 
     def typeChanged(self, type):
         try:
-            d = parse_date(self.date.text())
+            parse_date(self.date.text())
         except ValueError:
             return
         else:
-            _next = get_next_num(db.SaleProforma, int(type), d.year)
+            _next = get_next_num(db.SaleProforma, int(type))
             self.number.setText(str(_next).zfill(6))
 
     def setCombos(self):
