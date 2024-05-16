@@ -723,14 +723,14 @@ class PartnerContactModel(QtCore.QAbstractTableModel):
 
 class SaleInvoiceModel(BaseTable, QtCore.QAbstractTableModel):
 	TYPENUM, RELATIONSHIP, DATE, ETA, PARTNER, AGENT, FINANCIAL, LOGISTIC, SENT, CANCELLED, OWING, \
-		TOTAL, EXT, INWH, READY, PROFORMA, WARNING = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16
+		TOTAL, EXT, INWH, READY, PROFORMA, WARNING, SOLUNION = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17
 	
 	def __init__(self, filters=None, search_key=None, last=10):
 		super().__init__()
 		self._headerData = [
 			'Type & Num', 'Sales/Credit', 'Date', 'ETA', 'Partner', 'Agent',
 			'Financial', 'Logistic', 'Sent', 'Cancelled', 'Owing',
-			'Total', 'Ext. Doc.', 'In WH', 'Ready to go', 'Proforma', 'Warning',
+			'Total', 'Ext. Doc.', 'In WH', 'Ready to go', 'Proforma', 'Warning', 'Solunion'
 		]
 		
 		self.name = 'invoices'
@@ -845,6 +845,10 @@ class SaleInvoiceModel(BaseTable, QtCore.QAbstractTableModel):
 				self.invoices = list(self.invoices)
 	
 	def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
+
+		from datetime import date # I know. Bad, but i don't have the pattience to do it properly. 
+		# This thing is cached, so no performance issues (more than already exist) 
+
 		if not index.isValid():
 			return
 		row, col = index.row(), index.column()
@@ -854,7 +858,12 @@ class SaleInvoiceModel(BaseTable, QtCore.QAbstractTableModel):
 		logistic_status_string = invoice.logistic_status_string
 		financial_status_string: str = invoice.financial_status_string
 		ready_status_string = invoice.ready
-		
+
+		if financial_status_string in ('Not Paid', 'Partially Paid') and int(invoice.solunion) > 0:
+			solunion = invoice.solunion - ((date.today()-invoice.date)).days
+		else:
+			solunion = ''  
+
 		if role == Qt.DisplayRole:
 			return [
 				invoice.doc_repr,
@@ -874,6 +883,7 @@ class SaleInvoiceModel(BaseTable, QtCore.QAbstractTableModel):
 				ready_status_string,
 				invoice.origin_proformas,
 				invoice.warning,
+				solunion
 			][col]
 		
 		elif role == Qt.DecorationRole:
@@ -916,7 +926,11 @@ class SaleInvoiceModel(BaseTable, QtCore.QAbstractTableModel):
 			
 			elif col == self.CANCELLED:
 				return QtGui.QColor(GREEN if not invoice.cancelled == 'Yes' else RED)
-	
+			
+			elif col == self.SOLUNION:
+				if solunion != '' and int(solunion) < 0: 
+					return QtGui.QColor(RED) 
+
 	# TODO: move logic from main gui here for towh button
 	def to_warehouse(self, invoice):
 		pass

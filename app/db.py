@@ -1175,6 +1175,7 @@ class SaleInvoice(Base):
     number = Column(Integer, nullable=False)
     date = Column(Date, default=datetime.now)
     eta = Column(Date, default=datetime.now)
+    solunion = Column(Integer, nullable=False, default=0)
 
     wh_incoming_rma_id = Column(Integer, ForeignKey('wh_incoming_rmas.id'), nullable=True)
 

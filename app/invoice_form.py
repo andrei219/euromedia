@@ -33,6 +33,8 @@ class Form(Ui_InvoiceForm, QWidget):
             self.model = PurchaseInvoiceLineModel(invoice)
             self.update_warehouse_callback = update_purchase_warehouse
             self.cls = PurchaseInvoice
+            self.solunion.setVisible(False) 
+            self.solunion_label.setVisible(False)
 
         self.view.setModel(self.model)
 
@@ -103,11 +105,16 @@ class Form(Ui_InvoiceForm, QWidget):
 
         self.partner.setText(p.partner_name)
 
+        # update solunion sale_invoice-only field 
+        self.solunion.setValue(self.invoice.solunion)
+
+
     def update_objects(self):
         self.invoice.date = utils.parse_date(self.date.text())
         self.invoice.eta = utils.parse_date(self.eta.text())
         self.invoice.type = int(self.type.currentText())
         self.invoice.number = int(self.number.text())
+        self.invoice.solunion = int(self.solunion.text())
 
         for p in self.invoice.proformas:
 
@@ -129,7 +136,7 @@ class Form(Ui_InvoiceForm, QWidget):
                 p.we_pay_they_ship = self.wildcard.isChecked()
 
             p.eur_currency = self.eur.isChecked()
-            
+
             p.credit_amount = self.with_credit.value()
             p.credit_days = self.days_credit.value()
             p.incoterm = self.incoterms.currentText()

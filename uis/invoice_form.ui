@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1159</width>
+    <width>1182</width>
     <height>874</height>
    </rect>
   </property>
@@ -889,7 +889,7 @@
   <widget class="QPushButton" name="apply_cn">
    <property name="geometry">
     <rect>
-     <x>890</x>
+     <x>760</x>
      <y>200</y>
      <width>75</width>
      <height>23</height>
@@ -905,7 +905,7 @@
      <x>400</x>
      <y>720</y>
      <width>192</width>
-     <height>132</height>
+     <height>140</height>
     </rect>
    </property>
    <layout class="QFormLayout" name="formLayout">
@@ -1061,13 +1061,13 @@
     </rect>
    </property>
   </widget>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>620</x>
      <y>720</y>
      <width>401</width>
-     <height>16</height>
+     <height>18</height>
     </rect>
    </property>
    <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -1092,6 +1092,32 @@
      </widget>
     </item>
    </layout>
+  </widget>
+  <widget class="QSpinBox" name="solunion">
+   <property name="geometry">
+    <rect>
+     <x>980</x>
+     <y>200</y>
+     <width>71</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="suffix">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QLabel" name="solunion_label">
+   <property name="geometry">
+    <rect>
+     <x>910</x>
+     <y>200</y>
+     <width>71</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>SolUnion: </string>
+   </property>
   </widget>
  </widget>
  <customwidgets>
