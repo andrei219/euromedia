@@ -1435,6 +1435,10 @@ class SaleInvoice(Base):
     def shipping_address(self):
         return self.proformas[0].shipping_address
 
+    @property
+    def solunion_date(self): 
+        if self.solunion > 0:
+            return (self.date + timedelta(self.solunion)).strftime("%d/%m/%Y")
 
 
 class SaleProformaLine(Base):

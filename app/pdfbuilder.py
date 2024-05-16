@@ -635,7 +635,20 @@ class PDF(FPDF):
         self.y += Y_INCREMENT
         self.set_font('Arial', size=8)
         self.cell(0, txt=self.document.note or '')
+        
         self.y += ADDITIONAL_TEXT_TERM_INCREMENT
+
+        if hasattr(self.document, 'solunion_date') \
+            and hasattr(self.document, 'solunion') \
+            and self.document.solunion > 0:
+            text = f"LA FECHA DE VENCIMIENTO DE ESTA FACTURA ES: {self.document.solunion_date}"
+            
+            self.x = LEFT_MARGIN + 4 
+            self.image(r".\app\icons\solunion_logo.jpg", w=60, h=25)
+
+            self.x = 80 # por que si 
+            self.y -= 10
+            self.cell(0, txt=text) 
 
     def print_vertical_line(self):
 
