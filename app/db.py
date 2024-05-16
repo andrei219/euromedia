@@ -36,7 +36,7 @@ def get_host():
     if os.environ['APP_DEBUG'].lower() == 'false':
         return '//andrei:hnq#4506@192.168.1.78:3306'
     else:
-        return '//root:hnq#4506@localhost:3306'
+        return '//root:0010@localhost:3306'
 
 def get_db_url():
     host = get_host()
