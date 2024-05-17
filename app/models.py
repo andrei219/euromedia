@@ -928,8 +928,14 @@ class SaleInvoiceModel(BaseTable, QtCore.QAbstractTableModel):
 				return QtGui.QColor(GREEN if not invoice.cancelled == 'Yes' else RED)
 			
 			elif col == self.SOLUNION:
-				if solunion != '' and int(solunion) < 0: 
-					return QtGui.QColor(RED) 
+				if solunion != '':
+					if solunion > 0: 
+						return QtGui.QColor(GREEN)
+					elif solunion == 0:
+						return QtGui.QColor(ORANGE)
+					elif solunion < 0:
+						return QtGui.QColor(RED) 
+				
 
 	# TODO: move logic from main gui here for towh button
 	def to_warehouse(self, invoice):
