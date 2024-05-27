@@ -106,8 +106,11 @@ class Form(Ui_InvoiceForm, QWidget):
         self.partner.setText(p.partner_name)
 
         # update solunion sale_invoice-only field 
-        self.solunion.setValue(self.invoice.solunion)
-
+        try: 
+            self.solunion.setValue(self.invoice.solunion)
+        except AttributeError as ex: # purchase invice does not have solunion property
+           # print(f'[DEBUG]: {str(ex)}')
+            pass 
 
     def update_objects(self):
         self.invoice.date = utils.parse_date(self.date.text())
