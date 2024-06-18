@@ -641,14 +641,17 @@ class PDF(FPDF):
         if hasattr(self.document, 'solunion_date') \
             and hasattr(self.document, 'solunion') \
             and self.document.solunion > 0:
-            text = f"LA FECHA DE VENCIMIENTO DE ESTA FACTURA ES: {self.document.solunion_date}"
             
             self.x = LEFT_MARGIN + 4 
             self.image(r".\app\icons\solunion_logo.jpg", w=60, h=25)
 
-            self.x = 80 # por que si 
+            self.x = 80 
             self.y -= 10
-            self.cell(0, txt=text) 
+            self.cell(0, txt=f"LA FECHA DE VENCIMIENTO DE ESTA FACTURA ES: {self.document.solunion_date}") 
+            self.x = 80
+            self.y -= 12 
+            self.cell(9, txt=f"THE DUE DATE OF THIS INVOICE IS: {self.document.solunion_date}"); 
+
 
     def print_vertical_line(self):
 
