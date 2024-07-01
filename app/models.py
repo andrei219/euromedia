@@ -6929,7 +6929,10 @@ def do_sii(_from=None, to=None, series=None):
 	import os
 	jsonfeed = os.path.abspath(r'.\data.json')
 	jsonresponse = os.path.abspath(r'.\response.json')
-	
+
+	print(jsonfeed)
+	print(jsonresponse) 
+
 	from db import (
 		session,
 		SaleInvoice,
@@ -6948,10 +6951,13 @@ def do_sii(_from=None, to=None, series=None):
 	import subprocess
 	
 	with open(jsonfeed, 'w') as fp:
+		print('with open jsonfeed as fp')
 		json.dump(siiinovices, default=lambda o: o.__dict__, fp=fp, indent=4)
-	
+
 	completed_subprocess = subprocess.run(['sii.exe', jsonfeed, jsonresponse], shell=True)
 	
+	print(completed_subprocess)
+
 	if completed_subprocess.returncode == 0:
 		with open(jsonresponse, 'r') as fp:
 			return json.load(fp)
