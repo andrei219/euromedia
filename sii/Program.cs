@@ -86,6 +86,7 @@ class SII
 
     public static void Main(String[] args) {
 
+        Console.WriteLine("New build on 02072024"); 
         Settings.Current.SiiEndPointPrefix = "https://www1.agenciatributaria.gob.es/wlpl/SSII-FACT/ws";
 
 
