@@ -29,9 +29,10 @@ C:\Users\Andrei\Desktop\projects\euromedia\sii\obj\Debug\net6.0\sii.GeneratedMSB
 C:\Users\Andrei\Desktop\projects\euromedia\sii\obj\Debug\net6.0\sii.AssemblyInfoInputs.cache
 C:\Users\Andrei\Desktop\projects\euromedia\sii\obj\Debug\net6.0\sii.AssemblyInfo.cs
 C:\Users\Andrei\Desktop\projects\euromedia\sii\obj\Debug\net6.0\sii.csproj.CoreCompileInputs.cache
-C:\Users\Andrei\Desktop\projects\euromedia\sii\obj\Debug\net6.0\sii.csproj.CopyComplete
 C:\Users\Andrei\Desktop\projects\euromedia\sii\obj\Debug\net6.0\sii.dll
 C:\Users\Andrei\Desktop\projects\euromedia\sii\obj\Debug\net6.0\refint\sii.dll
 C:\Users\Andrei\Desktop\projects\euromedia\sii\obj\Debug\net6.0\sii.pdb
 C:\Users\Andrei\Desktop\projects\euromedia\sii\obj\Debug\net6.0\sii.genruntimeconfig.cache
 C:\Users\Andrei\Desktop\projects\euromedia\sii\obj\Debug\net6.0\ref\sii.dll
+C:\Users\Andrei\Desktop\Projects\euromedia\sii\obj\Debug\net6.0\sii.sourcelink.json
+C:\Users\Andrei\Desktop\Projects\euromedia\sii\obj\Debug\net6.0\sii.csproj.Up2Date
