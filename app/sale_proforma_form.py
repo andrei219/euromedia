@@ -424,7 +424,7 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.number.setText(str(p.number))
         self.date.setText(str(p.date.strftime('%d%m%Y')))
         self.external.setText(p.external)
-        self.partner.setText(p.partner.fiscal_name)
+        self.partner.setText(p.partner.trading_name)
         self.agent.setCurrentText(p.agent.fiscal_name)
         self.warehouse.setCurrentText(p.warehouse.description)
         self.courier.setCurrentText(p.courier.description)
@@ -438,8 +438,7 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.they_pay_they_ship.setChecked(p.they_pay_they_ship)
         self.we_pay_we_ship.setChecked(p.we_pay_we_ship)
         self.note.setText(p.note)
-
-        self.shipping_address.setCurrentText(self.address_id_map.inverse[p.shipping_address_id])
+    
 
     def lines_view_clicked_handler(self, index):
         self.set_selected_stock_mv() 

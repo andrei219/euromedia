@@ -320,7 +320,7 @@ class EditableForm(Form):
         self.date_line_edit.setText(str(p.date.strftime('%d%m%Y')))
         self.eta_line_edit.setText(str(p.eta.strftime('%d%m%Y')))
 
-        self.agent_combobox.setCurrentText(p.agent.fiscal_name)
+        self.agent_combobox.setCurrentText(p.agent.trading_name)
         self.warehouse_combobox.setCurrentText(p.warehouse.description)
         self.courier_combobox.setCurrentText(p.courier.description)
         self.incoterms_combo_box.setCurrentText(p.incoterm)
