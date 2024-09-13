@@ -14,7 +14,6 @@ from PyQt5.QtWidgets import (
 
 from utils import has_certificate
 
-
 from sqlalchemy.exc import IntegrityError
 
 from clipboard import ClipBoard
@@ -37,6 +36,7 @@ import purchase_proforma_form
 import reception_order
 import sale_proforma_form
 import documents_form
+import exceptions 
 
 from db import PurchaseProforma, PurchaseDocument, \
     SaleDocument, SaleProforma, correct_mask
@@ -72,6 +72,7 @@ PREFIXES = [
 ]
 
 ACTIONS = [
+    'clone', 
     'apply',
     'new',
     'edit',
@@ -618,7 +619,7 @@ class MainGui(Ui_MainGui, QMainWindow):
                     QMessageBox.critical(self, 'Error - Delete', \
                                          "Could not delete Agent with data associated. Deactivate it.")
 
-                    # Partners Handlers:
+    # Partners Handlers:
 
     def partners_double_click_handler(self, index):
         self.launch_partners_form(index)
@@ -633,15 +634,34 @@ class MainGui(Ui_MainGui, QMainWindow):
             self.launch_partners_form(index)
 
     def partners_delete_handler(self):
+
+        QMessageBox.information(self, 'Info', "Not implemented. If you need it, contact support")  
+        return 
+        # indexes = self.partners_view.selectedIndexes()
+        # if indexes:
+        #     index = indexes[0]
+        #     try:
+        #         self.partnerModel.delete(index)
+        #         self.partners_view.clearSelection()
+        #     except IntegrityError as e:
+        #         QMessageBox.critical(self, "Error - Delete",
+        #                              "Could not delete Partner with data associated. Deactivate it.")
+
+
+    def partners_clone_handler(self):
         indexes = self.partners_view.selectedIndexes()
         if indexes:
-            index = indexes[0]
+            index = next(iter(indexes))
             try:
-                self.partnerModel.delete(index)
-                self.partners_view.clearSelection()
-            except IntegrityError as e:
-                QMessageBox.critical(self, "Error - Delete",
-                                     "Could not delete Partner with data associated. Deactivate it.")
+                self.partners_model.clone(index)
+            except exceptions.PartnerCloningError as e:
+                QMessageBox.critical(self, 'Error - Clone', str(e) + ". CONTACT SUPPORT")
+                raise 
+            else:
+                QMessageBox.information(self, 'Info', 'Partner cloned successfully, refresh to see changes!')
+
+                
+            
 
     def partners_search_handler(self):
         key = self.partner_search_line_edit.text()

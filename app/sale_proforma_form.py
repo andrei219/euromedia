@@ -195,7 +195,6 @@ class Form(Ui_SalesProformaForm, QWidget):
 
         self.address_id_map = None
 
-    @log
     def build_address_map_and_init_combo(self, partner_id=None):
         # Populate addresses for partner
 
@@ -376,7 +375,6 @@ class Form(Ui_SalesProformaForm, QWidget):
     def set_partner_completer(self):
         utils.setCompleter(self.partner, utils.partner_id_map.keys())
 
-    @log
     def partner_search(self):
 
         partner = self.partner.text()
@@ -413,14 +411,12 @@ class Form(Ui_SalesProformaForm, QWidget):
 
             self.build_address_map_and_init_combo(partner_id=partner_id)
 
-    @log
     def shipping_address_changed(self, new_address):
         try:
             self.proforma.shipping_address_id = self.address_id_map[new_address]
         except KeyError:
             pass
 
-    @log
     def proforma_to_form(self):
         p = self.proforma
 

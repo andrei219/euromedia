@@ -24,8 +24,15 @@ CSV_FILTER = "Csv files (*.csv)"
 
 
 def mymap(db_class):
-	return {o.fiscal_name: o.id for o in db.session.query(db_class.fiscal_name, db_class.id). \
-		where(db_class.active == True)}
+	attr = 'trading_name' if db_class is db.Partner else 'fiscal_name'
+	# gettatr on class -> instrumetned attribute 
+	# getattr on object -> actual db value
+	return {
+		getattr(o, attr): o.id 
+		for o in db.session.query(
+			getattr(db_class, attr), db_class.id). \
+		where(db_class.active == True)
+	}
 
 
 countries = list(dict(countries_for_language("en")).values())
@@ -553,3 +560,13 @@ def match_doc_repr(doc_repr):
 
 def is_work_time():
 	return 9 < datetime.now().hour < 19
+
+
+
+def duplicate_db_object(dbobj, ignore_rows=['id']):
+	copy = type(dbobj).__call__()
+	for column in dbobj.__table__.columns:
+		if column.name not in ignore_rows:
+			setattr(copy, column.name, getattr(dbobj, column.name))
+	return copy
+

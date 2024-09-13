@@ -1,4 +1,3 @@
-
 class SavingError(Exception):
     pass 
 
@@ -32,7 +31,8 @@ class NotExistingStockInMask(Exception):
 class AutomaticReceptionDeleteError(Exception):
     pass
 
-
 class SeriePresentAtPurchaseSpace(Exception):
     pass
 
+class PartnerCloningError(Exception):
+    pass

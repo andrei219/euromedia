@@ -34,7 +34,7 @@ import pyVies.api as vies
 import utils
 import db
 from utils import description_id_map
-from exceptions import SeriePresentError
+from exceptions import SeriePresentError, PartnerCloningError
 
 from utils import get_next_num
 from datetime import date
@@ -551,11 +551,83 @@ class PartnerModel(QtCore.QAbstractTableModel):
 			db.session.commit()
 			self.partners.remove(candidate_partner)
 			self.layoutChanged.emit()
-		except:
+		except Exception as e:
 			db.session.rollback()
-			raise
+			raise 			
 	
+
+	def clone(self, index):
+		if not index.isValid():
+			raise ValueError('Invalid index')
+		
+		partner = self.partners[index.row()]
+		
+		try:
+			# clone partner
+			partner_clone = utils.duplicate_db_object(partner)
+			db.session.add(partner_clone)
+			db.session.commit() # because i need the partner_id for taggin the object
+			# so it can appear in the search bars.
+
+			partner_clone.trading_name = partner.trading_name + f" CLONE - {partner_clone.id}"
+			
+			# UPDATE POINTERS:
+			# PartnerDocument -> partner.documents
+			# PartnerContact  -> partner.contacts
+			# PartnerAccount  -> partner.accounts
+			# ShippingAddress -> partner.shipping_addresses
+
+			# TODO: parameterize the above method to include a 
+			# dependencies: dict and set it dinamically 
+
+			for document in partner.documents:
+				clone = db.PartnerDocument()
+				clone.partner = partner_clone 
+				clone.name = document.name 
+				clone.document = document.document
+				clone.created_on = document.created_on
+
+				session.add(clone)
+
+			for account in partner.accounts:
+				clone = db.PartnerAccount()
+				clone.partner = partner 
+				clone.bank_name 	= account.bank_name
+				clone.iban 			= account.iban
+				clone.swift 		= account.swift
+				clone.bank_address  = account.bank_address
+				clone.bank_postcode = account.bank_postcode
+				clone.bank_city 	= account.bank_city
+				clone.bank_state 	= account.bank_state
+				clone.bank_country  = account.bank_country
+				clone.bank_routing  = account.bank_routing
+				clone.currency 		= account.currency
+				
+			for contact in partner.contacts:
+				clone = db.PartnerContact(contact.name, contact.position, contact.phone, contact.email, contact.note)
+				clone.preferred = contact.preferred
+				clone.partner = partner_clone
+				db.session.add(clone)
+
+			for address in partner.shipping_addresses:
+				clone = db.ShippingAddress()
+				clone.partner = partner_clone 
+				clone.line1 = address.line1
+				clone.line2 = address.line2
+				clone.city = address.city
+				clone.state = address.state
+				clone.zipcode = address.zipcode
+				clone.country = address.country 
+
+				db.session.add(clone)
+		
+			db.session.commit()
+		except Exception as ex:
+			raise PartnerCloningError('Failed to clone partner') from ex 
+
+
 	def col_to_data_map(self, col, partner: db.Partner):
+		
 		return {
 			PartnerModel.CODE: partner.id,
 			PartnerModel.TRADING_NAME: partner.trading_name,

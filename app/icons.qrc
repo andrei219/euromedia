@@ -59,5 +59,6 @@
         <file alias="home">.\\icons\\home.png</file>
         <file alias="background">.\\icons\\background.jpg</file>
         <file alias="journal_entries">.\\icons\\journal_entries.png</file>
+        <file alias="clone">.\\icons\\clone.png</file>
     </qresource>
 </RCC>

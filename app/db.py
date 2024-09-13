@@ -305,8 +305,8 @@ class Partner(Base):
 
     id = Column(Integer, primary_key=True)
     fiscal_number = Column(String(50), nullable=False)
-    fiscal_name = Column(String(50), nullable=False, unique=True)
-    trading_name = Column(String(50), nullable=False, unique=True)
+    fiscal_name = Column(String(50), nullable=False, )
+    trading_name = Column(String(50), nullable=False)
     warranty = Column(Integer, default=0)
     note = Column(String(255))
     amount_credit_limit = Column(Float(precision=32, decimal_return_scale=None), default=0.0)
@@ -347,7 +347,7 @@ class Partner(Base):
         CheckConstraint('fiscal_name != ""', name='no_empty_partner_fiscal_name'),
         CheckConstraint('fiscal_number != ""', name='no_empty_partner_fiscal_number'),
         CheckConstraint('trading_name != ""', name='no_empty_partner_trading_name')
-    )
+    )   
 
 
 class PartnerDocument(Base):
@@ -358,6 +358,7 @@ class PartnerDocument(Base):
     name = Column(String(50))
     document = Column(LargeBinary(length=(2 ** 32) - 1))
     created_on = Column(DateTime, default=datetime.now)
+    
     partner = relationship('Partner', backref=backref('documents'))
 
 
@@ -406,6 +407,7 @@ class PartnerAccount(Base):
     bank_routing = Column(String(50))
     currency = Column(String(50), default='')
 
+
     def __init__(self, bank_name, iban, swift, bank_address,
                  bank_postcode, bank_city, bank_state, bank_country,
                  bank_routing, currency):
@@ -434,6 +436,7 @@ class ShippingAddress(Base):
     state = Column(String(50), nullable=False)
     zipcode = Column(String(50), nullable=False)
     country = Column(String(50), nullable=False)
+
 
     @property
     def valid(self):
