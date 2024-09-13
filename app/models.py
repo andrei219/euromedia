@@ -1690,7 +1690,7 @@ class PurchaseProformaModel(BaseTable, QtCore.QAbstractTableModel):
 			p1, p2 = self.proformas[r1], self.proformas[r2]
 			if not all((
 					p1.type == p2.type, p1.agent_id == p2.agent_id, p1.partner_id == p2.partner_id,
-					p1.eur_currency == p2.eur_currency, p1.shipping_address_id == p2.shipping_address_id
+					p1.eur_currency == p2.eur_currency
 			)):
 				raise ValueError('Incompatible proformas')
 		
@@ -2102,8 +2102,9 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 		for r1, r2 in combinations(rows, r=2):
 			p1, p2 = self.proformas[r1], self.proformas[r2]
 			if not all((
-					p1.type == p2.type, p1.agent_id == p2.agent_id, p1.partner_id == p2.partner_id,
-					p1.eur_currency == p2.eur_currency
+				p1.type == p2.type, p1.agent_id == p2.agent_id, p1.partner_id == p2.partner_id,
+				p1.eur_currency == p2.eur_currency, 
+				p1.shipping_address_id == p2.shipping_address_id
 			)):
 				raise ValueError('Incompatible proformas')
 		

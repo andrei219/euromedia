@@ -320,7 +320,7 @@ class EditableForm(Form):
         self.date_line_edit.setText(str(p.date.strftime('%d%m%Y')))
         self.eta_line_edit.setText(str(p.eta.strftime('%d%m%Y')))
 
-        self.agent_combobox.setCurrentText(p.agent.trading_name)
+        self.agent_combobox.setCurrentText(p.agent.fiscal_name)
         self.warehouse_combobox.setCurrentText(p.warehouse.description)
         self.courier_combobox.setCurrentText(p.courier.description)
         self.incoterms_combo_box.setCurrentText(p.incoterm)
@@ -335,7 +335,7 @@ class EditableForm(Form):
         self.we_pay_we_ship_shipping_radio_button.setChecked(p.we_pay_we_ship)
         self.we_pay_they_ship_shipping_radio_button.setChecked(p.we_pay_they_ship)
         self.note.setText(p.note)
-        self.partner_line_edit.setText(p.partner.fiscal_name)
+        self.partner_line_edit.setText(p.partner.trading_name)
         self.external.setText(p.external)
 
     def saveHandler(self):
