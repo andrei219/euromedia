@@ -1,4 +1,6 @@
 
+import os 
+
 from PyQt5.QtWidgets import QDialog, QMessageBox
 
 import db
@@ -9,29 +11,16 @@ from models import StockValuationModelImei
 
 import utils
 
+from openpyxl import load_workbook
+from pyvalidator import is_imei 
 
-''' Write a function that validates text described as follows:
-    
-    an integer between 1 and 6 inclusive followed by a hyphen,
-    followed by optionally some zeroes and a number. The total length 
-    of the part after the hyphen must be 6. Then, a colon, then a year that must be >= 2022.
-    The following samples must match: 1-0123:2022, 1-123:2022, 4-000022:2023.
-    The following must not match: 7-123:2022, 1-123:2021, 1-123:2022a, 1-123:2022:2023, 
-    2-0000001. Return True if the text matches, False otherwise.
-'''
+
 def match_doc_repr_and_year(doc_repr):
     import re
     pattern = r'^[1-6]-[0-9]{1,6}:20[2-9][2-9]$'
     return bool(re.match(pattern, doc_repr))
 
 
-
-
-
-''' Write a function that parses a string that matches the pattern described in the previous function.'''
-''' Return a tuple of three elements: the type of the document, the number of the document, and the year.'''
-''' The following 1-123:2022 must return (1, 123, 2022), 2-000001:2023 must return (2, 1, 2023), 
-    6-000001:2029 must return (6, 1, 2029).'''
 def parse_doc_repr_and_year(doc_repr):
     type_, number = doc_repr.split('-')
     number, year = number.split(':')
@@ -70,6 +59,7 @@ class Form(Ui_Dialog, QDialog):
         self.by_warehouse.toggled.connect(self.by_warehouse_toggled)
         self.export_.clicked.connect(self.export_handler)
         self.all.toggled.connect(self.all_toggled)
+        self.batch.clicked.connect(self.batch_handler)
 
         utils.setCompleter(self.warehouse, utils.warehouse_id_map.keys())
         self.all_path = None
@@ -78,6 +68,11 @@ class Form(Ui_Dialog, QDialog):
         self.warehouse.setText(db.session.query(db.Warehouse.description).where(
             db.Warehouse.id == 1
         ).scalar())
+
+        # Data holder for the new batch feature. 
+        # on this container we put the elements of the batch
+        # Serves as a flag also. 
+        self.imeis_batch = list() # Needs to be a falsy value. iter([]) doesn't work. Iter hides the truthiness/falsiness.
 
 
     def by_doc_toggled(self, check):
@@ -123,9 +118,11 @@ class Form(Ui_Dialog, QDialog):
                 QMessageBox.critical(self, 'Error', 'Incorrect document representation. Correct format: d-nnnnnn:yyyy')
                 return
 
-
         elif self.by_serial.isChecked():
-            self.model = StockValuationModelImei(self.serial.text())
+            # Understand the short-circuit behavior
+            # Batch data has the priority.
+            # imeis field is the fallback.
+            self.model = StockValuationModelImei(filter(bool, map(str.strip, self.serial.text().split(','))), self.imeis_batch)
             self.view.setModel(self.model)
 
         elif self.by_warehouse.isChecked():
@@ -160,8 +157,17 @@ class Form(Ui_Dialog, QDialog):
         )
 
 
-if __name__ == '__main__':
+    def batch_handler(self):
+        filepath = utils.get_open_file_path(self) 
+        if not filepath:
+            return
+        wb = load_workbook(filepath)
+        ws = wb.active
+        try:
+            # use genexpression to optimize memory usage. 
+            self.imeis_batch = (cell.value for cell in ws['A'] if cell.value and is_imei(cell.value))
+            self.batch_info.setText(f'Imeis data read from {os.path.basename(filepath)}')
+        except KeyError:
+            QMessageBox.critical(self, 'Error', 'Invalid file. No data found in the file.')
 
-    pass
-
-
+       

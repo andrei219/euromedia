@@ -7962,7 +7962,8 @@ class StockValuationEntryDocument(Tupable):
 
 class StockValuationEntryImei(Tupable):
 	
-	def __init__(self, purchase_row: PurchaseRow):
+	def __init__(self, imei:str, purchase_row: PurchaseRow):
+		self.imei = imei
 		self.description = purchase_row.pitem
 		self.condition = purchase_row.pcond
 		self.spec = purchase_row.pspec
@@ -8298,11 +8299,19 @@ class WarehouseSimpleValueModel(Exportable, BaseTable, QtCore.QAbstractTableMode
 
 
 class StockValuationModelImei(Exportable, BaseTable, QtCore.QAbstractTableModel):
-	DESC, COND, SPEC, SERIAL, DATE, PARTNER, DOC_REPR, COST, QNT = 0, 1, 2, 3, 4, 5, 6, 7, 8
+	IMEI, DESC, COND, SPEC, SERIAL, DATE, PARTNER, DOC_REPR, COST, QNT = 0, 1, 2, 3, 4, 5, 6, 7, 8, 10
 	
-	def __init__(self, imei):
+	# As a consequence of the new batch feature, we now receive an iterable of imeis. 
+	# if the client class wants just, 1, for the simple case, 
+	# then it will send a list with imei. 
+
+	# Note how easy was to generalize from 1 imei to n datasources of imeis. 
+
+	# I love python!
+	def __init__(self, *datasources): 
 		super().__init__()
 		self._headerData = [
+			'Imei',
 			'Description',
 			'Condition',
 			'Spec',
@@ -8312,10 +8321,13 @@ class StockValuationModelImei(Exportable, BaseTable, QtCore.QAbstractTableModel)
 			'Nº Doc',
 			'Cost'
 		]
-		
+
 		self.name = 'entries'
-		self.entries = []
-		self.entries.append(StockValuationEntryImei(do_cost_price(imei)))
+		self.entries = [
+			StockValuationEntryImei(imei, do_cost_price(imei)) 
+			for imeis in datasources
+			for imei in imeis
+		]
 	
 	def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
 		if not index.isValid():
@@ -8324,6 +8336,8 @@ class StockValuationModelImei(Exportable, BaseTable, QtCore.QAbstractTableModel)
 		row, col = index.row(), index.column()
 		if role == Qt.DisplayRole:
 			reg = self.entries[row]
+			if col == self.IMEI:
+				return reg.imei
 			if col == self.DESC:
 				return reg.description
 			elif col == self.COND:
