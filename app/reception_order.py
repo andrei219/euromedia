@@ -29,15 +29,6 @@ def reload_utils():
     utils = reload(utils)
 
 
-from functools import wraps
-def prevent_pair_processed(handler):
-    @wraps(handler)
-    def wrapper(self, *args, **kwargs):
-
-        return handler(self)
-    return wrapper
-
-
 
 class Form(QDialog, Ui_Form):
 

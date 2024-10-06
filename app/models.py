@@ -5333,22 +5333,30 @@ class SpecListModel(QtCore.QAbstractListModel):
 
 from sqlalchemy import text
 
-pair_query = text(
+# new query, limit the space to the current document.
+sister_query = text(
 	"""
 		select exists(
-            select 
-	            expedition_series.serie as serie_expedicion,
-	            reception_series.serie  as serie_reception
-	        from expedition_series inner join reception_series
-	        on reception_series.serie = expedition_series.serie and 
-	        reception_series.created_on = expedition_series.created_on
-	        where expedition_series.serie = :serie) as result;
-""")
+		select 
+			expedition_series.serie as serie_expedicion,
+			reception_series.serie  as serie_reception
+			,receptions.id 
+		from expedition_series 
+		inner join reception_series
+		on reception_series.serie = expedition_series.serie and 
+			reception_series.created_on = expedition_series.created_on
+		inner JOIN reception_lines
+			ON reception_lines.id = reception_series.line_id
+		inner JOIN receptions
+			ON reception_lines.reception_id = receptions.id
+		where expedition_series.serie = :serie
+			AND receptions.id = :current_document
+		) as result
+	"""
+)
 
-
-def has_sister_serie(serie):
-	return db.session.execute(pair_query, {'serie': serie}).scalar()
-
+def has_sister_serie(serie, reception_id):
+	return db.session.execute(sister_query, {'serie': serie, 'current_document':reception_id}).scalar()
 
 class ReceptionSeriesModel:
 	
@@ -5360,7 +5368,7 @@ class ReceptionSeriesModel:
 	
 	def add(self, line, serie, description, condition, spec):
 		
-		if has_sister_serie(serie):
+		if has_sister_serie(serie, self.reception.id):
 			raise ValueError('Serie already processed in expedition, please check there.')
 		
 		if serie.lower() in [o.serie.lower() for o in self.reception_series]:
