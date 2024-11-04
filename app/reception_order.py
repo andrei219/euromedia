@@ -224,9 +224,9 @@ class Form(QDialog, Ui_Form):
 
     def commit_handler(self):
 
-       if self.reception.auto:
-           QMessageBox.critical(self, 'Error', "Can't update here. Go to associated expedition.")
-           return
+        if self.reception.auto:
+            QMessageBox.critical(self, 'Error', "Can't update here. Go to associated expedition.")
+            return
 
         sn = self.sn.text()
 
