@@ -1,0 +1,10 @@
+Partner | documento | fecha | imei  | modelo | importe (solo base) 
+
+Filtros: 
+    
+    Rango fechas 
+    Partner 
+
+    Filtro por documento 
+
+
