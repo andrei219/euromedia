@@ -1,0 +1,9 @@
+
+a - all filters set 
+b - only period 
+c - only partner 
+d - only agent
+
+e - 1 serie 
+f - many series 
+
