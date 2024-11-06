@@ -13,6 +13,8 @@ import db
 import typing as tp
 from collections.abc import Iterable
 
+import abc 
+
 import openpyxl
 import itertools as it 
 
@@ -50,28 +52,28 @@ sql = """
 
 HEADER = ('Partner', 'Type', 'Number', 'Date', 'Item', 'Condition', 'Spec', 'Serie', 'Price')
 
-def update_query(bsae_sql: str, filters: dict):
-    pass 
-
-
+class Writer(tp.Protocol): 
+    def dump(self, data: tp.Iterable[tp.Tuple]): ...
 class ExcelWriter: 
-    
-    def __init__(self, path: str) -> None:
-        if not isinstance(path, str):
-            raise ValueError("Invalid path provided")
-        self.path = path
-      
-    def dump(self, data: tp.Iterable[tp.Tuple]):
+    def dump(self, path:str, data: tp.Iterable[tp.Tuple]) -> None:
         workbook = openpyxl.Workbook()
         sheet = workbook.active
 
         for row in data:
             sheet.append(row)
         try:
-            workbook.save(self.path)
+            workbook.save(path)
         except (PermissionError, Exception):
             raise 
 
+class StdoutWriter: 
+    def dump(self, path: str, data: tp.Iterable[tp.Tuple]):
+        for row in data:
+            print(row)
+
+# writer_factory = lambda: StdoutWriter() if os.getenv('APP_DEBUG') == 'true' else ExcelWriter()
+
+writer_factory = lambda: ExcelWriter()
 
 class Form(Ui_Dialog, QDialog):
 
@@ -85,15 +87,21 @@ class Form(Ui_Dialog, QDialog):
         self._export.clicked.connect(self.export_handler)
         self.series_all.toggled.connect(self.all_checked)
 
+        if os.getenv('APP_DEBUG') == 'true': 
+            self._from.setText("01012024") 
+        else:
+            self._from.setText(f"01{utils.today_date()[2:]}")
+    
         self.to.setText(utils.today_date())
-        self._from.setText(f"01{utils.today_date()[2:]}")
+
+
 
     def all_checked(self, checked):
         for serie in range(1, 7):
             getattr(self, 'serie_' + str(serie)).setChecked(checked)
     
-    def parse_filters(self): 
-        filters = {}
+
+    def parse_period(self) -> tp.Tuple[datetime, datetime]:
         _from = self._from.text()
         to = self.to.text()
         if not all((_from, to)):
@@ -103,23 +111,35 @@ class Form(Ui_Dialog, QDialog):
             if not to:
                 mss += 'To date is required. '
             raise FilterValidationError(mss)
-        
-        filters['period'] = (utils.parse_date(_from), utils.parse_date(to))
+        try:
+            _from = utils.parse_date(_from)
+        except ValueError:
+            raise FilterValidationError('From date format is incorrect. ddmmyyyy')
+        try:
+            to = utils.parse_date(to)
+        except ValueError:
+            raise FilterValidationError('To date format is incorrect. ddmmyyyy')
 
-        filters['partner_id'] = utils.partner_id_map.get(self.partner.text(), None)
-        filters['agent_id'] = utils.agent_id_map.get(self.agent.text(), None)
+        if _from > to:
+            raise FilterValidationError('From date is after To date')
 
-        filters['series'] = [
-            i 
-            for i in range(1, 7)
-            if getattr(self, f'serie_{i}').isChecked()
-        ]
+        return _from, to 
 
-        return filters 
+    def build_filters(self): 
+        return {
+            'period': self.parse_period(),
+            'partner_id': utils.partner_id_map.get(self.partner.text(), None),
+            'agent_id': utils.agent_id_map.get(self.agent.text(), None),
+            'series': [
+                i 
+                for i in range(1, 7)
+                if getattr(self, f'serie_{i}').isChecked()
+            ]
+        } 
 
     def get_query(self, filters: dict[str, tp.Any]) -> str:
         sql = """
-            select 
+             select 
                 prt.fiscal_name,
                 si.TYPE,
                 si.number,
@@ -145,15 +165,32 @@ class Form(Ui_Dialog, QDialog):
                 on el.expedition_id = e.id
             inner join sale_proformas sp
                 on e.proforma_id = sp.id
-            inner join sale_proforma_lines spl
+            inner join ( -- build sale lines from both types: advanced and normal 
+                select 
+                    proforma_id,
+                    item_id,
+                    `condition`,
+                    `spec`,
+                    price
+                from sale_proforma_lines sl
+                union 
+                select 
+                    proforma_id,
+                    item_id,
+                    `condition`,
+                    `spec`,
+                    price
+                from advanced_lines al 
+            ) spl
                 on spl.proforma_id=sp.id
                 and spl.`item_id` = el.`item_id`
                 and spl.`condition` = el.`condition`
                 and spl.`spec` = el.`spec`
-            inner join partners prt on prt.id = sp.partner_id
-            inner join sale_invoices si on si.id = sp.sale_invoice_id
+            inner join partners prt 
+                on prt.id = sp.partner_id
+            inner join sale_invoices si 
+                on si.id = sp.sale_invoice_id
         """
-
         _from, to = filters.get('period')
 
         mysql_from_promoted = f"{_from.year}-{_from.month}-{_from.day}"
@@ -175,13 +212,9 @@ class Form(Ui_Dialog, QDialog):
 
         return sql
 
-
     def export_handler(self):
-        
         try:
-            sql = self.get_query(filters=self.parse_filters()) 
-
-            print(sql)
+            sql = self.get_query(filters=self.build_filters()) 
         except FilterValidationError as ex:
             QMessageBox.critical(self, 'Validation Error', str(ex))
             return
@@ -200,15 +233,11 @@ class Form(Ui_Dialog, QDialog):
             QMessageBox.critical(self, 'File Error', str(ex))
             return
 
-        excel_writer = ExcelWriter(filepath)
+        writer = writer_factory()
         try:
-            excel_writer.dump(map(tuple, data)) # pass a stream of tuples
+            writer.dump(filepath, map(tuple, data)) 
         except Exception as ex:
             QMessageBox.critical(self, 'File Error', str(ex))
             return
 
-
         QMessageBox.information(self, 'Success', 'Data exported successfully')
-
-
-
