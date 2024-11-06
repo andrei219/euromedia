@@ -118,6 +118,7 @@ ACTIONS = [
     'facks',
     'stock_valuation',
     'issued_invoices',
+	'itemized_invoices', 
     'switch',
     'top_partners',
     'owing',
@@ -1455,8 +1456,6 @@ class MainGui(Ui_MainGui, QMainWindow):
         try:
             self.rmas_incoming_model.to_warehouse(row)
         except ValueError as ex:
-            print('catched value error')
-            print(str(ex))
             QMessageBox.critical(self, 'Error', str(ex))
         else:
             QMessageBox.information(self, 'Error', 'RMA WH order created')
@@ -1635,7 +1634,14 @@ class MainGui(Ui_MainGui, QMainWindow):
         from issued_invoices_form import Form
         Form(self).exec_()
 
+    def tools_itemized_invoices_handler(self):
+        
+        from itemized_invoices_form import Form
+        Form(self).exec_() 
+
     def tools_switch_handler(self):
+        
+        
         from switch_form import Form
         Form(self).exec_()
 
