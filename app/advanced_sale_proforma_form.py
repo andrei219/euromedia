@@ -52,7 +52,6 @@ class Form(Ui_Form, QWidget):
 
         self.address_id_map = None
 
-    @log
     def build_address_map_and_init_combo(self, partner_id=None):
         if partner_id is None:
             partner_id = self.proforma.partner_id

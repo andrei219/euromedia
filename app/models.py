@@ -2713,15 +2713,10 @@ class SaleProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 	def setData(self, index, value, role=Qt.EditRole):
 		if not index.isValid():
 			return False
+
 		row, column = index.row(), index.column()
-		# if not self.editable_column(column) or not self.free_line_editable_column(column):
-		# 	return False
-		
 		updated = False
-		# print(f'role = {role}')
-		# print(f'self.is_free_line({index}) = {self.is_free_line(index)}')
-		# print(f'self.free_line_editable_column({column}) = {self.free_line_editable_column(column)}')
-		# print('--' * 20)
+
 		if role==Qt.EditRole and self.is_free_line(index) and self.free_line_editable_column(column):
 			
 			if column == self.DESCRIPTION:
@@ -4660,40 +4655,70 @@ class AdvancedLinesModel(BaseTable, QtCore.QAbstractTableModel):
 		if not index.isValid():
 			return False
 		row, column = index.row(), index.column()
-		if not self.editable_column(column):
-			return False
+	
 		updated = False
 		line = self.lines[row]
-		if column == self.SHOWING_CONDITION:
-			line.showing_condition = value
-			updated = True
-		elif column == self.PRICE:
-			try:
-				v = float(value)
-			except ValueError:
-				pass
-			else:
-				line.price = v
+
+		if role==Qt.EditRole and self.is_free_line(index) and self.free_line_editable_column(column):
+			if column == self.DESCRIPTION:
+				line.free_description = value
 				updated = True
-		elif column == self.IGNORING_SPEC:
-			value_lower = value.lower()
-			if value_lower in ('yes', 'no'):
-				line.ignore_spec = True if value_lower == 'yes' else False
+			elif column == self.QUANTITY:
+				try:
+					v = int(value)
+					line.quantity = v
+					updated = True
+				except ValueError:
+					return False
+			elif column == self.PRICE:
+				try:
+					v = float(value)
+					line.price = v
+					updated = True
+				except ValueError: 
+					return False 
+			elif column == self.TAX:
+				try:
+					v = int(value) 
+					if v not in (0, 4, 10, 21):
+						return False 
+					line.tax = v
+					updated = True
+				except ValueError:
+					return False 
+
+			return False 
+
+		if role == Qt.EditRole:
+			if column == self.SHOWING_CONDITION:
+				line.showing_condition = value
 				updated = True
-		elif column == self.TAX:
-			try:
-				tax = int(value)
-				if tax not in (0, 4, 10, 21):
-					raise ValueError
-			except ValueError:
-				pass
-			else:
-				line.tax = tax
-				updated = True
-		
+			elif column == self.PRICE:
+				try:
+					v = float(value)
+				except ValueError:
+					pass
+				else:
+					line.price = v
+					updated = True
+			elif column == self.IGNORING_SPEC:
+				value_lower = value.lower()
+				if value_lower in ('yes', 'no'):
+					line.ignore_spec = True if value_lower == 'yes' else False
+					updated = True
+			elif column == self.TAX:
+				try:
+					tax = int(value)
+					if tax not in (0, 4, 10, 21):
+						raise ValueError
+				except ValueError:
+					pass
+				else:
+					line.tax = tax
+					updated = True
+			
 		if updated:
 			if self.form is not None:  # In definition form is not necessary
-				
 				self.form.update_totals()
 		
 		return updated
@@ -4706,11 +4731,33 @@ class AdvancedLinesModel(BaseTable, QtCore.QAbstractTableModel):
 		else:
 			return Qt.ItemFlags(~Qt.ItemIsEditable)
 	
+	def flags(self, index: QModelIndex) -> Qt.ItemFlags:
+		if not index.isValid():
+			return Qt.ItemFlags(~Qt.ItemIsEnabled)	
+		
+		if not self.is_free_line(index) and self.editable_column(index.column()):
+			return Qt.ItemFlags(super().flags(index) | Qt.ItemIsEditable)
+
+		if self.is_free_line(index) and self.free_line_editable_column(index.column()):
+			return Qt.ItemFlags(super().flags(index) | Qt.ItemIsEditable)
+
+		return Qt.ItemFlags(~Qt.ItemIsEditable)
+
+	def is_free_line(self, index) -> bool:
+		if not index.isValid():
+			return False
+		try:
+			line = self.lines[index.row()]
+		except IndexError:
+			return False 
+		
+		return line.free_description is not None
+
+	def free_line_editable_column(self, column) -> bool:
+		return column in (self.DESCRIPTION, self.QUANTITY, self.PRICE, self.TAX)
+
 	def editable_column(self, column):
-		return column in (
-			self.PRICE, self.IGNORING_SPEC, self.SHOWING_CONDITION, self.PRICE,
-			self.TAX
-		)
+		return column in (self.PRICE, self.IGNORING_SPEC, self.SHOWING_CONDITION, self.PRICE,self.TAX)
 	
 	def add(self, quantity, price, ignore, tax, showing, vector):
 		line = db.AdvancedLine()
