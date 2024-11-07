@@ -2748,8 +2748,8 @@ class SaleProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 					return False
 				else:
 					updated = self.organized_lines.update_tax(row, tax)
-
-			return False 
+			else:
+				return False 
 
 		if role == Qt.EditRole:
 			if column == self.__class__.SHOWING_CONDITION:
@@ -2777,8 +2777,8 @@ class SaleProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 					return False
 				else:
 					updated = self.organized_lines.update_price(row, price)
-			
-			return False 
+			else:
+				return False 
 
 		db.session.commit()
 		if updated:
@@ -4611,10 +4611,11 @@ class AdvancedLinesModel(BaseTable, QtCore.QAbstractTableModel):
 		                    'Ignoring Spec?(Editable)', 'Qty.', 'Price(Editable)', 'Subtotal',
 		                    'Tax (Editable)', 'Total']
 		self.name = 'lines'
+		self.proforma = proforma 
 		self._lines = proforma.advanced_lines
 		if not show_free:
 			self._lines = [line for line in self._lines if not line.free_description]
-	
+		
 	def data(self, index, role=Qt.DisplayRole):
 		if not index.isValid():
 			return
@@ -4686,8 +4687,8 @@ class AdvancedLinesModel(BaseTable, QtCore.QAbstractTableModel):
 					updated = True
 				except ValueError:
 					return False 
-
-			return False 
+			else:
+				return False 
 
 		if role == Qt.EditRole:
 			if column == self.SHOWING_CONDITION:
@@ -4716,8 +4717,9 @@ class AdvancedLinesModel(BaseTable, QtCore.QAbstractTableModel):
 				else:
 					line.tax = tax
 					updated = True
-			
+
 		if updated:
+			db.session.flush() 
 			if self.form is not None:  # In definition form is not necessary
 				self.form.update_totals()
 		
@@ -4752,6 +4754,14 @@ class AdvancedLinesModel(BaseTable, QtCore.QAbstractTableModel):
 			return False 
 		
 		return line.free_description is not None
+
+	def is_free_line_by_row(self, row:int) -> bool:
+		try:
+			line = self._lines[row]
+		except IndexError:
+			return False 
+		else:
+			return line.free_description is not None
 
 	def free_line_editable_column(self, column) -> bool:
 		return column in (self.DESCRIPTION, self.QUANTITY, self.PRICE, self.TAX)
@@ -4804,6 +4814,8 @@ class AdvancedLinesModel(BaseTable, QtCore.QAbstractTableModel):
 		line.tax = tax
 		
 		self._lines.append(line)
+
+		db.session.flush()
 		self.layoutChanged.emit()
 	
 	def reset(self):

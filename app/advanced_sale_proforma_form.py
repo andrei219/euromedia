@@ -209,12 +209,21 @@ class Form(Ui_Form, QWidget):
         indexes = self.lines_view.selectedIndexes()
         if not indexes:
             return
+
+        update_stock = False
+      
         row = {index.row() for index in indexes}.pop()
+        
+        update_stock = not self.lines_model.is_free_line_by_row(row)
+        
         self.lines_model.delete(row)
         self.lines_view.clearSelection()
         self.set_stock_message(empty=not self.lines_model)
         self.update_global_filters()
-        self.set_stock_mv()
+
+        if update_stock:
+            self.set_stock_mv()
+
         self.update_totals()
 
     def add_handler(self):
@@ -311,6 +320,8 @@ class Form(Ui_Form, QWidget):
                     dialog.price.value(),
                     int(dialog.tax.currentText())
                 )
+
+                self.update_totals()
             except:
                 QMessageBox.critical(self, 'Error', 'Error adding free line')
                 raise
