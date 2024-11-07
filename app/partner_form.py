@@ -103,9 +103,12 @@ class PartnerForm(Ui_Partner_Form, QWidget):
                 db.session.commit()
                 QMessageBox.information(self, 'Partner - Update', 'Partner Updated Successfully')
                 self.close() 
-            except Exception as ex:
+            except DatabaseError as ex:
                 db.session.rollback()
-                QMessageBox.critical(self, 'Partner - Update ', ' Error Updating Partner')
+                QMessageBox.critical(self, 'Partner - Update ', 'Fiscal name, Fiscal Number and Trading name must be provided')
+            except Exception as ex: # general unknown yet exception. If I ever receive feedback, then new code will be added. 
+                db.session.rollback()
+                QMessageBox.critical(self, 'Partner - Update', f'Error Updating Partner: {ex}')
 
         elif self.mode == PartnerForm.NEW_MODE:
             self.formToPartner() 
@@ -122,7 +125,7 @@ class PartnerForm(Ui_Partner_Form, QWidget):
 
             except Exception as ex:
                 db.session.rollback()
-                QMessageBox.critical(self, 'Partner - Update', f'Error Updating Partner: {ex}')	
+                QMessageBox.critical(self, 'Partner - Update', f'Error Updating Partner: {ex}')
 
     def addContact(self):
         row = self.contact_view.model().rowCount()
