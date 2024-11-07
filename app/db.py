@@ -1515,6 +1515,14 @@ class SaleProformaLine(Base):
         classname = self.__class__.__name__
         return f'{classname}(desc={self.description})'
 
+    def __repr__(self):
+        clsname = self.__class__.__name__
+        # make repr string with all fields 
+        return '<SaleProformaLine(%r, %r, %r, %r, %r, %r, %r, %r, %r, %r, %r, %r)>' % (
+            self.id, self.proforma_id, self.item_id, self.mix_id, self.description, self.condition,
+            self.showing_condition, self.spec, self.ignore_spec, self.quantity, self.price, self.tax
+        )
+
 
 original_sale_proforma_line_eq = SaleProformaLine.__eq__
 

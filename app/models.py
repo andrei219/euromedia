@@ -2517,7 +2517,7 @@ class OrganizedLines:
 		showing_condition = line.showing_condition or line.condition
 		return {
 			SaleProformaLineModel.DESCRIPTION: line.description \
-			                                   or utils.description_id_map.inverse[line.item_id],
+			                                   or utils.description_id_map.inverse.get(line.item_id, ''), 
 			SaleProformaLineModel.CONDITION: line.condition,
 			SaleProformaLineModel.SHOWING_CONDITION: showing_condition,
 			SaleProformaLineModel.SPEC: line.spec,
@@ -2571,7 +2571,27 @@ class OrganizedLines:
 		else:
 			lines.price = price
 		return True
+
+	def update_description(self, row, description):
+		lines = self.organized_lines[row]
+		if isinstance(lines, Iterable):
+			for line in lines:
+				line.description = description
+		else:
+			lines.description = description
+		return True
+
 	
+	def update_quantity(self, row, quantity):
+		lines = self.organized_lines[row]
+		if isinstance(lines, Iterable):
+			for line in lines:
+				line.quantity = quantity
+		else:
+			lines.quantity = quantity
+		return True
+
+
 	def update_tax(self, row, tax):
 		lines = self.organized_lines[row]
 		if isinstance(lines, Iterable):
@@ -2682,8 +2702,6 @@ class SaleProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 		except TypeError:
 			pass
 	
-	# Implicit return None,solves the free line
-	
 	def __bool__(self):
 		return bool(self.organized_lines)
 	
@@ -2696,9 +2714,48 @@ class SaleProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 		if not index.isValid():
 			return False
 		row, column = index.row(), index.column()
-		if not self.editable_column(column):
-			return False
+		# if not self.editable_column(column) or not self.free_line_editable_column(column):
+		# 	return False
+		
 		updated = False
+		# print(f'role = {role}')
+		# print(f'self.is_free_line({index}) = {self.is_free_line(index)}')
+		# print(f'self.free_line_editable_column({column}) = {self.free_line_editable_column(column)}')
+		# print('--' * 20)
+		if role==Qt.EditRole and self.is_free_line(index) and self.free_line_editable_column(column):
+			
+			if column == self.DESCRIPTION:
+				updated = self.organized_lines.update_description(row, value)
+			elif column == self.QUANTITY:
+				try:
+					quantity = int(value)
+					if quantity < 0:
+						raise ValueError
+				except ValueError:
+					return False
+				else:
+					updated = self.organized_lines.update_quantity(row, quantity)
+			elif column == self.PRICE:
+				try:
+					price = float(value)
+					if price < 0:
+						raise ValueError
+				except ValueError:
+					return False
+				else:
+					updated = self.organized_lines.update_price(row, price)
+			elif column == self.TAX:
+				try:
+					tax = int(value)
+					if tax not in (0, 4, 10, 21):
+						return False
+				except ValueError:
+					return False
+				else:
+					updated = self.organized_lines.update_tax(row, tax)
+
+			return False 
+
 		if role == Qt.EditRole:
 			if column == self.__class__.SHOWING_CONDITION:
 				return self.organized_lines.update_condition(row, value)
@@ -2726,13 +2783,13 @@ class SaleProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 				else:
 					updated = self.organized_lines.update_price(row, price)
 			
-			db.session.commit()
+			return False 
+
+		db.session.commit()
+		if updated:
+			self.form.update_totals()
+			return True
 			
-			if updated:
-				self.form.update_totals()
-				return True
-			
-			return False
 		return False
 	
 	def editable_column(self, column):
@@ -2743,27 +2800,43 @@ class SaleProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 			self.TAX
 		)
 	
+	def free_line_editable_column(self, column):
+		return column in (self.DESCRIPTION, self.QUANTITY, self.PRICE, self.TAX)
+
+	def is_free_line(self, index):
+		if not index.isValid():
+			return False 
+		row = index.row() 
+		try:
+			lines = self.organized_lines[row]
+		except IndexError:
+			return False 
+
+		return (line:=next(iter(lines), False)) and getattr(line, 'item_id', object()) == None
+
 	def flags(self, index):
 		if not index.isValid():
-			return Qt.ItemIsEnabled
-		if self.editable_column(index.column()):
+			return Qt.ItemFlags(~Qt.ItemIsEnabled)
+		
+		if not self.is_free_line(index) and self.editable_column(index.column()): 
 			return Qt.ItemFlags(super().flags(index) | Qt.ItemIsEditable)
-		else:
-			return Qt.ItemFlags(~Qt.ItemIsEditable)
+
+		if self.is_free_line(index) and self.free_line_editable_column(index.column()):
+			return Qt.ItemFlags(super().flags(index) | Qt.ItemIsEditable)
+
+		return Qt.ItemFlags(~Qt.ItemIsEditable)
 	
 	def sync_with_warehouse(self):
-		
-		for pline in self.proforma.lines:
-			for eline in self.proforma.expedition.lines:
-				
-				if all((
-						pline.item_id == eline.item_id,
-						pline.condition == eline.condition,
-						pline.spec == eline.spec
-				)):
-					pline.quantity = eline.processed_series
-					eline.quantity = eline.processed_series
-					break
+		import itertools as it 
+		for pline, eline in it.product(self.proforma.lines, self.proforma.expedition.lines):
+			if all((
+				pline.item_id == eline.item_id,
+				pline.condition == eline.condition,
+				pline.spec == eline.spec
+			)):
+				pline.quantity = eline.processed_series
+				eline.quantity = eline.processed_series
+				break
 		
 		db.session.commit()
 

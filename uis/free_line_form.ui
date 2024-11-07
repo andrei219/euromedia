@@ -44,7 +44,7 @@
     <rect>
      <x>71</x>
      <y>42</y>
-     <width>387</width>
+     <width>388</width>
      <height>122</height>
     </rect>
    </property>
@@ -182,6 +182,14 @@
    </layout>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>description</tabstop>
+  <tabstop>quantity</tabstop>
+  <tabstop>price</tabstop>
+  <tabstop>tax</tabstop>
+  <tabstop>pushButton</tabstop>
+  <tabstop>pushButton_2</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>
