@@ -661,12 +661,12 @@ class ShippingAddressModel(BaseTable, QtCore.QAbstractTableModel):
 		row, col = index.row(), index.column()
 		if role == Qt.DisplayRole:
 			return {
-				self.LINE1: self.addresses[row].line1,
-				self.LINE2: self.addresses[row].line2,
-				self.CITY: self.addresses[row].city,
-				self.STATE: self.addresses[row].state,
-				self.ZIP: self.addresses[row].zipcode,
-				self.COUNTRY: self.addresses[row].country
+				self.LINE1: 	self.addresses[row].line1,
+				self.LINE2: 	self.addresses[row].line2,
+				self.CITY: 		self.addresses[row].city,
+				self.STATE: 	self.addresses[row].state,
+				self.ZIP: 		self.addresses[row].zipcode,
+				self.COUNTRY: 	self.addresses[row].country
 			}.get(col)
 	
 	def setData(self, index: QModelIndex, value: typing.Any, role: int = ...) -> bool:
@@ -702,6 +702,11 @@ class ShippingAddressModel(BaseTable, QtCore.QAbstractTableModel):
 		return True
 	
 	def removeRows(self, position, rows=1, index=QModelIndex()) -> bool:
+		address = self.addresses[position]
+		if len(address.sale_proformas) > 0: 
+			raise ValueError('This address cannot be removed. It has associated sales') 
+		
+		# proceed with removal 		
 		self.beginRemoveRows(QModelIndex(), position, position + rows - 1)
 		self.addresses.pop(position)
 		self.endRemoveRows()
@@ -715,6 +720,10 @@ class ShippingAddressModel(BaseTable, QtCore.QAbstractTableModel):
 	@property
 	def valid(self):
 		return all(e.valid for e in self.addresses)
+
+	@property
+	def empty(self):
+		return len(self.addresses) == 0
 
 
 class PartnerContactModel(QtCore.QAbstractTableModel):

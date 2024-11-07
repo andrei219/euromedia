@@ -18,6 +18,7 @@ from bidict import bidict
 
 import os
 
+
 EXCEL_FILTER = 'Archivos excel (*.xlsx)'
 PDF_FILTER = "Pdf Files (*.pdf)"
 CSV_FILTER = "Csv files (*.csv)"
@@ -569,4 +570,5 @@ def duplicate_db_object(dbobj, ignore_rows=['id']):
 		if column.name not in ignore_rows:
 			setattr(copy, column.name, getattr(dbobj, column.name))
 	return copy
+
 

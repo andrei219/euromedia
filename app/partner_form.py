@@ -1,4 +1,3 @@
-
 from PyQt5.QtWidgets import QWidget, QTableView, QMessageBox
 from PyQt5.QtCore import Qt
 
@@ -13,8 +12,10 @@ import utils
 
 from sqlalchemy import select 
 
-
 import db 
+import contextlib
+
+from sqlalchemy.exc import DatabaseError
 
 class PartnerForm(Ui_Partner_Form, QWidget):
 
@@ -56,7 +57,6 @@ class PartnerForm(Ui_Partner_Form, QWidget):
         self.set_up_shipping_view(self.partner.shipping_addresses)
 
     def copy_address(self):
-
         self.partner.shipping_addresses.append(
             ShippingAddress(
                 line1=self.billing_address1_line_edit.text(),
@@ -83,16 +83,18 @@ class PartnerForm(Ui_Partner_Form, QWidget):
         f.exec_()
 
     def saveButtonHandler(self):
-        if not self.partner.contacts:
-            QMessageBox.critical(self, 'Partner - Update', 'At least one contact must be provided!')
-            return
+        # pre-fix some stuff 
+        self.fiscal_number_line_edit.setText(self.fiscal_number_line_edit.text().replace(' ', '')) 
 
-        if ' ' in self.fiscal_number_line_edit.text():
-            QMessageBox.critical(self, 'Partner', 'Vesi, Sin espacio el fiscal number!')
-            return
+        if not self.partner.contacts:
+            self.partner.contacts.append(db.PartnerContact.default()) 
+            self.setUpContactView(self.partner.contacts)
+
+        if self.shipping_model.empty:
+            self.copy_address()
 
         if not self.shipping_model.valid:
-            QMessageBox.critical(self, 'Partner', 'Shipping address is not valid! Fill all fields!')
+            QMessageBox.critical(self, 'Partner', 'Invalid Shipping address. Only Line2 and State are optional.')
             return
 
         if self.mode == PartnerForm.EDITABLE_MODE:
@@ -101,10 +103,9 @@ class PartnerForm(Ui_Partner_Form, QWidget):
                 db.session.commit()
                 QMessageBox.information(self, 'Partner - Update', 'Partner Updated Successfully')
                 self.close() 
-            except:
+            except Exception as ex:
                 db.session.rollback()
                 QMessageBox.critical(self, 'Partner - Update ', ' Error Updating Partner')
-                raise
 
         elif self.mode == PartnerForm.NEW_MODE:
             self.formToPartner() 
@@ -114,9 +115,14 @@ class PartnerForm(Ui_Partner_Form, QWidget):
                 self.mode = PartnerForm.EDITABLE_MODE
                 self.enableDocuments() 
                 QMessageBox.information(self, 'Partner - Update', 'Partner Created Successfully')                
-            except:
-                QMessageBox.critical(self, 'Partner - Update', ' Error Updating Partner')
-                raise
+            
+            except DatabaseError as ex:
+                db.session.rollback()
+                QMessageBox.critical(self, 'Partner - Creation - Error', 'Fiscal name, Fiscal Number and Trading name must be provided')
+
+            except Exception as ex:
+                db.session.rollback()
+                QMessageBox.critical(self, 'Partner - Update', f'Error Updating Partner: {ex}')	
 
     def addContact(self):
         row = self.contact_view.model().rowCount()
@@ -133,23 +139,23 @@ class PartnerForm(Ui_Partner_Form, QWidget):
         self.contact_view.model().removeRows(row)
         self.contact_view.resizeColumnsToContents() 
 
-    # def keyPressEvent(self, event):
-    #     if self.contact_view.hasFocus():
-    #         if event.modifiers() & Qt.ControlModifier:
-    #             if event.key() == Qt.Key_N:
-    #                 self.addContact()
-    #             elif event.key() == Qt.Key_D:
-    #                 self.removeContact()
-    #     elif self.copy_address_button.hasFocus():
-    #         if event.key() == Qt.Key_Return:
-    #             self.copyAddress()
-    #     elif self.active_checkbox.hasFocus():
-    #         if event.key() == Qt.Key_Return and self.active_checkbox.isChecked():
-    #             self.active_checkbox.setChecked(False)
-    #         else:
-    #             self.active_checkbox.setChecked(True)
-    #     else:
-    #         super().keyPressEvent(event)
+    def keyPressEvent(self, event):
+        if self.contact_view.hasFocus():
+            if event.modifiers() & Qt.ControlModifier:
+                if event.key() == Qt.Key_N:
+                    self.addContact()
+                elif event.key() == Qt.Key_D:
+                    self.removeContact()
+        elif self.copy_address_button.hasFocus():
+            if event.key() == Qt.Key_Return:
+                self.copy_address()
+        elif self.active_checkbox.hasFocus():
+            if event.key() == Qt.Key_Return and self.active_checkbox.isChecked():
+                self.active_checkbox.setChecked(False)
+            else:
+                self.active_checkbox.setChecked(True)
+        else:
+            super().keyPressEvent(event)
                 
     def formToPartner(self):
         self.partner.active = self.active_checkbox.isChecked()
@@ -166,12 +172,12 @@ class PartnerForm(Ui_Partner_Form, QWidget):
 
         self.partner.has_certificate = self.has_certificate.isChecked()
         
-        try:
-            self.partner.agent = db.session.query(Agent).where(Agent.fiscal_name == \
-                self.associated_agent_combobox.currentText()).one() 
-        except:
-            raise
-
+        # Should never raise exception. Input comes from combobox. 
+        # we have a closed space of object. 
+        # On db, there there as unique restriction on fiscal name.
+        self.partner.agent = db.session.query(Agent).where(Agent.fiscal_name == \
+            self.associated_agent_combobox.currentText()).one() 
+    
         self.partner.days_credit_limit = self.credit_days_spinbox.value()
         self.partner.amount_credit_limit = self.credit_amount_spinbox.value()
 
@@ -262,23 +268,18 @@ class PartnerForm(Ui_Partner_Form, QWidget):
         if not index.isValid():
             return
         row = index.row()
-        self.shipping_view.model().removeRows(row)
-        self.shipping_view.resizeColumnsToContents()
+        
+        try:
+            self.shipping_view.model().removeRows(row)
+        except ValueError as ex:
+            QMessageBox.critical(self, 'Error', str(ex))
+        else:
+            self.shipping_view.resizeColumnsToContents()
 
     def bank_button_handler(self):
         import bank_form 
         bank_form.Dialog(self, self.partner).exec_()
 
     def closeEvent(self, event):
-        # if not self.partner.contacts and self.mode == PartnerForm.EDITABLE_MODE:
-        #     QMessageBox.critical(self, 'Error - Update', 'You need to provide at least one contact')
-        #     event.ignore()
-
-        # if not self.partner.contacts:
-        #     QMessageBox.critical(self, 'Error', 'At least one contact mus be provided')
-        #     event.ignore()
-    
-        try:
-            self.parent.opened_windows_classes.remove(self.__class__)
-        except:
-            pass
+        with contextlib.suppress(Exception):
+            self.parent.opened_windows_classes.remove(self.__class__) 

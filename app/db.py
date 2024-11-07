@@ -384,6 +384,10 @@ class PartnerContact(Base):
         self.email = email
         self.note = note
 
+    @classmethod
+    def default(cls):
+        return cls('info', 'info', 'info', 'info')
+
     __table_args__ = (
         CheckConstraint("name != ''", name='no_empty_contact_name'),
         CheckConstraint("position != ''", name='no_empty_position'),
@@ -437,10 +441,13 @@ class ShippingAddress(Base):
     zipcode = Column(String(50), nullable=False)
     country = Column(String(50), nullable=False)
 
-
     @property
     def valid(self):
-        return all((self.line1, self.line2, self.city, self.state, self.zipcode, self.country))
+        return all((self.line1, self.city, self.zipcode, self.country)) # they are truthy
+
+    @classmethod
+    def default(cls, line1, city, zipcode, country):
+        return cls(line1, city, zipcode, country)
 
     def __repr__(self):
         return '<ShippingAddress(%s, %s, %s, %s, %s, %s, %s)>' %\
@@ -950,7 +957,7 @@ class SaleProforma(Base):
     invoice = relationship('SaleInvoice', backref=backref('proformas'), lazy='joined')
 
     expedition = relationship('Expedition', uselist=False, back_populates='proforma')
-    shipping_address = relationship('ShippingAddress', uselist=False)
+    shipping_address = relationship('ShippingAddress', backref=backref('sale_proformas'), uselist=False)
 
     warning = Column(String(255), nullable=True)
 
