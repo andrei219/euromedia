@@ -2102,10 +2102,7 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 		return proforma.invoice
 	
 	def associateInvoice(self, rows: set, bypass_vies=False):
-		if any(
-				bool(self.proformas[row].credit_note_lines)
-				for row in rows
-		):
+		if any(bool(self.proformas[row].credit_note_lines) for row in rows):
 			raise ValueError('Credit Note already exists')
 		
 		for r1, r2 in combinations(rows, r=2):
@@ -2127,9 +2124,14 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 			
 			from utils import get_country_code
 			code = get_country_code(country)
+			print('cpuntry_code=', code)
+			print('fiscal_number=', number)
 			if number.startswith(code):
 				try:
 					request = vies.Vies().request(number)
+					print(repr(request))
+					print(request) 
+
 					if request.valid:
 						register = db.ViesRequest(request.requestDate, request.valid, number)
 						db.session.add(register)

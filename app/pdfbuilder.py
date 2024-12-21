@@ -829,12 +829,12 @@ class PDF(FPDF):
 
             address = self.document.shipping_address
             for e in filter(string_truthy, [
-                partner.fiscal_name,
+                # partner.fiscal_name,  # requested to remove 
                 address.line1,
                 address.line2,
                 ' '.join([address.zipcode, address.city, address.state]),
                 address.country,
-                'VAT Nº: ' + partner.fiscal_number
+               #  'VAT Nº: ' + partner.fiscal_number # requested to remove
             ]):
                 y += 4
                 self.set_xy(x, y)
