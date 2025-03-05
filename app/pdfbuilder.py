@@ -749,7 +749,7 @@ class PDF(FPDF):
         self.image(get_logo_bank_1(), w=21.7, h=4.91)
         self.x = BANK2_LOGO_X_POSITION
         self.y = self.last_condition_y_position + BANK_LOGO_Y_INCREMENT
-        self.image(get_logo_bank_2(), w=20.42, h=4.91)
+        # self.image(get_logo_bank_2(), w=20.42, h=4.91)
 
         y_absolute_position = self.y - -3
 
@@ -770,15 +770,16 @@ class PDF(FPDF):
 
         self.y = self.last_condition_y_position + BANK_TEXT_Y_CONDITION_RELATIVE_INCREMENT
 
-        for t in [
-            'Bank: Wise',
-            'Currency: USD',
-            'Account Nº: 8310622371',
-            'SWIFT/BIC: CMFGUS33'
-        ]:
-            self.x = BANK2_TEXT_X_POSITION
-            self.cell(0, txt=t)
-            self.y += BANK_TEXT_Y_INCREMENT
+        
+        # for t in [
+        #     'Bank: Wise',
+        #     'Currency: USD',
+        #     'Account Nº: 8310622371',
+        #     'SWIFT/BIC: CMFGUS33'
+        # ]:
+        #     self.x = BANK2_TEXT_X_POSITION
+        #     self.cell(0, txt=t)
+        #     self.y += BANK_TEXT_Y_INCREMENT
 
     def print_footer(self):
 
