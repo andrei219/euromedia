@@ -22,7 +22,7 @@ from collections import defaultdict
 d = defaultdict(list)
 
 d['euromedia'].append(r'.\app\icons\docus_logo.png')
-d['euromedia'].append(r'.\app\icons\sabadell_logo.png')
+d['euromedia'].append(r'.\app\icons\caixa.png')
 d['euromedia'].append(r'.\app\icons\wise_logo.png')
 
 d['capital'].append(r'.\app\icons\docus_logo.png')
@@ -759,10 +759,10 @@ class PDF(FPDF):
 
         self.set_font('Arial', size=7, style='b')
         for t in [
-            'Bank: Banco de Sabadell, S.A.',
+            'Bank: CaixaBank, S.A.',
             'Currency: EUR',
-            'IBAN: ES58 0081 1296 7700 0132 0242',
-            'SWIFT/BIC: BSABESBBXXX'
+            'IBAN: ES72 2100 4302 3322 0017 9452',
+            'SWIFT/BIC: CAIXESBBXXX'
         ]:
             self.x = BANK1_TEXT_X_POSITION
             self.cell(0, txt=t)
