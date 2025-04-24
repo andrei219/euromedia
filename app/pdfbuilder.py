@@ -785,21 +785,25 @@ class PDF(FPDF):
 
         if self.y + self.totals_y_increment < self.page_break_trigger:
             self.print_totals()
+            print('1')
             if self.y + self.totals_additionals_y_increment < self.page_break_trigger:
                 self.print_additional()
-
+                print('2')
                 if self.y + self.terms_y_increment < self.page_break_trigger:
                     self.print_terms()
-
+                    print('3')
                 else:
+                    print('4')
                     self.add_page(print_lines_header=False)
                     self.print_terms()
             else:
+                print('5')
                 self.add_page(print_lines_header=False)
                 self.print_additional()
                 self.print_terms()
 
         else:
+            print('6')
             self.add_page(print_lines_header=False)
             self.print_totals(with_line=False)
             self.print_additional()
