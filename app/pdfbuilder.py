@@ -583,6 +583,10 @@ class PDF(FPDF):
     def conditions_y_increment(self):
         return CONDITIONS_Y_INCREMENT * len(get_conditions()) + 10
 
+    @property
+    def solunion_y_increment(self):
+        return 45
+
     def print_totals(self, with_line=True):
 
         if with_line:
@@ -638,6 +642,8 @@ class PDF(FPDF):
         
         self.y += ADDITIONAL_TEXT_TERM_INCREMENT
 
+
+    def print_solunion(self):
         if hasattr(self.document, 'solunion_date') \
             and hasattr(self.document, 'solunion') \
             and self.document.solunion > 0:
@@ -652,6 +658,7 @@ class PDF(FPDF):
             self.y -= 12 
             self.cell(9, txt=f"THE DUE DATE OF THIS INVOICE IS: {self.document.solunion_date}"); 
 
+        self.y += self.solunion_y_increment
 
     def print_vertical_line(self):
 
@@ -785,28 +792,44 @@ class PDF(FPDF):
 
         if self.y + self.totals_y_increment < self.page_break_trigger:
             self.print_totals()
+
             print('1')
+
             if self.y + self.totals_additionals_y_increment < self.page_break_trigger:
                 self.print_additional()
                 print('2')
-                if self.y + self.terms_y_increment < self.page_break_trigger:
-                    self.print_terms()
+
+
+
+                if self.y + self.solunion_y_increment < self.page_break_trigger:
+                    self.print_solunion()
                     print('3')
+                    if self.y + self.terms_y_increment < self.page_break_trigger:
+                        print('4')
+                        self.print_terms()
+                    else:
+                        print('5')
+                        self.add_page(print_lines_header=False)
+                        self.print_terms()
+                    
                 else:
-                    print('4')
+                    print('6')
                     self.add_page(print_lines_header=False)
+                    self.print_solunion()
                     self.print_terms()
             else:
-                print('5')
+                print('7') 
                 self.add_page(print_lines_header=False)
                 self.print_additional()
+                self.print_solunion
                 self.print_terms()
 
         else:
-            print('6')
+            print('8')
             self.add_page(print_lines_header=False)
             self.print_totals(with_line=False)
             self.print_additional()
+            self.print_solunion()
             self.print_terms()
 
     def print_buyer(self):
