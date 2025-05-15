@@ -649,7 +649,7 @@ class PDF(FPDF):
             and self.document.solunion > 0:
             
             self.x = LEFT_MARGIN + 4 
-            self.image(r".\app\icons\solunion_logo.jpg", w=60, h=25)
+            self.image(r".\app\icons\cclogo.jpg", w=40, h=40)
 
             self.x = 80 
             self.y -= 10
@@ -793,39 +793,31 @@ class PDF(FPDF):
         if self.y + self.totals_y_increment < self.page_break_trigger:
             self.print_totals()
 
-            print('1')
 
             if self.y + self.totals_additionals_y_increment < self.page_break_trigger:
                 self.print_additional()
-                print('2')
 
 
 
                 if self.y + self.solunion_y_increment < self.page_break_trigger:
                     self.print_solunion()
-                    print('3')
                     if self.y + self.terms_y_increment < self.page_break_trigger:
-                        print('4')
                         self.print_terms()
                     else:
-                        print('5')
                         self.add_page(print_lines_header=False)
                         self.print_terms()
                     
                 else:
-                    print('6')
                     self.add_page(print_lines_header=False)
                     self.print_solunion()
                     self.print_terms()
             else:
-                print('7') 
                 self.add_page(print_lines_header=False)
                 self.print_additional()
                 self.print_solunion
                 self.print_terms()
 
         else:
-            print('8')
             self.add_page(print_lines_header=False)
             self.print_totals(with_line=False)
             self.print_additional()
