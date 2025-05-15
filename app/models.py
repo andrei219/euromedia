@@ -7828,11 +7828,16 @@ def extract_doc_repr(invoice_text):
 
 
 def add_expense(doc_repr, amount):
+	from datetime import datetime 
+	year = datetime.now().year
 	type, number = doc_repr.split('-')
 	type, number = int(type), int(number)
 	
 	sale_proformas = db.session.query(db.SaleProforma).join(db.SaleInvoice) \
-		.where(db.SaleInvoice.type == type, db.SaleInvoice.number == number).all()
+		.where(
+			db.SaleInvoice.type == type, 
+			db.SaleInvoice.number == number, 
+			func.year(db.SaleInvoice.date) == year).all()
 	
 	if len(sale_proformas) != 1:
 		raise ValueError('Multiple Proformas. Dont know where to put the expenses')
@@ -7852,18 +7857,23 @@ def resolve_dhl_expenses(file_path):
 	with open(file_path, 'r') as fp:
 		reader = csv.DictReader(fp)
 		for dict_row in reader:
-			company = dict_row['Senders Name']
-			if company.lower().find('euromedia') != -1:
-				invoice_text = dict_row['Shipment Reference 1']
-				try:
-					doc_repr = extract_doc_repr(invoice_text)
-				except AttributeError:
-					unresolved.append(invoice_text)
-				else:
-					amount = dict_row['Total amount (excl. VAT)']
-					add_expense(doc_repr, amount)
-					resolved.append(doc_repr)
-		
+			try:
+
+				company = dict_row['Senders Name']
+				if company.lower().find('euromedia') != -1:
+					invoice_text = dict_row['Shipment Reference 1']
+					try:
+						doc_repr = extract_doc_repr(invoice_text)
+					except AttributeError:
+						unresolved.append(invoice_text)
+					else:
+						amount = dict_row['Total amount (excl. VAT)']
+						add_expense(doc_repr, amount)
+						resolved.append(doc_repr)
+			except KeyError as ex:
+				raise ValueError('No reconozco esta estructura de archivo, notificar a Andrei si quieres que funcione.')
+
+
 		return resolved, unresolved
 
 
