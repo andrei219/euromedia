@@ -7851,6 +7851,7 @@ def add_expense(doc_repr, amount):
 
 
 def resolve_dhl_expenses(file_path):
+	exc_mss = "No reconozco esta estructura de archivo, notificar a Andrei si quieres que funcione."
 	resolved = []
 	unresolved = []
 	
@@ -7858,21 +7859,27 @@ def resolve_dhl_expenses(file_path):
 		reader = csv.DictReader(fp)
 		for dict_row in reader:
 			try:
+				company = dict_row.get('Senders Name', dict_row.get('Detalles Remitente'))
+				if not company:
+					raise ValueError(exc_mss)
 
-				company = dict_row['Senders Name']
 				if company.lower().find('euromedia') != -1:
-					invoice_text = dict_row['Shipment Reference 1']
+					invoice_text = dict_row.get('Shipment Reference 1', dict_row.get('Referencia'))
+					if not invoice_text:
+						raise ValueError(exc_mss)
+					
 					try:
 						doc_repr = extract_doc_repr(invoice_text)
+
 					except AttributeError:
 						unresolved.append(invoice_text)
 					else:
-						amount = dict_row['Total amount (excl. VAT)']
+						amount = dict_row.get('Total amount (excl. VAT)', dict_row.get('Importe Bruto'))
 						add_expense(doc_repr, amount)
 						resolved.append(doc_repr)
 			except KeyError as ex:
-				raise ValueError('No reconozco esta estructura de archivo, notificar a Andrei si quieres que funcione.')
 
+				raise ValueError(exc_mss)
 
 		return resolved, unresolved
 
