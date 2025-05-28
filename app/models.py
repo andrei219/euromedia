@@ -7570,6 +7570,8 @@ def do_sale_price(imei):
 		)
 
 
+import typing as tp 
+
 class HarvestModel(QtCore.QAbstractListModel):
 	
 	def __init__(self):
@@ -7781,7 +7783,7 @@ class OutputModel(BaseTable, QtCore.QAbstractTableModel):
 		return self
 	
 	@classmethod
-	def by_document(cls, type_dict, doc_numbers):
+	def by_document(cls, type_dict, doc_numbers: tp.Optional[list], partner_id=tp.Optional[int]):
 		self = cls()
 		predicates = []
 		
@@ -7794,10 +7796,12 @@ class OutputModel(BaseTable, QtCore.QAbstractTableModel):
 		if type_dict['PurchaseProforma']:
 			cls = db.PurchaseProforma
 			query = purchases_query
+
 		
 		elif type_dict['SaleProforma']:
 			cls = db.SaleProforma
 			query = sales_query
+			
 		
 		elif type_dict['SaleInvoice']:
 			query = sales_query.join(db.SaleInvoice)
@@ -7807,10 +7811,16 @@ class OutputModel(BaseTable, QtCore.QAbstractTableModel):
 			query = purchases_query.join(db.PurchaseInvoice)
 			cls = db.PurchaseInvoice
 		
-		for type, number in zipped(doc_numbers):
-			predicates.append(and_(cls.type == type, cls.number == number))
+		# for type, number in zipped(doc_numbers):
+		# 	predicates.append(and_(cls.type == type, cls.number == number))
 		
-		query = query.where(or_(*predicates))
+		if doc_numbers:
+			query = query.where(or_(*[and_(cls.type == type, cls.number == number) for type, number in zipped(doc_numbers)]))
+
+		# extend the query with partners: 
+		if partner_id and (type_dict['PurchaseProforma'] or type_dict['SaleProforma']):
+			query = query.where(cls.partner_id == partner_id)
+
 		append_registers(self, query=query)
 		
 		return self

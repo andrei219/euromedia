@@ -6,6 +6,7 @@ from ui_output import Ui_Dialog
 
 from models import OutputModel
 
+from typing import Optional
 
 class Form(Ui_Dialog, QDialog):
 
@@ -29,9 +30,10 @@ class Form(Ui_Dialog, QDialog):
         return self
 
     @classmethod
-    def by_document(cls, parent, type_dict, doc_numbers):
+    def by_document(cls, parent, type_dict, 
+    doc_numbers: Optional[list], partner_id: Optional[int]): 
         self = cls(parent)
-        self.model = OutputModel.by_document(type_dict, doc_numbers)
+        self.model = OutputModel.by_document(type_dict, doc_numbers, partner_id)
         self.view.setModel(self.model)
         return self
 

@@ -7,7 +7,7 @@ from PyQt5.QtCore import Qt
 
 
 from models import HarvestModel
-from utils import parse_date, agent_id_map
+from utils import parse_date, agent_id_map, partner_id_map, setCompleter
 import re
 
 from output import Form as OutputForm
@@ -40,6 +40,8 @@ class Form(Ui_Form, QDialog):
         completer.setCaseSensitivity(Qt.CaseInsensitive)
         self.agent.setCompleter(completer)
 
+        setCompleter(self.partner, partner_id_map.keys())
+
     def by_doc_toggled(self, enable):
         self.by_serial.setEnabled(not enable)
         self.by_period.setEnabled(not enable)
@@ -62,17 +64,19 @@ class Form(Ui_Form, QDialog):
                 'PurchaseInvoice': self.purchase_invoice.isChecked()
             }
 
-            doc_numbers = self.document_model.elements
+            doc_numbers = self.document_model.elements or [] # force emptynesss in any casse
 
             if not any(type_dict.values()):
                 QMessageBox.critical(self, 'Error', 'Choose document type')
                 return
 
-            if len(doc_numbers) == 0:
-                QMessageBox.critical(self, 'Error', 'Enter document numbers')
-                return
+            # disable the check 
+            # if len(doc_numbers) == 0:
+            #     QMessageBox.critical(self, 'Error', 'Enter document numbers')
+            #     return
 
-            OutputForm.by_document(self, type_dict, doc_numbers).exec_()
+            OutputForm.by_document(self, type_dict, doc_numbers, 
+                partner_id=partner_id_map.get(self.partner.text())).exec_()
 
         elif self.by_period.isChecked():
             try:
