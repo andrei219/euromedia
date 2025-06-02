@@ -1196,29 +1196,56 @@ class MainGui(Ui_MainGui, QMainWindow):
 
             QMessageBox.information(self, 'Success', 'Document Exported successfully')
 
+    # def invoices_sales_export_excel_handler(self):
+    #     invoice = self.get_sales_invoice()
+    #     from models import export_invoices_sales_excel
+    #     from utils import get_file_path
+    #     save_file_path = get_file_path(self)
+    #     if not save_file_path:
+    #         return
+
+    #     try:
+    #         export_invoices_sales_excel(invoice, save_file_path)
+    #     except:
+    #         QMessageBox.critical(self, 'Error', 'Error exporting data')
+    #         raise
+    #     else:
+    #         QMessageBox.information(self, 'Success', 'Data exported successfully')
+
+
     def invoices_sales_export_excel_handler(self):
-        invoice = self.get_sales_invoice()
-        from models import export_invoices_sales_excel
-        from utils import get_file_path
-        save_file_path = get_file_path(self)
-        if not save_file_path:
+        invoices = self.get_sale_invoices(
+            self.invoices_sales_model,
+            self.invoices_sales_view
+        )
+
+        from utils import get_directory
+        directory = get_directory(self)
+        if not directory:
+            print('Abort because no directory selected')
             return
 
-        # Code like this allows for future modification
-        # The current flow is to raise the exception
-        # and inspect what caused it on the users
-        # powershell. If this were commercial ,
-        # exception handling would dump to a logging file
-        # Then you would inspect that file
-        # in order to control this exceptional situation and
-        # improve the application.
-        try:
-            export_invoices_sales_excel(invoice, save_file_path)
-        except:
-            QMessageBox.critical(self, 'Error', 'Error exporting data')
-            raise
-        else:
-            QMessageBox.information(self, 'Success', 'Data exported successfully')
+        if not invoices:
+            print('Abort because no invoices selected')
+            return
+
+        from models import export_invoices_sales_excel
+        
+        for invoice in invoices:
+            print("Exporting:", invoice.doc_repr)
+
+            filepath = os.path.join(directory, invoice.doc_repr + '.xlsx')
+
+            try:
+                export_invoices_sales_excel(invoice, filepath)
+            except:
+                QMessageBox.critical(self, 'Error', f'Error exporting data for invoice: {invoice.doc_repr}')
+                raise
+        
+        QMessageBox.information(self, 'Success', 'Invoices exported successfully')
+
+        
+
 
     def invoices_sales_import_handler(self):
         from utils import get_open_file_path
@@ -1287,6 +1314,10 @@ class MainGui(Ui_MainGui, QMainWindow):
         rows = {index.row() for index in view.selectedIndexes()}
         if len(rows) == 1:
             return model[rows.pop()]
+
+    def get_sale_invoices(self, model, view):
+        rows = {index.row() for index in view.selectedIndexes()}
+        return [model[row] for row in rows]
 
     # WAREHOUSE RECEPTION HANDLERS:
 

@@ -1241,6 +1241,10 @@ class SaleInvoice(Base):
         return f"{self.type}-{self.number}"
 
     @property
+    def doc_repr(self):
+        return f"{self.type}-{str(self.number).zfill(6)}"	
+
+    @property
     def self_referential_relationship(self):
         if not self.is_credit_note:
             return ', '.join(f"{o.credit_note.simplified_doc_repr}:{o.fraction}" \
