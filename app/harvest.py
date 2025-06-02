@@ -75,8 +75,21 @@ class Form(Ui_Form, QDialog):
             #     QMessageBox.critical(self, 'Error', 'Enter document numbers')
             #     return
 
+            try:
+                year = int(self.year.text())
+                
+                if not year in range(2000, 2030):
+                    QMessageBox.critical(self, 'Error', 'Year must be between 2000 and 2030')
+                    return 
+                    
+            except ValueError:
+                QMessageBox.critical(self, 'Error', 'Invalid year')
+                return
+
+
             OutputForm.by_document(self, type_dict, doc_numbers, 
-                partner_id=partner_id_map.get(self.partner.text())).exec_()
+                partner_id=partner_id_map.get(self.partner.text()), 
+                year=year).exec_()
 
         elif self.by_period.isChecked():
             try:

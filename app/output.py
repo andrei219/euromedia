@@ -31,9 +31,9 @@ class Form(Ui_Dialog, QDialog):
 
     @classmethod
     def by_document(cls, parent, type_dict, 
-    doc_numbers: Optional[list], partner_id: Optional[int]): 
+    doc_numbers: Optional[list], partner_id: Optional[int], year:Optional[int]=None): 
         self = cls(parent)
-        self.model = OutputModel.by_document(type_dict, doc_numbers, partner_id)
+        self.model = OutputModel.by_document(type_dict, doc_numbers, partner_id, year)
         self.view.setModel(self.model)
         return self
 

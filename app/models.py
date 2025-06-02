@@ -7783,7 +7783,9 @@ class OutputModel(BaseTable, QtCore.QAbstractTableModel):
 		return self
 	
 	@classmethod
-	def by_document(cls, type_dict, doc_numbers: tp.Optional[list], partner_id=tp.Optional[int]):
+	def by_document(cls, type_dict, doc_numbers: tp.Optional[list], partner_id=tp.Optional[int], 
+		year:tp.Optional[int]=None):
+
 		self = cls()
 		predicates = []
 		
@@ -7797,19 +7799,33 @@ class OutputModel(BaseTable, QtCore.QAbstractTableModel):
 			cls = db.PurchaseProforma
 			query = purchases_query
 
+			# Extend with partner:
+			if partner_id:
+				query = query.where(db.PurchaseProforma.partner_id == partner_id)
 		
 		elif type_dict['SaleProforma']:
 			cls = db.SaleProforma
 			query = sales_query
 			
+			# Extend with partner:
+			if partner_id:
+				query = query.where(db.SaleProforma.partner_id == partner_id)
 		
 		elif type_dict['SaleInvoice']:
 			query = sales_query.join(db.SaleInvoice)
 			cls = db.SaleInvoice
+	
+			# Extend with partner: 
+			if partner_id:
+				query = query.where(db.SaleProforma.partner_id == partner_id)
 		
 		elif type_dict['PurchaseInvoice']:
 			query = purchases_query.join(db.PurchaseInvoice)
 			cls = db.PurchaseInvoice
+			
+			# Extend with partner:
+			if partner_id:
+				query = query.where(db.PurchaseProforma.partner_id == partner_id)
 		
 		# for type, number in zipped(doc_numbers):
 		# 	predicates.append(and_(cls.type == type, cls.number == number))
@@ -7817,11 +7833,15 @@ class OutputModel(BaseTable, QtCore.QAbstractTableModel):
 		if doc_numbers:
 			query = query.where(or_(*[and_(cls.type == type, cls.number == number) for type, number in zipped(doc_numbers)]))
 
-		# extend the query with partners: 
-		if partner_id and (type_dict['PurchaseProforma'] or type_dict['SaleProforma']):
-			query = query.where(cls.partner_id == partner_id)
+		if year: 
+			query = query.where(func.year(cls.date) == year)
+
+		print("Query Built:", "-" * 50)
+		print(query)
+		print("Query Built:","-" * 50)
 
 		append_registers(self, query=query)
+
 		
 		return self
 	
