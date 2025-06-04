@@ -987,13 +987,19 @@ class MainGui(Ui_MainGui, QMainWindow):
         try:
 
             invoice = model.associateInvoice(rows)
-
-        except ValueError as ex:
-            QMessageBox.critical(self, 'Error', str(ex))
+        
         except (api.ViesValidationError, api.ViesError, api.ViesHTTPError) as ex:
             if QMessageBox.question(self, 'Error validating IVA.',
                                     'I could not validate IVA number. Build invoice '
                                    'anyway?', QMessageBox.Yes | QMessageBox.No) == QMessageBox.Yes:
+                model.associateInvoice(rows, bypass_vies=True)
+
+        except ValueError as ex:
+           
+            if QMessageBox.question(self, 'VAT Number Invalid', 
+                'VAT Number is invalid.  Build invoice anyway?', 
+                QMessageBox.Yes | QMessageBox.No) == QMessageBox.Yes:
+
                 model.associateInvoice(rows, bypass_vies=True)
 
         else:

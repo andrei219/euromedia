@@ -2124,20 +2124,20 @@ class SaleProformaModel(BaseTable, QtCore.QAbstractTableModel):
 			
 			from utils import get_country_code
 			code = get_country_code(country)
-			print('cpuntry_code=', code)
+			print('country_code=', code)
 			print('fiscal_number=', number)
 			if number.startswith(code):
 				try:
 					request = vies.Vies().request(number)
-					print(repr(request))
 					print(request) 
-
-					if request.valid:
-						register = db.ViesRequest(request.requestDate, request.valid, number)
-						db.session.add(register)
+					
+					db.session.add(db.ViesRequest(request.requestDate, request.valid, number))
+					
+					if not request.valid:
+						raise ValueError
 				
-				except (vies.ViesValidationError, vies.ViesError, vies.ViesHTTPError):
-					raise
+				except (vies.ViesValidationError, vies.ViesError, vies.ViesHTTPError, ValueError) as ex:
+					raise 
 		
 		next_num = get_next_num(db.SaleInvoice, any_proforma.type)
 		
