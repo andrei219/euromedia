@@ -559,7 +559,14 @@ class PDF(FPDF):
 
         self.print_buyer()
         self.print_supplier()
-        self.print_delivery_address()
+
+        if not (isinstance(self.document, SaleInvoice) and \
+            self.document.is_credit_note
+        ):
+
+            self.print_delivery_address()
+       
+       
         self.print_table()
         self.print_desc_header(print_lines_header=print_lines_header)
         # After printing header, restore y 
