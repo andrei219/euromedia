@@ -22,7 +22,7 @@ from collections import defaultdict
 d = defaultdict(list)
 
 d['euromedia'].append(r'.\app\icons\docus_logo.png')
-d['euromedia'].append(r'.\app\icons\caixa.png')
+d['euromedia'].append(r'.\app\icons\ebury.jpg')
 d['euromedia'].append(r'.\app\icons\wise_logo.png')
 
 d['capital'].append(r'.\app\icons\docus_logo.png')
@@ -760,7 +760,7 @@ class PDF(FPDF):
     def print_bank(self):
         self.x = BANK1_LOGO_X_POSITION
         self.y = self.last_condition_y_position + BANK_LOGO_Y_INCREMENT
-        self.image(get_logo_bank_1(), w=21.7, h=4.91)
+        self.image(get_logo_bank_1(), w=17.7, h=4.91)
         self.x = BANK2_LOGO_X_POSITION
         self.y = self.last_condition_y_position + BANK_LOGO_Y_INCREMENT
         # self.image(get_logo_bank_2(), w=20.42, h=4.91)
@@ -773,10 +773,10 @@ class PDF(FPDF):
 
         self.set_font('Arial', size=7, style='b')
         for t in [
-            'Bank: CaixaBank, S.A.',
+            'Bank: Ebury Partners Belgium NV',
             'Currency: EUR',
-            'IBAN: ES72 2100 4302 3322 0017 9452',
-            'SWIFT/BIC: CAIXESBBXXX'
+            'IBAN: ES97 6889 0001 7011 7705 7273',
+            'SWIFT/BIC: EBPBESM2'
         ]:
             self.x = BANK1_TEXT_X_POSITION
             self.cell(0, txt=t)
