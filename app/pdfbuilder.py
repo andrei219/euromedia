@@ -778,7 +778,7 @@ class PDF(FPDF):
             'IBAN: ES97 6889 0001 7011 7705 7273',
             'SWIFT/BIC: EBPBESM2'
         ]:
-            self.x = BANK1_TEXT_X_POSITION
+            self.x = BANK1_TEXT_X_POSITION_
             self.cell(0, txt=t)
             self.y += BANK_TEXT_Y_INCREMENT
 
