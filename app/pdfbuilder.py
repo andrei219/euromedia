@@ -274,8 +274,15 @@ class CreditLinePDFRepr(LinePDFRepr):
     def __init__(self, line):
         super().__init__()
         self.description = utils.description_id_map.inverse.get(line.item_id)
-        self.description += f', {line.public_condition or line.condition} condt.'
-        self.description += f', {line.spec} spec.'
+
+        # La ñapa total despues de 10 años de experiencia jaajajajaja 
+        # break the fucking rules betch 
+
+
+        if not 'Portes' in self.description:
+            self.description += f', {line.public_condition or line.condition} condt.'
+            self.description += f', {line.spec} spec.'
+        
 
         self.total = '{:,.2f}'.format(round(line.price * line.quantity * (1 + line.tax / 100), 2))
         self.price = '{:,.2f}'.format(round(line.price, 2))
