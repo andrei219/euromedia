@@ -31,7 +31,7 @@ if parent_dir not in sys.path:
     sys.path.insert(0, parent_dir)
 
 
-from app.db import session 
+from db import session 
 
 
 def norm_filename(name: str) -> str:

@@ -72,6 +72,7 @@ PREFIXES = [
 ]
 
 ACTIONS = [
+    'fasthar',
     'clone', 
     'apply',
     'new',
@@ -1580,6 +1581,17 @@ class MainGui(Ui_MainGui, QMainWindow):
         self.f.show()
 
     # TOOLS HANDLERS:
+
+    def tools_fasthar_handler(self):
+
+        dir = get_directory(self)
+        if not dir:
+            QMessageBox.critical(self, 'Error', 'No directory selected')
+            return 
+    
+        from harv.main import main; main(infix=dir) 
+
+    
     def tools_trace_handler(self):
 
         from trace_form import Form

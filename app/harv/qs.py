@@ -2,7 +2,11 @@
 
 partners = "select distinct id, fiscal_name from partners"
 
-
+partners = """
+    select distinct p.id, p.fiscal_name
+    from partners p
+    inner join sale_proformas sp on p.id = sp.partner_id
+"""
 salesq ="""
 
  select 
