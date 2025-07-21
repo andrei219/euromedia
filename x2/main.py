@@ -1,54 +1,3 @@
-"""
-    Target:
-        start with sales
-        join wit purchase 
-         
-    tables of interest:
-        F_FAC - facturas emitidas 
-        F_FRE - facturas recibidas
-        F_LFA - lineas facturas emitidas
-        F_LFR - lineas facturas recibidas
-       
-        related to series 
-        F_SLC [E] numeros de serie 
-        F_SLF [E] numeros de serie
-        F_SLR [E] numeros de serie - sospecho recibidas 
-
-        
-        F_FRE <- F_LFR <- F_SLR
-        F_FAC <- F_LFA <- F_SLF
-
-
-        We need to join data sets via the serie.
-        the datasets are sales, and purchases. 
-        
-        sales can be found in the relations:
-            F_FAC <- F_LFA <- F_SLF
-        purchases can be found in the relations:
-            F_FRE <- F_LFR <- F_SLR
-
-        Relations with attributes:
-            F_SLF (TIPSLF, CODSLF, POSSLF, NSESLF)
-            F_LFA (TIPLFA, CODLFA,
-"""
-
-    
-"""
-    FINAL HEADER:
-        FACTURA, 
-        FECHA 
-        CIENTE
-        NIF 
-        SERIE
-        DEWSCRIPTION
-        CANTIDAD
-        PRECIO
-        PROVEEDOR
-        NIF
-        FACTURA
-        PRECIO COMPRA 
-
-"""
 
 import typing 
 
@@ -202,7 +151,8 @@ def build_blocks(tree: dict[str, dict[str, set[tuple]]]):
 
 @functools.lru_cache
 def get_purchase():
-    return list(db.Connection(year=year).execute(db.purchq))
+    return session.execute(qs.purchq)
+
 
 @functools.lru_cache
 def get_purchases(prevyears:tuple):
@@ -215,7 +165,7 @@ def get_sales(client_id:int):
 
 def gen_rows(prevyears:tuple, year:int, client_id:int):
    
-    sales: list = get_sales(client_id, year)
+    sales: list = get_sales(client_id)
     prevpur: list[list] = get_purchases(prevyears)
 
     # Build tree for fast access
@@ -268,7 +218,6 @@ def main():
     infix = sys.argv[2]
 
     for cid, cname in read_clients(current):
-        # print(prev, current, cid, cname)
 
         environ.write_report(
             gen_rows(prev, current, cid), 
@@ -279,9 +228,12 @@ def main():
 
 
 if __name__ == "__main__":
-    for cid, cname in read_clients():
-        print(f"Processing client ........... {cname} ({cid})")
 
 
+    # for cid, cname in crs:
+    #     print(f"Processing client ........... {cname} ({cid})")
+
+    for id, cname in crs:
+        print(f"Processing client: {cname} ({id})")
 
 

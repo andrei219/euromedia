@@ -83,7 +83,8 @@ salesq ="""
         IFNULL(i.color, '')
     ) as ARTICULO,
     '1' as CANTIDAD,
-    spl.price as PRECIO_VENTA
+    spl.price as PRECIO_VENTA, 
+    `prt`.id as CLIENTE_ID
     from expedition_series es
     inner join expedition_lines el 
         on es.line_id = el.id
@@ -120,6 +121,7 @@ salesq ="""
         on prt.id = sp.partner_id
     inner join sale_invoices si 
         on si.id = sp.sale_invoice_id
+    where `prt`.`id` = {partner_id}
 union 
 select 
     cnl.`sn` AS SERIE,
@@ -137,8 +139,8 @@ select
         IFNULL(i.color, '')
     ) as ARTICULO,
     '1' as CANTIDAD,
-    cnl.price as PRECIO_VENTA
-
+    cnl.price as PRECIO_VENTA,
+    `prt`.id as CLIENTE_ID
 from `credit_note_lines` cnl 
 inner join `sale_invoices` si
 
@@ -149,9 +151,52 @@ inner join `partners` prt
     on `prt`.`id` = `sp`.`partner_id`
 inner join `items` i
     on `cnl`.`item_id` = `i`.`id`
+where `prt`.id = {partner_id};
 
 """
 
 purchq = """
+SELECT 
+    rs.`serie` 
+    ,pi.`type` 
+    ,pi.`number` 
+    ,pi.`date` 
+    ,prt.`fiscal_name` 
+    ,prt.`fiscal_number`
+    ,COALESCE(
+        ppp.`description`,
+        CONCAT_WS(' ',
+            IFNULL(i.mpn, ''),
+            IFNULL(i.manufacturer, ''),
+            IFNULL(i.category, ''),
+            IFNULL(i.model, ''),
+            IF(i.capacity IS NOT NULL, CONCAT(i.capacity, ' GB'), ''),
+            IFNULL(i.color, '')
+        )
+    )
+    , 1 AS `quantity`
+    ,ppp.`price`
+FROM `reception_series` rs 
+inner join `reception_lines` rl 
+    on rs.line_id = rl.id 
+inner join `receptions` r 
+    on rl.reception_id = r.id
+inner join `purchase_proformas` pp
+    on r.`proforma_id` = pp.id
+inner join `purchase_proforma_lines` ppp
+    on 
+        ppp.proforma_id = pp.id and 
+        COALESCE(ppp.item_id, -1) = COALESCE(rl.item_id, -1) and
+        COALESCE(ppp.description, -1) = COALESCE(rl.description, -1) and
+        ppp.condition = rl.condition and
+        ppp.spec = rl.spec
+left join items i 
+    on ppp.item_id = i.id 
+
+inner join `purchase_invoices` pi 
+    on pp.`invoice_id` = pi.id
+inner join `partners` prt 
+    on pp.partner_id = prt.id
+
 """
 
