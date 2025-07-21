@@ -53,7 +53,7 @@
 import typing 
 
 from openpyxl import Workbook, load_workbook
-import db 
+import qs 
 import re 
 import itertools 
 
@@ -72,6 +72,18 @@ _illegal_chars_re = re.compile(r"[\x00-\x08\x0B\x0C\x0E-\x1F]")
 
 
 _illegal_windows_chars = re.compile(r'[<>:"/\\|?*\x00-\x1F]')
+
+
+# MODIFY SYS PATH TO FIND THE DB SESSION HANDLE 
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(current_dir)
+
+if parent_dir not in sys.path:
+    sys.path.insert(0, parent_dir)
+
+
+from app.db import session 
+
 
 def norm_filename(name: str) -> str:
     """Sanitize string for safe use as a Windows filename."""
@@ -189,7 +201,7 @@ def build_blocks(tree: dict[str, dict[str, set[tuple]]]):
 # 9, 10 combinados 
 
 @functools.lru_cache
-def get_purchase(year:int):
+def get_purchase():
     return list(db.Connection(year=year).execute(db.purchq))
 
 @functools.lru_cache
@@ -198,7 +210,7 @@ def get_purchases(prevyears:tuple):
 
 
 @functools.lru_cache
-def get_sales(client_id:int, year:int):
+def get_sales(client_id:int):
     return db.Connection(year=year).execute(db.salesq.format(client=client_id))
 
 def gen_rows(prevyears:tuple, year:int, client_id:int):
@@ -247,30 +259,28 @@ class Environ:
         return ENV[self.env][name]
 
 
-def read_clients(year): 
-    cnx = db.Connection(year=year)
-    return cnx.execute(db.clients)
+def read_clients(): 
+    return session.execute(qs.clients)
 
 
 def main():
     environ =  Environ(env=sys.argv[1]) 
     infix = sys.argv[2]
 
-    for prev, current in precur(environ.years):
-        # print("Reporting for years: prev=", prev, "current=", current)
-        for cid, cname in read_clients(current):
-            # print(prev, current, cid, cname)
+    for cid, cname in read_clients(current):
+        # print(prev, current, cid, cname)
 
-            environ.write_report(
-                gen_rows(prev, current, cid), 
-                year=current, 
-                client=cname, 
-                infix=infix
-            )
+        environ.write_report(
+            gen_rows(prev, current, cid), 
+            year=current, 
+            client=cname, 
+            infix=infix
+        )
 
 
 if __name__ == "__main__":
-    main() 
+    for cid, cname in read_clients():
+        print(f"Processing client ........... {cname} ({cid})")
 
 
 
