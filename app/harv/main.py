@@ -67,25 +67,31 @@ def build_blocks(tree: dict[str, dict[str, set[tuple]]]):
 
             yield p + s
 
-@functools.lru_cache
-def get_purchases():
-    return list(session.execute(qs.purchq))
+
 
 @functools.lru_cache
 def get_sales(partner_id: int):
     return list(session.execute(qs.salesq.format(partner_id=partner_id)))
 
+@functools.lru_cache(maxsize=1)
+def get_purchases() -> dict[str, set]:
+    tree: dict = collections.defaultdict(set) 
+    for p in session.execute(qs.purchq):
+        tree[norm(p[0])].add(p)
+    return tree
+
 def gen_rows(partner_id: int):
-    sales = list(map(tuple, get_sales(partner_id)))
-    purchases = list(map(tuple, get_purchases()))
+    purchases:dict = get_purchases()
 
     tree = collections.defaultdict(lambda: collections.defaultdict(set))
-    for p in purchases:
-        tree[norm(p[0])]['purchases'].add(p)
-    for s in sales:
-        tree[norm(s[0])]['sales'].add(s)
+    
+    for s in get_sales(partner_id):
+        serie = norm(s[0])
+        tree[serie]['sales'].add(s)
+        tree[serie]['purchases'] = purchases[serie]
 
     yield from build_blocks(tree)
+
 
 def write_report(rows, partner, infix):
 
@@ -97,7 +103,7 @@ def write_report(rows, partner, infix):
     ws.append(purchase_headers + sale_headers)
 
     loop_run = False 
-    for row in sorted(filter(lambda r: r[9] and r[10], rows), key=lambda r: (r[9], r[10])):
+    for row in sorted(filter(lambda r: r[9] and r[10], rows), key=lambda r: r[9]):
         ws.append([clean_excel_str(cell) for cell in row])
         loop_run = True
 

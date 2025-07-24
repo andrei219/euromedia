@@ -1583,57 +1583,11 @@ class MainGui(Ui_MainGui, QMainWindow):
     # TOOLS HANDLERS:
 
     def tools_fasthar_handler(self):
-
-
-        # dir = get_directory(self)
-        # if not dir:
-        #     QMessageBox.critical(self, 'Error', 'No directory selected')
-        #     return 
-
-        # from app.db import session
-
-        session.execute(
-            """
-            drop view if EXISTS purchase_payments_rate;
-                drop view if EXISTS sale_payments_rate;
-
-                create view sale_payments_rate as
-                select 
-                    `proforma_id`
-                    ,`amount`/amount_converted as `rate`
-                    from (
-                    select 
-                        proforma_id
-                        ,sum(`amount`) as amount
-                        ,sum(`amount` * `rate`) as amount_converted
-                    from `sale_payments` sp
-                    group by proforma_id
-                ) as tmp;
-
-                create View purchase_payments_rate as
-                select 
-                    `proforma_id`
-                    ,`amount`/amount_converted as `rate`
-                    from (
-                    select 
-                        proforma_id
-                        ,sum(`amount`) as amount
-                        ,sum(`amount` * `rate`) as amount_converted
-                    from `purchase_payments` pp
-                    group by proforma_id
-                ) as tmp;
-
-
-                commit;
-            """ 
-
-        )
-
-
-        # QMessageBox.information(self, 'Success', 'View created successfully')
-
-
-        # from harv.main import main; main(infix=dir) 
+        dir = get_directory(self)
+        if not dir:
+            QMessageBox.critical(self, 'Error', 'No directory selected')
+            return 
+        from harv.main import main; main(infix=dir) 
 
     
     def tools_trace_handler(self):
