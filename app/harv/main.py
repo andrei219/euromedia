@@ -125,8 +125,7 @@ def main(*, infix):
     # infix = sys.argv[1]
     for pid, pname in read_partners():
         print(f"Processing partner: {pname} ({pid})")
-        write_report(gen_rows(pid), partner=pname, infix=infix)
-
+        write_report(gen_rows(pid), partner=f"{pname}_{pid}", infix=infix)
 
 
 # MODIFY SYS PATH TO FIND THE DB SESSION HANDLE 
