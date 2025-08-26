@@ -762,7 +762,8 @@ class PDF(FPDF):
             self.x = RMA_START_X_POSITION
             self.y += CONDITIONS_BETWEEN_Y_INCREMENT
 
-        self.print_bank()
+        # self.print_bank()
+        
 
     def print_bank(self):
         self.x = BANK1_LOGO_X_POSITION
@@ -779,15 +780,16 @@ class PDF(FPDF):
         self.y = self.last_condition_y_position + BANK_TEXT_Y_CONDITION_RELATIVE_INCREMENT
 
         self.set_font('Arial', size=7, style='b')
-        for t in [
-            'Bank: Ebury Partners Belgium NV',
-            'Currency: EUR',
-            'IBAN: ES97 6889 0001 7011 7705 7273',
-            'SWIFT/BIC: EBPBESM2'
-        ]:
-            self.x = BANK1_TEXT_X_POSITION
-            self.cell(0, txt=t)
-            self.y += BANK_TEXT_Y_INCREMENT
+      
+        # for t in [
+        #     'Bank: Ebury Partners Belgium NV',
+        #     'Currency: EUR',
+        #     'IBAN: ES97 6889 0001 7011 7705 7273',
+        #     'SWIFT/BIC: EBPBESM2'
+        # ]:
+        #     self.x = BANK1_TEXT_X_POSITION
+        #     self.cell(0, txt=t)
+        #     self.y += BANK_TEXT_Y_INCREMENT
 
         self.y = self.last_condition_y_position + BANK_TEXT_Y_CONDITION_RELATIVE_INCREMENT
 
