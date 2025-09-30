@@ -2880,6 +2880,11 @@ def clean_database():
 
     return cleaned
 
+
+def delete_imei():
+    session.execute(delete(Imei).where(Imei.imei=='355818451940585'))
+    session.commit()
+
 if __name__ == '__main__':
 
     """Create initial data  for testing purposes"""
