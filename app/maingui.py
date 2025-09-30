@@ -1746,17 +1746,17 @@ class MainGui(Ui_MainGui, QMainWindow):
     def tools_clean_database_handler(self):
         from db import clean_database
 
-        from db import delete_imei
-        delete_imei()
+        # from db import delete_imei
+        # delete_imei()
 
-        QMessageBox.information(self, 'Success', 'Imei deleted successfully.')
+        # QMessageBox.information(self, 'Success', 'Imei deleted successfully.')
 
 
 
-        # if clean_database():
-        #     QMessageBox.information(self, 'Success', 'Database cleaned successfully.')
-        # else:
-        #     QMessageBox.information(self, 'Information', 'Nothing to clean.')
+        if clean_database():
+            QMessageBox.information(self, 'Success', 'Database cleaned successfully.')
+        else:
+            QMessageBox.information(self, 'Information', 'Nothing to clean.')
 
     def tools_agent_fees_handler(self):
         from agent_fees import Form
