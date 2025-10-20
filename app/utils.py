@@ -572,3 +572,25 @@ def duplicate_db_object(dbobj, ignore_rows=['id']):
 	return copy
 
 
+
+
+def get_current_year_first_date():
+	return datetime.now().replace(month=1, day=1).strftime('%d%m%Y')
+
+def get_current_year_last_date():
+	return datetime.now().replace(month=12, day=31).strftime('%d%m%Y')
+
+def get_current_month_start_date():
+	now = datetime.now()
+	return now.replace(day=1).strftime('%d%m%Y')
+
+def get_current_month_last_date():
+	now = datetime.now()
+	next_month = now.replace(day=28) + timedelta(days=4)  # this will never fail
+	last_day = next_month - timedelta(days=next_month.day)
+	return last_day.strftime('%d%m%Y')
+
+
+def get_current_date():
+	return datetime.now().strftime('%d%m%Y')
+	

@@ -72,7 +72,6 @@ ORDER BY year, month
     inner join `month_names` on `month_names`.month_num=base.month; 
 """
 
-
 def render_sql(start_date, end_date, default_rate):
     return sql.format(
         start_date=start_date,
@@ -101,7 +100,10 @@ def collect_args_file_path():
     filepath = sys.argv[1]
     return filepath
 
-
+def run_report(start_date: str, end_date: str, default_rate: float, file_path: str):
+    sql = render_sql(start_date, end_date, default_rate)
+    data = execute_query(sql)
+    save(data, file_path)
 
 if __name__ == "__main__":
 
@@ -109,10 +111,11 @@ if __name__ == "__main__":
     end_date='2023-12-31'
     default_rate=1.2
 
-    breakpoint()    
-    save(execute_query(
-        render_sql(start_date, end_date, default_rate)
-    ), collect_args_file_path())
-
+    run_report(
+        start_date,
+        end_date,
+        default_rate,
+        collect_args_file_path()
+    )
 
 
