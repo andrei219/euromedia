@@ -1752,7 +1752,6 @@ class MainGui(Ui_MainGui, QMainWindow):
         # QMessageBox.information(self, 'Success', 'Imei deleted successfully.')
 
 
-
         if clean_database():
             QMessageBox.information(self, 'Success', 'Database cleaned successfully.')
         else:
