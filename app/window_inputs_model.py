@@ -81,6 +81,7 @@ def render_sql(start_date, end_date, default_rate):
     )
 
 def execute_query(sql: str):
+    import db 
     yield from map(list, db.session.execute(sql))
 
 
@@ -95,8 +96,23 @@ def save(data: typing.Iterator[list], file_path: str):
 
     workbook.save(file_path)
 
+def collect_args_file_path():
+    import sys 
+    filepath = sys.argv[1]
+    return filepath
+
+
 
 if __name__ == "__main__":
-    execute_query(render_sql('2023-01-01', '2023-12-31', 1.2))
 
-    
+    start_date='2023-01-01'
+    end_date='2023-12-31'
+    default_rate=1.2
+
+    breakpoint()    
+    save(execute_query(
+        render_sql(start_date, end_date, default_rate)
+    ), collect_args_file_path())
+
+
+
