@@ -1,5 +1,4 @@
--- Active: 1726845028798@@127.0.0.1@3306@euromedia
-
+sql="""
 WITH
 month_names AS (
     SELECT 1 AS month_num, 'January' AS month_name UNION ALL
@@ -16,10 +15,10 @@ month_names AS (
     SELECT 12, 'December'
 ),
 params AS (
-    SELECT
-        DATE("2023-01-01") AS start_date,
-        DATE("2023-12-31") AS end_date,
-        1.2 AS default_rate_value
+    SELECT 
+        DATE('{start_date}') AS start_date,
+        DATE('{end_date}') AS end_date,
+        {default_rate} AS default_rate_value
 ),
 totals AS (
     SELECT
@@ -71,3 +70,33 @@ GROUP BY YEAR(i.`date`), MONTH(i.`date`)
 ORDER BY year, month
  ) as base 
     inner join `month_names` on `month_names`.month_num=base.month; 
+"""
+
+
+def render_sql(start_date, end_date, default_rate):
+    return sql.format(
+        start_date=start_date,
+        end_date=end_date,
+        default_rate=default_rate
+    )
+
+def execute_query(sql: str):
+    yield from map(list, db.session.execute(sql))
+
+
+import typing
+def save(data: typing.Iterator[list], file_path: str):
+    import openpyxl
+    workbook = openpyxl.Workbook()
+    sheet = workbook.active
+
+    for row in data: 
+        sheet.append(row)
+
+    workbook.save(file_path)
+
+
+if __name__ == "__main__":
+    execute_query(render_sql('2023-01-01', '2023-12-31', 1.2))
+
+    
