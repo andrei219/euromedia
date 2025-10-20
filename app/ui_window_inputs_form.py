@@ -27,6 +27,7 @@ class Ui_Dialog(object):
         self.label_2.setGeometry(QtCore.QRect(40, 130, 71, 21))
         self.label_2.setObjectName("label_2")
         self.rate = QtWidgets.QLineEdit(Dialog)
+        self.rate.setEnabled(True)
         self.rate.setGeometry(QtCore.QRect(170, 130, 321, 20))
         self.rate.setText("")
         self.rate.setAlignment(QtCore.Qt.AlignCenter)
@@ -67,7 +68,7 @@ class Ui_Dialog(object):
 
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
-        Dialog.setWindowTitle(_translate("Dialog", "Change Description"))
+        Dialog.setWindowTitle(_translate("Dialog", "Inputs value"))
         self.end.setPlaceholderText(_translate("Dialog", "Date in format: ddmmyyyy"))
         self.label.setText(_translate("Dialog", "End Date:"))
         self.label_2.setText(_translate("Dialog", "Default Rate:"))

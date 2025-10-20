@@ -8236,8 +8236,8 @@
      <widget class="QToolButton" name="tools_fasthar">
       <property name="geometry">
        <rect>
-        <x>810</x>
-        <y>600</y>
+        <x>1160</x>
+        <y>100</y>
         <width>120</width>
         <height>60</height>
        </rect>
@@ -8256,6 +8256,53 @@
       </property>
       <property name="text">
        <string>New Havest</string>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>50</width>
+        <height>50</height>
+       </size>
+      </property>
+      <property name="toolButtonStyle">
+       <enum>Qt::ToolButtonTextUnderIcon</enum>
+      </property>
+     </widget>
+     <widget class="Line" name="line_15">
+      <property name="geometry">
+       <rect>
+        <x>1110</x>
+        <y>100</y>
+        <width>20</width>
+        <height>361</height>
+       </rect>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+     </widget>
+     <widget class="QToolButton" name="tools_inpsval">
+      <property name="geometry">
+       <rect>
+        <x>1160</x>
+        <y>190</y>
+        <width>120</width>
+        <height>60</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>MS Shell Dlg 2</family>
+        <pointsize>10</pointsize>
+        <weight>50</weight>
+        <italic>false</italic>
+        <bold>false</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background:lightgray; </string>
+      </property>
+      <property name="text">
+       <string>Inputs Value</string>
       </property>
       <property name="iconSize">
        <size>

@@ -6,7 +6,7 @@ from ui_window_inputs_form import Ui_Dialog
 from PyQt5.QtWidgets import QDialog, QMessageBox
 
 import utils
-
+import window_inputs_model as model 
 
 def validate_inputs(start_date: str, end_date: str, default_rate_str: str) -> tuple[bool, str]:
     try:
@@ -24,13 +24,8 @@ def validate_inputs(start_date: str, end_date: str, default_rate_str: str) -> tu
     except ValueError:
         return False, "Invalid end date"
 
-    if start_date_parsed > end_date_parsed:
-        return False, "Start date must be before end date"
-
-    if end_date_parsed > utils.get_current_date():
-        return False, "End date must be before current date"
-
     return True, ""
+
 
 class Form(Ui_Dialog, QDialog):
     def __init__(self, parent):
@@ -43,24 +38,40 @@ class Form(Ui_Dialog, QDialog):
         self.run.clicked.connect(self.run_handler)
         self.exit.clicked.connect(self.close)
 
+
+    def collect_inputs(self) -> tuple[str, str, float]:
+        start_date = self.start.text().strip()
+        end_date = self.end.text().strip()
+        default_rate = float(self.rate.text().strip())
+        return start_date, end_date, default_rate
+
+
     def run_handler(self):
 
         is_valid, error_message = validate_inputs(
             self.start.text(),
             self.end.text(),
-            self.default_rate.text()
+            self.rate.text()
         )
 
         if not is_valid:
             QMessageBox.critical(self, 'Error', error_message)
             return
 
+        start_date, end_date, default_rate = self.collect_inputs()
 
-        start_date = self.start.text()
-        end_date = self.end.text()
-        default_rate = float(self.default_rate.text())
+        try:
+            model.run_report(
+                start_date,
+                end_date,
+                default_rate,
+                utils.get_file_path(self),
+            )
+        except Exception as e:
+            QMessageBox.critical(self, 'Error', str(e))
+            return
 
-        utils.run_report(start_date, end_date, default_rate, utils.collect_args_file_path())
+        QMessageBox.information(self, 'Success', 'Report created successfully')
 
 
 if __name__ == "__main__":

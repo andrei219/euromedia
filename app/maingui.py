@@ -72,6 +72,7 @@ PREFIXES = [
 ]
 
 ACTIONS = [
+    'inpsval',
     'fasthar',
     'clone', 
     'apply',
@@ -1589,7 +1590,12 @@ class MainGui(Ui_MainGui, QMainWindow):
             return 
         from harv.main import main; main(infix=dir) 
 
-    
+    def tools_inpsval_handler(self):
+        from window_inputs_form import Form
+        f = Form(self)
+        f.exec_()
+
+
     def tools_trace_handler(self):
 
         from trace_form import Form

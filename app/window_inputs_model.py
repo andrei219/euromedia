@@ -90,6 +90,8 @@ def save(data: typing.Iterator[list], file_path: str):
     workbook = openpyxl.Workbook()
     sheet = workbook.active
 
+    sheet.append(["Year", "Month", "Total"])
+
     for row in data: 
         sheet.append(row)
 
@@ -100,10 +102,16 @@ def collect_args_file_path():
     filepath = sys.argv[1]
     return filepath
 
+
+def adapt_date(date_str: str) -> str:
+    from datetime import datetime
+    dt = datetime.strptime(date_str, '%d%m%Y')
+    return dt.strftime("%Y-%m-%d")
+
 def run_report(start_date: str, end_date: str, default_rate: float, file_path: str):
-    sql = render_sql(start_date, end_date, default_rate)
-    data = execute_query(sql)
-    save(data, file_path)
+    save(execute_query(
+        sql=render_sql(adapt_date(start_date), adapt_date(end_date), default_rate)
+    ), file_path)
 
 if __name__ == "__main__":
 
