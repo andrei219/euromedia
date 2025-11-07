@@ -7338,8 +7338,16 @@ def do_cost_price(imei):
 		base_price = proforma_line.price
 		no_shipping_expense, shipping_expense = get_purchase_expenses_breakdown(proforma)  # already rate applied
 		shipping_delta = shipping_expense / proforma.total_quantity
-		remaining_expense_delta = base_price * no_shipping_expense / get_purchase_stock_value(proforma)  # formula
-		
+		try:
+			remaining_expense_delta = base_price * no_shipping_expense / get_purchase_stock_value(proforma)  # formula
+		except ZeroDivisionError:
+			print('Zero division error calculating remaining expense delta')
+			print("Proforma id:", proforma.id)
+			print("proforma_type=", proforma.type)
+			print("proforma_number=", proforma.number)
+			remaining_expense_delta = 0
+			print('--------------------------------------------------------------------------------------')
+
 		try:
 			doc_number = proforma.invoice.doc_repr
 			doc_type = 'Invoice'
@@ -7778,6 +7786,9 @@ class OutputModel(BaseTable, QtCore.QAbstractTableModel):
 			else:
 				query = query.where(db.SaleProforma.agent_id == agent_id)
 		
+
+		print(str(query))
+
 		append_registers(self, query=query)
 		
 		return self
