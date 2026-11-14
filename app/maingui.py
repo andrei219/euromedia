@@ -51,8 +51,6 @@ from utils import (
 )
 
 
-PASSWORD = '0010'
-
 PREFIXES = [
     'agents_',
     'partners_',
@@ -1621,20 +1619,12 @@ class MainGui(Ui_MainGui, QMainWindow):
         d.exec_()
 
     def tools_change_spec_handler(self):
-        from utils import getPassword
-        password = getPassword(self)
-        if password != PASSWORD:
-            return
 
         from change_form import ChangeForm
         d = ChangeForm(parent=self, hint='spec')
         d.exec_()
 
     def tools_change_condition_handler(self):
-        from utils import getPassword
-        password = getPassword(self)
-        if password != PASSWORD:
-            return
 
 
         from change_form import ChangeForm
@@ -1642,10 +1632,6 @@ class MainGui(Ui_MainGui, QMainWindow):
         d.exec_()
 
     def tools_change_warehouse_handler(self):
-        from utils import getPassword
-        password = getPassword(self)
-        if password != PASSWORD:
-            return
 
         from change_form import ChangeForm
         d = ChangeForm(parent=self, hint='warehouse')
@@ -1751,12 +1737,6 @@ class MainGui(Ui_MainGui, QMainWindow):
 
     def tools_clean_database_handler(self):
         from db import clean_database
-
-        # from db import delete_imei
-        # delete_imei()
-
-        # QMessageBox.information(self, 'Success', 'Imei deleted successfully.')
-
 
         if clean_database():
             QMessageBox.information(self, 'Success', 'Database cleaned successfully.')
