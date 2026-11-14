@@ -4,9 +4,10 @@ import re
 import typing
 import math
 import os
+import time 
 
 from pathlib import Path
-from collections import namedtuple
+from collections import namedtuple, defaultdict
 from itertools import groupby, product, combinations
 from operator import attrgetter
 from datetime import datetime
@@ -4127,8 +4128,6 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
 		           spec=spec).stocks
 	
 	def computeStock(self, warehouse_id, description, condition, spec, session=db.session):
-		
-		# session = session
 		item_id = utils.description_id_map.get(description)
 		
 		query = session.query(
@@ -4153,8 +4152,10 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
 		if spec:
 			query = query.where(db.Imei.spec == spec)
 		
-		imeis = {StockEntry(r.item_id, r.condition, r.spec, r.quantity) for r in query}
-		
+		imeis_map: dict[tuple, int] = {
+			(r.item_id, r.condition, r.spec): r.quantity for r in query
+		}
+
 		query = session.query(
 			db.ImeiMask.item_id, db.ImeiMask.condition,
 			db.ImeiMask.spec, func.count(db.ImeiMask.imei).label('quantity')
@@ -4171,8 +4172,10 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
 		if spec:
 			query = query.where(db.ImeiMask.spec == spec)
 		
-		imeis_mask = {StockEntry(r.item_id, r.condition, r.spec, r.quantity) for r in query}
-		
+		imeis_mask_map: dict[tuple, int] = {
+			(r.item_id, r.condition, r.spec): r.quantity for r in query
+		}
+
 		query = session.query(
 			db.SaleProformaLine.item_id,
 			db.SaleProformaLine.condition,
@@ -4189,8 +4192,10 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
 			db.SaleProforma.cancelled == False
 		)
 		
-		sales = {StockEntry(r.item_id, r.condition, r.spec, r.quantity) for r in query}
-		
+		sales_map = {
+			(r.item_id, r.condition, r.spec): r.quantity for r in query
+		}
+
 		query = session.query(
 			db.AdvancedLine.item_id,
 			db.AdvancedLine.condition,
@@ -4208,8 +4213,10 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
 			db.AdvancedLine.item_id != None
 		)
 		
-		advanced_sales = {StockEntry(r.item_id, r.condition, r.spec, r.quantity) for r in query}
-		
+		advanced_sales_map = {
+			(r.item_id, r.condition, r.spec): r.quantity for r in query
+		}
+
 		query = session.query(
 			db.ExpeditionLine.item_id,
 			db.ExpeditionLine.condition,
@@ -4241,9 +4248,11 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
 			query = query.where(
 				db.ExpeditionLine.spec == spec
 			)
-		
-		outputs = {StockEntry(r.item_id, r.condition, r.spec, r.quantity) for r in query}
-		
+
+		outputs_map: dict[tuple, int] = {
+			(r.item_id, r.condition, r.spec): r.quantity for r in query
+		}
+
 		query = session.query(
 			db.AdvancedLineDefinition.item_id,
 			db.AdvancedLineDefinition.condition,
@@ -4261,32 +4270,41 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
 			db.AdvancedLineDefinition.condition,
 			db.AdvancedLineDefinition.spec,
 		)
-		
-		defined_sales = {
-			StockEntry(r.item_id, r.condition, r.spec, r.quantity) for r in query
+
+		defined_sales_map: dict[tuple, int] = {
+			(r.item_id, r.condition, r.spec): r.quantity for r in query
 		}
-		
+
 		# combine sales and definitions:
-		r = sales.symmetric_difference(defined_sales)
-		for sale in sales:
-			for defined_sale in defined_sales:
-				if sale == defined_sale:
-					sale += defined_sale
-					r.add(sale)
-		sales = r
+		sym_diff_sales_defs_map = defaultdict(int, {
+			key: (sales_map.get(key, 0) or defined_sales_map.get(key, 0))
+			for key in (sales_map.keys() ^ defined_sales_map.keys())
+		})
+		for sale in sales_map:
+			if (def_sale_qnt := defined_sales_map.get(sale)):
+				sym_diff_sales_defs_map[sale] += (def_sale_qnt + sales_map[sale])
+		sales_map = sym_diff_sales_defs_map
 		
 		# Combine sales and advanced sales:
-		r = sales.symmetric_difference(advanced_sales)
-		for sale in sales:
-			for advanced_sale in advanced_sales:
-				if sale == advanced_sale:
-					sale += advanced_sale
-					r.add(sale)
-		sales = r
+		sym_diff_sales_adv_sales_map = defaultdict(int, {
+			key: (sales_map.get(key, 0) or advanced_sales_map.get(key, 0))
+			for key in (sales_map.keys() ^ advanced_sales_map.keys())
+		})
+		for sale in sales_map:
+			if (adv_sale_qnt := advanced_sales_map.get(sale)):
+				sym_diff_sales_adv_sales_map[sale] += (adv_sale_qnt + sales_map[sale])
+		sales_map = sym_diff_sales_adv_sales_map
+
+		stocks = []
+		for item_id, condt, spec in (
+			_map:=self.resolve_map(
+				imeis_map, imeis_mask_map, sales_map, outputs_map
+			)
+		): 
+			stocks.append(StockEntry(item_id, condt, spec, _map[(item_id, condt, spec)]))
 		
-		stocks = self.resolve(imeis, imeis_mask, sales, outputs)
-		
-		return list(filter(lambda stock: stock.quantity != 0, stocks))
+		return stocks 
+
 	
 	def lines_against_stock(self, warehouse_id, lines):
 		
@@ -4307,8 +4325,8 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
 				return True
 			return False
 	
+
 	def resolve(self, imeis, imeis_mask, sales, outputs):
-		
 		for imei_mask in imeis_mask:
 			for imei in imeis:
 				if imei == imei_mask:
@@ -4323,9 +4341,30 @@ class StockModel(BaseTable, QtCore.QAbstractTableModel):
 			for imei in imeis:
 				if sale == imei:
 					imei -= sale
-		
 		return imeis
 	
+
+	def resolve_map(self, imeis_map, imeis_mask_map, sales_map, outputs_map):
+		for imei_mask_key in imeis_mask_map.keys():
+			imeis_map[imei_mask_key] -= imeis_mask_map[imei_mask_key]
+			if imeis_map[imei_mask_key] == 0:
+				del imeis_map[imei_mask_key]
+
+		for output_key in outputs_map.keys():
+			sales_map[output_key] -= outputs_map[output_key]
+			if sales_map[output_key] == 0:
+				del sales_map[output_key]
+
+		for sale_key in sales_map.keys():
+			if sale_key in imeis_map:
+				imeis_map[sale_key] -= sales_map[sale_key]
+
+				if imeis_map[sale_key] == 0:
+					del imeis_map[sale_key]
+
+		return imeis_map
+
+
 	def data(self, index, role=Qt.DisplayRole):
 		if not index.isValid():
 			return
@@ -5784,7 +5823,7 @@ class AdvancedStockModel(StockModel):
 	def requested_stocks(self):
 		return list(filter(lambda s: s.request > 0, self.stocks))
 	
-	def computeStock(self, warehouse_id, line):
+	def computeStock(self, warehouse_id, line) -> list[StockEntry]:
 		
 		query = db.session.query(
 			db.ImeiMask.item_id, db.ImeiMask.condition,
@@ -5809,9 +5848,7 @@ class AdvancedStockModel(StockModel):
 			item_ids = utils.get_itemids_from_mixed_description(line.mixed_description)
 			query = query.where(db.ImeiMask.item_id.in_(item_ids))
 		
-		imeis = {
-			StockEntry(r.item_id, r.condition, r.spec, r.quantity) for r in query
-		}
+		imeis_map = {(r.item_id, r.condition, r.spec): r.quantity for r in query}
 		
 		query = db.session.query(
 			db.AdvancedLineDefinition.item_id,
@@ -5826,17 +5863,23 @@ class AdvancedStockModel(StockModel):
 			db.AdvancedLineDefinition.spec
 		)
 		
-		defined = {
-			StockEntry(r.item_id, r.condition, r.spec, r.quantity)
-			for r in query
-		}
+		defined_map = {(r.item_id, r.condition, r.spec): r.quantity for r in query}
 		
-		for d in defined:
-			for imei in imeis:
-				if imei == d:
-					imei -= d
+		for defined, defined_quantity in defined_map.items():
+			try:
+				imeis_map[defined] -= defined_quantity
+				
+				if imeis_map[defined] <= 0:
+					del imeis_map[d]
+
+			except KeyError as ex:
+				print(ex) 
+
 		
-		return list(filter(lambda s: s.quantity > 0, imeis))
+		return list(
+			StockEntry(item_id, condition, spec, quantity)
+			for (item_id, condition, spec), quantity in imeis_map.items()
+		)
 
 
 class DefinedStockModel(BaseTable, QtCore.QAbstractTableModel):
