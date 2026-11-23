@@ -2810,7 +2810,7 @@ class SaleProformaLineModel(BaseTable, QtCore.QAbstractTableModel):
 		except IndexError:
 			return False 
 
-		return (line:=next(iter(lines), False)) and getattr(line, 'item_id', object()) == None
+		return lines and (line:=next(iter(lines), False)) and getattr(line, 'item_id', object()) == None
 
 	def flags(self, index):
 		if not index.isValid():
