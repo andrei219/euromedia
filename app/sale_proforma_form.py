@@ -683,9 +683,12 @@ class Form(Ui_SalesProformaForm, QWidget):
         self.proforma.incoterm = self.incoterms.currentText() 
         self.proforma.tracking = self.tracking.text()
         self.proforma.note = self.note.toPlainText()[0:255]
-
-        self.proforma.shipping_address_id = self.address_id_map[self.shipping_address.currentText()]
-
+        
+        try: 
+            self.proforma.shipping_address_id = self.address_id_map[self.shipping_address.currentText()]
+        except (TypeError, IndexError) as ex: 
+            QMessageBox.critical(self, 'Update - Error', 'I could not resolve `Shipping Address`')
+            
 
     def clear_filters(self):
         self.description.clear()
